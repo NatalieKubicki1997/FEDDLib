@@ -353,6 +353,7 @@ void MultiVector<SC,LO,GO,NO>::writeMM(std::string fileName) const{
     Tpetra::MatrixMarket::Writer< TpetraCrsMatrix > tpetraWriter;
 
     tpetraWriter.writeDenseFile(fileName, tpetraMultiVector, "multivector", "");
+    //https://docs.trilinos.org/dev/packages/tpetra/doc/html/classTpetra_1_1MatrixMarket_1_1Reader.html#ae0d2754386924fb9939255da1b0c0a62
 }
     
 template <class SC, class LO, class GO, class NO>

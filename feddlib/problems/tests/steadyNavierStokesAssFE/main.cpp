@@ -47,6 +47,15 @@ void zeroDirichlet2D(double* x, double* res, double t, const double* parameters)
 
     return;
 }
+
+void couette2D(double* x, double* res, double t, const double* parameters){
+
+    res[0] = parameters[0]; // da in parameters 0 maxvelocity
+    res[1] = 0.;
+
+    return;
+}
+
 void one(double* x, double* res, double t, const double* parameters){
 
     res[0] = 1.;
@@ -87,8 +96,13 @@ void zeroDirichlet3D(double* x, double* res, double t, const double* parameters)
 
 void inflowParabolic2D(double* x, double* res, double t, const double* parameters){
 
-    double H = parameters[1];
-    res[0] = 4*parameters[0]*x[1]*(H-x[1])/(H*H);
+   //double H = parameters[1];
+    double H = 0.1;
+    // res[0] = 4*parameters[0]*x[1]*(H-x[1])/(H*H);
+    // For v = 0.01 with rho=1000 so mu = 10
+    // and dp/dx should be= -10^4
+    res[0] = 0.05*(-1.0)*10000.0*(x[1]*x[1] - x[1]*H);
+    //*10.0;
     res[1] = 0.;
 
     return;
@@ -189,7 +203,7 @@ int main(int argc, char *argv[]) {
         std::string discVelocity = parameterListProblem->sublist("Parameter").get("Discretization Velocity","P2");
         std::string discPressure = parameterListProblem->sublist("Parameter").get("Discretization Pressure","P1");
 
-
+      //  bool        newtonian       = parameterListProblem->sublist("Parameter").get("Newtonian","true");
         string		meshType    	= parameterListProblem->sublist("Parameter").get("Mesh Type","structured");
         string		meshName    	= parameterListProblem->sublist("Parameter").get("Mesh Name","circle2D_1800.mesh");
         string		meshDelimiter   = parameterListProblem->sublist("Parameter").get("Mesh Delimiter"," ");
@@ -250,13 +264,29 @@ int main(int argc, char *argv[]) {
           	 parameter_vec.push_back(0.41);//height of inflow region
 
             if (dim==2){
-                bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);
-                bcFactory->addBC(inflowParabolic2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
-//                       bcFactory->addBC(dummyFunc, 3, 0, domainVelocity, "Neumann", dim);
-//                        bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
-                //bcFactory->addBC(zeroDirichlet2D, 3, 0, domainVelocity, "Dirichlet", dim);
-                bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
-                bcFactory->addBC(zeroDirichlet2D, 5, 0, domainVelocity, "Dirichlet", dim);
+                /* COUETTE
+// So for Couette Flow we have a moving upper plate and rigid lower plate  
+                bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim); // wall
+                bcFactory->addBC(couette2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+// The flow will be induced by the moving plate so there should be no pressure gradient in this testcase
+                bcFactory->addBC(zeroDirichlet2D, 3, 1, domainPressure, "Dirichlet", 1); // outflow
+                bcFactory->addBC(zeroDirichlet2D, 4, 1, domainPressure, "Dirichlet", 1); // inflow
+*/
+/* POISEUILLE */
+                bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim); // wall
+                bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+                //bcFactory->addBC(, 3, 0, domainVelocity, "Dirichlet_Z", dim); // flag 3 is neumann 0, müssen wir nicht explizit angeben, da das defaulr ist 
+                //bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);
+              
+                  bcFactory->addBC(inflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); 
+               //  bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1); //Outflow
+           //    bcFactory->addBC(FixedDirichlet, 4, 1, domainPressure, "Dirichlet", 1, parameter_vec); // inflow
+           // FESTLEGEN VON WERT AM RECHTEN RAND GEHT NICHT
+                           //  bcFactory->addBC(zeroDirichlet, 4, 1, domainPressure, "Dirichlet", 1, parameter_vec); // inflow
+           // bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1); //Outflow
+
+
+
             }
             else if (dim==3){
                 bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);
@@ -286,10 +316,18 @@ int main(int argc, char *argv[]) {
                 comm->barrier();
             }
 
+
            	// ---------------------
 			// New Assembly Rouine
-        
-            NavierStokesAssFE<SC,LO,GO,NO> navierStokesAssFE( domainVelocity, discVelocity, domainPressure, discPressure, parameterListAll );
+       // /*
+
+        if (verbose) {
+        cout << "###############################################################" <<endl;
+        cout << "##################### Start NEW ASSEMBLY ROUTINE ####################" <<endl;
+        cout << "###############################################################" <<endl;
+         }
+
+           NavierStokesAssFE<SC,LO,GO,NO> navierStokesAssFE( domainVelocity, discVelocity, domainPressure, discPressure, parameterListAll );
 
             {
 				MAIN_TIMER_START(NavierStokesAssFE," AssFE:   Assemble System and solve");
@@ -299,13 +337,15 @@ int main(int argc, char *argv[]) {
 
                 navierStokesAssFE.setBoundariesRHS();
 
+
                 std::string nlSolverType = parameterListProblem->sublist("General").get("Linearization","FixedPoint");
                 NonLinearSolver<SC,LO,GO,NO> nlSolverAssFE( nlSolverType );
                 nlSolverAssFE.solve( navierStokesAssFE );
 				MAIN_TIMER_STOP(NavierStokesAssFE);	
                 comm->barrier();
+  
             }
- 
+ //*/
 			Teuchos::TimeMonitor::report(cout,"Main");	
        
 			Teuchos::RCP<ExporterParaView<SC,LO,GO,NO> > exParaVelocity(new ExporterParaView<SC,LO,GO,NO>());
@@ -313,7 +353,7 @@ int main(int argc, char *argv[]) {
 
             Teuchos::RCP<const MultiVector<SC,LO,GO,NO> > exportSolutionV = navierStokes.getSolution()->getBlock(0);
             Teuchos::RCP<const MultiVector<SC,LO,GO,NO> > exportSolutionP = navierStokes.getSolution()->getBlock(1);
-
+///*
             Teuchos::RCP<const MultiVector<SC,LO,GO,NO> > exportSolutionVAssFE = navierStokesAssFE.getSolution()->getBlock(0);
             Teuchos::RCP<const MultiVector<SC,LO,GO,NO> > exportSolutionPAssFE = navierStokesAssFE.getSolution()->getBlock(1);
 
@@ -392,20 +432,22 @@ int main(int argc, char *argv[]) {
 				cout << " Norm of Difference between Block B: " << res << endl;
 
 		  			
-
+//*/
             DomainPtr_Type dom = domainVelocity;
 
             exParaVelocity->setup("velocity", dom->getMesh(), dom->getFEType());
                                 
             UN dofsPerNode = dim;
             exParaVelocity->addVariable(exportSolutionV, "u", "Vector", dofsPerNode, dom->getMapUnique());
+///*       
             exParaVelocity->addVariable(exportSolutionVAssFE, "uAssFE", "Vector", dofsPerNode, dom->getMapUnique());
             exParaVelocity->addVariable(errorValuesAbs, "u-uAssFE", "Vector", dofsPerNode, dom->getMapUnique());
-
+//*/
             dom = domainPressure;
             exParaPressure->setup("pressure", dom->getMesh(), dom->getFEType());
 
             exParaPressure->addVariable(exportSolutionP, "p", "Scalar", 1, dom->getMapUnique());
+ //*/
             exParaPressure->addVariable(exportSolutionPAssFE, "pAssFE", "Scalar", 1, dom->getMapUnique());
 
 

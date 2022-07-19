@@ -57,11 +57,21 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 
 	/*!
 
-	 \brief Assembly function for vector values laplacian \f$ \int_T \nabla v \cdot \nabla u ~dx\f$ 
+	 \brief Assembly function for extra stress tensor which includes viscosity function \f$ \int_T \nabla v : (2\eta(\Dot{\gamma}(u))) D(u) ~dx\f$, which is a highly nonlinear Term 
 	@param[in] &elementMatrix
 
 	*/
-	void assemblyLaplacian(SmallMatrixPtr_Type &elementMatrix);
+	void assemblyStress(SmallMatrixPtr_Type &elementMatrix);
+
+	/*!
+
+	/*!
+
+	 \brief Assembly function for extra derivative of extra stress tensor  resulting of applying the Gateaux-derivative
+	@param[in] &elementMatrix
+
+	*/
+	void assemblyStressDev(SmallMatrixPtr_Type &elementMatrix);
 
 	/*!
 

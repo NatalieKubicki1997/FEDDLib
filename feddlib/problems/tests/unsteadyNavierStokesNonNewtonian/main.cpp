@@ -71,14 +71,103 @@ void inflowPartialCFD(double* x, double* res, double t, const double* parameters
     return;
 }
 
+void TimeDependentinflowParabolic2D(double* x, double* res, double t, const double* parameters){
+
+   /* double H = parameters[1];
+    res[0] = 4.*parameters[0]*x[1]*(H-x[1])/(H*H);
+    res[1] = 0.;
+   */
+
+    double H = 0.1;
+    double n = 0.6;
+    double rho_ref = 1000.0;
+    double nu_0 = 0.035;
+    double dp = 10000.0;
+
+    // res[0] = 4*parameters[0]*x[1]*(H-x[1])/(H*H);
+    // For v = 0.01 with rho=1000 so mu = 10
+    // and dp/dx should be= -10^4
+    if(t <= 0.25)
+    {
+    res[0] = 0.25*(n/(n+1.0))*pow( dp/(rho_ref*nu_0), 1.0/n)*( pow( H/(2.0), (n+1.0)/n) - pow( abs( (H/2.0) -x[1] ) , (n+1.0)/n  ) );
+    res[1] = 0.;
+    }
+    else if((t <= 0.5) && (t > 0.25 ))
+    {
+    res[0] = 0.5*(n/(n+1.0))*pow( dp/(rho_ref*nu_0), 1.0/n)*( pow( H/(2.0), (n+1.0)/n) - pow( abs( (H/2.0) -x[1] ) , (n+1.0)/n  ) );
+    res[1] = 0.;
+    }
+    else if((t <= 0.75) && (t > 0.5 ))
+    {
+    res[0] = 0.75*(n/(n+1.0))*pow( dp/(rho_ref*nu_0), 1.0/n)*( pow( H/(2.0), (n+1.0)/n) - pow( abs( (H/2.0) -x[1] ) , (n+1.0)/n  ) );
+    res[1] = 0.;
+    }
+    else 
+    {
+    res[0] = (n/(n+1.0))*pow( dp/(rho_ref*nu_0), 1.0/n)*( pow( H/(2.0), (n+1.0)/n) - pow( abs( (H/2.0) -x[1] ) , (n+1.0)/n  ) );
+    res[1] = 0.;
+    }
+
+
+    
+    return;
+}
+
+void TimeDependentSmoothinflowParabolic2D(double* x, double* res, double t, const double* parameters){
+
+   /* double H = parameters[1];
+    res[0] = 4.*parameters[0]*x[1]*(H-x[1])/(H*H);
+    res[1] = 0.;
+   */
+
+    double H = 0.1;
+    double n = 0.6;
+    double rho_ref = 1000.0;
+    double nu_0 = 0.035;
+    double dp = 10000.0;
+
+    // res[0] = 4*parameters[0]*x[1]*(H-x[1])/(H*H);
+    // For v = 0.01 with rho=1000 so mu = 10
+    // and dp/dx should be= -10^4
+    if(t < 1.)
+    {
+    res[0] = t*(n/(n+1.0))*pow( dp/(rho_ref*nu_0), 1.0/n)*( pow( H/(2.0), (n+1.0)/n) - pow( abs( (H/2.0) -x[1] ) , (n+1.0)/n  ) );
+    res[1] = 0.;
+    }
+    else
+    {
+    res[0] = (n/(n+1.0))*pow( dp/(rho_ref*nu_0), 1.0/n)*( pow( H/(2.0), (n+1.0)/n) - pow( abs( (H/2.0) -x[1] ) , (n+1.0)/n  ) );
+    res[1] = 0.;   
+    }
+    
+    return;
+}
+
+
 void inflowParabolic2D(double* x, double* res, double t, const double* parameters){
 
-    double H = parameters[1];
+   /* double H = parameters[1];
     res[0] = 4.*parameters[0]*x[1]*(H-x[1])/(H*H);
+    res[1] = 0.;
+*/
+        //double H = parameters[1];
+   double H = 0.1;
+    double n = 0.6;
+    double rho_ref = 1000.0;
+    double nu_0 = 0.035;
+    double dp = 10000.0;
+
+    // res[0] = 4*parameters[0]*x[1]*(H-x[1])/(H*H);
+    // For v = 0.01 with rho=1000 so mu = 10
+    // and dp/dx should be= -10^4
+    res[0] = (n/(n+1.0))*pow( dp/(rho_ref*nu_0), 1.0/n)*( pow( H/(2.0), (n+1.0)/n) - pow( abs( (H/2.0) -x[1] ) , (n+1.0)/n  ) );
+    //*10.0;
     res[1] = 0.;
     
     return;
 }
+
+
 
 void inflowParabolic2DSin(double* x, double* res, double t, const double* parameters){
 
@@ -255,13 +344,13 @@ int main(int argc, char *argv[]) {
           	 parameter_vec.push_back(0.41);//height of inflow region
 
             if (dim==2){
-                bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);
-                bcFactory->addBC(inflowParabolic2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
-//                       bcFactory->addBC(dummyFunc, 3, 0, domainVelocity, "Neumann", dim);
-//                        bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
-                //bcFactory->addBC(zeroDirichlet2D, 3, 0, domainVelocity, "Dirichlet", dim);
-                bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
-                bcFactory->addBC(zeroDirichlet2D, 5, 0, domainVelocity, "Dirichlet", dim);
+                //*** POISEUILLE FLOW
+                bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim); // wall
+                bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+                //bcFactory->addBC(, 3, 0, domainVelocity, "Dirichlet_Z", dim); // flag 3 is neumann 0, müssen wir nicht explizit angeben, da das defaulr ist 
+                //bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);
+              
+                 bcFactory->addBC(TimeDependentSmoothinflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); 
             }
             else if (dim==3){
                 bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);

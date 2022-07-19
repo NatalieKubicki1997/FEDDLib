@@ -136,6 +136,7 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
     
     double viscosity = this->parameterList_->sublist("Parameter").get("Viscosity",1.);
     double density = this->parameterList_->sublist("Parameter").get("Density",1.);
+    bool newtonian = this->parameterList_->sublist("Material").get("Newtonian",true);
     
     // Egal welcher Wert, da OneFunction nicht von parameter abhaengt
     int* dummy;
@@ -164,6 +165,8 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
 	this->system_->addBlock(B,1,0);
 	this->system_->addBlock(C,1,1);
 
+
+    // WO SPRINGT ER HIER REIN? --> in die allgemeine fe class jumps inside FE_def.hpp in assemblyNavierStokes
 	this->feFactory_->assemblyNavierStokes(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->system_,this->residualVec_,this->coeff_, this->parameterList_,false, "Jacobian", true/*call fillComplete*/);
 
     if ( !this->getFEType(0).compare("P1") ) {
@@ -175,6 +178,7 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
         
         this->system_->addBlock( C, 1, 1 );
     }
+    //// HIER CODE AUS ALTEN VERSIONEN EINFÜGEN FÜR P2-P1 
 
 
 

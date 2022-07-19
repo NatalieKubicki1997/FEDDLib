@@ -325,6 +325,7 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assemblyAdvectionInU(SmallMatrixPtr_Ty
     vec2D_dbl_Type uLoc( dim, vec_dbl_Type( weights->size() , -1. ) );
 
     buildTransformation(B);
+      B.print(); // !!!
     detB = B.computeInverse(Binv);
     absDetB = std::fabs(detB);
 
@@ -367,7 +368,12 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assemblyAdvectionInU(SmallMatrixPtr_Ty
 }
  
 
+	/*!
 
+	 \brief Assembly \f$ \int_T  div(v) p ~dx\f$ / \f$ \int_T  div(u) q ~dx\f$
+	@param[in] &elementMatrix
+
+	*/
 template <class SC, class LO, class GO, class NO>
 void AssembleFENavierStokes<SC,LO,GO,NO>::assemblyDivAndDivT(SmallMatrixPtr_Type &elementMatrix) {
 
