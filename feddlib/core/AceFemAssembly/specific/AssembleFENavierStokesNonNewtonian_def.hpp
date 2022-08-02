@@ -26,7 +26,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian() {
 
 		this->constantMatrix_.reset(new SmallMatrix_Type( this->dofsElementVelocity_+this->numNodesPressure_));
 
-// wir machen schon vorher die Abfrage ob es netwonian oder non-newtonian ist also kann man das hier nun weglassen
+   // wir machen schon vorher die Abfrage ob es netwonian oder non-newtonian ist also kann man das hier nun weglassen
    // if ( this->params_->sublist("Parameter").get("Symmetric gradient",false) ){
      //   this->feFactory_->assemblyStress(this->dim_, this->domain_FEType_vec_.at(0), A_, OneFunction, dummy, true);
     //}
@@ -45,8 +45,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian() {
         //elementMatrixA->scale(this->viscosity_);
 		//elementMatrixA->scale(this->density_);
         //this->constantMatrix_->add( (*elementMatrixA),(*this->constantMatrix_));
-       // PRESSURE IS UPDATET BUT WE GET LARGE ERROR IN THE CORNERS OF THE DOMAIN
-
+   
        /* this->assemblyLaplacian(elementMatrixA); 
         elementMatrixA->scale(this->viscosity_);
 		elementMatrixA->scale(this->density_);
@@ -378,8 +377,8 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
             }
             gammaDot->at(w) = sqrt(2.0*u11[0][w]*u11[0][w]+ 2.0*u22[0][w]*u22[0][w] + (u12[0][w]+u21[0][w])*(u12[0][w]+u21[0][w]));
 
-            a1->at(w)= 4.0*u11[0][w]*u11[0][w] + (u12[0][w]+u21[0][w])*(u12[0][w]+u21[0][w]);
-            b1->at(w) = 4.0*u22[0][w]*u22[0][w] + (u12[0][w]+u21[0][w])*(u12[0][w]+u21[0][w]);
+            a1->at(w)= 4.0*(u11[0][w]*u11[0][w]) + (u12[0][w]+u21[0][w])*(u12[0][w]+u21[0][w]);
+            b1->at(w)= 4.0*(u22[0][w]*u22[0][w]) + (u12[0][w]+u21[0][w])*(u12[0][w]+u21[0][w]);
             fab1->at(w) = 2.0*(u12[0][w]+u21[0][w])*(u11[0][w]+u22[0][w]);
 
     }
@@ -482,7 +481,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
                 double lambda =3.313 ;
                 double a = 2.0;*/
 
-                     double k = 0.017;
+                double k = 0.017;
                 double n = 0.6; //0.3...
                 double etazero = 0.035 ;
                 double etainfty = 0.0;     
@@ -492,7 +491,12 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
                 // here comes now the specific derivative of the chosen viscosity model in
                 // so in general d eta/ d gamma * d gamma / d Pi
                 //TODOO what if a < 2 ... then we get a nan value ..
-                double deta_dgamma_dgamma_dtau = (-2.0)*(etazero-etainfty)*(n-1.0)*pow(lambda, a)*pow(gammaDot->at(w),a-2.0)*pow(1.0+pow(lambda*gammaDot->at(w),a)    , ((n-1.0)/a)-1.0 );
+                // So we have to catch the problem that if gamma is zero
+                if (gammaDot->at(w) <= 10e-5) //10-8 worked
+                {
+                  gammaDot->at(w) =  10e-5;
+                }
+                double deta_dgamma_dgamma_dtau = (-2.0)*(etazero-etainfty)*(n-1.0)*pow(lambda, a)*pow(gammaDot->at(w),a-2.0)*pow(1.0+pow(lambda*gammaDot->at(w),a)    , ((n-1.0-a)/a) );
                 
                 // HERE IS THE PROBLEM WE GET FOR GAMMADOT equals to 0 a inf value ...
                 //double dgamma_dtau = -2.0/gammaDot->at(w);
