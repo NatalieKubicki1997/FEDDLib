@@ -442,7 +442,7 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	if(assemblyFEElements_.size()== 0){
         //bool newtonian = params->sublist("Material").get("Newtonian",true);
         if(params->sublist("Material").get("Newtonian",true) == false)
-	 	    initAssembleFEElements("NavierStokesNonNewtonian",problemDisk,elements, params,pointsRep); // In cas of non Newtonian Fluid
+	 	    initAssembleFEElements("NavierStokesNonNewtonian",problemDisk,elements, params,pointsRep); // In case of non Newtonian Fluid
             // jumps inside FEDDLib/FEEDLIB_LEA/source/FEDDLib/feddlib/core/AceFemAssembly/specific/AssembleFENavierStokesNonNewtonian_def.hpp:9
         else
         	initAssembleFEElements("NavierStokes",problemDisk,elements, params,pointsRep);
@@ -459,8 +459,11 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	resVecRep->addBlock(resVec_u,0);
 	resVecRep->addBlock(resVec_p,1);
 
+    //assemblyFEElements_[0]->materialModel->echoParams();
 
+    
 	for (UN T=0; T<assemblyFEElements_.size(); T++) {
+       
 		vec_dbl_Type solution(0);
 
 		solution_u = getSolution(elements->getElement(T).getVectorNodeList(), u_rep,dofsVelocity);
@@ -474,7 +477,7 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
  		SmallMatrixPtr_Type elementMatrix;
 
 		if(assembleMode == "Jacobian"){
-			/// hier müsste er reinspringen
+			/// hier müsste er reinspringen und dann s
             assemblyFEElements_[T]->assembleJacobian();
 		    
             elementMatrix = assemblyFEElements_[T]->getJacobian(); 

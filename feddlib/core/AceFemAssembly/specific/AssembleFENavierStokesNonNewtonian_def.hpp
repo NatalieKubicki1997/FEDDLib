@@ -10,6 +10,24 @@ AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::AssembleFENavierStokesNonNewton
 AssembleFENavierStokes<SC,LO,GO,NO>(flag, nodesRefConfig, params,tuple)
 {
 	// All important things are so far defined in AssembleFENavierStokes. Please check there.
+    // Reading through parameterlist
+    shearThinningModel= params->sublist("Material").get("ShearThinningModel","");
+
+    // New we have to check which material model we use 
+	if(shearThinningModel == "Carreau-Yasuda"){
+		//AssembleFEAceLaplace<SC,LO,GO,NO> assembleFESpecific  = new AssembleFEAceLaplace<SC,LO,GO,NO>(flag,nodesRefConfig, params); // OLD VERSION WE USE HERE SMARTPOINTERS
+		Teuchos::RCP<CarreauYasuda<SC,LO,GO,NO>> materialModelSpecific(new CarreauYasuda<SC,LO,GO,NO>(params) );
+		materialModel = materialModelSpecific;
+	}
+	/*else if(shearThinningModel == "Power-Law"){
+		Teuchos::RCP<PowerLaw<SC,LO,GO,NO>> assembleFESpecific(new PowerLaw<SC,LO,GO,NO>(params) );
+		materialModel = materialModelSpecific;
+	}*/
+	else
+    		TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "No specific implementation for your material model request.");
+
+    // this->materialModel->echoParams(); working but is really often called
+
 }
 
 
@@ -155,13 +173,15 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
 
         
     // Initialize some helper vectors/matrices
-    double v11, v12, v21, v22, value1_j, value2_j , value1_i, value2_i;
+    double v11, v12, v21, v22, value1_j, value2_j , value1_i, value2_i, viscosity_atw;
         SmallMatrix<double> tmpRes1(dim);
         SmallMatrix<double> tmpRes2(dim);
         SmallMatrix<double> e1i(dim);
         SmallMatrix<double> e2i(dim);
         SmallMatrix<double> e1j(dim);
         SmallMatrix<double> e2j(dim);
+
+        viscosity_atw = 0.;
 
     // Construct element matrices 
     for (UN i=0; i < numNodes; i++) {
@@ -217,36 +237,17 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
                 // e2i = [ 0, 0 ; dphi_i/dx  ,  dphi_i/dy ]
 
                 // Construct entries - we go over all quadrature points and if j is updated we set v11 etc again to zero
-              
-               
-                // Compute viscosity value corresponding to chosen model - we want to have general class
-                // double etavalue = func(&xy.at(0),parameters);
-                /*double k = 0.017;
-                double n = 0.3568; //0.3...
-                double etazero = 0.056 ;
-                double etainfty = 0.00345 ;     
-                double lambda =3.313 ;
-                double a = 2.0;*/
-                //double etavalue = k*gammaDot->at(w); // it worked with this// n-1 -> we get for shear thinning fluids a n < 1
-                //double etavalue = k*pow(gammaDot->at(w),0); // we have to check that gammaDot is not zero because then we divide through something which is almost zero
-                
-                /* SO WE HAVE TO BE CAREFUL IF THE MODEL IS DEFINED IN A WAY WHERE A DIVISION IS DONE OR A MULTIPLICATION */
-                double k = 0.017;
-                double n = 0.6; //0.3...
-                double etazero = 0.035 ;
-                double etainfty = 0.0;     
-                double lambda =1.0 ;
-                double a = 1.0;
+                this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
 
                 // viscosity function evaluated
-                double etavalue = etainfty +(etazero-etainfty)*(pow(1.0+pow(lambda*gammaDot->at(w),a)    , (n-1.0)/a ));
+               // double etavalue = etainfty +(etazero-etainfty)*(pow(1.0+pow(lambda*gammaDot->at(w),a)    , (n-1.0)/a ));
       
 
 
-                 v11 = v11 + etavalue * weights->at(w) * e1i.innerProduct(e1j); // xx contribution: 2 *dphi_i/dx *dphi_j/dx + dphi_i/dy* dphi_j/dy
-                 v12 = v12 + etavalue *  weights->at(w) * e1i.innerProduct(e2j); // xy contribution:  dphi_i/dy* dphi_j/dx
-                 v21 = v21 + etavalue *  weights->at(w) * e2i.innerProduct(e1j); // yx contribution:  dphi_i/dx* dphi_j/dy
-                 v22 = v22 + etavalue *  weights->at(w) * e2i.innerProduct(e2j); // yy contribution: 2 *dphi_i/dy *dphi_j/dy + dphi_i/dx* dphi_j/dx
+                 v11 = v11 + viscosity_atw * weights->at(w) * e1i.innerProduct(e1j); // xx contribution: 2 *dphi_i/dx *dphi_j/dx + dphi_i/dy* dphi_j/dy
+                 v12 = v12 + viscosity_atw *  weights->at(w) * e1i.innerProduct(e2j); // xy contribution:  dphi_i/dy* dphi_j/dx
+                 v21 = v21 + viscosity_atw *  weights->at(w) * e2i.innerProduct(e1j); // yx contribution:  dphi_i/dx* dphi_j/dy
+                 v22 = v22 + viscosity_atw *  weights->at(w) * e2i.innerProduct(e2j); // yy contribution: 2 *dphi_i/dy *dphi_j/dy + dphi_i/dx* dphi_j/dx
 
                 
             } // loop end quadrature points
@@ -354,7 +355,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
 
         
     // Initialize some helper vectors/matrices
-    double v11, v12, v21, v22, value1_j, value2_j , value1_i, value2_i;
+    double v11, v12, v21, v22, value1_j, value2_j , value1_i, value2_i, deta_dgamma_dgamma_dtau ;
     
         SmallMatrix<double> tmpRes1(dim);
         SmallMatrix<double> tmpRes2(dim);
@@ -362,6 +363,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
         SmallMatrix<double> e2i(dim);
         SmallMatrix<double> e1j(dim);
         SmallMatrix<double> e2j(dim);
+        deta_dgamma_dgamma_dtau =0.;
 
     // Construct element matrices 
     for (UN i=0; i < numNodes; i++) {
@@ -372,6 +374,8 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
         v11 = 0.0;v12 = 0.0;v21 = 0.0;v22 = 0.0;
 
             // So in general compute the components of (dPhiTrans_i : [-1/4 * deta/dgammaDot * dgammaDot/dTau * (dv^k + (dvh^k)^T)^2 * ( dPhiTrans_j + (dPhiTrans_j)^T)    ]
+            // Only the part  deta/dgammaDot is different for all shear thinning models (because we make the assumption of incompressibility)
+            // but we put the two terms together because then we can multiply them together and get e.g. for carreau yasuda  : gammaDot^{a-2.0} which is for a=2.0 equals 0 and we do not have to worry about the problem what if gammaDot = 0.0
             for (UN w=0; w<dPhiTrans.size(); w++) {
 
                  value1_j = dPhiTrans[w][j][0]; // so this corresponds to d\phi_j/dx
@@ -429,36 +433,10 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
                 // e2i_tilde[1][1] = value2_i*fab1->at(w);
                 // e2i = [ 0, 0 ; dphi_i/dx*f  ,  dphi_i/dy*f ]
 
-                /**** Initialize outside! */
-
-                // Compute viscosity value corresponding to chosen model - we want to have general class
-                // double etavalue = func(&xy.at(0),parameters);
-                // CHANGE VALUES HERE AND ABOVE
-                /*double k = 0.017;
-                double n = 0.3568; //0.3...
-                double etazero = 0.056 ;
-                double etainfty = 0.00345 ;     
-                double lambda =3.313 ;
-                double a = 2.0;*/
-
-                double k = 0.017;
-                double n = 0.6; //0.3...
-                double etazero = 0.035 ;
-                double etainfty = 0.0;     
-                double lambda =1.0 ;
-                double a = 1.0;
-                
-                // here comes now the specific derivative of the chosen viscosity model in
-                // so in general d eta/ d gamma * d gamma / d Pi
-                //TODOO what if a < 2 ... then we get a nan value ..
-                // So we have to catch the problem that if gamma is zero
-                if (gammaDot->at(w) <= 10e-8) //10-8 worked
-                {
-                  gammaDot->at(w) =  10e-8;
-                }
-                double deta_dgamma_dgamma_dtau = (-2.0)*(etazero-etainfty)*(n-1.0)*pow(lambda, a)*pow(gammaDot->at(w),a-2.0)*pow(1.0+pow(lambda*gammaDot->at(w),a)    , ((n-1.0-a)/a) );
-                
-                // HERE IS THE PROBLEM WE GET FOR GAMMADOT equals to 0 a inf value ...
+                this->materialModel->evaluateDerivative(this->params_,  gammaDot->at(w), deta_dgamma_dgamma_dtau);
+	
+           
+              //  double deta_dgamma_dgamma_dtau = (-2.0)*(etazero-etainfty)*(n-1.0)*pow(lambda, a)*pow(gammaDot->at(w),a-2.0)*pow(1.0+pow(lambda*gammaDot->at(w),a)    , ((n-1.0-a)/a) );
                 //double dgamma_dtau = -2.0/gammaDot->at(w);
                 
                // double eta_contribution = -0.25*deta_dgamma*dgamma_dtau; // and then we get here a nan value ...
@@ -530,29 +508,6 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleRHS(){
 		//cout <<"RHS["<<i <<"]" << this->rhsVec_[i] << endl;
 	}
 }
-
-/*
-THIS WAS INSIDE LAPLACIAN
-
-for (UN i=0; i < numNodes; i++) {
-        Teuchos::Array<SC> value(dPhiTrans[0].size(), 0. ); // dPhiTrans[0].size() is 3
-        
-      
-        for (UN j=0; j < numNodes; j++) {
-            for (UN w=0; w<dPhiTrans.size(); w++) {
-                for (UN d=0; d<dim; d++){  // so d is the dimension of our vector so for velocity in 2d with have d=0,1 in comparison for pressure we always have d=1 because it is scalar quantity
-                    value[j] += weights->at(w) * dPhiTrans[w][i][d] * dPhiTrans[w][j][d];
-                } // 
-            }
-            value[j] *= absDetB;
-			for (UN d=0; d<dofs; d++) {
-              (*elementMatrix)[i*dofs +d][j*dofs+d] = value[j];
-            }
-        }
-
-
-*/
-
 
 
 
@@ -699,104 +654,10 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assemblyAdvectionInU(SmallMatrixPtr_Ty
 }*/
  
 
-/*
-template <class SC, class LO, class GO, class NO>
-void AssembleFENavierStokes<SC,LO,GO,NO>::assemblyDivAndDivT(SmallMatrixPtr_Type &elementMatrix) {
-
-    vec3D_dbl_ptr_Type 	dPhi;
-    vec2D_dbl_ptr_Type 	phi;
-    vec_dbl_ptr_Type weights = Teuchos::rcp(new vec_dbl_Type(0));
-	int dim = this->dim_;
-
-    UN deg =2; // Helper::determineDegree2( dim, FETypeVelocity_, FETypePressure_, Grad, Std);
-
-    Helper::getDPhi(dPhi, weights, dim, FETypeVelocity_, deg);
-
-    //if (FETypePressure_=="P1-disc-global")
-      //  Helper::getPhiGlobal(phi, weights, dim, FETypePressure_, deg);
-    if (FETypePressure_=="P1-disc" && FETypeVelocity_=="Q2" )
-        Helper::getPhi(phi, weights, dim, FETypePressure_, deg, FETypeVelocity_);
-    else
-        Helper::getPhi(phi, weights, dim, FETypePressure_, deg);
-
-    SC detB;
-    SC absDetB;
-    SmallMatrix<SC> B(dim);
-    SmallMatrix<SC> Binv(dim);
-
-
-	buildTransformation(B);
-    detB = B.computeInverse(Binv);
-    absDetB = std::fabs(detB);
-
-    vec3D_dbl_Type dPhiTrans( dPhi->size(), vec2D_dbl_Type( dPhi->at(0).size(), vec_dbl_Type(dim,0.) ) );
-    applyBTinv( dPhi, dPhiTrans, Binv );
-
-    Teuchos::Array<GO> rowIndex( 1, 0 );
-    Teuchos::Array<SC> value(1, 0.);
-
-
-    for (UN i=0; i < phi->at(0).size(); i++) {
-        if (FETypePressure_=="P0")
-            rowIndex[0] = GO ( 0 );
-        else
-            rowIndex[0] = GO ( i );
-
-        for (UN j=0; j < dPhiTrans[0].size(); j++) {
-            for (UN d=0; d<dim; d++){
-                value[0] = 0.;
-                for (UN w=0; w<dPhiTrans.size(); w++)
-                    value[0] += weights->at(w) * phi->at(w)[i] * dPhiTrans[w][j][d];
-                value[0] *= absDetB;
-
-
-				(*elementMatrix)[rowIndex[0]+dofsVelocity_*numNodesVelocity_][dofsVelocity_ * j + d] +=value[0];
-				(*elementMatrix)[dofsVelocity_ * j + d][dofsVelocity_*numNodesVelocity_+rowIndex[0]] +=value[0];
-            }
-        }
-    }
-	//elementMatrix->print();
-    // We compute value twice, maybe we should change this
-    /*for (UN i=0; i < dPhiTrans[0].size(); i++) {
-
-        Teuchos::Array<Teuchos::Array<SC> >valueVec( dim, Teuchos::Array<SC>( phi->at(0).size(), 0. ) );
-        Teuchos::Array<GO> indices( phi->at(0).size(), 0 );
-        for (UN j=0; j < valueVec[0].size(); j++) {
-            for (UN w=0; w<dPhiTrans.size(); w++) {
-                for (UN d=0; d<dim; d++)
-                    valueVec[d][j] += weights->at(w) * phi->at(w)[j] * dPhiTrans[w][i][d];
-            }
-            for (UN d=0; d<dim; d++){
-                valueVec[d][j] *= absDetB;
-                if (setZeros_ && std::fabs(valueVec[d][j]) < myeps_) {
-                    valueVec[d][j] = 0.;
-                }
-            }
-        }
-
-        for (UN j=0; j < indices.size(); j++){
-            if (FEType2=="P0")
-                indices[j] = GO ( mapping2->getGlobalElement( T ) );
-            else
-                indices[j] = GO ( mapping2->getGlobalElement( elements2->getElement(T).getNode(j) ) );
-        }
-        for (UN d=0; d<dim; d++) {
-            GO row = GO ( dim * mapping1->getGlobalElement( elements1->getElement(T).getNode(i) ) + d );
-            BTmat->insertGlobalValues( row, indices(), valueVec[d]() );
-        }
-
-    }
-
-
-}*/
-
-
 /*!
 
  \brief Building Transformation
-
 @param[in] &B
-?????????????????????????????????????????????????
 */
 
 template <class SC, class LO, class GO, class NO>

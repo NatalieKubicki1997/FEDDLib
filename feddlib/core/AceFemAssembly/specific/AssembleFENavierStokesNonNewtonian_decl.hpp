@@ -7,6 +7,8 @@
 #include "feddlib/core/FEDDCore.hpp"
 #include "feddlib/core/LinearAlgebra/Matrix.hpp"
 #include "feddlib/core/LinearAlgebra/MultiVector.hpp"
+#include "feddlib/core/General/DifferentiableFuncClass.hpp"
+#include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda.hpp"
 
 namespace FEDD {
 
@@ -25,6 +27,13 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 
 	typedef AssembleFE<SC,LO,GO,NO> AssembleFE_Type;
 
+	typedef DifferentiableFuncClass<SC,LO,GO,NO>  DifferentiableFuncClass_Type;
+	typedef Teuchos::RCP<DifferentiableFuncClass_Type> DifferentiableFuncClassPtr_Type;
+    // smart pointer inside we need a type
+
+    // With have to add here class of specific material model or have we?
+	//typedef CarreauYasuda<SC,LO,GO,NO>  CarreauYasuda_Type;
+	//typedef Teuchos::RCP<CarreauYasuda> CarreauYasudaPtr_Type;
 
 	/*!
 	 \brief Assemble the element Jacobian matrix.
@@ -40,7 +49,8 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 
 	//void setCoeff(SmallMatrix_Type coeff);
    protected:
-
+ 
+   std::string shearThinningModel;
 
    private:
 
@@ -108,9 +118,9 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 
 	//tuple_disk_vec_ptr_Type returnTuple(); /// @todo return tuple in case or check tuple
 
+    DifferentiableFuncClassPtr_Type materialModel;
 
-
-	
+	//friend class CarreauYasuda<SC,LO,GO,NO>; the other way around carrea-yasuda has to give access rights for this class
  };
 
 }

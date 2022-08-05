@@ -2,52 +2,58 @@
 <ParameterList name="Problem">
     <ParameterList name="Parameter">
         <Parameter name="Dimension" type="int" value="2"/>
-        <Parameter name="Discretization Velocity" type="string" value="P1"/><!--P1, P2; velocity -->
+        <Parameter name="Discretization Velocity" type="string" value="P2"/><!--P1, P2; velocity -->
         <Parameter name="Discretization Pressure" type="string" value="P1"/>
         <Parameter name="Mesh Type" type="string" value="unstructured"/> <!--structured, unstructured -->
-        <Parameter name="BC Type" type="string" value="partialCFD"/><!-- parabolic, parabolic_benchmark, partialCFD-->
+        <Parameter name="BC Type" type="string"   value="partialCFD"/><!-- parabolic, parabolic_benchmark, partialCFD, parabolic_benchmark_sin-->
+        <Parameter name="Newtonian" type="bool" value="false"/>
         <Parameter name="Mesh Delimiter" type="string" value=" "/>
         <Parameter name="H/h" type="int" value="3"/>
-        <Parameter name="Symmetric gradient" type="bool" value="false"/>
-        <Parameter name="Viscosity" type="double" value="1.0e-3"/> <!-- kinematic Viscosity-->
+        <Parameter name="Viscosity" type="double" value="1.0e-2"/> <!-- kinematic Viscosity-->
         <Parameter name="Density" type="double" value="1000.0"/>
-        <Parameter name="MaxVelocity" type="double" value="1.0"/>
-        <Parameter name="MeanVelocity" type="double"   value="0.2"/>
+        <Parameter name="MaxVelocity" type="double" value="1.5"/>
+        <Parameter name="MeanVelocity"  type="double" value="1.0"/>
+        
         <Parameter name="relNonLinTol" type="double" value="1.0e-4"/>
         <Parameter name="absNonLinTol" type="double" value="1.0e-4"/>
-        <Parameter name="MaxNonLinIts" type="int" value="10"/>
-        <Parameter name="Set Zeros" type="bool" value="false"/>
-        <Parameter name="Myeps" type="double" value="1.0e-14"/>
+        <Parameter name="updateTol" type="double" value="1.0e-4"/>
         <Parameter name="Combo" type="string" value="OR"/>
+        <Parameter name="Use update tol" type="bool" value="false"/>
+        <Parameter name="Use rel tol" type="bool" value="true"/>
+        <Parameter name="Use abs tol" type="bool" value="false"/>
         <Parameter name="Use WRMS" type="bool" value="false"/>
-        <Parameter name="Cancel MaxNonLinIts" type="bool" value="true"/>
+        
+        <Parameter name="MaxNonLinIts" type="int" value="10"/>
+        <Parameter name="Cancel MaxNonLinIts" type="bool" value="false"/>
+        <Parameter name="Symmetric gradient" type="bool" value="false"/>
     </ParameterList>
 
-<!-- Mesh specific parameters like e.g. MESH NAME -->
-    <ParameterList name="Mesh Partitioner">    
-        <Parameter name="Contiguous" type="bool" value="true"/>
+    <ParameterList name="Mesh Partitioner">
+        <Parameter name="Contiguous" type="bool" value="true"/>        
         <Parameter name="Mesh 1 Name" type="string" value="rectangleCouette.mesh"/>
-    </ParameterList>
+</ParameterList>
 
-
-<!-- Material specific parameters like e.g. Newtonian fluid, Carreau-Yasuda model and corresping parameters -->
+    <!-- Material specific parameters like e.g. Newtonian fluid, Carreau-Yasuda model and corresponding parameters -->
     <ParameterList name="Material">    
         <Parameter name="Newtonian" type="bool" value="false"/>
-        <Parameter name="Extra stress tensor model" type="string" value="Newtonian"/> <!-- Power-Law, Carreau-Yasuda  -->
-        <!-- Power Law assumes for the viscosity eta the functional form \eta(\gamma) = K \gamma^(n-1) -->
+        <Parameter name="ShearThinningModel" type="string" value="Carreau-Yasuda"/> <!-- Power-Law, Carreau-Yasuda  -->
+	<!--********************FOR CHOSEN MODEL USER HAS TO SET MATERIAL PARAMETERS BELOW**************************-->
+
+	<!-- Power Law assumes for the viscosity eta the functional form \eta(\gamma) = K \gamma^(n-1) -->
         <!-- For n=1 we have Newtonian Fluid with constant viscosity corresponding to the value of K-->
-        <Parameter name="Power Law parameter K" type="double" value="1.0"/>
-        <Parameter name="Power Law index n" type="double" value="1.0"/> <!-- for n<1 we have shear thinning behaviour-->
-        <!-- Carreau Yasuda assumes for the viscosity eta the functional form \eta(\gamma) = \eta_{\infty} + (\eta_0 - \eta_{\infty})*(  1/(  1+(\lambda*\gamma)^a  )^((1-n)/a)   ) --> 
+        <Parameter name="PowerLawParameter K" type="double" value="1.0"/>
+        <Parameter name="PowerLaw index n" type="double" value="1.0"/> <!-- for n<1 we have shear thinning behaviour-->
+		
+	<!-- Carreau Yasuda assumes for the viscosity eta the functional form \eta(\gamma) = \eta_{\infty} + (\eta_0 - \eta_{\infty})*( (  1+(\lambda*\gamma)^a  )^((n-1)/a)   ) --> 
         <!-- For a=2 we have Carreau Model-->
         <!-- For a=1-n we have Cross Model-->
         <!-- For a=1 and n=0 we have Simplified Cross Model-->
-        <Parameter name="eta infinity" type="double" value="0."/>
-        <Parameter name="eta zero" type="double" value="1.0"/>
-        <Parameter name="viscosity parameter a" type="double" value="1.0"/>
-        <Parameter name="viscosity parameter n" type="double" value="1.0"/>
-        <Parameter name="viscosity parameter lambda" type="double" value="1.0"/>
-    </ParameterList>
+        <Parameter name="InftyShearRateViscosity_etaInfty" type="double" value="0."/>
+        <Parameter name="ZeroShearRateViscosity_eta0" type="double" value="1.0"/>
+        <Parameter name="InflectionPoint_a" type="double" value="1.0"/>
+        <Parameter name="FluidIndex_n" type="double" value="1.0"/>
+        <Parameter name="CharacteristicTime_Lambda" type="double" value="1.0"/>
+</ParameterList>
 
 
     <ParameterList name="Exporter">
@@ -61,12 +67,12 @@
     <!-- Nonlinear Solution method (Preconditioner) as well as Parallelization specific parameters like e.g. Newton -->
     <ParameterList name="General">
         <Parameter name="Mpi Ranks Coarse" type="int" value="0"/>
-        <Parameter name="Linearization" type="string" value="NOX"/> <!-- FixedPoint, Newton, NOX-->
+        <Parameter name="Linearization" type="string" value="FixedPoint"/> <!-- FixedPoint, Newton, NOX-->
         <Parameter name="ParaViewExport" type="bool" value="true"/>
         <Parameter name="ParaViewCoarse" type="bool" value="false"/>
         <Parameter name="ParaViewCoarseSum" type="bool" value="false"/>
         <Parameter name="ParaView export subdomain" type="bool" value="false"/>
-        <Parameter name="Preconditioner Method" type="string" value="Monolithic"/><!-- Monolithic, Teko -->
+        <Parameter name="Preconditioner Method" type="string" value="Teko"/><!-- Monolithic, Teko -->
         <Parameter name="Assemble Velocity Mass" type="bool" value="false"/>
         <Parameter name="Delete P1 Data" type="bool" value="false"/><!-- only for Monolithic and Newton -->
     </ParameterList>

@@ -22,7 +22,7 @@ AssembleFE<SC,LO,GO,NO>(flag, nodesRefConfig, params,tuple)
 	else
     	TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error, "No discretisation Information for Velocity in Navier Stokes Element." );
 		
-
+    //AssembleFENavierStokes
 	/// Tupel construction follows follwing pattern:
 	/// string: Physical Entity (i.e. Velocity) , string: Discretisation (i.e. "P2"), int: Degrees of Freedom per Node, int: Number of Nodes per element)
 	FETypeVelocity_ = std::get<1>(this->diskTuple_->at(locVelocity));
@@ -493,7 +493,7 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::applyBTinv( vec3D_dbl_ptr_Type& dPhiIn
                                     vec3D_dbl_Type& dPhiOut,
                                     SmallMatrix<SC>& Binv){
     UN dim = Binv.size();
-    for (UN w=0; w<dPhiIn->size(); w++){
+    for (UN w=0; w<dPhiIn->size(); w++){ // w meistens für quadratur punkte
         for (UN i=0; i < dPhiIn->at(w).size(); i++) {
             for (UN d1=0; d1<dim; d1++) {
                 for (UN d2=0; d2<dim; d2++) {

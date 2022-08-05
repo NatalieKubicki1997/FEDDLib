@@ -8,12 +8,16 @@ SET(General_HEADERS
 	General/ExporterParaView_def.hpp
 	General/ExporterTxt.hpp
 	General/SmallMatrix.hpp
+	General/DifferentiableFuncClass.hpp
+	General/DifferentiableFuncClass_decl.hpp
+	General/DifferentiableFuncClass_def.hpp
 CACHE INTERNAL "")
 
 SET(General_SOURCES
 	General/BCBuilder.cpp
     General/ExporterParaView.cpp
     General/ExporterTxt.cpp
+	General/DifferentiableFuncClass.cpp
 CACHE INTERNAL "")
 
 
