@@ -19,10 +19,10 @@ AssembleFENavierStokes<SC,LO,GO,NO>(flag, nodesRefConfig, params,tuple)
 		Teuchos::RCP<CarreauYasuda<SC,LO,GO,NO>> materialModelSpecific(new CarreauYasuda<SC,LO,GO,NO>(params) );
 		materialModel = materialModelSpecific;
 	}
-	/*else if(shearThinningModel == "Power-Law"){
-		Teuchos::RCP<PowerLaw<SC,LO,GO,NO>> assembleFESpecific(new PowerLaw<SC,LO,GO,NO>(params) );
+	else if(shearThinningModel == "Power-Law"){
+		Teuchos::RCP<PowerLaw<SC,LO,GO,NO>> materialModelSpecific(new PowerLaw<SC,LO,GO,NO>(params) );
 		materialModel = materialModelSpecific;
-	}*/
+	}
 	else
     		TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "No specific implementation for your material model request.");
 
@@ -436,7 +436,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
                 this->materialModel->evaluateDerivative(this->params_,  gammaDot->at(w), deta_dgamma_dgamma_dtau);
 	
            
-              //  double deta_dgamma_dgamma_dtau = (-2.0)*(etazero-etainfty)*(n-1.0)*pow(lambda, a)*pow(gammaDot->at(w),a-2.0)*pow(1.0+pow(lambda*gammaDot->at(w),a)    , ((n-1.0-a)/a) );
+                //double deta_dgamma_dgamma_dtau = (-2.0)*(etazero-etainfty)*(n-1.0)*pow(lambda, a)*pow(gammaDot->at(w),a-2.0)*pow(1.0+pow(lambda*gammaDot->at(w),a)    , ((n-1.0-a)/a) );
                 //double dgamma_dtau = -2.0/gammaDot->at(w);
                 
                // double eta_contribution = -0.25*deta_dgamma*dgamma_dtau; // and then we get here a nan value ...
@@ -445,9 +445,8 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
                  v21 = v21 + (-0.25)*deta_dgamma_dgamma_dtau  * weights->at(w) * (e2i.innerProduct(e1j) ); // yx contribution:  dphi_i/dx* dphi_j/dy*b1 + 2 *dphi_i/dx *dphi_j/dx*f + dphi_i/dy* dphi_j/dy*f
                  v22 = v22 + (-0.25)*deta_dgamma_dgamma_dtau  * weights->at(w) * (e2i.innerProduct(e2j) ); // yy contribution: 2 *dphi_i/dy *dphi_j/dy*b1 + dphi_i/dx* dphi_j/dx*b1 +  dphi_i/dy* dphi_j/dx*f
 
-                //  for (UN d=0; d<dim; d++){  // so d is the dimension of our problem so we have two derivatives in 2d
-                //     value[j] += weights->at(w) * dPhiTrans[w][i][d] * dPhiTrans[w][j][d];
-                //  } // 
+                 // so d is the dimension of our problem so we have two derivatives in 2d
+               
 
                 
             } // loop end quadrature points

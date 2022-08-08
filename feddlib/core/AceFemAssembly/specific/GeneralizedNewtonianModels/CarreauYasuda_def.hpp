@@ -97,6 +97,7 @@ else  // in the other case we have to check that gammaDot is not zero because ot
        }
 res = (-2.0)*(this->nu_0-this->nu_infty)*(this->fluid_index_n-1.0)*pow(this->characteristicTime, this->inflectionPoint)*pow(shearRate,this->inflectionPoint-2.0)*pow(1.0+pow(this->characteristicTime*shearRate,this->inflectionPoint)    , ((this->fluid_index_n-1.0-this->inflectionPoint)/this->inflectionPoint) );
 }
+// Do we have to also catch the case if shearRate goes to infity and we get zero as value? I would argue no because we have a here a result of part of the gateauy derivative which is not used anymore in later calculations 
 
 }
 
