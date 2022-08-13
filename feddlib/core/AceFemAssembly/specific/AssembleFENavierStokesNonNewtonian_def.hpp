@@ -133,8 +133,10 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
     //dPhiTrans[0].size() = 3 number local element points
     //dPhiTrans[0][0].size() = 2 as we have in dim=2 case two derivated
 
-
-    /// We seperate the cases, if we are in two dimension 
+    TEUCHOS_TEST_FOR_EXCEPTION(dim == 1,std::logic_error, "Not implemented for dim=1");
+    /// We seperate the cases, if we are in two or three dimensions 
+    //***************************************************************************
+    //***************************************************************************
     if (dim == 2)
     {
 
@@ -166,7 +168,6 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
             gammaDot->at(w) = sqrt(2.0*u11[0][w]*u11[0][w]+ 2.0*u22[0][w]*u22[0][w] + (u12[0][w]+u21[0][w])*(u12[0][w]+u21[0][w]));
     }
 
- 
 
 //*******************************
 // Compute entries
@@ -236,14 +237,9 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
                  e2i[1][1] = value2_i;
                 // e2i = [ 0, 0 ; dphi_i/dx  ,  dphi_i/dy ]
 
-                // Construct entries - we go over all quadrature points and if j is updated we set v11 etc again to zero
-                this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
-
                 // viscosity function evaluated
-               // double etavalue = etainfty +(etazero-etainfty)*(pow(1.0+pow(lambda*gammaDot->at(w),a)    , (n-1.0)/a ));
-      
-
-
+                this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
+                // Construct entries - we go over all quadrature points and if j is updated we set v11 etc. again to zero
                  v11 = v11 + viscosity_atw * weights->at(w) * e1i.innerProduct(e1j); // xx contribution: 2 *dphi_i/dx *dphi_j/dx + dphi_i/dy* dphi_j/dy
                  v12 = v12 + viscosity_atw *  weights->at(w) * e1i.innerProduct(e2j); // xy contribution:  dphi_i/dy* dphi_j/dx
                  v21 = v21 + viscosity_atw *  weights->at(w) * e2i.innerProduct(e1j); // yx contribution:  dphi_i/dx* dphi_j/dy
@@ -271,6 +267,165 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
     } // loop end over i node
 
     } // end if dim 2
+    //***************************************************************************
+    //***************************************************************************
+    else if (dim == 3)
+    {
+          //************************************
+    // Compute shear rate gammaDot, which is a vector because it is evaluated at a gaussian quadrature point 
+    // for that compute velocity gradient
+    vec2D_dbl_Type u11(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to du/dx at each quadrature point
+    vec2D_dbl_Type u12(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to du/dy at each quadrature point
+    vec2D_dbl_Type u13(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to du/dz at each quadrature point
+    vec2D_dbl_Type u21(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to dv/dx at each quadrature point
+    vec2D_dbl_Type u22(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to dv/dy at each quadrature point
+    vec2D_dbl_Type u23(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to dv/dz at each quadrature point
+    vec2D_dbl_Type u31(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to dw/dx at each quadrature point
+    vec2D_dbl_Type u32(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to dw/dy at each quadrature point
+    vec2D_dbl_Type u33(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to dw/dz at each quadrature point
+
+    vec_dbl_ptr_Type gammaDot(new vec_dbl_Type(weights->size(),0.0)); //gammaDot->at(j) j=0...weights 
+    for (UN w=0; w<dPhiTrans.size(); w++){ //quads points
+      // set again to zero 
+      u11[0][w] = 0.0;
+      u12[0][w] = 0.0;
+      u13[0][w] = 0.0;
+      u21[0][w] = 0.0;
+      u22[0][w] = 0.0;
+      u23[0][w] = 0.0;
+      u31[0][w] = 0.0;
+      u32[0][w] = 0.0;
+      u33[0][w] = 0.0;
+      
+            for (UN i=0; i < dPhiTrans[0].size(); i++) {
+                LO index1 = dim * i + 0; //x
+                LO index2 = dim * i + 1; //y 
+                LO index3 = dim * i + 2; //z
+               // uLoc[d][w] += this->solution_[index] * phi->at(w).at(i);
+                u11[0][w] += this->solution_[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
+                u12[0][w] += this->solution_[index1] * dPhiTrans[w][i][1]; // because we are in 3D , 0 and 1, 2 
+                u13[0][w] += this->solution_[index1] * dPhiTrans[w][i][2]; 
+                u21[0][w] += this->solution_[index2] * dPhiTrans[w][i][0]; // v*dphi_dx
+                u22[0][w] += this->solution_[index2] * dPhiTrans[w][i][1];
+                u23[0][w] += this->solution_[index2] * dPhiTrans[w][i][2];
+                u31[0][w] += this->solution_[index3] * dPhiTrans[w][i][0]; // w*dphi_dx
+                u32[0][w] += this->solution_[index3] * dPhiTrans[w][i][1];
+                u33[0][w] += this->solution_[index3] * dPhiTrans[w][i][2];
+                
+            }
+            gammaDot->at(w) = sqrt(2.0*u11[0][w]*u11[0][w]+ 2.0*u22[0][w]*u22[0][w] + 2.0*u33[0][w]*u33[0][w] +  (u12[0][w]+u21[0][w])*(u12[0][w]+u21[0][w])   + (u13[0][w]+u31[0][w])*(u13[0][w]+u31[0][w]) + (u23[0][w]+u32[0][w])*(u23[0][w]+u32[0][w]) );
+    }
+
+         // Initialize some helper vectors/matrices
+        double v11, v12, v13, v21, v22, v23, v31, v32, v33, value1_j, value2_j, value3_j , value1_i, value2_i, value3_i, viscosity_atw;
+        SmallMatrix<double> e1i(dim);
+        SmallMatrix<double> e2i(dim);
+        SmallMatrix<double> e3i(dim);
+        SmallMatrix<double> e1j(dim);
+        SmallMatrix<double> e2j(dim);
+        SmallMatrix<double> e3j(dim);
+
+        viscosity_atw = 0.;
+
+    // Construct element matrices 
+     for (UN i=0; i < numNodes; i++) {
+       // Teuchos::Array<SC> value(dPhiTrans[0].size(), 0. ); // dPhiTrans[0].size() is 3        
+      
+        for (UN j=0; j < numNodes; j++) {
+        // Reset values
+        v11 = 0.0;v12 = 0.0;v13=0.0; v21 = 0.0;v22 = 0.0;v23=0.0;v31=0.0;v32=0.0;v33=0.0;
+
+            // So in general compute the components of eta*[ dPhiTrans_i : ( dPhiTrans_j + (dPhiTrans_j)^T )]
+            for (UN w=0; w<dPhiTrans.size(); w++) {
+
+                        value1_j = dPhiTrans.at(w).at(j).at(0); // so this corresponds to d\phi_j/dx
+                        value2_j = dPhiTrans.at(w).at(j).at(1); // so this corresponds to d\phi_j/dy
+                        value3_j = dPhiTrans.at(w).at(j).at(2); // so this corresponds to d\phi_j/dz
+
+
+                        value1_i = dPhiTrans.at(w).at(i).at(0); // so this corresponds to d\phi_i/dx
+                        value2_i = dPhiTrans.at(w).at(i).at(1); // so this corresponds to d\phi_i/dy
+                        value3_i = dPhiTrans.at(w).at(i).at(2); // so this corresponds to d\phi_i/dz
+
+
+                        e1j[0][0] = 2.*value1_j;
+                        e1j[0][1] = value2_j;
+                        e1j[0][2] = value3_j;
+                        e1j[1][0] = value2_j;
+                        e1j[2][0] = value3_j;
+
+                        e1i[0][0] = value1_i;
+                        e1i[0][1] = value2_i;
+                        e1i[0][2] = value3_i;
+
+
+                        e2j[1][0] = value1_j;
+                        e2j[1][1] = 2.*value2_j;
+                        e2j[1][2] = value3_j;
+                        e2j[0][1] = value1_j;
+                        e2j[2][1] = value3_j;
+
+                        e2i[1][0] = value1_i;
+                        e2i[1][1] = value2_i;
+                        e2i[1][2] = value3_i;
+
+
+                        e3j[2][0] = value1_j;
+                        e3j[2][1] = value2_j;
+                        e3j[2][2] = 2.*value3_j;
+                        e3j[0][2] = value1_j;
+                        e3j[1][2] = value2_j;
+
+                        e3i[2][0] = value1_i;
+                        e3i[2][1] = value2_i;
+                        e3i[2][2] = value3_i;
+
+                       this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
+
+                       // Construct entries - we go over all quadrature points and if j is updated we set v11 etc. again to zero
+                        v11 = v11 + viscosity_atw *  weights->at(w) * e1i.innerProduct(e1j);
+                        v12 = v12 + viscosity_atw *  weights->at(w) * e1i.innerProduct(e2j);
+                        v13 = v13 + viscosity_atw *  weights->at(w) * e1i.innerProduct(e3j);
+
+                        v21 = v21 + viscosity_atw *  weights->at(w) * e2i.innerProduct(e1j);
+                        v22 = v22 + viscosity_atw *  weights->at(w) * e2i.innerProduct(e2j);
+                        v23 = v23 + viscosity_atw *  weights->at(w) * e2i.innerProduct(e3j);
+
+                        v31 = v31 + viscosity_atw *  weights->at(w) * e3i.innerProduct(e1j);
+                        v32 = v32 + viscosity_atw *  weights->at(w) * e3i.innerProduct(e2j);
+                        v33 = v33 + viscosity_atw *  weights->at(w) * e3i.innerProduct(e3j);
+
+
+                    }// loop end quadrature points
+            
+                   //multiply determinant from transformation
+                    v11 *= absDetB ;
+                    v12 *= absDetB ;
+                    v13 *= absDetB ;
+                    v21 *= absDetB ;
+                    v22 *= absDetB ;
+                    v23 *= absDetB ;
+                    v31 *= absDetB ;
+                    v32 *= absDetB ;
+                    v33 *= absDetB ;
+
+                   // Put values on the right position in element matrix - d=2 because we are in two dimensional case
+                   // [v11  v12  v13]
+                   // [v21  v22  v23]
+                   // [v31  v32  v33]
+            (*elementMatrix)[i*dofs][j*dofs]   = v11; // d=0, first dimension
+            (*elementMatrix)[i*dofs][j*dofs+1] = v12;
+            (*elementMatrix)[i*dofs][j*dofs+2] = v13;
+            (*elementMatrix)[i*dofs+1][j*dofs] = v21;
+            (*elementMatrix)[i*dofs +1][j*dofs+1] =v22; //d=1, second dimension
+            (*elementMatrix)[i*dofs +1][j*dofs+2] =v22; //d=1, second dimension
+            (*elementMatrix)[i*dofs+2][j*dofs] = v31;
+            (*elementMatrix)[i*dofs +2][j*dofs+1] =v32; //d=2, third dimension
+            (*elementMatrix)[i*dofs +2][j*dofs+2] =v33; //d=2, third dimension
+
+                }// loop end over j node 
+            }// loop end over i node 
+        }// end if dim==3
 
 }
 
@@ -336,7 +491,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
                 LO index2 = dim * i + 1; //y 
                // uLoc[d][w] += this->solution_[index] * phi->at(w).at(i);
                 u11[0][w] += this->solution_[index1] * dPhiTrans[w][i][0];
-                u12[0][w] += this->solution_[index1] * dPhiTrans[w][i][1]; // because we are in 2D , 0 and 1 
+                u12[0][w] += this->solution_[index1] * dPhiTrans[w][i][1]; // because we are in 3D , 0 and 1 
                 u21[0][w] += this->solution_[index2] * dPhiTrans[w][i][0];
                 u22[0][w] += this->solution_[index2] * dPhiTrans[w][i][1];
                 
@@ -348,8 +503,6 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
             fab1->at(w) = 2.0*(u12[0][w]+u21[0][w])*(u11[0][w]+u22[0][w]);
 
     }
-
-
 //*******************************
 
 
@@ -472,6 +625,205 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
     } // loop end over i node
 
     } // end if dim 2
+    //***************************************************************************
+    //***************************************************************************
+    else if (dim == 3)
+    {
+          //************************************
+    // Compute shear rate gammaDot, which is a vector because it is evaluated at a gaussian quadrature point 
+    // for that compute velocity gradient
+    vec2D_dbl_Type u11(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to du/dx at each quadrature point
+    vec2D_dbl_Type u12(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to du/dy at each quadrature point
+    vec2D_dbl_Type u13(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to du/dz at each quadrature point
+    vec2D_dbl_Type u21(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to dv/dx at each quadrature point
+    vec2D_dbl_Type u22(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to dv/dy at each quadrature point
+    vec2D_dbl_Type u23(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to dv/dz at each quadrature point
+    vec2D_dbl_Type u31(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to dw/dx at each quadrature point
+    vec2D_dbl_Type u32(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to dw/dy at each quadrature point
+    vec2D_dbl_Type u33(1, vec_dbl_Type(weights->size(), -1.)); // should correspond to dw/dz at each quadrature point
+
+    vec_dbl_ptr_Type gammaDot(new vec_dbl_Type(weights->size(),0.0)); //gammaDot->at(j) j=0...weights 
+
+   vec_dbl_ptr_Type 	a1(new vec_dbl_Type(weights->size(),0.0)); // prefactor a= 4*(du/dx)^2 + (du/dy+dv/dx)^2 +  (dw/dx+du/dz)^2
+   vec_dbl_ptr_Type 	b1(new vec_dbl_Type(weights->size(),0.0)); // prefactor b= 4*(dv/dy)^2 + (du/dy+dv/dx)^2 +  (dw/dy+dv/dz)^2
+   vec_dbl_ptr_Type 	c1(new vec_dbl_Type(weights->size(),0.0)); // prefactor c= 4*(dw/dz)^2 + (dw/dx+du/dz)^2 +  (dw/dy+dv/dz)^2
+   vec_dbl_ptr_Type 	d1(new vec_dbl_Type(weights->size(),0.0)); // prefactor d= 2*(du/dy+dv/dx)*(du/dx+dv/dy) + (dw/dx+du/dz)*(dw/dy+dv/dz)
+   vec_dbl_ptr_Type 	e1(new vec_dbl_Type(weights->size(),0.0)); // prefactor e= 2*(dw/dx+du/dz)*(du/dx+dw/dz) + (du/dy+dv/dx)*(dw/dy+dv/dz)
+   vec_dbl_ptr_Type 	g1(new vec_dbl_Type(weights->size(),0.0)); // prefactor g= 2*(dw/dy+dv/dz)*(dv/dy+dw/dz) + (du/dy+dv/dx)*(dw/dx+du/dz)
+   
+   for (UN w=0; w<dPhiTrans.size(); w++){ //quads points
+   
+      // set again to zero 
+      u11[0][w] = 0.0;
+      u12[0][w] = 0.0;
+      u13[0][w] = 0.0;
+      u21[0][w] = 0.0;
+      u22[0][w] = 0.0;
+      u23[0][w] = 0.0;
+      u31[0][w] = 0.0;
+      u32[0][w] = 0.0;
+      u33[0][w] = 0.0;
+      
+            for (UN i=0; i < dPhiTrans[0].size(); i++) {
+                LO index1 = dim * i + 0; //x
+                LO index2 = dim * i + 1; //y 
+                LO index3 = dim * i + 2; //z
+               // uLoc[d][w] += this->solution_[index] * phi->at(w).at(i);
+                u11[0][w] += this->solution_[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
+                u12[0][w] += this->solution_[index1] * dPhiTrans[w][i][1]; // because we are in 3D , 0 and 1, 2 
+                u13[0][w] += this->solution_[index1] * dPhiTrans[w][i][2]; 
+                u21[0][w] += this->solution_[index2] * dPhiTrans[w][i][0]; // v*dphi_dx
+                u22[0][w] += this->solution_[index2] * dPhiTrans[w][i][1];
+                u23[0][w] += this->solution_[index2] * dPhiTrans[w][i][2];
+                u31[0][w] += this->solution_[index3] * dPhiTrans[w][i][0]; // w*dphi_dx
+                u32[0][w] += this->solution_[index3] * dPhiTrans[w][i][1];
+                u33[0][w] += this->solution_[index3] * dPhiTrans[w][i][2];
+                
+            }
+            gammaDot->at(w) = sqrt(2.0*u11[0][w]*u11[0][w]+ 2.0*u22[0][w]*u22[0][w] + 2.0*u33[0][w]*u33[0][w] +  (u12[0][w]+u21[0][w])*(u12[0][w]+u21[0][w])   + (u13[0][w]+u31[0][w])*(u13[0][w]+u31[0][w]) + (u23[0][w]+u32[0][w])*(u23[0][w]+u32[0][w]) );
+            a1->at(w)= 4.0*(u11[0][w]*u11[0][w]) + (u12[0][w]+u21[0][w])*(u12[0][w]+u21[0][w])+(u31[0][w]+u13[0][w])*(u31[0][w]+u13[0][w]);
+            b1->at(w)= 4.0*(u22[0][w]*u22[0][w]) + (u12[0][w]+u21[0][w])*(u12[0][w]+u21[0][w])+(u32[0][w]+u23[0][w])*(u32[0][w]+u23[0][w]);
+            c1->at(w)= 4.0*(u33[0][w]*u33[0][w]) + (u31[0][w]+u13[0][w])*(u31[0][w]+u13[0][w])+(u32[0][w]+u23[0][w])*(u32[0][w]+u23[0][w]);
+            d1->at(w)= 2.0*(u12[0][w]+u21[0][w])*(u11[0][w]+u22[0][w])+(u31[0][w]+u13[0][w])*(u32[0][w]+u23[0][w]);
+            e1->at(w)= 2.0*(u31[0][w]+u13[0][w])*(u11[0][w]+u33[0][w])+(u12[0][w]+u21[0][w])*(u32[0][w]+u23[0][w]);
+            g1->at(w)= 2.0*(u32[0][w]+u23[0][w])*(u22[0][w]+u33[0][w])+(u12[0][w]+u21[0][w])*(u31[0][w]+u13[0][w]);
+
+
+    }
+
+
+      // Initialize some helper vectors/matrices
+        double v11, v12, v13, v21, v22, v23, v31, v32, v33, value1_j, value2_j, value3_j , value1_i, value2_i, value3_i,deta_dgamma_dgamma_dtau;
+        SmallMatrix<double> e1i(dim);
+        SmallMatrix<double> e2i(dim);
+        SmallMatrix<double> e3i(dim);
+        SmallMatrix<double> e1j(dim);
+        SmallMatrix<double> e2j(dim);
+        SmallMatrix<double> e3j(dim);
+
+         deta_dgamma_dgamma_dtau =0.;
+
+    // Construct element matrices 
+     for (UN i=0; i < numNodes; i++) {
+       // Teuchos::Array<SC> value(dPhiTrans[0].size(), 0. ); // dPhiTrans[0].size() is 3        
+      
+        for (UN j=0; j < numNodes; j++) {
+        // Reset values
+        v11 = 0.0;v12 = 0.0;v13=0.0; v21 = 0.0;v22 = 0.0;v23=0.0;v31=0.0;v32=0.0;v33=0.0;
+
+            // So in general compute the components of eta*[ dPhiTrans_i : ( dPhiTrans_j + (dPhiTrans_j)^T )]
+            for (UN w=0; w<dPhiTrans.size(); w++) {
+
+                        value1_j = dPhiTrans.at(w).at(j).at(0); // so this corresponds to d\phi_j/dx
+                        value2_j = dPhiTrans.at(w).at(j).at(1); // so this corresponds to d\phi_j/dy
+                        value3_j = dPhiTrans.at(w).at(j).at(2); // so this corresponds to d\phi_j/dz
+
+
+                        value1_i = dPhiTrans.at(w).at(i).at(0); // so this corresponds to d\phi_i/dx
+                        value2_i = dPhiTrans.at(w).at(i).at(1); // so this corresponds to d\phi_i/dy
+                        value3_i = dPhiTrans.at(w).at(i).at(2); // so this corresponds to d\phi_i/dz
+
+
+                        e1j[0][0] = 2.*value1_j;
+                        e1j[0][1] = value2_j;
+                        e1j[0][2] = value3_j;
+                        e1j[1][0] = value2_j;
+                        e1j[2][0] = value3_j;
+
+                        e1i[0][0] = value1_i*a1->at(w);
+                        e1i[0][1] = value2_i*a1->at(w);
+                        e1i[0][2] = value3_i*a1->at(w);
+                        e1i[1][0] = value1_i*d1->at(w);
+                        e1i[1][1] = value2_i*d1->at(w);
+                        e1i[1][2] = value3_i*d1->at(w);
+                        e1i[2][0] = value1_i*e1->at(w);
+                        e1i[2][1] = value2_i*e1->at(w);
+                        e1i[2][2] = value3_i*e1->at(w);
+                        
+
+
+                        e2j[1][0] = value1_j;
+                        e2j[1][1] = 2.*value2_j;
+                        e2j[1][2] = value3_j;
+                        e2j[0][1] = value1_j;
+                        e2j[2][1] = value3_j;
+
+                        e2i[0][0] = value1_i*d1->at(w);
+                        e2i[0][1] = value2_i*d1->at(w);
+                        e2i[0][2] = value3_i*d1->at(w);
+                        e2i[1][0] = value1_i*b1->at(w);
+                        e2i[1][1] = value2_i*b1->at(w);
+                        e2i[1][2] = value3_i*b1->at(w);
+                        e2i[2][0] = value1_i*g1->at(w);
+                        e2i[2][1] = value2_i*g1->at(w);
+                        e2i[2][2] = value3_i*g1->at(w);
+
+
+                        e3j[2][0] = value1_j;
+                        e3j[2][1] = value2_j;
+                        e3j[2][2] = 2.*value3_j;
+                        e3j[0][2] = value1_j;
+                        e3j[1][2] = value2_j;
+
+                        e3i[0][0] = value1_i*e1->at(w);
+                        e3i[0][1] = value2_i*e1->at(w);
+                        e3i[0][2] = value3_i*e1->at(w);
+                        e3i[1][0] = value1_i*g1->at(w);
+                        e3i[1][1] = value2_i*g1->at(w);
+                        e3i[1][2] = value3_i*g1->at(w);
+                        e3i[2][0] = value1_i*c1->at(w);
+                        e3i[2][1] = value2_i*c1->at(w);
+                        e3i[2][2] = value3_i*c1->at(w);
+
+                       this->materialModel->evaluateDerivative(this->params_,  gammaDot->at(w), deta_dgamma_dgamma_dtau);
+	
+                       // Construct entries - we go over all quadrature points and if j is updated we set v11 etc. again to zero
+                        v11 = v11 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e1i.innerProduct(e1j);
+                        v12 = v12 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e1i.innerProduct(e2j);
+                        v13 = v13 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e1i.innerProduct(e3j);
+
+                        v21 = v21 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e2i.innerProduct(e1j);
+                        v22 = v22 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e2i.innerProduct(e2j);
+                        v23 = v23 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e2i.innerProduct(e3j);
+
+                        v31 = v31 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e3i.innerProduct(e1j);
+                        v32 = v32 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e3i.innerProduct(e2j);
+                        v33 = v33 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e3i.innerProduct(e3j);
+
+
+                    }// loop end quadrature points
+            
+                   //multiply determinant from transformation
+                    v11 *= absDetB ;
+                    v12 *= absDetB ;
+                    v13 *= absDetB ;
+                    v21 *= absDetB ;
+                    v22 *= absDetB ;
+                    v23 *= absDetB ;
+                    v31 *= absDetB ;
+                    v32 *= absDetB ;
+                    v33 *= absDetB ;
+
+                   // Put values on the right position in element matrix - d=2 because we are in two dimensional case
+                   // [v11  v12  v13]
+                   // [v21  v22  v23]
+                   // [v31  v32  v33]
+            (*elementMatrix)[i*dofs][j*dofs]   = v11; // d=0, first dimension
+            (*elementMatrix)[i*dofs][j*dofs+1] = v12;
+            (*elementMatrix)[i*dofs][j*dofs+2] = v13;
+            (*elementMatrix)[i*dofs+1][j*dofs] = v21;
+            (*elementMatrix)[i*dofs +1][j*dofs+1] =v22; //d=1, second dimension
+            (*elementMatrix)[i*dofs +1][j*dofs+2] =v22; //d=1, second dimension
+            (*elementMatrix)[i*dofs+2][j*dofs] = v31;
+            (*elementMatrix)[i*dofs +2][j*dofs+1] =v32; //d=2, third dimension
+            (*elementMatrix)[i*dofs +2][j*dofs+2] =v33; //d=2, third dimension
+
+                }// loop end over j node 
+            }// loop end over i node 
+
+
+
+    }// end if dim = 3
 
 }
 

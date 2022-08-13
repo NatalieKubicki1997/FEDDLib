@@ -33,14 +33,6 @@ DifferentiableFuncClass<SC,LO,GO,NO>(params)
                 double a = 2.0;*/
                 //double etavalue = k*gammaDot->at(w); // it worked with this// n-1 -> we get for shear thinning fluids a n < 1
                 //double etavalue = k*pow(gammaDot->at(w),0); // we have to check that gammaDot is not zero because then we divide through something which is almost zero
-                /*
-                SO WE HAVE TO BE CAREFUL IF THE MODEL IS DEFINED IN A WAY WHERE A DIVISION IS DONE OR A MULTIPLICATION */
-                /*double k = 0.017;
-                double n = 0.6; //0.3...
-                double etazero = 0.035 ;
-                double etainfty = 0.0;     
-                double lambda =1.0 ;
-                double a = 1.0;*/
 
 
 template <class SC, class LO, class GO, class NO>
@@ -49,9 +41,6 @@ void CarreauYasuda<SC,LO,GO,NO>::evaluateFunction(ParameterListPtr_Type params, 
     viscosity = this->nu_infty +(this->nu_0-this->nu_infty)*(pow(1.0+pow(this->characteristicTime*shearRate,this->inflectionPoint)    , (this->fluid_index_n-1.0)/this->inflectionPoint ));
     this-> viscosity_ = viscosity;
 }
-
-
-
 
 
     /**** Initialize outside! */
@@ -66,17 +55,7 @@ void CarreauYasuda<SC,LO,GO,NO>::evaluateFunction(ParameterListPtr_Type params, 
                 double lambda =3.313 ;
                 double a = 2.0;*/
 
-               /* double k = 0.017;
-                double n = 0.6; //0.3...
-                double etazero = 0.035 ;
-                double etainfty = 0.0;     
-                double lambda =1.0 ;
-                double a = 1.0;*/
                 
-                // here comes now the specific derivative of the chosen viscosity model in
-                // so in general d eta/ d gamma * d gamma / d Pi
-                //TODOO what if a < 2 ... then we get a nan value ..
-                // So we have to catch the problem that if gamma is zero
 template <class SC, class LO, class GO, class NO>
 void CarreauYasuda<SC,LO,GO,NO>::evaluateDerivative(ParameterListPtr_Type params, double shearRate, double &res) {
 	
