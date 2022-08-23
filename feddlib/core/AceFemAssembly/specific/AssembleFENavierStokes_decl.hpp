@@ -24,7 +24,6 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
 
 	typedef AssembleFE<SC,LO,GO,NO> AssembleFE_Type;
 
-
 	/*!
 	 \brief Assemble the element Jacobian matrix.
 	*/
@@ -116,6 +115,8 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
 
 	vec_dbl_Type solutionVelocity_;
 	vec_dbl_Type solutionPressure_;
+
+
 
 	SmallMatrixPtr_Type constantMatrix_;
 	SmallMatrixPtr_Type ANB_;

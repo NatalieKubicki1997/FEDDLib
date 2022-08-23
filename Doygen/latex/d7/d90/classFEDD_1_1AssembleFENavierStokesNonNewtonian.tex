@@ -1,0 +1,138 @@
+\hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian}{}\doxysection{F\+E\+DD\+::Assemble\+F\+E\+Navier\+Stokes\+Non\+Newtonian$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian}\index{FEDD::AssembleFENavierStokesNonNewtonian$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFENavierStokesNonNewtonian$<$ SC, LO, GO, NO $>$}}
+
+
+Inheritance diagram for F\+E\+DD\+::Assemble\+F\+E\+Navier\+Stokes\+Non\+Newtonian$<$ SC, LO, GO, NO $>$\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=265pt]{d3/db3/classFEDD_1_1AssembleFENavierStokesNonNewtonian__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for F\+E\+DD\+::Assemble\+F\+E\+Navier\+Stokes\+Non\+Newtonian$<$ SC, LO, GO, NO $>$\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{d8/d68/classFEDD_1_1AssembleFENavierStokesNonNewtonian__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_af01a14d30f70a809b4e3451e5283f3e6}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_af01a14d30f70a809b4e3451e5283f3e6}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}}$<$ SC, LO, GO, NO $>$ {\bfseries Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a067fc25d8976f9d8556093f8bc7198d2}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a067fc25d8976f9d8556093f8bc7198d2}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix\+\_\+\+Type}} $>$ {\bfseries Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_abef342601c96c323b4a28b06301a59c1}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_abef342601c96c323b4a28b06301a59c1}} 
+typedef \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ SC $>$ {\bfseries Small\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a3cf7c4effb6cda1c5f1635b310541e41}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a3cf7c4effb6cda1c5f1635b310541e41}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix\+\_\+\+Type}} $>$ {\bfseries Small\+Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a0d7bbbeb45fd27b89a530047ff1002ff}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a0d7bbbeb45fd27b89a530047ff1002ff}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector}}$<$ SC, LO, GO, NO $>$ {\bfseries Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a2278217f195b7ec1f7ffdd7b3666c185}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a2278217f195b7ec1f7ffdd7b3666c185}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a9741f4f259b64be495e9e33206205242}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a9741f4f259b64be495e9e33206205242}} 
+typedef \mbox{\hyperlink{classFEDD_1_1AssembleFE}{Assemble\+FE}}$<$ SC, LO, GO, NO $>$ {\bfseries Assemble\+F\+E\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a59777da424c32767c7fde13b40414829}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a59777da424c32767c7fde13b40414829}} 
+typedef \mbox{\hyperlink{classFEDD_1_1DifferentiableFuncClass}{Differentiable\+Func\+Class}}$<$ SC, LO, GO, NO $>$ {\bfseries Differentiable\+Func\+Class\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a2615f6584c061f95d6517dc692f5b78c}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a2615f6584c061f95d6517dc692f5b78c}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1DifferentiableFuncClass}{Differentiable\+Func\+Class\+\_\+\+Type}} $>$ {\bfseries Differentiable\+Func\+Class\+Ptr\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a7c0d3c5f676915a3e51cddaecd57bd8d}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a7c0d3c5f676915a3e51cddaecd57bd8d}} 
+virtual void \mbox{\hyperlink{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a7c0d3c5f676915a3e51cddaecd57bd8d}{assemble\+Jacobian}} ()
+\begin{DoxyCompactList}\small\item\em Assemble the element Jacobian matrix. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a8f7ec6edc17424cf73f33ce86dad062e}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a8f7ec6edc17424cf73f33ce86dad062e}} 
+virtual void \mbox{\hyperlink{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a8f7ec6edc17424cf73f33ce86dad062e}{assemble\+R\+HS}} ()
+\begin{DoxyCompactList}\small\item\em Assemble the element right hand side vector. \end{DoxyCompactList}\item 
+virtual vec\+\_\+dbl\+\_\+\+Type \mbox{\hyperlink{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a6a6839a50b973c71d7d37b0a6f61e0ad}{get\+Viscosity\+Solution}} ()
+\begin{DoxyCompactList}\small\item\em Get the current local solution vector for the viscosity. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_af92a3f7bb8ca30dc735cbcf48b017b67}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_af92a3f7bb8ca30dc735cbcf48b017b67}} 
+vec\+\_\+dbl\+\_\+\+Type {\bfseries solution\+Viscosity\+\_\+}
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_ae28499b32d503d1676bf411020dd8c92}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_ae28499b32d503d1676bf411020dd8c92}} 
+std\+::string {\bfseries shear\+Thinning\+Model}
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a30ff0dcd1d500892033fc319deacb8fb}{Assemble\+F\+E\+Factory$<$ S\+C, L\+O, G\+O, N\+O $>$}}
+\begin{DoxyCompactList}\small\item\em Assembly advection vector field $ \int_T \nabla v \cdot u(\nabla u) ~dx$. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a6a6839a50b973c71d7d37b0a6f61e0ad}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a6a6839a50b973c71d7d37b0a6f61e0ad}} 
+\index{FEDD::AssembleFENavierStokesNonNewtonian$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFENavierStokesNonNewtonian$<$ SC, LO, GO, NO $>$}!getViscositySolution@{getViscositySolution}}
+\index{getViscositySolution@{getViscositySolution}!FEDD::AssembleFENavierStokesNonNewtonian$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFENavierStokesNonNewtonian$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{getViscositySolution()}{getViscositySolution()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+vec\+\_\+dbl\+\_\+\+Type \mbox{\hyperlink{classFEDD_1_1AssembleFENavierStokesNonNewtonian}{F\+E\+D\+D\+::\+Assemble\+F\+E\+Navier\+Stokes\+Non\+Newtonian}}$<$ SC, LO, GO, NO $>$\+::get\+Viscosity\+Solution\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Get the current local solution vector for the viscosity. 
+
+\begin{DoxyReturn}{Returns}
+the viscosity solution vector. 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classFEDD_1_1AssembleFENavierStokes}{F\+E\+D\+D\+::\+Assemble\+F\+E\+Navier\+Stokes$<$ default\+\_\+sc, default\+\_\+lo, default\+\_\+go, default\+\_\+no $>$}}.
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a30ff0dcd1d500892033fc319deacb8fb}\label{classFEDD_1_1AssembleFENavierStokesNonNewtonian_a30ff0dcd1d500892033fc319deacb8fb}} 
+\index{FEDD::AssembleFENavierStokesNonNewtonian$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFENavierStokesNonNewtonian$<$ SC, LO, GO, NO $>$}!AssembleFEFactory$<$ SC, LO, GO, NO $>$@{AssembleFEFactory$<$ SC, LO, GO, NO $>$}}
+\index{AssembleFEFactory$<$ SC, LO, GO, NO $>$@{AssembleFEFactory$<$ SC, LO, GO, NO $>$}!FEDD::AssembleFENavierStokesNonNewtonian$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFENavierStokesNonNewtonian$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{AssembleFEFactory$<$ SC, LO, GO, NO $>$}{AssembleFEFactory< SC, LO, GO, NO >}}
+{\footnotesize\ttfamily template$<$class SC  = default\+\_\+sc, class LO  = default\+\_\+lo, class GO  = default\+\_\+go, class NO  = default\+\_\+no$>$ \\
+friend class \mbox{\hyperlink{classFEDD_1_1AssembleFEFactory}{Assemble\+F\+E\+Factory}}$<$ SC, LO, GO, NO $>$\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Assembly advection vector field $ \int_T \nabla v \cdot u(\nabla u) ~dx$. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em \&element\+Matrix} & \\
+\hline
+\end{DoxyParams}
+Assembly advection vector field in u ~\newline
+ 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em \&element\+Matrix} & \\
+\hline
+\end{DoxyParams}
+Assembly $ \int_T div(v) p ~dx$ / $ \int_T div(u) q ~dx$ 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em \&element\+Matrix} & \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Ace\+Fem\+Assembly/specific/Assemble\+F\+E\+Navier\+Stokes\+Non\+Newtonian\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Ace\+Fem\+Assembly/specific/Assemble\+F\+E\+Navier\+Stokes\+Non\+Newtonian\+\_\+def.\+hpp\end{DoxyCompactItemize}

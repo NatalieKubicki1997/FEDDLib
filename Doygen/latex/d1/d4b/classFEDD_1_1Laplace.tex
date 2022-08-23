@@ -1,0 +1,77 @@
+\hypertarget{classFEDD_1_1Laplace}{}\doxysection{F\+E\+DD\+::Laplace$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1Laplace}\index{FEDD::Laplace$<$ SC, LO, GO, NO $>$@{FEDD::Laplace$<$ SC, LO, GO, NO $>$}}
+
+
+Inheritance diagram for F\+E\+DD\+::Laplace$<$ SC, LO, GO, NO $>$\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=216pt]{d9/d2f/classFEDD_1_1Laplace__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for F\+E\+DD\+::Laplace$<$ SC, LO, GO, NO $>$\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=216pt]{d3/d3f/classFEDD_1_1Laplace__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Laplace_a1036ee49dfb2b1b576e572850b4a4868}\label{classFEDD_1_1Laplace_a1036ee49dfb2b1b576e572850b4a4868}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Problem}{Problem}}$<$ SC, LO, GO, NO $>$ {\bfseries Problem\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Laplace_a9d1de60ce21111af49154edc5d9c3fd6}\label{classFEDD_1_1Laplace_a9d1de60ce21111af49154edc5d9c3fd6}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Matrix}{Problem\+\_\+\+Type\+::\+Matrix\+\_\+\+Type}} {\bfseries Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Laplace_a4bf5bc99eed9eb63c429cb153313bdb9}\label{classFEDD_1_1Laplace_a4bf5bc99eed9eb63c429cb153313bdb9}} 
+typedef Problem\+\_\+\+Type\+::\+Matrix\+Ptr\+\_\+\+Type {\bfseries Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Laplace_a7d97ae281f7bba294a957c91b241fe2a}\label{classFEDD_1_1Laplace_a7d97ae281f7bba294a957c91b241fe2a}} 
+typedef \mbox{\hyperlink{classFEDD_1_1BlockMatrix}{Problem\+\_\+\+Type\+::\+Block\+Matrix\+\_\+\+Type}} {\bfseries Block\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Laplace_a758a5e6077636a4d8385f41aa7fb3659}\label{classFEDD_1_1Laplace_a758a5e6077636a4d8385f41aa7fb3659}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MultiVector}{Problem\+\_\+\+Type\+::\+Multi\+Vector\+\_\+\+Type}} {\bfseries Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Laplace_aad1a6e131b6f78a61fd213aff3b9d373}\label{classFEDD_1_1Laplace_aad1a6e131b6f78a61fd213aff3b9d373}} 
+typedef Problem\+\_\+\+Type\+::\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Laplace_a33f944f1d8a7ee7b4e4589d3ff001358}\label{classFEDD_1_1Laplace_a33f944f1d8a7ee7b4e4589d3ff001358}} 
+typedef Problem\+\_\+\+Type\+::\+Domain\+Const\+Ptr\+\_\+\+Type {\bfseries Domain\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Laplace_a3308b22e38f955f299dd266eab292ec2}\label{classFEDD_1_1Laplace_a3308b22e38f955f299dd266eab292ec2}} 
+typedef Problem\+\_\+\+Type\+::\+Comm\+Const\+Ptr\+\_\+\+Type {\bfseries Comm\+Const\+Ptr\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Laplace_ac2a5671db2dc25cd98242b7f02ea9c6d}\label{classFEDD_1_1Laplace_ac2a5671db2dc25cd98242b7f02ea9c6d}} 
+{\bfseries Laplace} (const Domain\+Const\+Ptr\+\_\+\+Type \&domain, std\+::string F\+E\+Type, Parameter\+List\+Ptr\+\_\+\+Type parameter\+List, bool vector\+Laplace=false)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Laplace_a658e5536e0b6f71305ef11f632bf95af}\label{classFEDD_1_1Laplace_a658e5536e0b6f71305ef11f632bf95af}} 
+virtual void {\bfseries info} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Laplace_a47f019d55b4d2ede8073789f511bc725}\label{classFEDD_1_1Laplace_a47f019d55b4d2ede8073789f511bc725}} 
+virtual void {\bfseries assemble} (std\+::string type=\char`\"{}\char`\"{}) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Laplace_a85fdf80ec09b7f6f59ac0ec88e3dac04}\label{classFEDD_1_1Laplace_a85fdf80ec09b7f6f59ac0ec88e3dac04}} 
+virtual void {\bfseries get\+Values\+Of\+Interest} (vec\+\_\+dbl\+\_\+\+Type \&values)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Laplace_aabc4b6e9e06caf278a9b143c4d712f60}\label{classFEDD_1_1Laplace_aabc4b6e9e06caf278a9b143c4d712f60}} 
+Matrix\+Ptr\+\_\+\+Type {\bfseries get\+Mass\+Matrix} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Laplace_a0eee543bfc22584503e7adf08598cdea}\label{classFEDD_1_1Laplace_a0eee543bfc22584503e7adf08598cdea}} 
+virtual void {\bfseries compute\+Values\+Of\+Interest\+And\+Export} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/specific/Laplace\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/specific/Laplace\+\_\+def.\+hpp\end{DoxyCompactItemize}

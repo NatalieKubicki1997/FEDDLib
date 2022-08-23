@@ -1,0 +1,91 @@
+\hypertarget{classFEDD_1_1AssembleFEFactory}{}\doxysection{F\+E\+DD\+::Assemble\+F\+E\+Factory Class Reference}
+\label{classFEDD_1_1AssembleFEFactory}\index{FEDD::AssembleFEFactory@{FEDD::AssembleFEFactory}}
+
+
+This class allows for constructing \mbox{\hyperlink{classFEDD_1_1AssembleFE}{Assemble\+FE}} objects.  
+
+
+
+
+{\ttfamily \#include $<$Assemble\+F\+E\+Factory\+\_\+decl.\+hpp$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEFactory_ae3b67838700f08ed59e66c629e81c671}\label{classFEDD_1_1AssembleFEFactory_ae3b67838700f08ed59e66c629e81c671}} 
+typedef \mbox{\hyperlink{classFEDD_1_1AssembleFE}{Assemble\+FE}}$<$ SC, LO, GO, NO $>$ {\bfseries Assemble\+F\+E\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEFactory_aae06a5c95afed24e18e1588766aa1a74}\label{classFEDD_1_1AssembleFEFactory_aae06a5c95afed24e18e1588766aa1a74}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1AssembleFE}{Assemble\+F\+E\+\_\+\+Type}} $>$ {\bfseries Assemble\+F\+E\+Ptr\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classFEDD_1_1AssembleFEFactory_aed39a16691b786ab70bcf16c8d8c5ff8}{Assemble\+F\+E\+Factory}} ()
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+Assemble\+F\+E\+Ptr\+\_\+\+Type \mbox{\hyperlink{classFEDD_1_1AssembleFEFactory_a3fb8f9832f428255d87fae4a5bdd04b1}{build}} (string problem\+Type, int flag, vec2\+D\+\_\+dbl\+\_\+\+Type nodes\+Ref\+Config, Parameter\+List\+Ptr\+\_\+\+Type params, tuple\+\_\+disk\+\_\+vec\+\_\+ptr\+\_\+\+Type tuple)
+\begin{DoxyCompactList}\small\item\em We only need this one function to build assemble\+FE, where we define the problem type and the \mbox{\hyperlink{classFEDD_1_1AssembleFE}{Assemble\+FE}} object we extend to a specific problem. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This class allows for constructing \mbox{\hyperlink{classFEDD_1_1AssembleFE}{Assemble\+FE}} objects. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em SC} & The scalar type. So far, this is always double, but having it as a template parameter would allow flexibily, e.\+g., for using complex instead \\
+\hline
+{\em LO} & The local ordinal type. The is the index type for local indices \\
+\hline
+{\em GO} & The global ordinal type. The is the index type for global indices (this should actually by removed since the class should operate only on element level) \\
+\hline
+{\em NO} & The Kokkos Node type. This would allow for performance portibility when using Kokkos. Currently, this is not used.\\
+\hline
+\end{DoxyTemplParams}
+This class provides a function for constructing objects of classes derived from \mbox{\hyperlink{classFEDD_1_1AssembleFE}{Assemble\+FE}}. In particular, an \mbox{\hyperlink{classFEDD_1_1AssembleFE}{Assemble\+FE}} object is constructed as follows\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{AssembleFE assmeblyFe = \mbox{\hyperlink{classFEDD_1_1AssembleFEFactory_a3fb8f9832f428255d87fae4a5bdd04b1}{AssembleFEFactory<>::build}}(\textcolor{stringliteral}{"problemType"},flag,nodesRefConfig,params);}
+\end{DoxyCode}
+ If a new element assembly is implemented, it has to be added to the \mbox{\hyperlink{classFEDD_1_1AssembleFEFactory_a3fb8f9832f428255d87fae4a5bdd04b1}{build()}} function. Only then, this element assembly can be executed within the F\+E\+D\+D\+Lib. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEFactory_aed39a16691b786ab70bcf16c8d8c5ff8}\label{classFEDD_1_1AssembleFEFactory_aed39a16691b786ab70bcf16c8d8c5ff8}} 
+\index{FEDD::AssembleFEFactory@{FEDD::AssembleFEFactory}!AssembleFEFactory@{AssembleFEFactory}}
+\index{AssembleFEFactory@{AssembleFEFactory}!FEDD::AssembleFEFactory@{FEDD::AssembleFEFactory}}
+\doxysubsubsection{\texorpdfstring{AssembleFEFactory()}{AssembleFEFactory()}}
+{\footnotesize\ttfamily F\+E\+D\+D\+::\+Assemble\+F\+E\+Factory\+::\+Assemble\+F\+E\+Factory (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Constructor. 
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEFactory_a3fb8f9832f428255d87fae4a5bdd04b1}\label{classFEDD_1_1AssembleFEFactory_a3fb8f9832f428255d87fae4a5bdd04b1}} 
+\index{FEDD::AssembleFEFactory@{FEDD::AssembleFEFactory}!build@{build}}
+\index{build@{build}!FEDD::AssembleFEFactory@{FEDD::AssembleFEFactory}}
+\doxysubsubsection{\texorpdfstring{build()}{build()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classFEDD_1_1AssembleFEFactory}{Assemble\+F\+E\+Factory}}$<$ SC, LO, GO, NO $>$\+::Assemble\+F\+E\+Ptr\+\_\+\+Type F\+E\+D\+D\+::\+Assemble\+F\+E\+Factory\+::build (\begin{DoxyParamCaption}\item[{string}]{problem\+Type,  }\item[{int}]{flag,  }\item[{vec2\+D\+\_\+dbl\+\_\+\+Type}]{nodes\+Ref\+Config,  }\item[{Parameter\+List\+Ptr\+\_\+\+Type}]{params,  }\item[{tuple\+\_\+disk\+\_\+vec\+\_\+ptr\+\_\+\+Type}]{tuple }\end{DoxyParamCaption})}
+
+
+
+We only need this one function to build assemble\+FE, where we define the problem type and the \mbox{\hyperlink{classFEDD_1_1AssembleFE}{Assemble\+FE}} object we extend to a specific problem. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em problem\+Type} & Type of specfic problem we focus on \\
+\hline
+\mbox{\texttt{ in}}  & {\em flag} & Flag of element \\
+\hline
+\mbox{\texttt{ in}}  & {\em nodes\+Ref\+Config} & Nodes of element in reference configuration \\
+\hline
+\mbox{\texttt{ in}}  & {\em params} & Parameterlist for current problem \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Ace\+Fem\+Assembly/Assemble\+F\+E\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Ace\+Fem\+Assembly/Assemble\+F\+E\+Factory\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Ace\+Fem\+Assembly/Assemble\+F\+E\+Factory\+\_\+def.\+hpp\end{DoxyCompactItemize}

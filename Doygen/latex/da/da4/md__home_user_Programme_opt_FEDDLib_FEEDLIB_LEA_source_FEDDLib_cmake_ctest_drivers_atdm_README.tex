@@ -1,0 +1,419 @@
+The files and scripts in this directory drive builds of Trilinos on the various A\+T\+DM test platforms using Jenkins jobs and submit results to the Trilinos C\+Dash site.
+
+{\bfseries{Outline\+:}}
+\begin{DoxyItemize}
+\item \href{\#base-ctestcdash-configuration}{\texttt{ Base C\+Test/\+C\+Dash configuration}}
+\item \href{\#system-specific-driver-files}{\texttt{ System-\/specific driver files}}
+\item \href{\#split-ctest--s-drivers-and-submits-to-cdash}{\texttt{ Split ctest -\/S drivers and submits to C\+Dash}}
+\item \href{\#running-locally-and-debugging}{\texttt{ Running locally and debugging}}
+\item \href{\#setting-up-jenkins-jobs}{\texttt{ Setting up Jenkins jobs}}
+\item \href{\#specific-system_name-directories}{\texttt{ Specific  directories}}
+\item \href{\#how-add-a-new-system}{\texttt{ How add a new system}}
+\end{DoxyItemize}
+
+\doxysection*{Base C\+Test/\+C\+Dash configuration}
+
+The base directory\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/ctest/drivers/atdm/}
+\end{DoxyCode}
+
+
+contains files that are used for driving builds on all machines. These files define common behavior and reduces duplication to ease maintenance.
+
+This directory contains the file\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/ctest/drivers/atdm/TrilinosCTestDriverCore.atdm.cmake}
+\end{DoxyCode}
+
+
+which sets up the C\+Test -\/S script driver options that are used for all automated A\+T\+DM builds of Trilinos. It uses the configuration of Trilinos given in the files defined in the directory\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/std/atdm/}
+\end{DoxyCode}
+
+
+That file reads {\ttfamily J\+O\+B\+\_\+\+N\+A\+ME} from the environment and uses it to set the C\+Dash build name. (Therefore, the Jenkins {\ttfamily J\+O\+B\+\_\+\+N\+A\+ME} is the same as the C\+Dash build name for all of these Trilinos A\+T\+DM builds.) It also other C\+Make and C\+Test options that are pulled out of the environment set by the {\ttfamily cmake/std/atdm/$<$system\+\_\+name$>$/environment.sh} script. (See {\ttfamily \$\+E\+NV\{$<$var\+Name$>$\}} to see what variables are pulled out of the env.)
+
+This directory contains a C\+Test -\/S driver script\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/ctest/drivers/atdm/ctest-\/driver.cmake}
+\end{DoxyCode}
+
+
+which is called using\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{ctest -\/S <base-\/dir>/Trilinos/cmake/ctest/drivers/atdm/ctest-\/driver.cmake}
+\end{DoxyCode}
+
+
+which can be run using any way desired and it will clone a new Trilinos git repo (if not cloned already). (But this file gets directly run by the universal driver script {\ttfamily ctest-\/s-\/driver.\+sh} described above.)
+
+This directory contains the file\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/ctest/drivers/atdm/ctest-\/s-\/driver.sh}
+\end{DoxyCode}
+
+
+which sets up and runs {\ttfamily ctest -\/S .../atdm/ctest-\/driver.cmake}. (Note, there are also {\ttfamily ctest-\/s-\/driver-\/config-\/build.\+sh} and {\ttfamily ctest-\/s-\/driver-\/test.\+sh} drivers as explained \href{\#split-ctest--s-drivers-and-submits-to-cdash}{\texttt{ below}}.)
+
+This base directly also contains the script\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/ctest/drivers/atdm/smart-\/jenkins-\/driver.sh}
+\end{DoxyCode}
+
+
+which just runs\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\$WORKSPACE/Trilinos/cmake/ctest/drivers/atdm/<system\_name>/drivers/\$JOB\_NAME.sh}
+\end{DoxyCode}
+
+
+for that current system for the given job name.
+
+\doxysection*{System-\/specific driver files}
+
+Each system {\ttfamily $<$system\+\_\+name$>$} is given a subdirectory under this directory\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/ctest/drivers/atdm/<system\_name>/}
+\end{DoxyCode}
+
+
+Each {\ttfamily atdm/$<$system\+\_\+name$>$/} directory minimally contains a local driver script\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/ctest/drivers/atdm/<system\_name>/local-\/driver.sh}
+\end{DoxyCode}
+
+
+which launches the {\ttfamily ctest-\/s-\/driver.\+sh} script in the appropriate way for that system (such as using a batch running system like Slum). This script assumes a directory structure as set up by Jenkins but does not really require Jenkins to run it.
+
+The sub-\/directory\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/ctest/drivers/atdm/<system\_name>/drivers/}
+\end{DoxyCode}
+
+
+contains specific drivers with the file names of the Jenkins build names\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/ctest/drivers/atdm/<system\_name>/drivers/\$JOB\_NAME.sh}
+\end{DoxyCode}
+
+
+This file sets some tweaks for that particular build {\ttfamily \$\+J\+O\+B\+\_\+\+N\+A\+ME} link such as which C\+Dash Track/\+Group results are sent to and other tweaks like this. Having this file and using {\ttfamily smart-\/jenkins-\/driver.\+sh} allows customizing almost anything about a particular A\+T\+DM build of Trilinos without having to touch the Jenkins job configuration (which is not under any type of version control).
+
+\doxysection*{Split ctest -\/S drivers and submits to C\+Dash}
+
+On some machines (e.\+g. the S\+NL H\+PC machines), the update, configure and build must be done on a login/compile node and running the tests must be done on a compute node. To accommodate this, the update, configure, build and submit of those results to C\+Dash can be done in one {\ttfamily ctest -\/S} driver invocation and then running the tests and submitting those results to C\+Dash can be done in a later {\ttfamily ctest -\/S} driver invocation.
+
+To use this approach, the {\ttfamily $<$system-\/name$>$/local-\/driver.sh} script should be set up to run as follows\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{source \$WORKSPACE/Trilinos/cmake/ctest/drivers/atdm/ctest-\/s-\/driver-\/config-\/build.sh}
+\DoxyCodeLine{<comamnd-\/to-\/run-\/on-\/compute-\/node> \(\backslash\)}
+\DoxyCodeLine{  \$WORKSPACE/Trilinos/cmake/ctest/drivers/atdm/ctest-\/s-\/driver-\/test.sh}
+\end{DoxyCode}
+
+
+The first script {\ttfamily ctest-\/s-\/driver-\/config-\/build.\+sh} must be sourced instead of just run because it sets up the environment and changes to a subdir. The environment must be loaded on the login/compile node and not the compute node and therefore, it must be done this way.
+
+With newer versions of C\+Make (3.\+10+), this will result in all of the results going to the same build (i.\+e. row) on C\+Dash. For older versions of C\+Make, the test results show up as a separate build (same {\ttfamily site} and {\ttfamily build name} but different {\ttfamily build stamp}).
+
+\doxysection*{Running locally and debugging}
+
+To run locally, first set up a mock Jenkins workspace directory structure and set up symlinks to the local Trilinos git repo as\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\$ cd <some\_base\_build\_dir>/}
+\DoxyCodeLine{\$ mkdir MOCK\_jenkins\_driver}
+\DoxyCodeLine{\$ cd MOCK\_jenkins\_driver/}
+\DoxyCodeLine{\$ ln -\/s <some\_base\_dir>/Trilinos .}
+\DoxyCodeLine{\$ mkdir SRC\_AND\_BUILD}
+\DoxyCodeLine{\$ cd SRC\_AND\_BUILD/}
+\DoxyCodeLine{\$ ln -\/s <some\_base\_dir>/Trilinos .}
+\DoxyCodeLine{\$ cd ..}
+\end{DoxyCode}
+
+
+Then any of these builds can be tested locally without submitting to C\+Dash with\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\$ cd <some\_base\_build\_dir>/MOCK\_jenkins\_driver/}
+\DoxyCodeLine{\$ time env \(\backslash\)}
+\DoxyCodeLine{    JOB\_NAME=<some-\/build-\/name> \(\backslash\)}
+\DoxyCodeLine{    WORKSPACE=\$PWD \(\backslash\)}
+\DoxyCodeLine{    Trilinos\_PACKAGES=Kokkos,Teuchos,Tpetra \(\backslash\)}
+\DoxyCodeLine{    CTEST\_TEST\_TYPE=Experimental \(\backslash\)}
+\DoxyCodeLine{    CTEST\_DO\_UPDATES=OFF \(\backslash\)}
+\DoxyCodeLine{    CTEST\_START\_WITH\_EMPTY\_BINARY\_DIRECTORY=TRUE \(\backslash\)}
+\DoxyCodeLine{    CTEST\_DO\_SUBMIT=OFF \(\backslash\)}
+\DoxyCodeLine{  <some\_base\_dir>/Trilinos/cmake/ctest/drivers/atdm/<system\_name>/local-\/driver.sh \(\backslash\)}
+\DoxyCodeLine{    \&> console.out}
+\end{DoxyCode}
+
+
+(Where it is {\bfseries{C\+R\+I\+T\+I\+C\+AL}} that you set {\ttfamily C\+T\+E\+S\+T\+\_\+\+D\+O\+\_\+\+U\+P\+D\+A\+T\+ES=O\+FF} or it will hard reset your local Trilinos git repo!)
+
+Or if a {\ttfamily $<$system\+\_\+name$>$/drivers/$<$some-\/build-\/name$>$.sh} file (e.\+g. {\ttfamily Trilinos-\/atdm-\/hansel-\/shiller-\/gnu-\/debug-\/openmp.\+sh}) already exists, instead use\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\$ cd <some\_base\_build\_dir>/MOCK\_jenkins\_driver/}
+\DoxyCodeLine{\$ time env \(\backslash\)}
+\DoxyCodeLine{    JOB\_NAME=<some-\/build-\/name> \(\backslash\)}
+\DoxyCodeLine{    WORKSPACE=\$PWD \(\backslash\)}
+\DoxyCodeLine{    Trilinos\_PACKAGES=Kokkos,Teuchos,Tpetra \(\backslash\)}
+\DoxyCodeLine{    CTEST\_TEST\_TYPE=Experimental \(\backslash\)}
+\DoxyCodeLine{    CTEST\_DO\_UPDATES=OFF \(\backslash\)}
+\DoxyCodeLine{    CTEST\_START\_WITH\_EMPTY\_BINARY\_DIRECTORY=TRUE \(\backslash\)}
+\DoxyCodeLine{    CTEST\_DO\_SUBMIT=OFF \(\backslash\)}
+\DoxyCodeLine{  <some\_base\_dir>/Trilinos/cmake/ctest/drivers/atdm/smart-\/jenkins-\/driver.sh \(\backslash\)}
+\DoxyCodeLine{    \&> console.out}
+\end{DoxyCode}
+
+
+Then you can look at the {\ttfamily console.\+out} file and examine the {\ttfamily $\ast$.xml} configure, build, and test files created under\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{<some\_base\_build\_dir>/MOCK\_jenkins\_driver/SRC\_AND\_BUILD/BUILD/Testing/}
+\end{DoxyCode}
+
+
+to see if it is doing the right thing.
+
+If that looks good, then you can do an experimental submit (avoiding a rebuild) with\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\$ cd <some\_base\_build\_dir>/MOCK\_jenkins\_driver/}
+\DoxyCodeLine{\$ time env \(\backslash\)}
+\DoxyCodeLine{    JOB\_NAME=<some-\/build-\/name> \(\backslash\)}
+\DoxyCodeLine{    WORKSPACE=\$PWD \(\backslash\)}
+\DoxyCodeLine{    Trilinos\_PACKAGES=Kokkos,Teuchos,Tpetra \(\backslash\)}
+\DoxyCodeLine{    CTEST\_TEST\_TYPE=Experimental \(\backslash\)}
+\DoxyCodeLine{    CTEST\_DO\_UPDATES=OFF \(\backslash\)}
+\DoxyCodeLine{    CTEST\_START\_WITH\_EMPTY\_BINARY\_DIRECTORY=FALSE \(\backslash\)}
+\DoxyCodeLine{    CTEST\_DO\_SUBMIT=ON \(\backslash\)}
+\DoxyCodeLine{  <some\_base\_dir>/Trilinos/cmake/ctest/drivers/atdm/smart-\/jenkins-\/driver.sh \(\backslash\)}
+\DoxyCodeLine{    \&> console.out}
+\end{DoxyCode}
+
+
+If that submit looks good, then the job is ready to set up as a Jenkins job.
+
+Note that one is running on a loaded/shared machine and therfore needs to use less processes to build and test, then one can use the env vars {\ttfamily A\+T\+D\+M\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+B\+U\+I\+L\+D\+\_\+\+C\+O\+U\+N\+T\+\_\+\+O\+V\+E\+R\+R\+I\+DE} and {\ttfamily A\+T\+D\+M\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+C\+T\+E\+S\+T\+\_\+\+P\+A\+R\+A\+L\+L\+E\+L\+\_\+\+L\+E\+V\+E\+L\+\_\+\+O\+V\+E\+R\+I\+DE} and use them as, for example\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\$ time env \(\backslash\)}
+\DoxyCodeLine{    ATDM\_CONFIG\_BUILD\_COUNT\_OVERRIDE=8 \(\backslash\)}
+\DoxyCodeLine{    ATDM\_CONFIG\_CTEST\_PARALLEL\_LEVEL\_OVERIDE=12 \(\backslash\)}
+\DoxyCodeLine{    JOB\_NAME=<some-\/build-\/name> \(\backslash\)}
+\DoxyCodeLine{    WORKSPACE=\$PWD \(\backslash\)}
+\DoxyCodeLine{    Trilinos\_PACKAGES=Kokkos,Teuchos,Tpetra \(\backslash\)}
+\DoxyCodeLine{    CTEST\_TEST\_TYPE=Experimental \(\backslash\)}
+\DoxyCodeLine{    CTEST\_DO\_UPDATES=OFF \(\backslash\)}
+\DoxyCodeLine{    CTEST\_START\_WITH\_EMPTY\_BINARY\_DIRECTORY=TRUE \(\backslash\)}
+\DoxyCodeLine{    CTEST\_DO\_SUBMIT=OFF \(\backslash\)}
+\DoxyCodeLine{  <some\_base\_dir>/Trilinos/cmake/ctest/drivers/atdm/smart-\/jenkins-\/driver.sh \(\backslash\)}
+\DoxyCodeLine{    \&> console.out}
+\end{DoxyCode}
+
+
+That can also be handy for specializing the automated builds on specific S\+E\+MS and C\+EE R\+H\+E\+L6 machines, for example, that may have more or less hardware cores.
+
+\doxysection*{Setting up Jenkins jobs}
+
+To set up a Jenkins build, you must set the following in the Jenkins build configuration G\+UI\+:
+
+
+\begin{DoxyItemize}
+\item \char`\"{}\+Source Code Management\char`\"{}
+\begin{DoxyItemize}
+\item \char`\"{}\+Git\char`\"{}
+\begin{DoxyItemize}
+\item \char`\"{}\+Repository U\+R\+L\char`\"{}\+: {\ttfamily \href{https://github.com/trilinos/Trilinos.git}{\texttt{ https\+://github.\+com/trilinos/\+Trilinos.\+git}}} (until we can figure out how to clone from {\ttfamily sofware.\+sandia.\+gov\+:/git/nightly/\+Trilinos} with Jenkins)
+\end{DoxyItemize}
+\end{DoxyItemize}
+\item \char`\"{}\+Build Triggers\char`\"{}
+\begin{DoxyItemize}
+\item \char`\"{}\+Build Periodically\char`\"{} ({\bfseries{checked}})
+\begin{DoxyItemize}
+\item \char`\"{}\+Schedule\char`\"{}\+: {\ttfamily H 0 $\ast$$\ast$$\ast$}
+\end{DoxyItemize}
+\end{DoxyItemize}
+\item \char`\"{}\+Build Environment\char`\"{}
+\begin{DoxyItemize}
+\item \char`\"{}\+Abort of the build if it\textquotesingle{}s stuck\char`\"{} ({\bfseries{checked}})
+\begin{DoxyItemize}
+\item \char`\"{}\+Time-\/out strategy\char`\"{}\+: {\ttfamily Deadline}
+\begin{DoxyItemize}
+\item \char`\"{}\+Deadline time\char`\"{}\+: {\ttfamily 20\+:45}
+\item \char`\"{}\+Deadline tolerance in minutes\char`\"{}\+: {\ttfamily 1}
+\end{DoxyItemize}
+\end{DoxyItemize}
+\end{DoxyItemize}
+\item \char`\"{}\+Build\char`\"{}
+\begin{DoxyItemize}
+\item \char`\"{}\+Execute shell\char`\"{}
+\begin{DoxyItemize}
+\item \char`\"{}\+Command\char`\"{}\+: {\ttfamily Trilinos/cmake/ctest/drivers/atdm/smart-\/jenkins-\/driver.\+sh}
+\end{DoxyItemize}
+\end{DoxyItemize}
+\end{DoxyItemize}
+
+But be careful not to put any additional settings that what is absolutely necessary because Jenkins configurations are not under version control and there is no tractability for changes in these settings!
+
+\doxysection*{Specific  directories}
+
+The following {\ttfamily $<$system\+\_\+name$>$} sub-\/directories exist (in alphabetical order)\+:
+
+
+\begin{DoxyItemize}
+\item {\ttfamily cee-\/rhel6/}\+: Contains files to drive builds on C\+EE L\+AnL R\+H\+E\+L6 machines with a S\+E\+MS environment.
+\item {\ttfamily chama/}\+: Contains files to drive builds on the S\+RN H\+PC machine {\ttfamily chama}.
+\item {\ttfamily mutrino/}\+: Contains files to drive builds on S\+NL machine mutrino.
+\item {\ttfamily ride/}\+: Contains the files to drive builds on the S\+RN test bed machine {\ttfamily ride} which also can be run on the S\+ON machine {\ttfamily white}.
+\item {\ttfamily sems-\/rhel6/}\+: Contains files to drive builds on rhel6 machines with the S\+E\+MS environment.
+\item {\ttfamily sems\+\_\+gcc-\/7.\+2.\+0/}\+: Contains driver scripts for an on-\/off G\+CC 7.\+2.\+0 build based on the S\+E\+MS system. This build really does not fit into the system described above but it put in this directory since it is targeted to support A\+T\+DM. It also shows that a given system can have its own driver files if it needs to.
+\item {\ttfamily serrano/}\+: Contains files to drive builds on the S\+RN H\+PC machine {\ttfamily serrano}.
+\item {\ttfamily shiller/}\+: Contains the files to drive builds on the S\+RN test bed machine {\ttfamily shiller} which also can be run on the S\+ON machine {\ttfamily hansen}.
+\item {\ttfamily waterman/}\+: Contains files to drive builds on the S\+RN Test Bed machine {\ttfamily waterman}.
+\end{DoxyItemize}
+
+\doxysection*{How add a new system}
+
+To add a new system, first add a new {\ttfamily elseif} statement for the new system in the file\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/std/atdm/utils/get\_known\_system\_name.sh}
+\end{DoxyCode}
+
+
+Note that more than one {\ttfamily hostname} machine may map to the same {\ttfamily $<$new\+\_\+system\+\_\+name$>$} (e.\+g. both {\ttfamily white} and {\ttfamily ride} machines map to the system {\ttfamily ride}).
+
+The variable {\ttfamily A\+T\+D\+M\+\_\+\+H\+O\+S\+T\+N\+A\+ME} (set to exported variable {\ttfamily A\+T\+D\+M\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+K\+N\+O\+W\+N\+\_\+\+H\+O\+S\+T\+N\+A\+ME}) is used for the C\+Dash site name. This makes it so that any node {\ttfamily white05}, {\ttfamily white12}, etc. just says {\ttfamily white} on C\+Dash. This is important for the C\+Dash \textquotesingle{}next\textquotesingle{} and \textquotesingle{}previous\textquotesingle{} relationships to work. (But for {\ttfamily C\+T\+E\+S\+T\+\_\+\+T\+E\+S\+T\+\_\+\+T\+Y\+PE=Experimental} builds, the real {\ttfamily hostname} is used which is stored in the exported env variable {\ttfamily A\+T\+D\+M\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+R\+E\+A\+L\+\_\+\+H\+O\+S\+T\+N\+A\+ME}. This ensures that queries with {\ttfamily cdash/query\+Tests.\+php} don\textquotesingle{}t accidentally pick up tests from \char`\"{}\+Experimental\char`\"{} builds.)
+
+The variable {\ttfamily A\+T\+D\+M\+\_\+\+S\+Y\+S\+T\+E\+M\+\_\+\+N\+A\+ME} (set to the exported variable {\ttfamily A\+T\+D\+M\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+K\+N\+O\+W\+N\+\_\+\+S\+Y\+S\+T\+E\+M\+\_\+\+N\+A\+ME}) must be set to {\ttfamily $<$new\+\_\+system\+\_\+name$>$} which is selected for this new system type.
+
+Then, create a new directory for the new system called {\ttfamily $<$new\+\_\+system\+\_\+name$>$}\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/std/atdm/<new\_system\_name>/}
+\end{DoxyCode}
+
+
+and fill in the file\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/std/atdm/<new\_system\_name>/environment.sh}
+\end{DoxyCode}
+
+
+The file {\ttfamily $<$new\+\_\+system\+\_\+name$>$/environment.sh} contains all of the system-\/specific settings to get an A\+T\+DM Trilinos build to work on this new platform. For tips, see examples of these files in other {\ttfamily cmake/std/atdm/$<$system\+\_\+name$>$/} directories. And see how these environment variables are read and interpreted in the file\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/std/atdm/ATDMDevEnvSettings.cmake}
+\end{DoxyCode}
+
+
+to understand their impact on the configuration, build and testing.
+
+A few of the environment variables that need to be set in the file {\ttfamily $<$new\+\_\+system\+\_\+name$>$/environment.sh} worth specifically discussing are\+:
+
+
+\begin{DoxyItemize}
+\item {\ttfamily A\+T\+D\+M\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+U\+S\+E\+\_\+\+N\+I\+N\+JA}\+: If Ninja is available on the system and will be loaded into the environment in this script, set this to {\ttfamily T\+R\+UE}. Otherwise, if makefiles are to be used, set to {\ttfamily F\+A\+L\+SE}. When possible, it is best to use Ninja but this needs to be a Fortran-\/enabled Ninja (see \href{https://tribits.org/doc/TribitsBuildReference.html\#installing-ninja-from-source}{\texttt{ Installing Ninja from Source}}).
+\item {\ttfamily A\+T\+D\+M\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+B\+U\+I\+L\+D\+\_\+\+C\+O\+U\+NT}\+: Set to a positive integer to control how many processes will be used when building. When using {\ttfamily A\+T\+D\+M\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+U\+S\+E\+\_\+\+N\+I\+N\+JA=T\+R\+UE}, this can be set to {\ttfamily 0} or {\ttfamily -\/1} to allow {\ttfamily ninja} to be run without a {\ttfamily -\/j$<$N$>$} option and therefore use all of the cores (see \href{https://tribits.org/doc/TribitsBuildReference.html\#building-in-parallel-with-ninja}{\texttt{ Building in parallel with Ninja}}). But when using Makefiles, this must be set to a positive integer. Don\textquotesingle{}t set too high so that it will overload the machine.
+\item {\ttfamily A\+T\+D\+M\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+C\+T\+E\+S\+T\+\_\+\+P\+A\+R\+A\+L\+L\+E\+L\+\_\+\+L\+E\+V\+EL}\+: This determines the parallel level when running {\ttfamily ctest -\/j$<$N$>$} (see \href{https://tribits.org/doc/TribitsDevelopersGuide.html\#determining-what-testing-related-actions-are-performed-tribits-ctest-driver}{\texttt{ C\+T\+E\+S\+T\+\_\+\+P\+A\+R\+A\+L\+L\+E\+L\+\_\+\+L\+E\+V\+EL}}). When using threading with Open\+MP, note that this will need to be reduced based on the value set for {\ttfamily O\+M\+P\+\_\+\+N\+U\+M\+\_\+\+T\+H\+R\+E\+A\+DS}.
+\item {\ttfamily A\+T\+D\+M\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+K\+O\+K\+K\+O\+S\+\_\+\+A\+R\+CH}\+: This must be set correctly for each compiler supported. Knowing the correct value to set is beyond the scope of this document.
+\end{DoxyItemize}
+
+After creating the file\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/std/atdm/<new\_system\_name>/environment.sh}
+\end{DoxyCode}
+
+
+one can do some local configures and builds of Trilinos packages as documented in the file
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/std/atdm/README.md}
+\end{DoxyCode}
+
+
+Then, add the file\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/std/atdm/<new\_system\_name>/all\_supported\_builds.sh}
+\end{DoxyCode}
+
+
+and fill in the list of builds that are going to be supported on this machine. This allows one to use {\ttfamily ./checkin-\/test-\/sems.sh all ...} to test all configurations on a given machine.
+
+Once local configurations are complete and some local testing if finished, then create the ctest -\/S / Jenkins driver directory\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/ctest/drivers/atdm/<new\_system\_name>/}
+\end{DoxyCode}
+
+
+and create the basic driver file\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/ctest/drivers/atdm/<new\_system\_name>/local-\/driver.sh}
+\end{DoxyCode}
+
+
+and one or more smart Jenkins driver files\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Trilinos/cmake/ctest/drivers/atdm/<new\_system\_name>/drivers/\$JOB\_NAME.sh}
+\end{DoxyCode}
+
+
+Use examples from other {\ttfamily Trilinos/cmake/ctest/drivers/atdm/$<$system\+\_\+name$>$/} directories for inspiration. Then test the configurations one at a time as described \href{\#running-locally-and-debugging}{\texttt{ above}}.
+
+Once the basic configurations seem to be working, then commit your changes on a topic branch and \href{https://github.com/trilinos/Trilinos/wiki/Submitting-a-Trilinos-Pull-Request}{\texttt{ submit a pull request (PR) to Trilinos}}. Make sure and mention {\ttfamily @fryeguy52} and add the label {\ttfamily A\+T\+DM}.
+
+Once the PR has been has been merged, then set up the Jenkins jobs to run the builds as described \href{\#setting-up-jenkins-jobs}{\texttt{ above}}. Please note that the variable {\ttfamily J\+O\+B\+\_\+\+N\+A\+ME} is set by Jenkins and is the name of currently running job. Your driver files in {\ttfamily Trilinos/cmake/ctest/drivers/atdm/$<$new\+\_\+system\+\_\+name$>$/drivers/} must be named to exactly match the Jenkins {\ttfamily J\+O\+B\+\_\+\+N\+A\+ME} variable.
+
+To\+Do\+: Fill in more detail, add an F\+AQ, etc. 

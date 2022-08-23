@@ -32,7 +32,7 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 	typedef Teuchos::RCP<DifferentiableFuncClass_Type> DifferentiableFuncClassPtr_Type;
     // smart pointer inside we need a type
 
-    // With have to add here class of specific material model or have we?
+    // We have to add here class of specific material model or have we?
 	//typedef CarreauYasuda<SC,LO,GO,NO>  CarreauYasuda_Type;
 	//typedef Teuchos::RCP<CarreauYasuda> CarreauYasudaPtr_Type;
 
@@ -49,9 +49,14 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 	//SmallMatrixPtr_Type getFixedPointMatrix(){return ANB_;};
 
 	//void setCoeff(SmallMatrix_Type coeff);
+
+
+
    protected:
  
    std::string shearThinningModel;
+   int dofsElementViscosity_;
+   vec_dbl_Type solutionViscosity;
 
    private:
 
@@ -80,7 +85,6 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 
 	 \brief Assembly function for extra derivative of extra stress tensor  resulting of applying the Gateaux-derivative
 	@param[in] &elementMatrix
-
 	*/
 	void assemblyStressDev(SmallMatrixPtr_Type &elementMatrix);
 
@@ -95,7 +99,6 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 	/*!
 	 \brief Assembly advection vector field in u  
 	@param[in] &elementMatrix
-
 	*/
 	//void assemblyAdvectionInU(SmallMatrixPtr_Type &elementMatrix); 
 
@@ -117,10 +120,15 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 		            vec3D_dbl_Type& dPhiOut,
 		            SmallMatrix<SC>& Binv);
 
-	//tuple_disk_vec_ptr_Type returnTuple(); /// @todo return tuple in case or check tuple
+	void computeShearRate(vec3D_dbl_Type dPhiTrans, vec_dbl_ptr_Type& gammaDot, int dim);
+/*
+	void evaluateGeneralizedNewtonianModel(ParameterListPtr_Type params, double shearRate, double &viscosity);
+    void evaluateGeneralizedNewtonianModel_FirstDerivative(ParameterListPtr_Type params, double shearRate, double &res);
+*/
 
     DifferentiableFuncClassPtr_Type materialModel;
 
+	
 	//friend class CarreauYasuda<SC,LO,GO,NO>; the other way around carrea-yasuda has to give access rights for this class
  };
 

@@ -1,0 +1,133 @@
+\hypertarget{classFEDD_1_1Map}{}\doxysection{F\+E\+DD\+::Map$<$ LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1Map}\index{FEDD::Map$<$ LO, GO, NO $>$@{FEDD::Map$<$ LO, GO, NO $>$}}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a1f62f2f75e13c673234c520c5459a74b}\label{classFEDD_1_1Map_a1f62f2f75e13c673234c520c5459a74b}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Map}{Map}}$<$ LO, GO, NO $>$ {\bfseries Map\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_aac0213da9d77c0cfefd6315c0cf91140}\label{classFEDD_1_1Map_aac0213da9d77c0cfefd6315c0cf91140}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Map}{Map\+\_\+\+Type}} $>$ {\bfseries Map\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a8541f7dda789bdd67582a8323d23e108}\label{classFEDD_1_1Map_a8541f7dda789bdd67582a8323d23e108}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1Map}{Map\+\_\+\+Type}} $>$ {\bfseries Map\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a35d45348f8239ad9bb93c0367aaa2dca}\label{classFEDD_1_1Map_a35d45348f8239ad9bb93c0367aaa2dca}} 
+typedef Xpetra\+::\+Map$<$ LO, GO, NO $>$ {\bfseries Xpetra\+Map\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_ac058b2467ec7c25142bbfda7b1e5b339}\label{classFEDD_1_1Map_ac058b2467ec7c25142bbfda7b1e5b339}} 
+typedef Teuchos\+::\+R\+CP$<$ Xpetra\+Map\+\_\+\+Type $>$ {\bfseries Xpetra\+Map\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a6c1ef30e8feb148ff327ec48e23f7cb9}\label{classFEDD_1_1Map_a6c1ef30e8feb148ff327ec48e23f7cb9}} 
+typedef Teuchos\+::\+R\+CP$<$ const Xpetra\+Map\+\_\+\+Type $>$ {\bfseries Xpetra\+Map\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_abe4427a6ec044a0c7b73adeb615d4b1f}\label{classFEDD_1_1Map_abe4427a6ec044a0c7b73adeb615d4b1f}} 
+typedef Thyra\+::\+Vector\+Space\+Base$<$ default\+\_\+sc $>$ {\bfseries Thyra\+V\+S\+B\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_ae13ea3f285afb41df07498ea7e4ac64c}\label{classFEDD_1_1Map_ae13ea3f285afb41df07498ea7e4ac64c}} 
+typedef Teuchos\+::\+R\+CP$<$ Thyra\+V\+S\+B\+\_\+\+Type $>$ {\bfseries Thyra\+V\+S\+B\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_aab6ae8c3f7a1870502e8547ef18bb936}\label{classFEDD_1_1Map_aab6ae8c3f7a1870502e8547ef18bb936}} 
+typedef Teuchos\+::\+R\+CP$<$ const Thyra\+V\+S\+B\+\_\+\+Type $>$ {\bfseries Thyra\+V\+S\+B\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_abe6e497984dd3a8603dd67a630b8faff}\label{classFEDD_1_1Map_abe6e497984dd3a8603dd67a630b8faff}} 
+typedef Teuchos\+::\+Comm$<$ int $>$ {\bfseries Comm\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_aa5b0e61772ac2bb7624e9d64c6b5edfd}\label{classFEDD_1_1Map_aa5b0e61772ac2bb7624e9d64c6b5edfd}} 
+typedef Teuchos\+::\+R\+CP$<$ Comm\+\_\+\+Type $>$ {\bfseries Comm\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a9da238acffd0c88f987a7aa1452f5668}\label{classFEDD_1_1Map_a9da238acffd0c88f987a7aa1452f5668}} 
+typedef Teuchos\+::\+R\+CP$<$ const Comm\+\_\+\+Type $>$ {\bfseries Comm\+Const\+Ptr\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a342c12dab63fdaa7f644e4380414492e}\label{classFEDD_1_1Map_a342c12dab63fdaa7f644e4380414492e}} 
+{\bfseries Map} (const Xpetra\+Map\+Const\+Ptr\+\_\+\+Type \&xpetra\+Mat\+Ptr\+In)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_af5b9a7b0db0c299eb54da8626fbf4159}\label{classFEDD_1_1Map_af5b9a7b0db0c299eb54da8626fbf4159}} 
+{\bfseries Map} (const \mbox{\hyperlink{classFEDD_1_1Map}{Map\+\_\+\+Type}} \&map\+In)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a79f4fe8208032d1287066c03cfa3b238}\label{classFEDD_1_1Map_a79f4fe8208032d1287066c03cfa3b238}} 
+{\bfseries Map} (std\+::string lib, GO num\+Global\+Elements, const Teuchos\+::\+Array\+View$<$ const GO $>$ \&element\+List, GO index\+Base, const Comm\+Const\+Ptr\+\_\+\+Type \&comm)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a33699f053d8244462a2e7e0f983ff3fe}\label{classFEDD_1_1Map_a33699f053d8244462a2e7e0f983ff3fe}} 
+{\bfseries Map} (std\+::string lib, GO num\+Global\+Elements, LO num\+Local\+Elements, GO index\+Base, const Comm\+Const\+Ptr\+\_\+\+Type \&comm)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a0243ce5fc823e309a8e6873baa299fee}\label{classFEDD_1_1Map_a0243ce5fc823e309a8e6873baa299fee}} 
+std\+::string {\bfseries get\+Underlying\+Lib} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a97d828b9c3db1a524be9cc2d275c8034}\label{classFEDD_1_1Map_a97d828b9c3db1a524be9cc2d275c8034}} 
+Map\+Ptr\+\_\+\+Type {\bfseries build\+Vec\+Field\+Map} (UN num\+Dofs, std\+::string ordering=\char`\"{}Node\+Wise\char`\"{}) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a41db12f5e46be8e079978a4ab428f7af}\label{classFEDD_1_1Map_a41db12f5e46be8e079978a4ab428f7af}} 
+Xpetra\+Map\+Const\+Ptr\+\_\+\+Type {\bfseries get\+Xpetra\+Map} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_aa5bdfef43a282a10643d15166899fec0}\label{classFEDD_1_1Map_aa5bdfef43a282a10643d15166899fec0}} 
+Thyra\+V\+S\+B\+Const\+Ptr\+\_\+\+Type {\bfseries get\+Thyra\+Vector\+Space\+Base} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_ac534cf73254662baa9d9a5d14270f13d}\label{classFEDD_1_1Map_ac534cf73254662baa9d9a5d14270f13d}} 
+LO {\bfseries get\+Node\+Num\+Elements} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a418d3f033d10e68c1c3b0b2faf73d3bf}\label{classFEDD_1_1Map_a418d3f033d10e68c1c3b0b2faf73d3bf}} 
+GO {\bfseries get\+Global\+Num\+Elements} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a9db6544956f7370c9b02b53b0384188d}\label{classFEDD_1_1Map_a9db6544956f7370c9b02b53b0384188d}} 
+GO {\bfseries get\+Global\+Element} (LO id) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a71cf25c75492add9d6c6158d760f8eca}\label{classFEDD_1_1Map_a71cf25c75492add9d6c6158d760f8eca}} 
+LO {\bfseries get\+Local\+Element} (GO id) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a7ecd4bbac421e963de1980c50ca986a7}\label{classFEDD_1_1Map_a7ecd4bbac421e963de1980c50ca986a7}} 
+Teuchos\+::\+Array\+View$<$ const GO $>$ {\bfseries get\+Node\+Element\+List} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_aee26dab1d6dc888e84977e5606f1155a}\label{classFEDD_1_1Map_aee26dab1d6dc888e84977e5606f1155a}} 
+GO {\bfseries get\+Max\+All\+Global\+Index} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a4af7aadd80b16d78f4d14c3d711461d4}\label{classFEDD_1_1Map_a4af7aadd80b16d78f4d14c3d711461d4}} 
+LO {\bfseries get\+Max\+Local\+Index} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a8cfb42562c76b61f43f1d66612961e0a}\label{classFEDD_1_1Map_a8cfb42562c76b61f43f1d66612961e0a}} 
+void {\bfseries print} (Teuchos\+::\+E\+Verbosity\+Level verb\+Level=Teuchos\+::\+V\+E\+R\+B\+\_\+\+E\+X\+T\+R\+E\+ME) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_ac687de5f3c0badac0830835b7af50d00}\label{classFEDD_1_1Map_ac687de5f3c0badac0830835b7af50d00}} 
+Comm\+Const\+Ptr\+\_\+\+Type {\bfseries get\+Comm} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a932c259f057e3feacc46e02f9d3d17f9}\label{classFEDD_1_1Map_a932c259f057e3feacc46e02f9d3d17f9}} 
+Comm\+Ptr\+\_\+\+Type {\bfseries get\+Comm\+Non\+Const} ()
+\item 
+Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Map}{Map}}$<$ LO, GO, NO $>$ $>$ \mbox{\hyperlink{classFEDD_1_1Map_a6418215dd767a2adbb653471cacab009}{build\+Unique\+Map}} (int num\+Free\+Procs=0) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a4b14d2913bc75f6674f8ea6d7fae7b66}\label{classFEDD_1_1Map_a4b14d2913bc75f6674f8ea6d7fae7b66}} 
+Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Map}{Map}}$<$ LO, GO, NO $>$ $>$ {\bfseries build\+Unique\+Map} (tuple\+\_\+intint\+\_\+\+Type rank\+Range) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_add803edae87c920f05636b4a18f86704}\label{classFEDD_1_1Map_add803edae87c920f05636b4a18f86704}} 
+GO {\bfseries get\+Index\+Base} () const
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Map_a82020b3210e21b2c25a432fc64d3a818}\label{classFEDD_1_1Map_a82020b3210e21b2c25a432fc64d3a818}} 
+const typedef Xpetra\+Map\+Const\+Ptr\+\_\+\+Type {\bfseries Xpetra\+Map\+Const\+Ptr\+Const\+\_\+\+Type}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classFEDD_1_1Map_a6418215dd767a2adbb653471cacab009}\label{classFEDD_1_1Map_a6418215dd767a2adbb653471cacab009}} 
+\index{FEDD::Map$<$ LO, GO, NO $>$@{FEDD::Map$<$ LO, GO, NO $>$}!buildUniqueMap@{buildUniqueMap}}
+\index{buildUniqueMap@{buildUniqueMap}!FEDD::Map$<$ LO, GO, NO $>$@{FEDD::Map$<$ LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{buildUniqueMap()}{buildUniqueMap()}}
+{\footnotesize\ttfamily template$<$class LO , class GO , class NO $>$ \\
+Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Map}{Map}}$<$ LO, GO, NO $>$ $>$ \mbox{\hyperlink{classFEDD_1_1Map}{F\+E\+D\+D\+::\+Map}}$<$ LO, GO, NO $>$\+::build\+Unique\+Map (\begin{DoxyParamCaption}\item[{int}]{num\+Free\+Procs = {\ttfamily 0} }\end{DoxyParamCaption}) const}
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em num\+Free\+Procs} & Do not use the last num\+Free\+Procs of M\+PI communicator in the building process \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Linear\+Algebra/Map\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Linear\+Algebra/Map\+\_\+def.\+hpp\end{DoxyCompactItemize}

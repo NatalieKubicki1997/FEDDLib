@@ -29,12 +29,12 @@ void PowerLaw<SC,LO,GO,NO>::evaluateFunction(ParameterListPtr_Type params, doubl
     
     viscosity = this->powerlaw_constant_K*pow(shearRate, this->powerlaw_index_n-1.0);
 
-    // Check bounds for viscosity
-    if (viscosity < nu_infty)
+    // Check bounds for viscosity 
+    if (viscosity < nu_infty) // If viscosity value is smaller than the infinity shear rate viscosity set viscsoity to limit value nu_infty
     {
     viscosity = nu_infty;
     }
-    else if (abs(viscosity) > nu_zero)
+    else if (abs(viscosity) > nu_zero)  // If viscosity value is greater than the zero shear rate viscosity set viscsoity to limit value nu_zero
     {
     viscosity = nu_zero;
     }

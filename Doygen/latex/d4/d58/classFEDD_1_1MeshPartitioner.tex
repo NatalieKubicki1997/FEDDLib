@@ -1,0 +1,136 @@
+\hypertarget{classFEDD_1_1MeshPartitioner}{}\doxysection{F\+E\+DD\+::Mesh\+Partitioner$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1MeshPartitioner}\index{FEDD::MeshPartitioner$<$ SC, LO, GO, NO $>$@{FEDD::MeshPartitioner$<$ SC, LO, GO, NO $>$}}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a9a1a1f25a65ef4fddfe96b0bd8e828e2}\label{classFEDD_1_1MeshPartitioner_a9a1a1f25a65ef4fddfe96b0bd8e828e2}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Domain}{Domain}}$<$ SC, LO, GO, NO $>$ {\bfseries Domain\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_aa01e4bc75691fd6fc2b7200bbd524c5a}\label{classFEDD_1_1MeshPartitioner_aa01e4bc75691fd6fc2b7200bbd524c5a}} 
+typedef Domain\+\_\+\+Type\+::\+Domain\+Ptr\+\_\+\+Type {\bfseries Domain\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a1cd7c6b8cb22fe5d5312b5d1aeea85b1}\label{classFEDD_1_1MeshPartitioner_a1cd7c6b8cb22fe5d5312b5d1aeea85b1}} 
+typedef Domain\+\_\+\+Type\+::\+Comm\+Const\+Ptr\+\_\+\+Type {\bfseries Comm\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a5eb5d8020d1d6da02195198dc4025795}\label{classFEDD_1_1MeshPartitioner_a5eb5d8020d1d6da02195198dc4025795}} 
+typedef std\+::vector$<$ Domain\+Ptr\+\_\+\+Type $>$ {\bfseries Domain\+Ptr\+Array\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a15db404ee61bfc49fa3b3434d498a4a6}\label{classFEDD_1_1MeshPartitioner_a15db404ee61bfc49fa3b3434d498a4a6}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MeshUnstructured}{Domain\+\_\+\+Type\+::\+Mesh\+Unstr\+\_\+\+Type}} {\bfseries Mesh\+Unstr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_ad6355d37fda6f3cb41a012e329251267}\label{classFEDD_1_1MeshPartitioner_ad6355d37fda6f3cb41a012e329251267}} 
+typedef Domain\+\_\+\+Type\+::\+Mesh\+Unstr\+Ptr\+\_\+\+Type {\bfseries Mesh\+Unstr\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a2ee055383e0fde18c4296a3cf965e0c8}\label{classFEDD_1_1MeshPartitioner_a2ee055383e0fde18c4296a3cf965e0c8}} 
+typedef Domain\+\_\+\+Type\+::\+Map\+Const\+Ptr\+\_\+\+Type {\bfseries Map\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_af4f142f8e773faa06f300aa2c9b5e8c2}\label{classFEDD_1_1MeshPartitioner_af4f142f8e773faa06f300aa2c9b5e8c2}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Elements}{Elements}} {\bfseries Elements\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_aca61df4b141fc6acadb3bd3bce5e5c4e}\label{classFEDD_1_1MeshPartitioner_aca61df4b141fc6acadb3bd3bce5e5c4e}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Elements}{Elements\+\_\+\+Type}} $>$ {\bfseries Elements\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_ad8cb103fe6fb4780eac728ac20f61f31}\label{classFEDD_1_1MeshPartitioner_ad8cb103fe6fb4780eac728ac20f61f31}} 
+typedef \mbox{\hyperlink{classFEDD_1_1EdgeElements}{Edge\+Elements}} {\bfseries Edge\+Elements\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a7406f84e1361a5b471d6a77c08380eea}\label{classFEDD_1_1MeshPartitioner_a7406f84e1361a5b471d6a77c08380eea}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1EdgeElements}{Edge\+Elements\+\_\+\+Type}} $>$ {\bfseries Edge\+Elements\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_aca1ada9bfda71b699c251ea2758beefe}\label{classFEDD_1_1MeshPartitioner_aca1ada9bfda71b699c251ea2758beefe}} 
+typedef std\+::vector$<$ idx\+\_\+t $>$ {\bfseries vec\+\_\+idx\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a745ba92f098900321cc15a18df8a9f18}\label{classFEDD_1_1MeshPartitioner_a745ba92f098900321cc15a18df8a9f18}} 
+{\bfseries Mesh\+Partitioner} (Domain\+Ptr\+Array\+\_\+\+Type domains, Parameter\+List\+Ptr\+\_\+\+Type pL, std\+::string fe\+Type, int dimension)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a4a6cd851a1a340ef96ca5be1a8235bb8}\label{classFEDD_1_1MeshPartitioner_a4a6cd851a1a340ef96ca5be1a8235bb8}} 
+void \mbox{\hyperlink{classFEDD_1_1MeshPartitioner_a4a6cd851a1a340ef96ca5be1a8235bb8}{read\+And\+Partition}} (int volume\+ID=10)
+\begin{DoxyCompactList}\small\item\em Main Function of partitioner called. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classFEDD_1_1MeshPartitioner_aba7026d049c6ec787d262772335d3340}{set\+Edges\+To\+Surfaces}} (int mesh\+Number)
+\begin{DoxyCompactList}\small\item\em Only used in 3D to set the edges as subelements to surfaces. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classFEDD_1_1MeshPartitioner_a941a1bbe330a5599f4c86713be8dad5b}{set\+Surfaces\+To\+Elements}} (int mesh\+Number)
+\begin{DoxyCompactList}\small\item\em Setting surfaces, i.\+e. edges in 2D and triangles in 3D, as subelements to the corresponding elements. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a612c64b91688cd12de6f75b6204d4279}\label{classFEDD_1_1MeshPartitioner_a612c64b91688cd12de6f75b6204d4279}} 
+void \mbox{\hyperlink{classFEDD_1_1MeshPartitioner_a612c64b91688cd12de6f75b6204d4279}{partition\+Mesh}} (Mesh\+Unstr\+Ptr\+\_\+\+Type \&mesh, int mesh\+Number)
+\begin{DoxyCompactList}\small\item\em Main function, that reads and partions and distributes the mesh to the different processors. Here all necessary maps and lists are created. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_ab2a7c2078c4fd773b54dfa3890f4e778}\label{classFEDD_1_1MeshPartitioner_ab2a7c2078c4fd773b54dfa3890f4e778}} 
+void \mbox{\hyperlink{classFEDD_1_1MeshPartitioner_ab2a7c2078c4fd773b54dfa3890f4e778}{build\+Edge\+List\+Parallel}} (Mesh\+Unstr\+Ptr\+\_\+\+Type mesh, Elements\+Ptr\+\_\+\+Type elements\+Global)
+\begin{DoxyCompactList}\small\item\em Making the edge list parallel. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_adda5e53a1c1cd10df6b9514f818acc60}\label{classFEDD_1_1MeshPartitioner_adda5e53a1c1cd10df6b9514f818acc60}} 
+void \mbox{\hyperlink{classFEDD_1_1MeshPartitioner_adda5e53a1c1cd10df6b9514f818acc60}{build\+Edge\+List}} (Mesh\+Unstr\+Ptr\+\_\+\+Type mesh, Elements\+Ptr\+\_\+\+Type \&elements\+Global)
+\begin{DoxyCompactList}\small\item\em Building the edge list. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_af5aa5776e2903999d5172ac6d8c7d928}\label{classFEDD_1_1MeshPartitioner_af5aa5776e2903999d5172ac6d8c7d928}} 
+void \mbox{\hyperlink{classFEDD_1_1MeshPartitioner_af5aa5776e2903999d5172ac6d8c7d928}{set\+Local\+Edge\+Indices}} (vec2\+D\+\_\+int\+\_\+\+Type \&local\+Edge\+Indices)
+\begin{DoxyCompactList}\small\item\em Setting surfaces, i.\+e. edges in 2D and triangles in 3D, as subelements to the corresponding elements. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a64daea28f8da15537eab35413b12cdec}\label{classFEDD_1_1MeshPartitioner_a64daea28f8da15537eab35413b12cdec}} 
+void {\bfseries determine\+Ranks} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_ab47038189221ee9aef3f854fdccea859}\label{classFEDD_1_1MeshPartitioner_ab47038189221ee9aef3f854fdccea859}} 
+void {\bfseries determine\+Ranks\+From\+Number\+Ranks} (vec\+\_\+int\+\_\+\+Type \&ranks)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_af7404ba9facc5670934ba1bb53c6a61d}\label{classFEDD_1_1MeshPartitioner_af7404ba9facc5670934ba1bb53c6a61d}} 
+void {\bfseries determine\+Ranks\+From\+Fractions} (vec\+\_\+int\+\_\+\+Type \&fractions)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a99c69ccc571f2f1cb4cc6ed24a3be9c4}\label{classFEDD_1_1MeshPartitioner_a99c69ccc571f2f1cb4cc6ed24a3be9c4}} 
+void {\bfseries make\+Continuous\+Elements} (Elements\+Ptr\+\_\+\+Type elements, vec\+\_\+idx\+\_\+\+Type \&eind\+\_\+vec, vec\+\_\+idx\+\_\+\+Type \&eptr\+\_\+vec)
+\item 
+void \mbox{\hyperlink{classFEDD_1_1MeshPartitioner_a8a48b0f365b9a49ab73b81d7f9b99d39}{find\+And\+Set\+Surfaces\+Partitioned}} (vec2\+D\+\_\+int\+\_\+\+Type \&surf\+Elements\+\_\+vec, vec\+\_\+int\+\_\+\+Type \&surf\+Elements\+Flag\+\_\+vec, \mbox{\hyperlink{classFEDD_1_1FiniteElement}{Finite\+Element}} \&element, vec2\+D\+\_\+int\+\_\+\+Type \&permutation, vec\+\_\+\+G\+O\+\_\+\+Type \&linear\+Surface\+Partition\+Offset, int global\+El\+ID)
+\begin{DoxyCompactList}\small\item\em Finding the surfaces corresponding to a specfic element and then setting subelements. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_adc1950b876788ad88899de7c9188328a}\label{classFEDD_1_1MeshPartitioner_adc1950b876788ad88899de7c9188328a}} 
+void \mbox{\hyperlink{classFEDD_1_1MeshPartitioner_adc1950b876788ad88899de7c9188328a}{set\+Local\+Surface\+Edge\+Indices}} (vec2\+D\+\_\+int\+\_\+\+Type \&local\+Surface\+Edge\+Indices, int edges\+Element\+Order)
+\begin{DoxyCompactList}\small\item\em Setting local I\+Ds to the edges in 3D case with respect to the local numbering of elements. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_ace36675f375879942e0f4d56f46a85d0}\label{classFEDD_1_1MeshPartitioner_ace36675f375879942e0f4d56f46a85d0}} 
+void \mbox{\hyperlink{classFEDD_1_1MeshPartitioner_ace36675f375879942e0f4d56f46a85d0}{find\+And\+Set\+Surface\+Edges}} (vec2\+D\+\_\+int\+\_\+\+Type \&edge\+Elements\+\_\+vec, vec\+\_\+int\+\_\+\+Type \&edge\+Elements\+Flag\+\_\+vec, \mbox{\hyperlink{classFEDD_1_1FiniteElement}{Finite\+Element}} \&element, vec2\+D\+\_\+int\+\_\+\+Type \&permutation, Map\+Const\+Ptr\+\_\+\+Type map\+Repeated)
+\begin{DoxyCompactList}\small\item\em Only relevant in 3D. Finding the edges corresponding to the specfic element and then setting as subsubelement. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a89dff61b3bc7159bc8a668378d5c9c11}\label{classFEDD_1_1MeshPartitioner_a89dff61b3bc7159bc8a668378d5c9c11}} 
+int \mbox{\hyperlink{classFEDD_1_1MeshPartitioner_a89dff61b3bc7159bc8a668378d5c9c11}{search\+In\+Surfaces}} (vec2\+D\+\_\+int\+\_\+\+Type \&surfaces, vec\+\_\+int\+\_\+\+Type search\+Surface)
+\begin{DoxyCompactList}\small\item\em Searching on particular surface in a surface list. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a82fedcdf04f633da4ba5b139840dcb0b}\label{classFEDD_1_1MeshPartitioner_a82fedcdf04f633da4ba5b139840dcb0b}} 
+void {\bfseries set\+Local\+Surface\+Indices} (vec2\+D\+\_\+int\+\_\+\+Type \&local\+Surface\+Indices, int surface\+Element\+Order)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a8a48b0f365b9a49ab73b81d7f9b99d39}\label{classFEDD_1_1MeshPartitioner_a8a48b0f365b9a49ab73b81d7f9b99d39}} 
+\index{FEDD::MeshPartitioner$<$ SC, LO, GO, NO $>$@{FEDD::MeshPartitioner$<$ SC, LO, GO, NO $>$}!findAndSetSurfacesPartitioned@{findAndSetSurfacesPartitioned}}
+\index{findAndSetSurfacesPartitioned@{findAndSetSurfacesPartitioned}!FEDD::MeshPartitioner$<$ SC, LO, GO, NO $>$@{FEDD::MeshPartitioner$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{findAndSetSurfacesPartitioned()}{findAndSetSurfacesPartitioned()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1MeshPartitioner}{F\+E\+D\+D\+::\+Mesh\+Partitioner}}$<$ SC, LO, GO, NO $>$\+::find\+And\+Set\+Surfaces\+Partitioned (\begin{DoxyParamCaption}\item[{vec2\+D\+\_\+int\+\_\+\+Type \&}]{surf\+Elements\+\_\+vec,  }\item[{vec\+\_\+int\+\_\+\+Type \&}]{surf\+Elements\+Flag\+\_\+vec,  }\item[{\mbox{\hyperlink{classFEDD_1_1FiniteElement}{Finite\+Element}} \&}]{element,  }\item[{vec2\+D\+\_\+int\+\_\+\+Type \&}]{permutation,  }\item[{vec\+\_\+\+G\+O\+\_\+\+Type \&}]{linear\+Surface\+Partition\+Offset,  }\item[{int}]{global\+El\+ID }\end{DoxyParamCaption})}
+
+
+
+Finding the surfaces corresponding to a specfic element and then setting subelements. 
+
+Function that sets edges (2D) or surfaces(3\+D) to the corresponding element. It determines for the specific element \textquotesingle{}element\textquotesingle{} if it has a surface with a non volumeflag that can be set as subelement ~\newline
+ \mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_aba7026d049c6ec787d262772335d3340}\label{classFEDD_1_1MeshPartitioner_aba7026d049c6ec787d262772335d3340}} 
+\index{FEDD::MeshPartitioner$<$ SC, LO, GO, NO $>$@{FEDD::MeshPartitioner$<$ SC, LO, GO, NO $>$}!setEdgesToSurfaces@{setEdgesToSurfaces}}
+\index{setEdgesToSurfaces@{setEdgesToSurfaces}!FEDD::MeshPartitioner$<$ SC, LO, GO, NO $>$@{FEDD::MeshPartitioner$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{setEdgesToSurfaces()}{setEdgesToSurfaces()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1MeshPartitioner}{F\+E\+D\+D\+::\+Mesh\+Partitioner}}$<$ SC, LO, GO, NO $>$\+::set\+Edges\+To\+Surfaces (\begin{DoxyParamCaption}\item[{int}]{mesh\+Number }\end{DoxyParamCaption})}
+
+
+
+Only used in 3D to set the edges as subelements to surfaces. 
+
+Function that (addionally) adds edges as subelements in the 3D case. This is relevant when the .mesh file also contains edge information in 3D. Otherwise edges are not set as subelements in 3D. \mbox{\Hypertarget{classFEDD_1_1MeshPartitioner_a941a1bbe330a5599f4c86713be8dad5b}\label{classFEDD_1_1MeshPartitioner_a941a1bbe330a5599f4c86713be8dad5b}} 
+\index{FEDD::MeshPartitioner$<$ SC, LO, GO, NO $>$@{FEDD::MeshPartitioner$<$ SC, LO, GO, NO $>$}!setSurfacesToElements@{setSurfacesToElements}}
+\index{setSurfacesToElements@{setSurfacesToElements}!FEDD::MeshPartitioner$<$ SC, LO, GO, NO $>$@{FEDD::MeshPartitioner$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{setSurfacesToElements()}{setSurfacesToElements()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1MeshPartitioner}{F\+E\+D\+D\+::\+Mesh\+Partitioner}}$<$ SC, LO, GO, NO $>$\+::set\+Surfaces\+To\+Elements (\begin{DoxyParamCaption}\item[{int}]{mesh\+Number }\end{DoxyParamCaption})}
+
+
+
+Setting surfaces, i.\+e. edges in 2D and triangles in 3D, as subelements to the corresponding elements. 
+
+Adding surfaces as subelements to the corresponding elements. This adresses surfaces in 3D or edges in 2D. If in the 3D case edges are also part of the .mesh file, they will be added as subelements later. ~\newline
+ 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Mesh/Mesh\+Partitioner\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Mesh/Mesh\+Partitioner\+\_\+def.\+hpp\end{DoxyCompactItemize}

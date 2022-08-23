@@ -56,7 +56,8 @@ es_(),
 setZeros_(false),
 myeps_(),
 ed_(0),
-saveAssembly_(saveAssembly)
+saveAssembly_(saveAssembly),
+visco_output_()
 {
 }
 
@@ -150,7 +151,7 @@ void FE<SC,LO,GO,NO>::assemblyLinearElasticity(int dim,
 
 	MultiVectorPtr_Type resVec_d = Teuchos::rcp( new MultiVector_Type( domainVec_.at(0)->getMapVecFieldRepeated(), 1 ) );
 	
-	BlockMultiVectorPtr_Type resVecRep = Teuchos::rcp( new BlockMultiVector_Type( 1) );
+	BlockMultiVectorPtr_Type resVecRep = Teuchos::rcp( new BlockMultiVector_Type(1) );
 	resVecRep->addBlock(resVec_d,0);
 
  	SmallMatrixPtr_Type elementMatrix;
@@ -381,7 +382,7 @@ void FE<SC,LO,GO,NO>::addFeBlockMv(BlockMultiVectorPtr_Type &res, vec_dbl_Type r
 @param[in] FELocExternal 
 
 */
-
+// das wird aus problem/specific/NavierStokes aufgerufen
 template <class SC, class LO, class GO, class NO>
 void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	                                    string FETypeVelocity,
@@ -419,6 +420,8 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	vec_dbl_Type solution(0);
 	vec_dbl_Type solution_u;
 	vec_dbl_Type solution_p;
+    vec_dbl_Type solution_viscosity;
+
 
 	vec_dbl_Type rhsVec;
 
@@ -440,7 +443,6 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	problemDisk->push_back(pres);
 
 	if(assemblyFEElements_.size()== 0){
-        //bool newtonian = params->sublist("Material").get("Newtonian",true);
         if(params->sublist("Material").get("Newtonian",true) == false)
 	 	    initAssembleFEElements("NavierStokesNonNewtonian",problemDisk,elements, params,pointsRep); // In case of non Newtonian Fluid
             // jumps inside FEDDLib/FEEDLIB_LEA/source/FEDDLib/feddlib/core/AceFemAssembly/specific/AssembleFENavierStokesNonNewtonian_def.hpp:9
@@ -450,8 +452,6 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	else if(assemblyFEElements_.size() != elements->numberElements())
 	     TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error, "Number Elements not the same as number assembleFE elements." );
 
-	//SmallMatrixPtr_Type elementMatrix =Teuchos::rcp( new SmallMatrix_Type( dofsElement));
-
 	MultiVectorPtr_Type resVec_u = Teuchos::rcp( new MultiVector_Type( domainVec_.at(FElocVel)->getMapVecFieldRepeated(), 1 ) );
     MultiVectorPtr_Type resVec_p = Teuchos::rcp( new MultiVector_Type( domainVec_.at(FElocPres)->getMapRepeated(), 1 ) );
 	
@@ -459,35 +459,44 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	resVecRep->addBlock(resVec_u,0);
 	resVecRep->addBlock(resVec_p,1);
 
+
+    // We have to add viscosity solution of on each local node to a global solution vector of the viscosity
+	MultiVectorPtr_Type Sol_viscosity = Teuchos::rcp( new MultiVector_Type( domainVec_.at(FElocVel)->getMapRepeated(), 1 ) );
+    BlockMultiVectorPtr_Type visco_output = Teuchos::rcp( new BlockMultiVector_Type(1) );
+    visco_output->addBlock(Sol_viscosity,0);
     //assemblyFEElements_[0]->materialModel->echoParams();
 
     
 	for (UN T=0; T<assemblyFEElements_.size(); T++) {
        
 		vec_dbl_Type solution(0);
-
-		solution_u = getSolution(elements->getElement(T).getVectorNodeList(), u_rep,dofsVelocity);
+		solution_u = getSolution(elements->getElement(T).getVectorNodeList(), u_rep,dofsVelocity); // get the solution inside an element on the nodes
 		solution_p = getSolution(elementsPres->getElement(T).getVectorNodeList(), p_rep,dofsPressure);
 
-		solution.insert( solution.end(), solution_u.begin(), solution_u.end() );
+		solution.insert( solution.end(), solution_u.begin(), solution_u.end() ); // here we insert the solution
 		solution.insert( solution.end(), solution_p.begin(), solution_p.end() );
 
-		assemblyFEElements_[T]->updateSolution(solution);
+		assemblyFEElements_[T]->updateSolution(solution); // here we update the value of the solutions inside an element
  
  		SmallMatrixPtr_Type elementMatrix;
 
 		if(assembleMode == "Jacobian"){
-			/// hier müsste er reinspringen und dann s
-            assemblyFEElements_[T]->assembleJacobian();
+            assemblyFEElements_[T]->assembleJacobian(); // so here we construct the element matrices and we compute the viscosity
 		    
             elementMatrix = assemblyFEElements_[T]->getJacobian(); 
-
 			assemblyFEElements_[T]->advanceNewtonStep(); // n genereal non linear solver step
 
 			if(reAssemble)
 				addFeBlock(A, elementMatrix, elements->getElement(T), mapVel, 0, 0, problemDisk);
 			else
 				addFeBlockMatrix(A, elementMatrix, elements->getElement(T), mapVel, mapPres, problemDisk);
+
+          // If we want to write out viscosity
+          if( (params->sublist("Material").get("Newtonian",true) == false) && (params->sublist("Material").get("WriteOutViscosity",false) == true) ) 
+            {
+                solution_viscosity = assemblyFEElements_[T]->getViscositySolution();
+                addFeBlockVis(visco_output, solution_viscosity, elements->getElement(T), dofsPressure   );
+            }
 		}
    		if(assembleMode == "FixedPoint"){
 
@@ -514,7 +523,9 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 		}
 
 			
-	}
+	} // end loop over all elements
+    this->visco_output_= visco_output;
+
 	if (callFillComplete && reAssemble && assembleMode != "Rhs" )
 	    A->getBlock(0,0)->fillComplete( domainVec_.at(FElocVel)->getMapVecFieldUnique(),domainVec_.at(FElocVel)->getMapVecFieldUnique());
 	else if(callFillComplete && !reAssemble && assembleMode != "Rhs"){
@@ -576,6 +587,36 @@ void FE<SC,LO,GO,NO>::addFeBlockMv(BlockMultiVectorPtr_Type &res, vec_dbl_Type r
 	}
 
 }
+
+
+/******************************************
+/// I introduced this
+/*!
+
+ \brief Inserting local viscosity values into global viscosity vector - it is redundant because at each shared node we rewirte it ;
+
+
+@param[in] visco_res; Repeated distribution; 2 blocks
+@param[in] rhsVec sorted the same way as residual vec
+@param[in] element of block1
+@param[in] degree of freedom
+*/
+// 
+
+template <class SC, class LO, class GO, class NO>
+void FE<SC,LO,GO,NO>::addFeBlockVis(BlockMultiVectorPtr_Type &visco_res, vec_dbl_Type VecVisco, FiniteElement elementBlock, int dofs){
+
+    Teuchos::ArrayRCP<SC>  resArray_block = visco_res->getBlockNonConst(0)->getDataNonConst(0);
+
+	vec_LO_Type nodeList_block = elementBlock.getVectorNodeList();
+
+	for(int i=0; i< nodeList_block.size() ; i++){
+		for(int d=0; d<dofs; d++)
+			//resArray_block[nodeList_block[i]*dofs+d] += VecVisco[i*dofs+d];
+            resArray_block[nodeList_block[i]*dofs+d] = VecVisco[i*dofs+d];
+	}
+}
+
 
 /*!
 
@@ -727,6 +768,16 @@ vec2D_dbl_Type FE<SC,LO,GO,NO>::getCoordinates(vec_LO_Type localIDs, vec2D_dbl_p
 
     return coordinates;
 }
+
+/*
+// I ADDED THIS
+template <class SC, class LO, class GO, class NO>
+ BlockMultiVectorPtr_Type getViscoBlock() const{
+
+    return this->visco_output_;
+}
+*/
+
 
 /*!
 

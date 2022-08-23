@@ -1,0 +1,172 @@
+\hypertarget{classFEDD_1_1DifferentiableFuncClass}{}\doxysection{F\+E\+DD\+::Differentiable\+Func\+Class$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1DifferentiableFuncClass}\index{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$@{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$}}
+
+
+This abstract class defining the general concepts of a function and computing function evaluation and evaluation of its derivative.  
+
+
+
+
+{\ttfamily \#include $<$Differentiable\+Func\+Class\+\_\+decl.\+hpp$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{classFEDD_1_1DifferentiableFuncClass_aea8797795f2b3eb7d6e7aa981e34c1f6}{evaluate\+Function}} (Parameter\+List\+Ptr\+\_\+\+Type params, double x, double \&res)=0
+\begin{DoxyCompactList}\small\item\em Implements a functional description for evaluating res in dependence of given dependent variables and specified parameters. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classFEDD_1_1DifferentiableFuncClass_aa752b10b191eb73e232e04ad27b295ac}{evaluate\+Derivative}} (Parameter\+List\+Ptr\+\_\+\+Type params, double x, double \&res)=0
+\begin{DoxyCompactList}\small\item\em Computes value of derivative of defined function in evaluate\+Function. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classFEDD_1_1DifferentiableFuncClass_a3f504c2117c984c9545cbfe532c52956}{set\+Params}} (Parameter\+List\+Ptr\+\_\+\+Type params)=0
+\begin{DoxyCompactList}\small\item\em Function could include different parameters which will be specified in $\ast$.xml This function should set the needed parameters for defined function to the specified values. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1DifferentiableFuncClass_ae99fe4b6eacebeb6bfe4bbe6dc20c4d4}\label{classFEDD_1_1DifferentiableFuncClass_ae99fe4b6eacebeb6bfe4bbe6dc20c4d4}} 
+virtual void \mbox{\hyperlink{classFEDD_1_1DifferentiableFuncClass_ae99fe4b6eacebeb6bfe4bbe6dc20c4d4}{echo\+Params}} ()=0
+\begin{DoxyCompactList}\small\item\em Print parameter values used in model at runtime. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classFEDD_1_1DifferentiableFuncClass_a09059b792627fa5ab1fe123f686873e0}{update\+Params}} (Parameter\+List\+Ptr\+\_\+\+Type params)
+\begin{DoxyCompactList}\small\item\em Set or update the parameters read from the Parameter\+List. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classFEDD_1_1DifferentiableFuncClass_a08863182a6eefffb5c665f85e799d880}{Differentiable\+Func\+Class}} (Parameter\+List\+Ptr\+\_\+\+Type parameters)
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1DifferentiableFuncClass_afc18c68f0f1cb18c7f3d65a100e8b9ba}\label{classFEDD_1_1DifferentiableFuncClass_afc18c68f0f1cb18c7f3d65a100e8b9ba}} 
+Parameter\+List\+Ptr\+\_\+\+Type {\bfseries params\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$class SC = default\+\_\+sc, class LO = default\+\_\+lo, class GO = default\+\_\+go, class NO = default\+\_\+no$>$\newline
+class F\+E\+D\+D\+::\+Differentiable\+Func\+Class$<$ S\+C, L\+O, G\+O, N\+O $>$}
+
+This abstract class defining the general concepts of a function and computing function evaluation and evaluation of its derivative. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em SC} & The scalar type. So far, this is always double, but having it as a template parameter would allow flexibily, e.\+g., for using complex instead \\
+\hline
+{\em LO} & The local ordinal type. The is the index type for local indices \\
+\hline
+{\em GO} & The global ordinal type. The is the index type for global indices \\
+\hline
+\end{DoxyTemplParams}
+\begin{DoxyRefDesc}{Todo}
+\item[\mbox{\hyperlink{todo__todo000014}{Todo}}]This should actually be removed since the class should operate only on element level) \end{DoxyRefDesc}
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em NO} & The Kokkos Node type. This would allow for performance portibility when using Kokkos. Currently, this is not used.\\
+\hline
+\end{DoxyTemplParams}
+The material parameters can be provided through a Teuchos\+::\+Parameter\+List object which will contain all the parameters specified in the input file {\ttfamily A\+B\+C.\+xml}. The structure of the input file and, hence, of the resulting parameter list can be chosen freely. The F\+E\+D\+D\+Lib will take care of reading the parameters from the file and making them available. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classFEDD_1_1DifferentiableFuncClass_a08863182a6eefffb5c665f85e799d880}\label{classFEDD_1_1DifferentiableFuncClass_a08863182a6eefffb5c665f85e799d880}} 
+\index{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$@{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$}!DifferentiableFuncClass@{DifferentiableFuncClass}}
+\index{DifferentiableFuncClass@{DifferentiableFuncClass}!FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$@{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{DifferentiableFuncClass()}{DifferentiableFuncClass()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+\mbox{\hyperlink{classFEDD_1_1DifferentiableFuncClass}{F\+E\+D\+D\+::\+Differentiable\+Func\+Class}}$<$ SC, LO, GO, NO $>$\+::\mbox{\hyperlink{classFEDD_1_1DifferentiableFuncClass}{Differentiable\+Func\+Class}} (\begin{DoxyParamCaption}\item[{Parameter\+List\+Ptr\+\_\+\+Type}]{parameters }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Constructor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em params} & Parameterlist for current problem \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classFEDD_1_1DifferentiableFuncClass_aa752b10b191eb73e232e04ad27b295ac}\label{classFEDD_1_1DifferentiableFuncClass_aa752b10b191eb73e232e04ad27b295ac}} 
+\index{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$@{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$}!evaluateDerivative@{evaluateDerivative}}
+\index{evaluateDerivative@{evaluateDerivative}!FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$@{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{evaluateDerivative()}{evaluateDerivative()}}
+{\footnotesize\ttfamily template$<$class SC  = default\+\_\+sc, class LO  = default\+\_\+lo, class GO  = default\+\_\+go, class NO  = default\+\_\+no$>$ \\
+virtual void \mbox{\hyperlink{classFEDD_1_1DifferentiableFuncClass}{F\+E\+D\+D\+::\+Differentiable\+Func\+Class}}$<$ SC, LO, GO, NO $>$\+::evaluate\+Derivative (\begin{DoxyParamCaption}\item[{Parameter\+List\+Ptr\+\_\+\+Type}]{params,  }\item[{double}]{x,  }\item[{double \&}]{res }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Computes value of derivative of defined function in evaluate\+Function. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em params} & Parameterlist as read from the xml file (maybe redundant) \\
+\hline
+\mbox{\texttt{ in}}  & {\em x} & Independent variable \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em res} & Dependent variable \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classFEDD_1_1CarreauYasuda_ace9d680673c35559c974212a5f7bbecc}{F\+E\+D\+D\+::\+Carreau\+Yasuda$<$ S\+C, L\+O, G\+O, N\+O $>$}}, and \mbox{\hyperlink{classFEDD_1_1PowerLaw_ab34c5359dea7175416090ff0b086b482}{F\+E\+D\+D\+::\+Power\+Law$<$ S\+C, L\+O, G\+O, N\+O $>$}}.
+
+\mbox{\Hypertarget{classFEDD_1_1DifferentiableFuncClass_aea8797795f2b3eb7d6e7aa981e34c1f6}\label{classFEDD_1_1DifferentiableFuncClass_aea8797795f2b3eb7d6e7aa981e34c1f6}} 
+\index{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$@{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$}!evaluateFunction@{evaluateFunction}}
+\index{evaluateFunction@{evaluateFunction}!FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$@{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{evaluateFunction()}{evaluateFunction()}}
+{\footnotesize\ttfamily template$<$class SC  = default\+\_\+sc, class LO  = default\+\_\+lo, class GO  = default\+\_\+go, class NO  = default\+\_\+no$>$ \\
+virtual void \mbox{\hyperlink{classFEDD_1_1DifferentiableFuncClass}{F\+E\+D\+D\+::\+Differentiable\+Func\+Class}}$<$ SC, LO, GO, NO $>$\+::evaluate\+Function (\begin{DoxyParamCaption}\item[{Parameter\+List\+Ptr\+\_\+\+Type}]{params,  }\item[{double}]{x,  }\item[{double \&}]{res }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Implements a functional description for evaluating res in dependence of given dependent variables and specified parameters. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em params} & Parameterlist as read from the xml file (maybe redundant) \\
+\hline
+\mbox{\texttt{ in}}  & {\em x} & Independent variable \\
+\hline
+\mbox{\texttt{ in,out}}  & {\em res} & Dependent variable \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classFEDD_1_1CarreauYasuda_a3d47f812139388263522923ca05fe790}{F\+E\+D\+D\+::\+Carreau\+Yasuda$<$ S\+C, L\+O, G\+O, N\+O $>$}}, and \mbox{\hyperlink{classFEDD_1_1PowerLaw_a32c76f6b85f1c7b15ece4ba9af78b2b8}{F\+E\+D\+D\+::\+Power\+Law$<$ S\+C, L\+O, G\+O, N\+O $>$}}.
+
+\mbox{\Hypertarget{classFEDD_1_1DifferentiableFuncClass_a3f504c2117c984c9545cbfe532c52956}\label{classFEDD_1_1DifferentiableFuncClass_a3f504c2117c984c9545cbfe532c52956}} 
+\index{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$@{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$}!setParams@{setParams}}
+\index{setParams@{setParams}!FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$@{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{setParams()}{setParams()}}
+{\footnotesize\ttfamily template$<$class SC  = default\+\_\+sc, class LO  = default\+\_\+lo, class GO  = default\+\_\+go, class NO  = default\+\_\+no$>$ \\
+virtual void \mbox{\hyperlink{classFEDD_1_1DifferentiableFuncClass}{F\+E\+D\+D\+::\+Differentiable\+Func\+Class}}$<$ SC, LO, GO, NO $>$\+::set\+Params (\begin{DoxyParamCaption}\item[{Parameter\+List\+Ptr\+\_\+\+Type}]{params }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [pure virtual]}}
+
+
+
+Function could include different parameters which will be specified in $\ast$.xml This function should set the needed parameters for defined function to the specified values. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em Parameter\+List} & as read from the xml file (maybe redundant) \\
+\hline
+\end{DoxyParams}
+
+
+Implemented in \mbox{\hyperlink{classFEDD_1_1CarreauYasuda_af76fa668193fa16ba49b7eb7149dc844}{F\+E\+D\+D\+::\+Carreau\+Yasuda$<$ S\+C, L\+O, G\+O, N\+O $>$}}, and \mbox{\hyperlink{classFEDD_1_1PowerLaw_a419015c64d8dab812685c3eba0f9bf43}{F\+E\+D\+D\+::\+Power\+Law$<$ S\+C, L\+O, G\+O, N\+O $>$}}.
+
+\mbox{\Hypertarget{classFEDD_1_1DifferentiableFuncClass_a09059b792627fa5ab1fe123f686873e0}\label{classFEDD_1_1DifferentiableFuncClass_a09059b792627fa5ab1fe123f686873e0}} 
+\index{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$@{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$}!updateParams@{updateParams}}
+\index{updateParams@{updateParams}!FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$@{FEDD::DifferentiableFuncClass$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{updateParams()}{updateParams()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1DifferentiableFuncClass}{F\+E\+D\+D\+::\+Differentiable\+Func\+Class}}$<$ SC, LO, GO, NO $>$\+::update\+Params (\begin{DoxyParamCaption}\item[{Parameter\+List\+Ptr\+\_\+\+Type}]{params }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Set or update the parameters read from the Parameter\+List. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em Parameter\+List} & as read from the xml file \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+General/Differentiable\+Func\+Class\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+General/Differentiable\+Func\+Class\+\_\+def.\+hpp\end{DoxyCompactItemize}

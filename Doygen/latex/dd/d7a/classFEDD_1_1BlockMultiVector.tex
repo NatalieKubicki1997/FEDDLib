@@ -1,0 +1,173 @@
+\hypertarget{classFEDD_1_1BlockMultiVector}{}\doxysection{F\+E\+DD\+::Block\+Multi\+Vector$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1BlockMultiVector}\index{FEDD::BlockMultiVector$<$ SC, LO, GO, NO $>$@{FEDD::BlockMultiVector$<$ SC, LO, GO, NO $>$}}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a660219b77451a1b4a0318436be2009ca}\label{classFEDD_1_1BlockMultiVector_a660219b77451a1b4a0318436be2009ca}} 
+typedef \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector}}$<$ SC, LO, GO, NO $>$ {\bfseries Block\+Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a17f95502f366403886c426ce12a50d4b}\label{classFEDD_1_1BlockMultiVector_a17f95502f366403886c426ce12a50d4b}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Block\+Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a343d303162f33640e8bc897a775c6fd2}\label{classFEDD_1_1BlockMultiVector_a343d303162f33640e8bc897a775c6fd2}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Block\+Multi\+Vector\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a79600aaf232626bcfd38a0b5b4858637}\label{classFEDD_1_1BlockMultiVector_a79600aaf232626bcfd38a0b5b4858637}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector}}$<$ SC, LO, GO, NO $>$ {\bfseries Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a53018bb910553d70eb5cba119c9d8c3f}\label{classFEDD_1_1BlockMultiVector_a53018bb910553d70eb5cba119c9d8c3f}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_ae02af72036e6132c43ac07187062b339}\label{classFEDD_1_1BlockMultiVector_ae02af72036e6132c43ac07187062b339}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Multi\+Vector\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_ac1389fe6640c667ee0f6f20fecb9cccd}\label{classFEDD_1_1BlockMultiVector_ac1389fe6640c667ee0f6f20fecb9cccd}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Map}{Multi\+Vector\+\_\+\+Type\+::\+Map\+\_\+\+Type}} {\bfseries Map\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_ac4487aedf2f61f1d84f50e03b89212ea}\label{classFEDD_1_1BlockMultiVector_ac4487aedf2f61f1d84f50e03b89212ea}} 
+typedef Multi\+Vector\+\_\+\+Type\+::\+Map\+Ptr\+\_\+\+Type {\bfseries Map\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a8d3ff01573f8b22935880465f009b38c}\label{classFEDD_1_1BlockMultiVector_a8d3ff01573f8b22935880465f009b38c}} 
+typedef Multi\+Vector\+\_\+\+Type\+::\+Map\+Const\+Ptr\+\_\+\+Type {\bfseries Map\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a7199ea583c07ca5dff36276c777df6a3}\label{classFEDD_1_1BlockMultiVector_a7199ea583c07ca5dff36276c777df6a3}} 
+typedef Multi\+Vector\+\_\+\+Type\+::\+Comm\+\_\+\+Type {\bfseries Comm\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a57f51045e83789bde1019d24593a34e7}\label{classFEDD_1_1BlockMultiVector_a57f51045e83789bde1019d24593a34e7}} 
+typedef Multi\+Vector\+\_\+\+Type\+::\+Comm\+Const\+Ptr\+\_\+\+Type {\bfseries Comm\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_adee24deb9307925ff814df6decc670be}\label{classFEDD_1_1BlockMultiVector_adee24deb9307925ff814df6decc670be}} 
+typedef \mbox{\hyperlink{classFEDD_1_1BlockMap}{Block\+Map}}$<$ LO, GO, NO $>$ {\bfseries Block\+Map\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a1adb4260c3e3940c13b9482b7a6ad016}\label{classFEDD_1_1BlockMultiVector_a1adb4260c3e3940c13b9482b7a6ad016}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1BlockMap}{Block\+Map\+\_\+\+Type}} $>$ {\bfseries Block\+Map\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a416e5e474e5e678196ee9e441028676a}\label{classFEDD_1_1BlockMultiVector_a416e5e474e5e678196ee9e441028676a}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1BlockMap}{Block\+Map\+\_\+\+Type}} $>$ {\bfseries Block\+Map\+Const\+Ptr\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a9e09729bfa76ef225c1f6f6e9bb85127}\label{classFEDD_1_1BlockMultiVector_a9e09729bfa76ef225c1f6f6e9bb85127}} 
+{\bfseries Block\+Multi\+Vector} (UN size)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_ad8acabb6bda13d1b4ebd56798ed2388f}\label{classFEDD_1_1BlockMultiVector_ad8acabb6bda13d1b4ebd56798ed2388f}} 
+{\bfseries Block\+Multi\+Vector} (Block\+Multi\+Vector\+Ptr\+\_\+\+Type b\+M\+V\+In)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_aaa25c4a9b68f55628a66e667e0d59021}\label{classFEDD_1_1BlockMultiVector_aaa25c4a9b68f55628a66e667e0d59021}} 
+{\bfseries Block\+Multi\+Vector} (std\+::vector$<$ Map\+Const\+Ptr\+\_\+\+Type $>$ \&maps, int num\+MV=1)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a975b669a51e1bae5658e07a1a960adbe}\label{classFEDD_1_1BlockMultiVector_a975b669a51e1bae5658e07a1a960adbe}} 
+{\bfseries Block\+Multi\+Vector} (Block\+Map\+Const\+Ptr\+\_\+\+Type block\+Map, int num\+MV=1)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_ab989e0ca39084a95431dbc22574b1360}\label{classFEDD_1_1BlockMultiVector_ab989e0ca39084a95431dbc22574b1360}} 
+\mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector\+\_\+\+Type}} \& {\bfseries operator=} (const \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector\+\_\+\+Type}} \&rhs)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a8f10af1cdd992aac238c8a26d9c2a3d4}\label{classFEDD_1_1BlockMultiVector_a8f10af1cdd992aac238c8a26d9c2a3d4}} 
+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries operator\mbox{[}$\,$\mbox{]}} (int i) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a4dc96f92e7e5f4376e0a3a26d9ee8901}\label{classFEDD_1_1BlockMultiVector_a4dc96f92e7e5f4376e0a3a26d9ee8901}} 
+void {\bfseries resize} (UN size)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_acf608328fb3e84dfbe939c94a1903497}\label{classFEDD_1_1BlockMultiVector_acf608328fb3e84dfbe939c94a1903497}} 
+void {\bfseries build\+From\+Maps} (std\+::vector$<$ Map\+Const\+Ptr\+\_\+\+Type $>$ \&maps, int num\+MV)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a1f797570d7215a0b2bd067b86cb50c88}\label{classFEDD_1_1BlockMultiVector_a1f797570d7215a0b2bd067b86cb50c88}} 
+void {\bfseries build\+From\+Block\+Map} (Block\+Map\+Const\+Ptr\+\_\+\+Type block\+Map, int num\+MV)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a87784dbbada55fe182cc5a02f094de74}\label{classFEDD_1_1BlockMultiVector_a87784dbbada55fe182cc5a02f094de74}} 
+void {\bfseries merge} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_ad4743f600d576e6b1061954ba09a56cc}\label{classFEDD_1_1BlockMultiVector_ad4743f600d576e6b1061954ba09a56cc}} 
+void {\bfseries merge\+Block} (UN block)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_acb3ac4391c3d491ba223b5b32273bd18}\label{classFEDD_1_1BlockMultiVector_acb3ac4391c3d491ba223b5b32273bd18}} 
+void {\bfseries split} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_ac115fe2d9faafee5b44ddbb78452c3af}\label{classFEDD_1_1BlockMultiVector_ac115fe2d9faafee5b44ddbb78452c3af}} 
+void {\bfseries split\+Block} (UN block)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_ae5a4dbb69701c3e2d93992f5b9986337}\label{classFEDD_1_1BlockMultiVector_ae5a4dbb69701c3e2d93992f5b9986337}} 
+void {\bfseries determine\+Local\+Offsets} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a864c3a5d39e109c7ca3a0cbf75b8ab5f}\label{classFEDD_1_1BlockMultiVector_a864c3a5d39e109c7ca3a0cbf75b8ab5f}} 
+void {\bfseries determine\+Global\+Offsets} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a933f458c8261fb39d56c9cfcf26bb8f6}\label{classFEDD_1_1BlockMultiVector_a933f458c8261fb39d56c9cfcf26bb8f6}} 
+void {\bfseries set\+Merged\+Vector} (Multi\+Vector\+Ptr\+\_\+\+Type \&mv)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a6eb91cf05324efb63799a2845264d6ed}\label{classFEDD_1_1BlockMultiVector_a6eb91cf05324efb63799a2845264d6ed}} 
+int {\bfseries size} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_acc71e8a1f5270c91e84adaca72e3fb42}\label{classFEDD_1_1BlockMultiVector_acc71e8a1f5270c91e84adaca72e3fb42}} 
+UN {\bfseries get\+Num\+Vectors} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a545036f877f37770d78d7e3426657f96}\label{classFEDD_1_1BlockMultiVector_a545036f877f37770d78d7e3426657f96}} 
+void {\bfseries add\+Block} (const Multi\+Vector\+Ptr\+\_\+\+Type \&multi\+Vector, int i)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a5bd0160d7071e32afe06c82789d3fb1a}\label{classFEDD_1_1BlockMultiVector_a5bd0160d7071e32afe06c82789d3fb1a}} 
+Multi\+Vector\+Const\+Ptr\+\_\+\+Type {\bfseries get\+Block} (int i) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_ad921f5861a1b756cdac405d0fc164c2d}\label{classFEDD_1_1BlockMultiVector_ad921f5861a1b756cdac405d0fc164c2d}} 
+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries get\+Block\+Non\+Const} (int i)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a7bfbfd28755ea2e1a791c0c938664154}\label{classFEDD_1_1BlockMultiVector_a7bfbfd28755ea2e1a791c0c938664154}} 
+Teuchos\+::\+R\+CP$<$ Thyra\+::\+Multi\+Vector\+Base$<$ SC $>$ $>$ {\bfseries get\+Thyra\+Multi\+Vector} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_af1ddc36d6513ae73c5281f56330813db}\label{classFEDD_1_1BlockMultiVector_af1ddc36d6513ae73c5281f56330813db}} 
+Teuchos\+::\+R\+CP$<$ const Thyra\+::\+Multi\+Vector\+Base$<$ SC $>$ $>$ {\bfseries get\+Thyra\+Multi\+Vector\+Const} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a78904af998e45348626ad0e78a9748ad}\label{classFEDD_1_1BlockMultiVector_a78904af998e45348626ad0e78a9748ad}} 
+Teuchos\+::\+R\+CP$<$ Thyra\+::\+Product\+Multi\+Vector\+Base$<$ SC $>$ $>$ {\bfseries get\+Prod\+Thyra\+Multi\+Vector} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a201ab8f80b80fd04f909b99aec1b1ae6}\label{classFEDD_1_1BlockMultiVector_a201ab8f80b80fd04f909b99aec1b1ae6}} 
+Teuchos\+::\+R\+CP$<$ const Thyra\+::\+Product\+Multi\+Vector\+Base$<$ SC $>$ $>$ {\bfseries get\+Thyra\+Prod\+Multi\+Vector\+Const} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a12c9104342eee5e9346571403b0b43ad}\label{classFEDD_1_1BlockMultiVector_a12c9104342eee5e9346571403b0b43ad}} 
+void {\bfseries from\+Thyra\+Multi\+Vector} (Teuchos\+::\+R\+CP$<$ Thyra\+::\+Multi\+Vector\+Base$<$ SC $>$ $>$ thyra\+MV)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a90b8f39d8279ce0bf39bae9e42c9aff6}\label{classFEDD_1_1BlockMultiVector_a90b8f39d8279ce0bf39bae9e42c9aff6}} 
+void {\bfseries from\+Thyra\+Prod\+Multi\+Vector} (Teuchos\+::\+R\+CP$<$ Thyra\+::\+Product\+Multi\+Vector\+Base$<$ SC $>$ $>$ thyra\+MV)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a6491a1153b8dd8d964cd597050612516}\label{classFEDD_1_1BlockMultiVector_a6491a1153b8dd8d964cd597050612516}} 
+void {\bfseries norm2} (const Teuchos\+::\+Array\+View$<$ typename Teuchos\+::\+Scalar\+Traits$<$ SC $>$\+::magnitude\+Type $>$ \&norms) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_ae10581f464d026fe1004aa17ff10420e}\label{classFEDD_1_1BlockMultiVector_ae10581f464d026fe1004aa17ff10420e}} 
+void {\bfseries dot} (Block\+Multi\+Vector\+Const\+Ptr\+\_\+\+Type a, const Teuchos\+::\+Array\+View$<$ typename Teuchos\+::\+Scalar\+Traits$<$ SC $>$\+::magnitude\+Type $>$ \&dots)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a6df5364c3a4dbcaa136e1dfee1c210d1}\label{classFEDD_1_1BlockMultiVector_a6df5364c3a4dbcaa136e1dfee1c210d1}} 
+void {\bfseries update} (const SC \&alpha, const \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector\+\_\+\+Type}} \&A, const SC \&beta)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_aa0e08348c3f3fab58e1960e099dacf1b}\label{classFEDD_1_1BlockMultiVector_aa0e08348c3f3fab58e1960e099dacf1b}} 
+void {\bfseries update} (const SC \&alpha, const \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector\+\_\+\+Type}} \&A, const SC \&beta, const \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector\+\_\+\+Type}} \&B, const SC \&gamma)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a88c8463a03f6685409c5060b743507cb}\label{classFEDD_1_1BlockMultiVector_a88c8463a03f6685409c5060b743507cb}} 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries sum\+Columns} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a555042b868c471c800cd5800f669c4cd}\label{classFEDD_1_1BlockMultiVector_a555042b868c471c800cd5800f669c4cd}} 
+void {\bfseries multiply} (Teuchos\+::\+E\+Transp transA, Teuchos\+::\+E\+Transp transB, const SC \&alpha, Block\+Multi\+Vector\+Const\+Ptr\+\_\+\+Type \&A, Block\+Multi\+Vector\+Const\+Ptr\+\_\+\+Type \&B, const SC \&beta)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_abf72457792087265dcd07c082dc346cb}\label{classFEDD_1_1BlockMultiVector_abf72457792087265dcd07c082dc346cb}} 
+void {\bfseries put\+Scalar} (const SC \&alpha)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_af17d3197a955f45172d28bbffeb47523}\label{classFEDD_1_1BlockMultiVector_af17d3197a955f45172d28bbffeb47523}} 
+void {\bfseries scale} (const SC \&alpha)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_aa7fd165368a5bc4a6ce6f9be23cb2011}\label{classFEDD_1_1BlockMultiVector_aa7fd165368a5bc4a6ce6f9be23cb2011}} 
+void {\bfseries write\+MM} (std\+::string fN=\char`\"{}block\+MV\char`\"{}) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_ad88295e0e1f88a7cef1e51a33149f3e5}\label{classFEDD_1_1BlockMultiVector_ad88295e0e1f88a7cef1e51a33149f3e5}} 
+void {\bfseries print} (Teuchos\+::\+E\+Verbosity\+Level verb\+Level=Teuchos\+::\+V\+E\+R\+B\+\_\+\+E\+X\+T\+R\+E\+ME)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_aad6152df8f19cddae10007211a0db9fb}\label{classFEDD_1_1BlockMultiVector_aad6152df8f19cddae10007211a0db9fb}} 
+Block\+Map\+Const\+Ptr\+\_\+\+Type {\bfseries get\+Map} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1BlockMultiVector_a79f7c244145d2bd8c83e262c3e691f9b}\label{classFEDD_1_1BlockMultiVector_a79f7c244145d2bd8c83e262c3e691f9b}} 
+Multi\+Vector\+Const\+Ptr\+\_\+\+Type {\bfseries get\+Merged\+Vector} ()
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Linear\+Algebra/Block\+Multi\+Vector\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Linear\+Algebra/Block\+Multi\+Vector\+\_\+def.\+hpp\end{DoxyCompactItemize}

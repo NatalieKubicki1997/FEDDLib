@@ -1,0 +1,394 @@
+\hypertarget{classFEDD_1_1TimeProblem}{}\doxysection{F\+E\+DD\+::Time\+Problem$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1TimeProblem}\index{FEDD::TimeProblem$<$ SC, LO, GO, NO $>$@{FEDD::TimeProblem$<$ SC, LO, GO, NO $>$}}
+
+
+Inheritance diagram for F\+E\+DD\+::Time\+Problem$<$ SC, LO, GO, NO $>$\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=255pt]{d1/da0/classFEDD_1_1TimeProblem__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for F\+E\+DD\+::Time\+Problem$<$ SC, LO, GO, NO $>$\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{d4/d3a/classFEDD_1_1TimeProblem__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a49c91fb3a39ade2c29094b434b337bb4}\label{classFEDD_1_1TimeProblem_a49c91fb3a39ade2c29094b434b337bb4}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Problem}{Problem}}$<$ SC, LO, GO, NO $>$ {\bfseries Problem\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_accef4131ade17f15e3316ca8da095277}\label{classFEDD_1_1TimeProblem_accef4131ade17f15e3316ca8da095277}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Problem}{Problem\+\_\+\+Type}} $>$ {\bfseries Problem\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a601b9cf47af6634f844e2d7fae32bc27}\label{classFEDD_1_1TimeProblem_a601b9cf47af6634f844e2d7fae32bc27}} 
+typedef Problem\+\_\+\+Type\+::\+Comm\+Const\+Ptr\+\_\+\+Type {\bfseries Comm\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a5dd611e0d6d78446fc70ad0ac142d775}\label{classFEDD_1_1TimeProblem_a5dd611e0d6d78446fc70ad0ac142d775}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Map}{Problem\+\_\+\+Type\+::\+Map\+\_\+\+Type}} {\bfseries Map\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a500e9dd8fbf733b87a8a45a67f2427d0}\label{classFEDD_1_1TimeProblem_a500e9dd8fbf733b87a8a45a67f2427d0}} 
+typedef Problem\+\_\+\+Type\+::\+Map\+Ptr\+\_\+\+Type {\bfseries Map\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a69c9854559c672c39d87f64643ea0226}\label{classFEDD_1_1TimeProblem_a69c9854559c672c39d87f64643ea0226}} 
+typedef Problem\+\_\+\+Type\+::\+Map\+Const\+Ptr\+\_\+\+Type {\bfseries Map\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a042f8d2ce32e8fae2eb8c9404d3f289c}\label{classFEDD_1_1TimeProblem_a042f8d2ce32e8fae2eb8c9404d3f289c}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Matrix}{Problem\+\_\+\+Type\+::\+Matrix\+\_\+\+Type}} {\bfseries Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_abcebd88ff45ea2bf50084f6a69ce3802}\label{classFEDD_1_1TimeProblem_abcebd88ff45ea2bf50084f6a69ce3802}} 
+typedef Problem\+\_\+\+Type\+::\+Matrix\+Ptr\+\_\+\+Type {\bfseries Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a1811f4466445ada54c7bd5a822abe098}\label{classFEDD_1_1TimeProblem_a1811f4466445ada54c7bd5a822abe098}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix\+\_\+\+Type}} $>$ {\bfseries Matrix\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a7b47d89f3f0992744f9509a62184b3af}\label{classFEDD_1_1TimeProblem_a7b47d89f3f0992744f9509a62184b3af}} 
+typedef \mbox{\hyperlink{classFEDD_1_1BlockMatrix}{Problem\+\_\+\+Type\+::\+Block\+Matrix\+\_\+\+Type}} {\bfseries Block\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a01accba3e5f359ab359c54a7fa5afacb}\label{classFEDD_1_1TimeProblem_a01accba3e5f359ab359c54a7fa5afacb}} 
+typedef Problem\+\_\+\+Type\+::\+Block\+Matrix\+Ptr\+\_\+\+Type {\bfseries Block\+Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a13b4a425ece8109a61a5de7c5dfe1b14}\label{classFEDD_1_1TimeProblem_a13b4a425ece8109a61a5de7c5dfe1b14}} 
+typedef Problem\+\_\+\+Type\+::\+Block\+Matrix\+Const\+Ptr\+\_\+\+Type {\bfseries Block\+Matrix\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a22e99c66f9a73ffaea683cabbb86d804}\label{classFEDD_1_1TimeProblem_a22e99c66f9a73ffaea683cabbb86d804}} 
+typedef Teuchos\+::\+Array$<$ Block\+Matrix\+Ptr\+\_\+\+Type $>$ {\bfseries Block\+Matrix\+Ptr\+Array\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a32b375ebfbec4999c0220dd3d424991f}\label{classFEDD_1_1TimeProblem_a32b375ebfbec4999c0220dd3d424991f}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MultiVector}{Problem\+\_\+\+Type\+::\+Multi\+Vector\+\_\+\+Type}} {\bfseries Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ab4fb9ed3f402f114f76c1ee3ef2919f7}\label{classFEDD_1_1TimeProblem_ab4fb9ed3f402f114f76c1ee3ef2919f7}} 
+typedef Problem\+\_\+\+Type\+::\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a0efb7b334d8eae7cdf6df5c8bb4e48aa}\label{classFEDD_1_1TimeProblem_a0efb7b334d8eae7cdf6df5c8bb4e48aa}} 
+typedef \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Problem\+\_\+\+Type\+::\+Block\+Multi\+Vector\+\_\+\+Type}} {\bfseries Block\+Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_af28332eb758595d556390513be256d3e}\label{classFEDD_1_1TimeProblem_af28332eb758595d556390513be256d3e}} 
+typedef Problem\+\_\+\+Type\+::\+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries Block\+Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a69e9393d86629ebe072126bf22717142}\label{classFEDD_1_1TimeProblem_a69e9393d86629ebe072126bf22717142}} 
+typedef Problem\+\_\+\+Type\+::\+Block\+Multi\+Vector\+Const\+Ptr\+\_\+\+Type {\bfseries Block\+Multi\+Vector\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a18bbbd42feb5e514dcb3125799152d51}\label{classFEDD_1_1TimeProblem_a18bbbd42feb5e514dcb3125799152d51}} 
+typedef Teuchos\+::\+Array$<$ Block\+Multi\+Vector\+Ptr\+\_\+\+Type $>$ {\bfseries Block\+Multi\+Vector\+Ptr\+Array\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_aa33e03df329e260b17e69005dc85772c}\label{classFEDD_1_1TimeProblem_aa33e03df329e260b17e69005dc85772c}} 
+typedef Problem\+\_\+\+Type\+::\+Domain\+Const\+Ptr\+\_\+\+Type {\bfseries Domain\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a6fa2306daea53a4ff4b4813c87331f17}\label{classFEDD_1_1TimeProblem_a6fa2306daea53a4ff4b4813c87331f17}} 
+typedef \mbox{\hyperlink{classFEDD_1_1FE}{Problem\+\_\+\+Type\+::\+F\+E\+Fac\+\_\+\+Type}} {\bfseries F\+E\+Fac\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ac4d7c22e7766305a70fa4cfafaf7ac7a}\label{classFEDD_1_1TimeProblem_ac4d7c22e7766305a70fa4cfafaf7ac7a}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1FE}{F\+E\+Fac\+\_\+\+Type}} $>$ {\bfseries F\+E\+Fac\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_aa18a7e6d1044e44e0280b0907c6dae9a}\label{classFEDD_1_1TimeProblem_aa18a7e6d1044e44e0280b0907c6dae9a}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1FE}{F\+E\+Fac\+\_\+\+Type}} $>$ {\bfseries F\+E\+Fac\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a6cd21f56c5780e8c45cb0d96f19d3cef}\label{classFEDD_1_1TimeProblem_a6cd21f56c5780e8c45cb0d96f19d3cef}} 
+typedef Problem\+\_\+\+Type\+::\+B\+C\+Const\+Ptr\+\_\+\+Type {\bfseries B\+C\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a286394263008a6dc9cc43672cd5021fb}\label{classFEDD_1_1TimeProblem_a286394263008a6dc9cc43672cd5021fb}} 
+typedef \mbox{\hyperlink{classFEDD_1_1NonLinearProblem}{Non\+Linear\+Problem}}$<$ SC, LO, GO, NO $>$ {\bfseries Non\+Lin\+Prob\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_afc2595155c6440e67617e50c6227cbc9}\label{classFEDD_1_1TimeProblem_afc2595155c6440e67617e50c6227cbc9}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1NonLinearProblem}{Non\+Lin\+Prob\+\_\+\+Type}} $>$ {\bfseries Non\+Lin\+Prob\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_afc35773af191e237bd64b33d16562a0f}\label{classFEDD_1_1TimeProblem_afc35773af191e237bd64b33d16562a0f}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Preconditioner}{Problem\+\_\+\+Type\+::\+Preconditioner\+\_\+\+Type}} {\bfseries Preconditioner\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a04a6b139834f0bee49a024a347bc1f3a}\label{classFEDD_1_1TimeProblem_a04a6b139834f0bee49a024a347bc1f3a}} 
+typedef Problem\+\_\+\+Type\+::\+Preconditioner\+Ptr\+\_\+\+Type {\bfseries Preconditioner\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a948c7986777eeb125ced0d6f86271a82}\label{classFEDD_1_1TimeProblem_a948c7986777eeb125ced0d6f86271a82}} 
+typedef Problem\+\_\+\+Type\+::\+Lin\+Solver\+Builder\+Ptr\+\_\+\+Type {\bfseries Lin\+Solver\+Builder\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ad1b878654a57f28c16b0eee9792cfa5d}\label{classFEDD_1_1TimeProblem_ad1b878654a57f28c16b0eee9792cfa5d}} 
+typedef Non\+Lin\+Prob\+\_\+\+Type\+::\+Tpetra\+Matrix\+\_\+\+Type {\bfseries Tpetra\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a104cc1841c72e2ddab9aad3766b18031}\label{classFEDD_1_1TimeProblem_a104cc1841c72e2ddab9aad3766b18031}} 
+typedef Non\+Lin\+Prob\+\_\+\+Type\+::\+Thyra\+Vec\+Space\+\_\+\+Type {\bfseries Thyra\+Vec\+Space\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_af0b11186b0967d07312f1027485dc935}\label{classFEDD_1_1TimeProblem_af0b11186b0967d07312f1027485dc935}} 
+typedef Non\+Lin\+Prob\+\_\+\+Type\+::\+Thyra\+Vec\+\_\+\+Type {\bfseries Thyra\+Vec\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a01308578953f4516e3976673924aff67}\label{classFEDD_1_1TimeProblem_a01308578953f4516e3976673924aff67}} 
+typedef Non\+Lin\+Prob\+\_\+\+Type\+::\+Thyra\+Op\+\_\+\+Type {\bfseries Thyra\+Op\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a65374b175409623c558b391a1a5d8a85}\label{classFEDD_1_1TimeProblem_a65374b175409623c558b391a1a5d8a85}} 
+typedef Thyra\+::\+Blocked\+Linear\+Op\+Base$<$ SC $>$ {\bfseries Thyra\+Block\+Op\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_aaf877345cd67ad3a0d7b685043c2795d}\label{classFEDD_1_1TimeProblem_aaf877345cd67ad3a0d7b685043c2795d}} 
+typedef Non\+Lin\+Prob\+\_\+\+Type\+::\+Tpetra\+Op\+\_\+\+Type {\bfseries Tpetra\+Op\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a556d6c4a0fe663b047ce300174137506}\label{classFEDD_1_1TimeProblem_a556d6c4a0fe663b047ce300174137506}} 
+{\bfseries Time\+Problem} (\mbox{\hyperlink{classFEDD_1_1Problem}{Problem\+\_\+\+Type}} \&problem, Comm\+Const\+Ptr\+\_\+\+Type comm)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ab53f426ee6e4f1d31480442d5fdcbd91}\label{classFEDD_1_1TimeProblem_ab53f426ee6e4f1d31480442d5fdcbd91}} 
+void {\bfseries set\+Time\+Def} (\mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ int $>$ \&def)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a1878969d029663d17507c5a47919721c}\label{classFEDD_1_1TimeProblem_a1878969d029663d17507c5a47919721c}} 
+void {\bfseries assemble} (std\+::string type=\char`\"{}\char`\"{}) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_aecd3dc4d05c0b90bb4d9f3272a95162d}\label{classFEDD_1_1TimeProblem_aecd3dc4d05c0b90bb4d9f3272a95162d}} 
+virtual void {\bfseries re\+Assemble\+And\+Fill} (Block\+Matrix\+Ptr\+\_\+\+Type b\+Mat, std\+::string type=\char`\"{}Fixed\+Point\char`\"{})
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a8f55c809e985701f63fbfec260b8d00d}\label{classFEDD_1_1TimeProblem_a8f55c809e985701f63fbfec260b8d00d}} 
+void {\bfseries update\+Rhs} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a843ded904be0917273614ea62ef7c73b}\label{classFEDD_1_1TimeProblem_a843ded904be0917273614ea62ef7c73b}} 
+void {\bfseries update\+Multistep\+Rhs} (vec\+\_\+dbl\+\_\+\+Type \&coeff, int nmb\+To\+Use)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a49cedbac95512dd2638dc2f258cc7702}\label{classFEDD_1_1TimeProblem_a49cedbac95512dd2638dc2f258cc7702}} 
+void {\bfseries update\+Multistep\+Rhs\+F\+SI} (vec\+\_\+dbl\+\_\+\+Type \&coeff, int nmb\+To\+Use)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ac9ffae57431ebd4ee215e78b13d8b76d}\label{classFEDD_1_1TimeProblem_ac9ffae57431ebd4ee215e78b13d8b76d}} 
+void {\bfseries update\+Newmark\+Rhs} (double dt, double beta, double gamma, vec\+\_\+dbl\+\_\+\+Type coeff)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ac0ca80604559687ae998352de442694e}\label{classFEDD_1_1TimeProblem_ac0ca80604559687ae998352de442694e}} 
+void {\bfseries combine\+Systems} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a51356160a165eb4591c9e7c433b49415}\label{classFEDD_1_1TimeProblem_a51356160a165eb4591c9e7c433b49415}} 
+void {\bfseries initialize\+Combined\+Systems} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a7b2a1b2a3da56b4badea11d7a98eb946}\label{classFEDD_1_1TimeProblem_a7b2a1b2a3da56b4badea11d7a98eb946}} 
+void {\bfseries assemble\+Mass\+System} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a61a353c8a8026618797b467932355400}\label{classFEDD_1_1TimeProblem_a61a353c8a8026618797b467932355400}} 
+void {\bfseries set\+Time\+Parameters} (\mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ double $>$ \&dae\+Parameters, \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ double $>$ \&time\+Parameters)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ac28e725a6d017d00edef5fa10d2bc133}\label{classFEDD_1_1TimeProblem_ac28e725a6d017d00edef5fa10d2bc133}} 
+int {\bfseries solve\+And\+Update} (const std\+::string \&criterion, double \&criterion\+Value)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a1b8f04ea7f9a9e2b081bcc079a061463}\label{classFEDD_1_1TimeProblem_a1b8f04ea7f9a9e2b081bcc079a061463}} 
+int {\bfseries solve\+Update} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a6b22facea1c28da29149d9abf545750e}\label{classFEDD_1_1TimeProblem_a6b22facea1c28da29149d9abf545750e}} 
+int {\bfseries update} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a81559128e038effb01a79bffa46dacd7}\label{classFEDD_1_1TimeProblem_a81559128e038effb01a79bffa46dacd7}} 
+int {\bfseries solve} (Block\+Multi\+Vector\+Ptr\+\_\+\+Type rhs=Teuchos\+::null)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_aff39ce35d580ac7c36ed4ed6b17a5b22}\label{classFEDD_1_1TimeProblem_aff39ce35d580ac7c36ed4ed6b17a5b22}} 
+double {\bfseries calculate\+Residual\+Norm} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a2f94529d1b4f5760b21ebd85b65227d6}\label{classFEDD_1_1TimeProblem_a2f94529d1b4f5760b21ebd85b65227d6}} 
+void {\bfseries calculate\+Non\+Lin\+Residual\+Vec} (std\+::string type=\char`\"{}standard\char`\"{}, double time=0.) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a099b45a99aba12edc0209ec78a6fb9d1}\label{classFEDD_1_1TimeProblem_a099b45a99aba12edc0209ec78a6fb9d1}} 
+bool {\bfseries get\+Verbose} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a66834cd59f61c8b9465fb05e247e6dee}\label{classFEDD_1_1TimeProblem_a66834cd59f61c8b9465fb05e247e6dee}} 
+void {\bfseries add\+Boundaries} (B\+C\+Const\+Ptr\+\_\+\+Type bc\+Factory)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a570cb32c69cdf4d145529ac52a15583f}\label{classFEDD_1_1TimeProblem_a570cb32c69cdf4d145529ac52a15583f}} 
+void {\bfseries set\+Boundaries} (double time=.\+0)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a0d9c4337e0cc6ea9a7e5d35d80efcba3}\label{classFEDD_1_1TimeProblem_a0d9c4337e0cc6ea9a7e5d35d80efcba3}} 
+void {\bfseries set\+Boundaries\+R\+HS} (double time=.\+0)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a51c50727a195c4096f8010c7e6cea0db}\label{classFEDD_1_1TimeProblem_a51c50727a195c4096f8010c7e6cea0db}} 
+void {\bfseries set\+Boundaries\+System} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a0e54fed323b394f931531f9719eaee29}\label{classFEDD_1_1TimeProblem_a0e54fed323b394f931531f9719eaee29}} 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries get\+Rhs} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a0fc5ac30b88c7e9cb744c7e1d1074de5}\label{classFEDD_1_1TimeProblem_a0fc5ac30b88c7e9cb744c7e1d1074de5}} 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries get\+Rhs} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a92c8e4549b3222a2dfa8010319df7d40}\label{classFEDD_1_1TimeProblem_a92c8e4549b3222a2dfa8010319df7d40}} 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries get\+Solution} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a7ab444d56b0e9a643139972e83b0c5be}\label{classFEDD_1_1TimeProblem_a7ab444d56b0e9a643139972e83b0c5be}} 
+Block\+Multi\+Vector\+Const\+Ptr\+\_\+\+Type {\bfseries get\+Solution\+Const} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a2bf12aaedb2d458f090a0c4904704462}\label{classFEDD_1_1TimeProblem_a2bf12aaedb2d458f090a0c4904704462}} 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries get\+Residual} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_aa73287e09bf4c80690b389fa8d7838d4}\label{classFEDD_1_1TimeProblem_aa73287e09bf4c80690b389fa8d7838d4}} 
+Block\+Multi\+Vector\+Const\+Ptr\+\_\+\+Type {\bfseries get\+Residual\+Const} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a58f82a666b019be35a061d56377a460b}\label{classFEDD_1_1TimeProblem_a58f82a666b019be35a061d56377a460b}} 
+Domain\+Const\+Ptr\+\_\+\+Type {\bfseries get\+Domain} (int i) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a6f8346581e714bf4e87bee5382e892d4}\label{classFEDD_1_1TimeProblem_a6f8346581e714bf4e87bee5382e892d4}} 
+std\+::string {\bfseries get\+F\+E\+Type} (int i)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ae25f7d4999fddc9b57752b89ccd38152}\label{classFEDD_1_1TimeProblem_ae25f7d4999fddc9b57752b89ccd38152}} 
+std\+::string {\bfseries get\+Variable\+Name} (int i)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_aca88393d2bbabdd7b11a98f816cb1d4c}\label{classFEDD_1_1TimeProblem_aca88393d2bbabdd7b11a98f816cb1d4c}} 
+int {\bfseries get\+Dofs\+Per\+Node} (int i)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_aa692972517b70079ff42a3b760137e6d}\label{classFEDD_1_1TimeProblem_aa692972517b70079ff42a3b760137e6d}} 
+Block\+Matrix\+Ptr\+\_\+\+Type {\bfseries get\+System} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a6489ad43f9b5151bf8445df251fa825c}\label{classFEDD_1_1TimeProblem_a6489ad43f9b5151bf8445df251fa825c}} 
+Block\+Matrix\+Ptr\+\_\+\+Type {\bfseries get\+System\+Combined} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a89bb1e9879132aafcf64f4eb569da86e}\label{classFEDD_1_1TimeProblem_a89bb1e9879132aafcf64f4eb569da86e}} 
+Block\+Matrix\+Ptr\+\_\+\+Type {\bfseries get\+System\+Combined} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a86d94d09e0fec9e264b7241704e969e1}\label{classFEDD_1_1TimeProblem_a86d94d09e0fec9e264b7241704e969e1}} 
+Problem\+Ptr\+\_\+\+Type {\bfseries get\+Underlying\+Problem} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a897ba07407cb740c173c7cc94b1863b9}\label{classFEDD_1_1TimeProblem_a897ba07407cb740c173c7cc94b1863b9}} 
+void {\bfseries update\+Solution\+Previous\+Step} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a8632de115102ffaf8c87182f21d9083a}\label{classFEDD_1_1TimeProblem_a8632de115102ffaf8c87182f21d9083a}} 
+void {\bfseries update\+Solution\+Multi\+Previous\+Step} (int nmb\+Steps)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a30d2803974ba11a536719b93cb0e7061}\label{classFEDD_1_1TimeProblem_a30d2803974ba11a536719b93cb0e7061}} 
+void {\bfseries update\+System\+Mass\+Multi\+Previous\+Step} (int nmb\+Steps)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a6c785456fa728f74ce2d1caadf3ebf7c}\label{classFEDD_1_1TimeProblem_a6c785456fa728f74ce2d1caadf3ebf7c}} 
+void {\bfseries update\+Solution\+Newmark\+Previous\+Step} (double dt, double beta, double gamma)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a0d92468f61508d91e1dc7d916bed3d16}\label{classFEDD_1_1TimeProblem_a0d92468f61508d91e1dc7d916bed3d16}} 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries get\+Solution\+Previous\+Timestep} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a8284ab9d9c469b2e5412b6bbd7c0d05d}\label{classFEDD_1_1TimeProblem_a8284ab9d9c469b2e5412b6bbd7c0d05d}} 
+Block\+Multi\+Vector\+Ptr\+Array\+\_\+\+Type {\bfseries get\+Solution\+All\+Previous\+Timestep} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a54fe2d8f482adf255f419789cf4407ca}\label{classFEDD_1_1TimeProblem_a54fe2d8f482adf255f419789cf4407ca}} 
+Block\+Matrix\+Ptr\+\_\+\+Type {\bfseries get\+Mass\+System} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a276c2aa5d0739c6015225c0a14b6a47e}\label{classFEDD_1_1TimeProblem_a276c2aa5d0739c6015225c0a14b6a47e}} 
+Parameter\+List\+Ptr\+\_\+\+Type {\bfseries get\+Parameter\+List} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_af11092f327a0277c9b1d05cbfb872576}\label{classFEDD_1_1TimeProblem_af11092f327a0277c9b1d05cbfb872576}} 
+void {\bfseries assemble\+Source\+Term} (double time=0.)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a25170cc87d9e4cc24b5ec003c50e3105}\label{classFEDD_1_1TimeProblem_a25170cc87d9e4cc24b5ec003c50e3105}} 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries get\+Source\+Term} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a98b639f956b4f5f8e5b4c322d036d007}\label{classFEDD_1_1TimeProblem_a98b639f956b4f5f8e5b4c322d036d007}} 
+bool {\bfseries has\+Source\+Term} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a09b0bb8d18550c143407b667cfd77785}\label{classFEDD_1_1TimeProblem_a09b0bb8d18550c143407b667cfd77785}} 
+Comm\+Const\+Ptr\+\_\+\+Type {\bfseries get\+Comm} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a4ebdebc8d13fc8a27fcae7bb95b06a57}\label{classFEDD_1_1TimeProblem_a4ebdebc8d13fc8a27fcae7bb95b06a57}} 
+Lin\+Solver\+Builder\+Ptr\+\_\+\+Type {\bfseries get\+Linear\+Solver\+Builder} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_abb7f41f7030adadb184b48aa15d8b661}\label{classFEDD_1_1TimeProblem_abb7f41f7030adadb184b48aa15d8b661}} 
+void {\bfseries get\+Values\+Of\+Interest} (vec\+\_\+dbl\+\_\+\+Type \&values)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a1cbbf574d898f5d55c0c2d070b1f4d2c}\label{classFEDD_1_1TimeProblem_a1cbbf574d898f5d55c0c2d070b1f4d2c}} 
+void {\bfseries compute\+Values\+Of\+Interest\+And\+Export} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_abe4c7d06097b84dc97fc8a4a94ec3057}\label{classFEDD_1_1TimeProblem_abe4c7d06097b84dc97fc8a4a94ec3057}} 
+void {\bfseries update\+Time} (double time)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_aff452beb668d444b0563c1f6f13e5e41}\label{classFEDD_1_1TimeProblem_aff452beb668d444b0563c1f6f13e5e41}} 
+void {\bfseries add\+To\+Rhs} (Block\+Multi\+Vector\+Ptr\+\_\+\+Type x)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a66fc1a7584986329005cc412a4a358f9}\label{classFEDD_1_1TimeProblem_a66fc1a7584986329005cc412a4a358f9}} 
+virtual Thyra\+::\+Model\+Evaluator\+Base\+::\+In\+Args$<$ SC $>$ {\bfseries get\+Nominal\+Values} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a67fcb88102f92c3f7fcad4d14d9cf5cc}\label{classFEDD_1_1TimeProblem_a67fcb88102f92c3f7fcad4d14d9cf5cc}} 
+virtual Teuchos\+::\+R\+CP$<$ const \+::Thyra\+::\+Vector\+Space\+Base$<$ SC $>$ $>$ {\bfseries get\+\_\+x\+\_\+space} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ab9c24f2de6d5a767a7956436dfaaa86c}\label{classFEDD_1_1TimeProblem_ab9c24f2de6d5a767a7956436dfaaa86c}} 
+virtual Teuchos\+::\+R\+CP$<$ const \+::Thyra\+::\+Vector\+Space\+Base$<$ SC $>$ $>$ {\bfseries get\+\_\+f\+\_\+space} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ae1cb44a82dd4e4a3fcc19ae5aee304db}\label{classFEDD_1_1TimeProblem_ae1cb44a82dd4e4a3fcc19ae5aee304db}} 
+virtual \+::Thyra\+::\+Model\+Evaluator\+Base\+::\+In\+Args$<$ SC $>$ {\bfseries create\+In\+Args} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_af4f06d9aafbcc40f3f2b19afc88b16d5}\label{classFEDD_1_1TimeProblem_af4f06d9aafbcc40f3f2b19afc88b16d5}} 
+virtual \+::Thyra\+::\+Model\+Evaluator\+Base\+::\+Out\+Args$<$ SC $>$ {\bfseries create\+Out\+Args\+Impl} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a7551a204b5f74ee48b1d1fdc33d68de6}\label{classFEDD_1_1TimeProblem_a7551a204b5f74ee48b1d1fdc33d68de6}} 
+Teuchos\+::\+R\+CP$<$ Thyra\+::\+Linear\+Op\+Base$<$ SC $>$ $>$ {\bfseries create\+\_\+\+W\+\_\+op} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a82b3fe7348cf490218ff575b0e338957}\label{classFEDD_1_1TimeProblem_a82b3fe7348cf490218ff575b0e338957}} 
+Teuchos\+::\+R\+CP$<$ Thyra\+::\+Linear\+Op\+Base$<$ SC $>$ $>$ {\bfseries create\+\_\+\+W\+\_\+op\+\_\+\+Monolithic} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_af91063b1cf8e84ea3db0e6a7b991d0d1}\label{classFEDD_1_1TimeProblem_af91063b1cf8e84ea3db0e6a7b991d0d1}} 
+Teuchos\+::\+R\+CP$<$ Thyra\+::\+Linear\+Op\+Base$<$ SC $>$ $>$ {\bfseries create\+\_\+\+W\+\_\+op\+\_\+\+Block} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a17d26b03d462f7b00d5ea078193560b3}\label{classFEDD_1_1TimeProblem_a17d26b03d462f7b00d5ea078193560b3}} 
+Teuchos\+::\+R\+CP$<$ Thyra\+::\+Preconditioner\+Base$<$ SC $>$ $>$ {\bfseries create\+\_\+\+W\+\_\+prec} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_af50c3ad8ed2a7f941bc3a3f5889f7ead}\label{classFEDD_1_1TimeProblem_af50c3ad8ed2a7f941bc3a3f5889f7ead}} 
+std\+::string {\bfseries description} () const
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ab1db14d1cbc29ff53408ab97efaacf97}\label{classFEDD_1_1TimeProblem_ab1db14d1cbc29ff53408ab97efaacf97}} 
+Problem\+Ptr\+\_\+\+Type {\bfseries problem\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_acf84d20585dc60e436cec735bb3ff22c}\label{classFEDD_1_1TimeProblem_acf84d20585dc60e436cec735bb3ff22c}} 
+Comm\+Const\+Ptr\+\_\+\+Type {\bfseries comm\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a29652262e7e152a4762d38a7ac7969e6}\label{classFEDD_1_1TimeProblem_a29652262e7e152a4762d38a7ac7969e6}} 
+Block\+Matrix\+Ptr\+\_\+\+Type {\bfseries system\+Combined\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a8a151d24b302b78ac508ece7bea2364f}\label{classFEDD_1_1TimeProblem_a8a151d24b302b78ac508ece7bea2364f}} 
+Block\+Matrix\+Ptr\+\_\+\+Type {\bfseries system\+Mass\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a19a4c2dcc3b193e569ad36dd1e0b3fcd}\label{classFEDD_1_1TimeProblem_a19a4c2dcc3b193e569ad36dd1e0b3fcd}} 
+\mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ double $>$ {\bfseries time\+Parameters\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a9356b886da3a97ecff146236afb38202}\label{classFEDD_1_1TimeProblem_a9356b886da3a97ecff146236afb38202}} 
+\mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ int $>$ {\bfseries time\+Step\+Def\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a968773a6606bd140b0f7b225cf2b7971}\label{classFEDD_1_1TimeProblem_a968773a6606bd140b0f7b225cf2b7971}} 
+\mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ double $>$ {\bfseries mass\+Parameters\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a8f3ad968322a01f723cdc5076748c07a}\label{classFEDD_1_1TimeProblem_a8f3ad968322a01f723cdc5076748c07a}} 
+F\+E\+Fac\+Ptr\+\_\+\+Type {\bfseries fe\+Factory\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ac461bcb4acb14c699791de027a2352e5}\label{classFEDD_1_1TimeProblem_ac461bcb4acb14c699791de027a2352e5}} 
+int {\bfseries dimension\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ae9b94e5a884e8305a44f608092509370}\label{classFEDD_1_1TimeProblem_ae9b94e5a884e8305a44f608092509370}} 
+bool {\bfseries verbose\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a52815716b393139ee22ed0d6bf8e41d4}\label{classFEDD_1_1TimeProblem_a52815716b393139ee22ed0d6bf8e41d4}} 
+Parameter\+List\+Ptr\+\_\+\+Type {\bfseries parameter\+List\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a4ac32dea0b9ded646fa37cae76bdc7db}\label{classFEDD_1_1TimeProblem_a4ac32dea0b9ded646fa37cae76bdc7db}} 
+B\+C\+Const\+Ptr\+\_\+\+Type {\bfseries bc\+Factory\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a1b358565ab89f51dff0b1391af3c93ce}\label{classFEDD_1_1TimeProblem_a1b358565ab89f51dff0b1391af3c93ce}} 
+bool {\bfseries mass\+B\+C\+Set\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ab34d8eba3d850d789f7db538df35dd93}\label{classFEDD_1_1TimeProblem_ab34d8eba3d850d789f7db538df35dd93}} 
+Block\+Multi\+Vector\+Ptr\+Array\+\_\+\+Type {\bfseries solution\+Previous\+Timesteps\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_ac19fc539f045431717d40acb59d22903}\label{classFEDD_1_1TimeProblem_ac19fc539f045431717d40acb59d22903}} 
+Block\+Multi\+Vector\+Ptr\+Array\+\_\+\+Type {\bfseries velocity\+Previous\+Timesteps\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a0e477f70c696ba33530a8d782eb91ae1}\label{classFEDD_1_1TimeProblem_a0e477f70c696ba33530a8d782eb91ae1}} 
+Block\+Multi\+Vector\+Ptr\+Array\+\_\+\+Type {\bfseries acceleration\+Previous\+Timesteps\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a1b0a4bc9fa591743482a76058989c981}\label{classFEDD_1_1TimeProblem_a1b0a4bc9fa591743482a76058989c981}} 
+Block\+Matrix\+Ptr\+Array\+\_\+\+Type {\bfseries system\+Mass\+Previous\+Time\+Steps\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_a125855ca681261bf05a87c2ec820d76c}\label{classFEDD_1_1TimeProblem_a125855ca681261bf05a87c2ec820d76c}} 
+double {\bfseries time\+\_\+}
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1TimeProblem_acd2c04602a71108ea82605da50ba6c68}\label{classFEDD_1_1TimeProblem_acd2c04602a71108ea82605da50ba6c68}} 
+Time\+Ptr\+\_\+\+Type {\bfseries Time\+Solve\+Timer\+\_\+}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/abstract/Time\+Problem\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/abstract/Time\+Problem\+\_\+def.\+hpp\end{DoxyCompactItemize}

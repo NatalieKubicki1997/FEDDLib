@@ -19,6 +19,8 @@
 
 #include <boost/function.hpp>
 
+
+
 /*!
  Declaration of FE
 
@@ -69,6 +71,15 @@ class FE {
     typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
     typedef Teuchos::RCP<MultiVector_Type> MultiVectorPtr_Type;
     typedef Teuchos::RCP<const MultiVector_Type> MultiVectorConstPtr_Type;
+
+    // natalie inserted this
+  //  typedef Problem<SC,LO,GO,NO> Problem_Type;
+   // typedef typename Problem_Type::BlockMultiVector_Type BlockMultiVector2_Type;
+  //  typedef typename Problem_Type::BlockMultiVectorPtr_Type BlockMultiVectorPtr2_Type;
+   /* typedef BlockMultiVector<SC,LO,GO,NO> BlockMultiVector_Type;
+    typedef typename BlockMultiVector_Type::BlockMultiVector_Typ BlockMultiVector2_Type;
+    typedef typename BlockMultiVector_Type::BlockMultiVectorPtr_Type BlockMultiVectorPtr2_Type;
+*/
 
     typedef std::vector<GO> vec_GO_Type;
     typedef std::vector<vec_GO_Type> vec2D_GO_Type;
@@ -483,6 +494,12 @@ class FE {
                                     bool callFillComplete = true,
                                     int FELocExternal=-1);
 /* ----------------------------------------------------------------------------------------*/
+  //  BlockMultiVectorPtr_Type getViscoBlock() const;
+
+    BlockMultiVectorPtr_Type visco_output_;
+//***
+
+
 private:
 	void addFeBlockMatrix(BlockMatrixPtr_Type &A, SmallMatrixPtr_Type elementMatrix, FiniteElement element, MapConstPtr_Type mapFirstColumn,MapConstPtr_Type mapSecondColumn, tuple_disk_vec_ptr_Type problemDisk);
 
@@ -494,7 +511,11 @@ private:
 			
 	void initAssembleFEElements(string elementType,tuple_disk_vec_ptr_Type problemDisk,ElementsPtr_Type elements, ParameterListPtr_Type params,vec2D_dbl_ptr_Type pointsRep);
 
-	AssembleFEPtr_vec_Type assemblyFEElements_;
+	// I inserted this
+    void addFeBlockVis(BlockMultiVectorPtr_Type &visco_res, vec_dbl_Type VecVisco, FiniteElement elementBlock, int dofs);
+
+    
+    AssembleFEPtr_vec_Type assemblyFEElements_;
 
 	vec2D_dbl_Type getCoordinates(vec_LO_Type localIDs, vec2D_dbl_ptr_Type points);
 	vec_dbl_Type getSolution(vec_LO_Type localIDs, MultiVectorPtr_Type u_rep, int dofsVelocity);
@@ -624,6 +645,9 @@ private:
     SC myeps_;
     std::vector<Teuchos::RCP<DataElement> > ed_;
     bool saveAssembly_;
+
+
+
 };
 }
 #endif

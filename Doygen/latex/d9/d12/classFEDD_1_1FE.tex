@@ -1,0 +1,410 @@
+\hypertarget{classFEDD_1_1FE}{}\doxysection{F\+E\+DD\+::FE$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1FE}\index{FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_aac2faf4705aa877f991c79d2db33d784}\label{classFEDD_1_1FE_aac2faf4705aa877f991c79d2db33d784}} 
+enum {\bfseries Var\+Type} \{ {\bfseries Std} =0, 
+{\bfseries Grad} =1
+ \}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_aa7368c2e2136802bd6e46afb27cbe95e}\label{classFEDD_1_1FE_aa7368c2e2136802bd6e46afb27cbe95e}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Domain}{Domain}}$<$ SC, LO, GO, NO $>$ {\bfseries Domain\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_afa601dd6fb404019f4d6209cf5c04d8d}\label{classFEDD_1_1FE_afa601dd6fb404019f4d6209cf5c04d8d}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Domain}{Domain\+\_\+\+Type}} $>$ {\bfseries Domain\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a0af2ea3760972bc13ac236ad8d99d77b}\label{classFEDD_1_1FE_a0af2ea3760972bc13ac236ad8d99d77b}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1Domain}{Domain\+\_\+\+Type}} $>$ {\bfseries Domain\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_acb11bddbf3a0cc3d2d710d5e66d950b7}\label{classFEDD_1_1FE_acb11bddbf3a0cc3d2d710d5e66d950b7}} 
+typedef std\+::vector$<$ Domain\+Const\+Ptr\+\_\+\+Type $>$ {\bfseries Domain\+Const\+Ptr\+\_\+vec\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a7899dc0276d9d60988cd69ac9c2d0f70}\label{classFEDD_1_1FE_a7899dc0276d9d60988cd69ac9c2d0f70}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Mesh}{Mesh}}$<$ SC, LO, GO, NO $>$ $>$ {\bfseries Mesh\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a3d487c8987bf39e3b4b951c02cda7605}\label{classFEDD_1_1FE_a3d487c8987bf39e3b4b951c02cda7605}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MeshUnstructured}{Mesh\+Unstructured}}$<$ SC, LO, GO, NO $>$ {\bfseries Mesh\+Unstr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a2a6109a8c849aed08e413d1e3c6cbf85}\label{classFEDD_1_1FE_a2a6109a8c849aed08e413d1e3c6cbf85}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1MeshUnstructured}{Mesh\+Unstr\+\_\+\+Type}} $>$ {\bfseries Mesh\+Unstr\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a310c24157c00aa997d6af71a10375a83}\label{classFEDD_1_1FE_a310c24157c00aa997d6af71a10375a83}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Elements}{Elements}} {\bfseries Elements\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_aefc1a6800950e0c48800982818ac631c}\label{classFEDD_1_1FE_aefc1a6800950e0c48800982818ac631c}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Elements}{Elements\+\_\+\+Type}} $>$ {\bfseries Elements\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a7cb97c97b43354268e8b0cd4e68582ad}\label{classFEDD_1_1FE_a7cb97c97b43354268e8b0cd4e68582ad}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1Elements}{Elements\+\_\+\+Type}} $>$ {\bfseries Elements\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_af64e01f748ddafd968bfa764e1e3b79a}\label{classFEDD_1_1FE_af64e01f748ddafd968bfa764e1e3b79a}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}}$<$ SC, LO, GO, NO $>$ {\bfseries Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a454153b7d0d59f4bb6cf7dfaf14fc2c4}\label{classFEDD_1_1FE_a454153b7d0d59f4bb6cf7dfaf14fc2c4}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix\+\_\+\+Type}} $>$ {\bfseries Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_aa3d409c53c0ad3511e0784c6853e0005}\label{classFEDD_1_1FE_aa3d409c53c0ad3511e0784c6853e0005}} 
+typedef Matrix\+\_\+\+Type\+::\+Map\+Ptr\+\_\+\+Type {\bfseries Map\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a60fd7829ed3b8c013d3a4baeceae3411}\label{classFEDD_1_1FE_a60fd7829ed3b8c013d3a4baeceae3411}} 
+typedef Matrix\+\_\+\+Type\+::\+Map\+Const\+Ptr\+\_\+\+Type {\bfseries Map\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_afe4220dde0d3b639e0ce119c4fea1f02}\label{classFEDD_1_1FE_afe4220dde0d3b639e0ce119c4fea1f02}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector}}$<$ SC, LO, GO, NO $>$ {\bfseries Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a61e3e61d0522c5c33b48f705d80a19ad}\label{classFEDD_1_1FE_a61e3e61d0522c5c33b48f705d80a19ad}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a4e0efc837341165dcf516a39ba3361d5}\label{classFEDD_1_1FE_a4e0efc837341165dcf516a39ba3361d5}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Multi\+Vector\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a397ffb5f19b11328b24a98d72bd1178e}\label{classFEDD_1_1FE_a397ffb5f19b11328b24a98d72bd1178e}} 
+typedef std\+::vector$<$ GO $>$ {\bfseries vec\+\_\+\+G\+O\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a61483837c697ad0ea223a542e6df17b4}\label{classFEDD_1_1FE_a61483837c697ad0ea223a542e6df17b4}} 
+typedef std\+::vector$<$ vec\+\_\+\+G\+O\+\_\+\+Type $>$ {\bfseries vec2\+D\+\_\+\+G\+O\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_ac1cc927abe9f236bfe773eac5d70c293}\label{classFEDD_1_1FE_ac1cc927abe9f236bfe773eac5d70c293}} 
+typedef std\+::vector$<$ vec2\+D\+\_\+\+G\+O\+\_\+\+Type $>$ {\bfseries vec3\+D\+\_\+\+G\+O\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_ac17afbfcdce4b0272618caf4a545a652}\label{classFEDD_1_1FE_ac17afbfcdce4b0272618caf4a545a652}} 
+typedef Teuchos\+::\+R\+CP$<$ vec3\+D\+\_\+\+G\+O\+\_\+\+Type $>$ {\bfseries vec3\+D\+\_\+\+G\+O\+\_\+ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_ac4e013a4ef53f0593d3c40f71a124b7e}\label{classFEDD_1_1FE_ac4e013a4ef53f0593d3c40f71a124b7e}} 
+typedef boost\+::function$<$ void(double $\ast$x, double $\ast$res, double t, const double $\ast$parameters)$>$ {\bfseries B\+C\+\_\+func\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a017e8b6dd150348bd007547926a348f0}\label{classFEDD_1_1FE_a017e8b6dd150348bd007547926a348f0}} 
+typedef \mbox{\hyperlink{classFEDD_1_1AssembleFE}{Assemble\+FE}}$<$ SC, LO, GO, NO $>$ {\bfseries Assemble\+F\+E\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a8ceef9dd68b2d55670c24a1739edc549}\label{classFEDD_1_1FE_a8ceef9dd68b2d55670c24a1739edc549}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1AssembleFE}{Assemble\+F\+E\+\_\+\+Type}} $>$ {\bfseries Assemble\+F\+E\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_ac53abbb7a058d9b78e6aeadc26e26bf4}\label{classFEDD_1_1FE_ac53abbb7a058d9b78e6aeadc26e26bf4}} 
+typedef \mbox{\hyperlink{classFEDD_1_1AssembleFENavierStokes}{Assemble\+F\+E\+Navier\+Stokes}}$<$ SC, LO, GO, NO $>$ {\bfseries Assemble\+F\+E\+Navier\+Stokes\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_ae150f23061fb6109aba08e1799d8d656}\label{classFEDD_1_1FE_ae150f23061fb6109aba08e1799d8d656}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1AssembleFENavierStokes}{Assemble\+F\+E\+Navier\+Stokes\+\_\+\+Type}} $>$ {\bfseries Assemble\+F\+E\+Navier\+Stokes\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a629ff0939a49a24924e0ec0367d94bed}\label{classFEDD_1_1FE_a629ff0939a49a24924e0ec0367d94bed}} 
+typedef std\+::vector$<$ Assemble\+F\+E\+Ptr\+\_\+\+Type $>$ {\bfseries Assemble\+F\+E\+Ptr\+\_\+vec\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a0ed45f4c8569406def10255a2e479bcc}\label{classFEDD_1_1FE_a0ed45f4c8569406def10255a2e479bcc}} 
+typedef \mbox{\hyperlink{classFEDD_1_1BlockMatrix}{Block\+Matrix}}$<$ SC, LO, GO, NO $>$ {\bfseries Block\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a0e03808dd98c48e0c3c35337bc31c522}\label{classFEDD_1_1FE_a0e03808dd98c48e0c3c35337bc31c522}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1BlockMatrix}{Block\+Matrix\+\_\+\+Type}} $>$ {\bfseries Block\+Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_aff50ebbf0ed56ebe3b2dd41273b506da}\label{classFEDD_1_1FE_aff50ebbf0ed56ebe3b2dd41273b506da}} 
+typedef \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector}}$<$ SC, LO, GO, NO $>$ {\bfseries Block\+Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a802f91fb07c52ee6877753ab4c3b4dc9}\label{classFEDD_1_1FE_a802f91fb07c52ee6877753ab4c3b4dc9}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Block\+Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a14a128ad41e2f2a43c9ba56945b12701}\label{classFEDD_1_1FE_a14a128ad41e2f2a43c9ba56945b12701}} 
+typedef \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ SC $>$ {\bfseries Small\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a32a1a0502f0b4c29ac11878760160050}\label{classFEDD_1_1FE_a32a1a0502f0b4c29ac11878760160050}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix\+\_\+\+Type}} $>$ {\bfseries Small\+Matrix\+Ptr\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a90d7ef30af69809d89ce6348c19b2867}\label{classFEDD_1_1FE_a90d7ef30af69809d89ce6348c19b2867}} 
+{\bfseries FE} (bool save\+Assembly=false)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a338b9f48e0f5f0d2680469c58d55a015}\label{classFEDD_1_1FE_a338b9f48e0f5f0d2680469c58d55a015}} 
+void {\bfseries assembly\+Identity} (Matrix\+Ptr\+\_\+\+Type \&A)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a8c94ca46979fab0ec19a061a6f149f29}\label{classFEDD_1_1FE_a8c94ca46979fab0ec19a061a6f149f29}} 
+void {\bfseries assembly\+Surface\+Integral} (int dim, std\+::string F\+E\+Type, Multi\+Vector\+Ptr\+\_\+\+Type a, std\+::string field\+Type, Rhs\+Func\+\_\+\+Type func, std\+::vector$<$ SC $>$ \&func\+Parameter)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_aee812b6bcbf3166b513493edd0849f4c}\label{classFEDD_1_1FE_aee812b6bcbf3166b513493edd0849f4c}} 
+void {\bfseries assembly\+Surface\+Integral\+Flag} (int dim, std\+::string F\+E\+Type, Multi\+Vector\+Ptr\+\_\+\+Type a, std\+::string field\+Type, B\+C\+\_\+func\+\_\+\+Type func, std\+::vector$<$ SC $>$ \&func\+Parameter)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_aa722516031f4a32c08f5834d623e2b74}\label{classFEDD_1_1FE_aa722516031f4a32c08f5834d623e2b74}} 
+void {\bfseries assembly\+Ace\+Gen\+T\+PM} (Matrix\+Ptr\+\_\+\+Type \&A00, Matrix\+Ptr\+\_\+\+Type \&A01, Matrix\+Ptr\+\_\+\+Type \&A10, Matrix\+Ptr\+\_\+\+Type \&A11, Multi\+Vector\+Ptr\+\_\+\+Type \&F0, Multi\+Vector\+Ptr\+\_\+\+Type \&F1, Map\+Ptr\+\_\+\+Type \&map\+Repeated1, Map\+Ptr\+\_\+\+Type \&map\+Repeated2, Parameter\+List\+Ptr\+\_\+\+Type parameter\+List, Multi\+Vector\+Ptr\+\_\+\+Type u\+\_\+repeated\+Newton=Teuchos\+::null, Multi\+Vector\+Ptr\+\_\+\+Type p\+\_\+repeated\+Newton=Teuchos\+::null, Multi\+Vector\+Ptr\+\_\+\+Type u\+\_\+repeated\+Time=Teuchos\+::null, Multi\+Vector\+Ptr\+\_\+\+Type p\+\_\+repeated\+Time=Teuchos\+::null, bool update=true, bool update\+History=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_ac75a7fcf88130e98a77930e9152be709}\label{classFEDD_1_1FE_ac75a7fcf88130e98a77930e9152be709}} 
+void {\bfseries add\+FE} (Domain\+Const\+Ptr\+\_\+\+Type domain)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a18179c2e8568940382b42c48a7ea1e5b}\label{classFEDD_1_1FE_a18179c2e8568940382b42c48a7ea1e5b}} 
+void {\bfseries do\+Set\+Zeros} (double eps=10 $\ast$Teuchos\+::\+Scalar\+Traits$<$ SC $>$\+::eps())
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_afa72395f1d5a719d31c26649f9ca221d}\label{classFEDD_1_1FE_afa72395f1d5a719d31c26649f9ca221d}} 
+void {\bfseries assembly\+Empty\+Matrix} (Matrix\+Ptr\+\_\+\+Type \&A)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a39a661e0e23001ff30aa32905d5c7e65}\label{classFEDD_1_1FE_a39a661e0e23001ff30aa32905d5c7e65}} 
+void {\bfseries apply\+B\+Tinv} (vec3\+D\+\_\+dbl\+\_\+ptr\+\_\+\+Type \&d\+Phi\+In, vec3\+D\+\_\+dbl\+\_\+\+Type \&d\+Phi\+Out, \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ SC $>$ \&Binv)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a71aebe81b600c7e2bf5624149c7150c9}\label{classFEDD_1_1FE_a71aebe81b600c7e2bf5624149c7150c9}} 
+void {\bfseries apply\+B\+Tinv} (vec3\+D\+\_\+dbl\+\_\+ptr\+\_\+\+Type \&d\+Phi\+In, vec3\+D\+\_\+dbl\+\_\+\+Type \&d\+Phi\+Out, const \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ SC $>$ \&Binv)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_af7f544059ddd9b728ed39f53f1d795a8}\label{classFEDD_1_1FE_af7f544059ddd9b728ed39f53f1d795a8}} 
+void {\bfseries assembly\+Laplace} (int Dimension, std\+::string F\+E\+Type, int degree, Matrix\+Ptr\+\_\+\+Type \&A, bool call\+Fill\+Complete=true, int F\+E\+Loc\+External=-\/1)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_aa7e8c0f780363f6eea7c2f7cf5918f77}\label{classFEDD_1_1FE_aa7e8c0f780363f6eea7c2f7cf5918f77}} 
+void {\bfseries assembly\+Mass} (int dim, std\+::string F\+E\+Type, std\+::string field\+Type, Matrix\+Ptr\+\_\+\+Type \&A, bool call\+Fill\+Complete=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a05ef7491a1a2acbdb9161fe8b20bcac5}\label{classFEDD_1_1FE_a05ef7491a1a2acbdb9161fe8b20bcac5}} 
+void {\bfseries assembly\+Mass} (int dim, std\+::string F\+E\+Type, std\+::string field\+Type, Matrix\+Ptr\+\_\+\+Type \&A, int F\+Eloc, bool call\+Fill\+Complete=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a85c20a2a3b963ffba161b526dca6c6b9}\label{classFEDD_1_1FE_a85c20a2a3b963ffba161b526dca6c6b9}} 
+void {\bfseries assembly\+Laplace\+Vec\+Field} (int dim, std\+::string F\+E\+Type, int degree, Matrix\+Ptr\+\_\+\+Type \&A, bool call\+Fill\+Complete=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_ab2473768c77fb2461358214b8c8f856b}\label{classFEDD_1_1FE_ab2473768c77fb2461358214b8c8f856b}} 
+void {\bfseries assembly\+Laplace\+Vec\+Field\+V2} (int dim, std\+::string F\+E\+Type, int degree, Matrix\+Ptr\+\_\+\+Type \&A, bool call\+Fill\+Complete=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_ab3890eec1b6a24744691b921e766c599}\label{classFEDD_1_1FE_ab3890eec1b6a24744691b921e766c599}} 
+void {\bfseries assembly\+Linear\+Reaction\+Term} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&A, bool call\+Fill\+Complete, std\+::vector$<$ SC $>$ \&func\+Parameter, Rhs\+Func\+\_\+\+Type reaction\+Func)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_aa6b2ae6be506954c83b688c2bf3038f1}\label{classFEDD_1_1FE_aa6b2ae6be506954c83b688c2bf3038f1}} 
+void {\bfseries assembly\+Reaction\+Term} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&A, Multi\+Vector\+Ptr\+\_\+\+Type u, bool call\+Fill\+Complete, std\+::vector$<$ SC $>$ \&func\+Parameter, Rhs\+Func\+\_\+\+Type reaction\+Func)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a8a26b29038424badc09b42e7d469aa24}\label{classFEDD_1_1FE_a8a26b29038424badc09b42e7d469aa24}} 
+void {\bfseries assembly\+D\+Reaction\+Term} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&A, Multi\+Vector\+Ptr\+\_\+\+Type u, bool call\+Fill\+Complete, std\+::vector$<$ SC $>$ \&func\+Parameter, Rhs\+Func\+\_\+\+Type reaction\+Func)
+\item 
+void \mbox{\hyperlink{classFEDD_1_1FE_a933964a43c17eb6c1de6c8eb62cdbfe5}{assembly\+Lin\+Elas\+X\+DimE}} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&A, Multi\+Vector\+Ptr\+\_\+\+Type e\+Mod\+Vec, double nu, bool call\+Fill\+Complete=true)
+\begin{DoxyCompactList}\small\item\em Same as assembly\+Lin\+Elas\+X\+Dim except for changing E Module Value. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_aed75e3ceb6b6e6e627431b7310338441}\label{classFEDD_1_1FE_aed75e3ceb6b6e6e627431b7310338441}} 
+void {\bfseries determine\+E\+Mod} (std\+::string F\+E\+Type, Multi\+Vector\+Ptr\+\_\+\+Type solution, Multi\+Vector\+Ptr\+\_\+\+Type \&e\+Mod\+Vec, Domain\+Const\+Ptr\+\_\+\+Type domain, Parameter\+List\+Ptr\+\_\+\+Type params)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a947abf29bbe8a0b41841bcb82dce1459}\label{classFEDD_1_1FE_a947abf29bbe8a0b41841bcb82dce1459}} 
+void {\bfseries assembly\+Laplace\+Diffusion} (int Dimension, std\+::string F\+E\+Type, int degree, Matrix\+Ptr\+\_\+\+Type \&A, vec2\+D\+\_\+dbl\+\_\+\+Type diffusion\+Tensor, bool call\+Fill\+Complete=true, int F\+E\+Loc\+External=-\/1)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_ab6b73bc03c17205a0f37106384f44de6}\label{classFEDD_1_1FE_ab6b73bc03c17205a0f37106384f44de6}} 
+void {\bfseries assembly\+Elasticity\+Jacobian\+And\+Stress\+Ace\+F\+EM} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&A, Multi\+Vector\+Ptr\+\_\+\+Type \&f, Multi\+Vector\+Ptr\+\_\+\+Type u, Parameter\+List\+Ptr\+\_\+\+Type p\+List, double C, bool call\+Fill\+Complete=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a15cc4c8ec97696cbc02e6c68ba3f9ad8}\label{classFEDD_1_1FE_a15cc4c8ec97696cbc02e6c68ba3f9ad8}} 
+void {\bfseries assembly\+Elasticity\+Jacobian\+Ace\+F\+EM} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&A, Multi\+Vector\+Ptr\+\_\+\+Type u, std\+::string material\+\_\+model, double E, double nu, double C, bool call\+Fill\+Complete=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_ae219322802fba4bbd760e5e99c315958}\label{classFEDD_1_1FE_ae219322802fba4bbd760e5e99c315958}} 
+void {\bfseries assembly\+Elasticity\+Stresses\+Ace\+F\+EM} (int dim, std\+::string F\+E\+Type, Multi\+Vector\+Ptr\+\_\+\+Type \&f, Multi\+Vector\+Ptr\+\_\+\+Type u, std\+::string material\+\_\+model, double E, double nu, double C, bool call\+Fill\+Complete=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a884513e6f5c732191b52ec80c18c2a07}\label{classFEDD_1_1FE_a884513e6f5c732191b52ec80c18c2a07}} 
+void {\bfseries assembly\+Advection\+Vec\+Field} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&A, Multi\+Vector\+Ptr\+\_\+\+Type u, bool call\+Fill\+Complete)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a8f695e32739a3fca232110d33c24013b}\label{classFEDD_1_1FE_a8f695e32739a3fca232110d33c24013b}} 
+void {\bfseries assembly\+Advection\+In\+U\+Vec\+Field} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&A, Multi\+Vector\+Ptr\+\_\+\+Type u, bool call\+Fill\+Complete)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a2450ea597a2a54d067adef6b27f56b34}\label{classFEDD_1_1FE_a2450ea597a2a54d067adef6b27f56b34}} 
+void {\bfseries assembly\+Div\+And\+DivT} (int dim, std\+::string F\+E\+Type1, std\+::string F\+E\+Type2, int degree, Matrix\+Ptr\+\_\+\+Type \&Bmat, Matrix\+Ptr\+\_\+\+Type \&B\+Tmat, Map\+Const\+Ptr\+\_\+\+Type map1, Map\+Const\+Ptr\+\_\+\+Type map2, bool call\+Fill\+Complete=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a661127e7bb58b7dfe810d8a1b8bff0fe}\label{classFEDD_1_1FE_a661127e7bb58b7dfe810d8a1b8bff0fe}} 
+void {\bfseries assembly\+Div\+And\+Div\+T\+Fast} (int dim, std\+::string F\+E\+Type1, std\+::string F\+E\+Type2, int degree, Matrix\+Ptr\+\_\+\+Type \&Bmat, Matrix\+Ptr\+\_\+\+Type \&B\+Tmat, Map\+Const\+Ptr\+\_\+\+Type map1, Map\+Const\+Ptr\+\_\+\+Type map2, bool call\+Fill\+Complete=true)
+\item 
+void \mbox{\hyperlink{classFEDD_1_1FE_a4a8574796edf03d62d51696114482a9f}{assembly\+B\+D\+Stabilization}} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&A, bool call\+Fill\+Complete=true)
+\item 
+void \mbox{\hyperlink{classFEDD_1_1FE_a7ea805b0f5879a5eac203ba6805868f7}{assembly\+Laplace\+X\+Dim}} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&A, Coeff\+Func\+Dbl\+\_\+\+Type func, double $\ast$parameters, bool call\+Fill\+Complete=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a27ac1ba294c0c90818d11fdf5d56cf2e}\label{classFEDD_1_1FE_a27ac1ba294c0c90818d11fdf5d56cf2e}} 
+void \mbox{\hyperlink{classFEDD_1_1FE_a27ac1ba294c0c90818d11fdf5d56cf2e}{assembly\+Stress}} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&A, Coeff\+Func\+\_\+\+Type func, int $\ast$parameters, bool call\+Fill\+Complete=true)
+\begin{DoxyCompactList}\small\item\em (\textbackslash{}grad u + (\textbackslash{}grad u)$^\wedge$T, \textbackslash{}grad v ); symmetrischer Gradient, wenn func = 1.\+0 \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classFEDD_1_1FE_adcf4e213a8f0a986c19e8308b81471cf}{assembly\+Lin\+Elas\+X\+Dim}} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&A, double lambda, double mu, bool call\+Fill\+Complete=true)
+\item 
+void \mbox{\hyperlink{classFEDD_1_1FE_ab1ff7a8cf8700b25ebb7e58dc327f48a}{assembly\+Additional\+Convection}} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&A, Multi\+Vector\+Ptr\+\_\+\+Type w, bool call\+Fill\+Complete=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a77cc529a8595a85243d68c6df87341d8}\label{classFEDD_1_1FE_a77cc529a8595a85243d68c6df87341d8}} 
+void {\bfseries assembly\+F\+S\+I\+Coupling} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&C, Matrix\+Ptr\+\_\+\+Type \&C\+\_\+T, int F\+Eloc1, int F\+Eloc2, Map\+Const\+Ptr\+\_\+\+Type map1, Map\+Const\+Ptr\+\_\+\+Type map2, bool call\+Fill\+Complete=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a5ac935bb329bbf968c4d271d4b3ac331}\label{classFEDD_1_1FE_a5ac935bb329bbf968c4d271d4b3ac331}} 
+void {\bfseries assembly\+Dummy\+Coupling} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&C, int F\+Eloc, bool call\+Fill\+Complete)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_aaa7f3ea17f8a2551ded026a89c865f6e}\label{classFEDD_1_1FE_aaa7f3ea17f8a2551ded026a89c865f6e}} 
+void {\bfseries assembly\+Geometry\+Coupling} (int dim, std\+::string F\+E\+Type, Matrix\+Ptr\+\_\+\+Type \&C, int F\+Eloc, Map\+Const\+Ptr\+\_\+\+Type map1, Map\+Const\+Ptr\+\_\+\+Type map2, Map\+Const\+Ptr\+\_\+\+Type map3, bool call\+Fill\+Complete=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_ab6054a9f4e397928c327cf2ebe03e388}\label{classFEDD_1_1FE_ab6054a9f4e397928c327cf2ebe03e388}} 
+void {\bfseries assembly\+Shape\+Derivative\+Velocity} (int dim, std\+::string F\+E\+Type1, std\+::string F\+E\+Type2, Matrix\+Ptr\+\_\+\+Type \&D, int F\+Eloc, Multi\+Vector\+Ptr\+\_\+\+Type u, Multi\+Vector\+Ptr\+\_\+\+Type w, Multi\+Vector\+Ptr\+\_\+\+Type p, double dt, double rho, double nu, bool call\+Fill\+Complete=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a99ba0f0c59b17df7b2fb7da220413fd0}\label{classFEDD_1_1FE_a99ba0f0c59b17df7b2fb7da220413fd0}} 
+void {\bfseries assembly\+Shape\+Derivative\+Divergence} (int dim, std\+::string F\+E\+Type1, std\+::string F\+E\+Type2, Matrix\+Ptr\+\_\+\+Type \&DB, int F\+Eloc1, int F\+Eloc2, Map\+Const\+Ptr\+\_\+\+Type map1\+\_\+unique, Map\+Const\+Ptr\+\_\+\+Type map2\+\_\+unique, Multi\+Vector\+Ptr\+\_\+\+Type u, bool call\+Fill\+Complete=true)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a54d4abd0b4b5d3d2eacb1a500e2678b6}\label{classFEDD_1_1FE_a54d4abd0b4b5d3d2eacb1a500e2678b6}} 
+void {\bfseries assembly\+R\+HS} (int dim, std\+::string F\+E\+Type, Multi\+Vector\+Ptr\+\_\+\+Type a, std\+::string field\+Type, Rhs\+Func\+\_\+\+Type func, std\+::vector$<$ SC $>$ \&func\+Parameter)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_ae0a1d2b267f14d68df420c9b5d7cf4b9}\label{classFEDD_1_1FE_ae0a1d2b267f14d68df420c9b5d7cf4b9}} 
+void {\bfseries assembly\+R\+H\+S\+Deg\+Test} (int dim, std\+::string F\+E\+Type, Multi\+Vector\+Ptr\+\_\+\+Type a, std\+::string field\+Type, Rhs\+Func\+\_\+\+Type func, std\+::vector$<$ SC $>$ \&func\+Parameter, int degree)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a94ae58ed2a0f3b83c769c55ed4257ebc}\label{classFEDD_1_1FE_a94ae58ed2a0f3b83c769c55ed4257ebc}} 
+void {\bfseries build\+Full\+D\+Phi} (vec3\+D\+\_\+dbl\+\_\+ptr\+\_\+\+Type d\+Phi, Teuchos\+::\+Array$<$ \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ double $>$ $>$ \&d\+Phi\+Mat)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a060fba330ab464895496b04f8eabd001}\label{classFEDD_1_1FE_a060fba330ab464895496b04f8eabd001}} 
+void {\bfseries fill\+Matrix\+Array} (\mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ double $>$ \&mat\+In, double $\ast$mat\+Array\+Out, std\+::string order, int offset=0)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_ad57b6ca396c5f11746d7701bd31cca42}\label{classFEDD_1_1FE_ad57b6ca396c5f11746d7701bd31cca42}} 
+void {\bfseries epsilon\+Tensor} (vec\+\_\+dbl\+\_\+\+Type \&basis\+Values, \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ SC $>$ \&epsilon\+Values, int active\+Dof)
+\item 
+void \mbox{\hyperlink{classFEDD_1_1FE_ac06c64b5e4282388d290f916de0f8612}{assembly\+Navier\+Stokes}} (int dim, string F\+E\+Type\+Velocity, string F\+E\+Type\+Pressure, int degree, int dofs\+Velocity, int dofs\+Pressure, Multi\+Vector\+Ptr\+\_\+\+Type u\+\_\+rep, Multi\+Vector\+Ptr\+\_\+\+Type p\+\_\+rep, Block\+Matrix\+Ptr\+\_\+\+Type \&A, Block\+Multi\+Vector\+Ptr\+\_\+\+Type \&res\+Vec, \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix\+\_\+\+Type}} coeff, Parameter\+List\+Ptr\+\_\+\+Type params, bool re\+Assemble, string assemble\+Mode, bool call\+Fill\+Complete=true, int F\+E\+Loc\+External=-\/1)
+\begin{DoxyCompactList}\small\item\em Assembly of Jacobian for \mbox{\hyperlink{classFEDD_1_1NavierStokes}{Navier\+Stokes}}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classFEDD_1_1FE_a593978b4624bc70cd1178978e21ea30b}{assembly\+Linear\+Elasticity}} (int dim, string F\+E\+Type, int degree, int dofs, Multi\+Vector\+Ptr\+\_\+\+Type d\+\_\+rep, Block\+Matrix\+Ptr\+\_\+\+Type \&A, Block\+Multi\+Vector\+Ptr\+\_\+\+Type \&res\+Vec, Parameter\+List\+Ptr\+\_\+\+Type params, bool re\+Assemble, string assemble\+Mode, bool call\+Fill\+Complete=true, int F\+E\+Loc\+External=-\/1)
+\begin{DoxyCompactList}\small\item\em Assembly of Jacobian for Linear \mbox{\hyperlink{classFEDD_1_1Elasticity}{Elasticity}}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classFEDD_1_1FE_a3c202b219bef67e0289dd1ea63e218c8}{assembly\+Non\+Linear\+Elasticity}} (int dim, string F\+E\+Type, int degree, int dofs, Multi\+Vector\+Ptr\+\_\+\+Type d\+\_\+rep, Block\+Matrix\+Ptr\+\_\+\+Type \&A, Block\+Multi\+Vector\+Ptr\+\_\+\+Type \&res\+Vec, Parameter\+List\+Ptr\+\_\+\+Type params, bool call\+Fill\+Complete=true, int F\+E\+Loc\+External=-\/1)
+\begin{DoxyCompactList}\small\item\em Assembly of Jacobian for nonlinear \mbox{\hyperlink{classFEDD_1_1Elasticity}{Elasticity}}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classFEDD_1_1FE_a49ec0df03e68d008f8d1f619dfacc2cc}{assembly\+Non\+Linear\+Elasticity}} (int dim, string F\+E\+Type, int degree, int dofs, Multi\+Vector\+Ptr\+\_\+\+Type d\+\_\+rep, Block\+Matrix\+Ptr\+\_\+\+Type \&A, Block\+Multi\+Vector\+Ptr\+\_\+\+Type \&res\+Vec, Parameter\+List\+Ptr\+\_\+\+Type params, Domain\+Const\+Ptr\+\_\+\+Type domain, Multi\+Vector\+Ptr\+\_\+\+Type e\+Mod\+Vec, bool call\+Fill\+Complete=true, int F\+E\+Loc\+External=-\/1)
+\begin{DoxyCompactList}\small\item\em Assembly of Jacobian for nonlinear \mbox{\hyperlink{classFEDD_1_1Elasticity}{Elasticity}}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a64d68016df55be91fcbf3e156062ac66}\label{classFEDD_1_1FE_a64d68016df55be91fcbf3e156062ac66}} 
+Domain\+Const\+Ptr\+\_\+vec\+\_\+\+Type {\bfseries domain\+Vec\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a963acba9ef304a2295e68331b4a953b5}\label{classFEDD_1_1FE_a963acba9ef304a2295e68331b4a953b5}} 
+Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{structElementSpec}{Element\+Spec}} $>$ {\bfseries es\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1FE_a77dc3d2fca4e06e07ed8a389cfea258f}\label{classFEDD_1_1FE_a77dc3d2fca4e06e07ed8a389cfea258f}} 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries visco\+\_\+output\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classFEDD_1_1FE_ab1ff7a8cf8700b25ebb7e58dc327f48a}\label{classFEDD_1_1FE_ab1ff7a8cf8700b25ebb7e58dc327f48a}} 
+\index{FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}!assemblyAdditionalConvection@{assemblyAdditionalConvection}}
+\index{assemblyAdditionalConvection@{assemblyAdditionalConvection}!FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{assemblyAdditionalConvection()}{assemblyAdditionalConvection()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1FE}{F\+E\+D\+D\+::\+FE}}$<$ SC, LO, GO, NO $>$\+::assembly\+Additional\+Convection (\begin{DoxyParamCaption}\item[{int}]{dim,  }\item[{std\+::string}]{F\+E\+Type,  }\item[{Matrix\+Ptr\+\_\+\+Type \&}]{A,  }\item[{Multi\+Vector\+Ptr\+\_\+\+Type}]{w,  }\item[{bool}]{call\+Fill\+Complete = {\ttfamily true} }\end{DoxyParamCaption})}
+
+Dieser Term entsteht durch schwache Formulierung der A\+L\+E-\/\+Zeitableitung und bleibt in nicht-\/conservativer Form vorhanden. In conservativer Form \char`\"{}verschwindet\char`\"{} der Term in die conservative Form der Konvektion. Das betrachten wir aber nicht. Der Term lautet\+: (\textbackslash{}grad \textbackslash{}cdot w) u \textbackslash{}cdot v und wir bei der endgueltigen Assemblierung subtrahiert. Also -\/(\textbackslash{}grad \textbackslash{}cdot w) u \textbackslash{}cdot v \mbox{\Hypertarget{classFEDD_1_1FE_a4a8574796edf03d62d51696114482a9f}\label{classFEDD_1_1FE_a4a8574796edf03d62d51696114482a9f}} 
+\index{FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}!assemblyBDStabilization@{assemblyBDStabilization}}
+\index{assemblyBDStabilization@{assemblyBDStabilization}!FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{assemblyBDStabilization()}{assemblyBDStabilization()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1FE}{F\+E\+D\+D\+::\+FE}}$<$ SC, LO, GO, NO $>$\+::assembly\+B\+D\+Stabilization (\begin{DoxyParamCaption}\item[{int}]{dim,  }\item[{std\+::string}]{F\+E\+Type,  }\item[{Matrix\+Ptr\+\_\+\+Type \&}]{A,  }\item[{bool}]{call\+Fill\+Complete = {\ttfamily true} }\end{DoxyParamCaption})}
+
+Bochev-\/\+Dohrmann stabilization for P1-\/\+P1 finite elements. Must be scaled with 1/nu for general Navier-\/\+Stokes problem. \mbox{\Hypertarget{classFEDD_1_1FE_a7ea805b0f5879a5eac203ba6805868f7}\label{classFEDD_1_1FE_a7ea805b0f5879a5eac203ba6805868f7}} 
+\index{FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}!assemblyLaplaceXDim@{assemblyLaplaceXDim}}
+\index{assemblyLaplaceXDim@{assemblyLaplaceXDim}!FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{assemblyLaplaceXDim()}{assemblyLaplaceXDim()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1FE}{F\+E\+D\+D\+::\+FE}}$<$ SC, LO, GO, NO $>$\+::assembly\+Laplace\+X\+Dim (\begin{DoxyParamCaption}\item[{int}]{dim,  }\item[{std\+::string}]{F\+E\+Type,  }\item[{Matrix\+Ptr\+\_\+\+Type \&}]{A,  }\item[{Coeff\+Func\+Dbl\+\_\+\+Type}]{func,  }\item[{double $\ast$}]{parameters,  }\item[{bool}]{call\+Fill\+Complete = {\ttfamily true} }\end{DoxyParamCaption})}
+
+Fuer diskret harmonische Fortsetzung mit heuristischer Skalierung mit Hilfe von Distances\+To\+Interface\+\_\+ Aehnelt also nicht direkt dem Assembly\+Laplace (mit Coeff\+Func) von oben \mbox{\Hypertarget{classFEDD_1_1FE_a593978b4624bc70cd1178978e21ea30b}\label{classFEDD_1_1FE_a593978b4624bc70cd1178978e21ea30b}} 
+\index{FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}!assemblyLinearElasticity@{assemblyLinearElasticity}}
+\index{assemblyLinearElasticity@{assemblyLinearElasticity}!FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{assemblyLinearElasticity()}{assemblyLinearElasticity()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1FE}{F\+E\+D\+D\+::\+FE}}$<$ SC, LO, GO, NO $>$\+::assembly\+Linear\+Elasticity (\begin{DoxyParamCaption}\item[{int}]{dim,  }\item[{string}]{F\+E\+Type,  }\item[{int}]{degree,  }\item[{int}]{dofs,  }\item[{Multi\+Vector\+Ptr\+\_\+\+Type}]{d\+\_\+rep,  }\item[{Block\+Matrix\+Ptr\+\_\+\+Type \&}]{A,  }\item[{Block\+Multi\+Vector\+Ptr\+\_\+\+Type \&}]{res\+Vec,  }\item[{Parameter\+List\+Ptr\+\_\+\+Type}]{params,  }\item[{bool}]{re\+Assemble,  }\item[{string}]{assemble\+Mode,  }\item[{bool}]{call\+Fill\+Complete = {\ttfamily true},  }\item[{int}]{F\+E\+Loc\+External = {\ttfamily -\/1} }\end{DoxyParamCaption})}
+
+
+
+Assembly of Jacobian for Linear \mbox{\hyperlink{classFEDD_1_1Elasticity}{Elasticity}}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em dim} & Dimension \\
+\hline
+\mbox{\texttt{ in}}  & {\em F\+E\+Type} & \mbox{\hyperlink{classFEDD_1_1FE}{FE}} Discretization \\
+\hline
+\mbox{\texttt{ in}}  & {\em degree} & Degree of basis function \\
+\hline
+\mbox{\texttt{ in}}  & {\em A} & Resulting matrix \\
+\hline
+\mbox{\texttt{ in}}  & {\em call\+Fill\+Complete} & If \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} A should be completely filled at end of function \\
+\hline
+\mbox{\texttt{ in}}  & {\em F\+E\+Loc\+External} & \\
+\hline
+\end{DoxyParams}
+Tupel construction follows follwing pattern\+: string\+: Physical Entity (i.\+e. Velocity) , string\+: Discretisation (i.\+e. \char`\"{}\+P2\char`\"{}), int\+: Degrees of Freedom per Node, int\+: Number of Nodes per element)\mbox{\Hypertarget{classFEDD_1_1FE_adcf4e213a8f0a986c19e8308b81471cf}\label{classFEDD_1_1FE_adcf4e213a8f0a986c19e8308b81471cf}} 
+\index{FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}!assemblyLinElasXDim@{assemblyLinElasXDim}}
+\index{assemblyLinElasXDim@{assemblyLinElasXDim}!FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{assemblyLinElasXDim()}{assemblyLinElasXDim()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1FE}{F\+E\+D\+D\+::\+FE}}$<$ SC, LO, GO, NO $>$\+::assembly\+Lin\+Elas\+X\+Dim (\begin{DoxyParamCaption}\item[{int}]{dim,  }\item[{std\+::string}]{F\+E\+Type,  }\item[{Matrix\+Ptr\+\_\+\+Type \&}]{A,  }\item[{double}]{lambda,  }\item[{double}]{mu,  }\item[{bool}]{call\+Fill\+Complete = {\ttfamily true} }\end{DoxyParamCaption})}
+
+2$\ast$\textbackslash{}mu$\ast$(\textbackslash{}eps(u)\+:\textbackslash{}eps(v)) + \textbackslash{}lambda$\ast$tr(\textbackslash{}eps(u))$\ast$tr(\textbackslash{}eps(v)), wobei tr(\textbackslash{}eps(u)) = div(u) \mbox{\Hypertarget{classFEDD_1_1FE_a933964a43c17eb6c1de6c8eb62cdbfe5}\label{classFEDD_1_1FE_a933964a43c17eb6c1de6c8eb62cdbfe5}} 
+\index{FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}!assemblyLinElasXDimE@{assemblyLinElasXDimE}}
+\index{assemblyLinElasXDimE@{assemblyLinElasXDimE}!FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{assemblyLinElasXDimE()}{assemblyLinElasXDimE()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1FE}{F\+E\+D\+D\+::\+FE}}$<$ SC, LO, GO, NO $>$\+::assembly\+Lin\+Elas\+X\+DimE (\begin{DoxyParamCaption}\item[{int}]{dim,  }\item[{std\+::string}]{F\+E\+Type,  }\item[{Matrix\+Ptr\+\_\+\+Type \&}]{A,  }\item[{Multi\+Vector\+Ptr\+\_\+\+Type}]{e\+Mod\+Vec,  }\item[{double}]{nu,  }\item[{bool}]{call\+Fill\+Complete = {\ttfamily true} }\end{DoxyParamCaption})}
+
+
+
+Same as assembly\+Lin\+Elas\+X\+Dim except for changing E Module Value. 
+
+\textbackslash{}lambda = E(\+T)$\ast$ \textbackslash{}nu / ( (1+\textbackslash{}nu))$\ast$(1-\/2$\ast$nu))\mbox{\Hypertarget{classFEDD_1_1FE_ac06c64b5e4282388d290f916de0f8612}\label{classFEDD_1_1FE_ac06c64b5e4282388d290f916de0f8612}} 
+\index{FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}!assemblyNavierStokes@{assemblyNavierStokes}}
+\index{assemblyNavierStokes@{assemblyNavierStokes}!FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{assemblyNavierStokes()}{assemblyNavierStokes()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1FE}{F\+E\+D\+D\+::\+FE}}$<$ SC, LO, GO, NO $>$\+::assembly\+Navier\+Stokes (\begin{DoxyParamCaption}\item[{int}]{dim,  }\item[{string}]{F\+E\+Type\+Velocity,  }\item[{string}]{F\+E\+Type\+Pressure,  }\item[{int}]{degree,  }\item[{int}]{dofs\+Velocity,  }\item[{int}]{dofs\+Pressure,  }\item[{Multi\+Vector\+Ptr\+\_\+\+Type}]{u\+\_\+rep,  }\item[{Multi\+Vector\+Ptr\+\_\+\+Type}]{p\+\_\+rep,  }\item[{Block\+Matrix\+Ptr\+\_\+\+Type \&}]{A,  }\item[{Block\+Multi\+Vector\+Ptr\+\_\+\+Type \&}]{res\+Vec,  }\item[{\mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix\+\_\+\+Type}}}]{coeff,  }\item[{Parameter\+List\+Ptr\+\_\+\+Type}]{params,  }\item[{bool}]{re\+Assemble,  }\item[{string}]{assemble\+Mode,  }\item[{bool}]{call\+Fill\+Complete = {\ttfamily true},  }\item[{int}]{F\+E\+Loc\+External = {\ttfamily -\/1} }\end{DoxyParamCaption})}
+
+
+
+Assembly of Jacobian for \mbox{\hyperlink{classFEDD_1_1NavierStokes}{Navier\+Stokes}}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em dim} & Dimension \\
+\hline
+\mbox{\texttt{ in}}  & {\em F\+E\+Type} & \mbox{\hyperlink{classFEDD_1_1FE}{FE}} Discretization \\
+\hline
+\mbox{\texttt{ in}}  & {\em degree} & Degree of basis function \\
+\hline
+\mbox{\texttt{ in}}  & {\em A} & Resulting matrix \\
+\hline
+\mbox{\texttt{ in}}  & {\em call\+Fill\+Complete} & If \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} A should be completely filled at end of function \\
+\hline
+\mbox{\texttt{ in}}  & {\em F\+E\+Loc\+External} & \\
+\hline
+\end{DoxyParams}
+Tupel construction follows follwing pattern\+: string\+: Physical Entity (i.\+e. Velocity) , string\+: Discretisation (i.\+e. \char`\"{}\+P2\char`\"{}), int\+: Degrees of Freedom per Node, int\+: Number of Nodes per element)
+
+hier müsste er reinspringen und dann s\mbox{\Hypertarget{classFEDD_1_1FE_a3c202b219bef67e0289dd1ea63e218c8}\label{classFEDD_1_1FE_a3c202b219bef67e0289dd1ea63e218c8}} 
+\index{FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}!assemblyNonLinearElasticity@{assemblyNonLinearElasticity}}
+\index{assemblyNonLinearElasticity@{assemblyNonLinearElasticity}!FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{assemblyNonLinearElasticity()}{assemblyNonLinearElasticity()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1FE}{F\+E\+D\+D\+::\+FE}}$<$ SC, LO, GO, NO $>$\+::assembly\+Non\+Linear\+Elasticity (\begin{DoxyParamCaption}\item[{int}]{dim,  }\item[{string}]{F\+E\+Type,  }\item[{int}]{degree,  }\item[{int}]{dofs,  }\item[{Multi\+Vector\+Ptr\+\_\+\+Type}]{d\+\_\+rep,  }\item[{Block\+Matrix\+Ptr\+\_\+\+Type \&}]{A,  }\item[{Block\+Multi\+Vector\+Ptr\+\_\+\+Type \&}]{res\+Vec,  }\item[{Parameter\+List\+Ptr\+\_\+\+Type}]{params,  }\item[{bool}]{call\+Fill\+Complete = {\ttfamily true},  }\item[{int}]{F\+E\+Loc\+External = {\ttfamily -\/1} }\end{DoxyParamCaption})}
+
+
+
+Assembly of Jacobian for nonlinear \mbox{\hyperlink{classFEDD_1_1Elasticity}{Elasticity}}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em dim} & Dimension \\
+\hline
+\mbox{\texttt{ in}}  & {\em F\+E\+Type} & \mbox{\hyperlink{classFEDD_1_1FE}{FE}} Discretization \\
+\hline
+\mbox{\texttt{ in}}  & {\em degree} & Degree of basis function \\
+\hline
+\mbox{\texttt{ in}}  & {\em A} & Resulting matrix \\
+\hline
+\mbox{\texttt{ in}}  & {\em call\+Fill\+Complete} & If \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} A should be completely filled at end of function \\
+\hline
+\mbox{\texttt{ in}}  & {\em F\+E\+Loc\+External} & \\
+\hline
+\end{DoxyParams}
+Tupel construction follows follwing pattern\+: string\+: Physical Entity (i.\+e. Velocity) , string\+: Discretisation (i.\+e. \char`\"{}\+P2\char`\"{}), int\+: Degrees of Freedom per Node, int\+: Number of Nodes per element)\mbox{\Hypertarget{classFEDD_1_1FE_a49ec0df03e68d008f8d1f619dfacc2cc}\label{classFEDD_1_1FE_a49ec0df03e68d008f8d1f619dfacc2cc}} 
+\index{FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}!assemblyNonLinearElasticity@{assemblyNonLinearElasticity}}
+\index{assemblyNonLinearElasticity@{assemblyNonLinearElasticity}!FEDD::FE$<$ SC, LO, GO, NO $>$@{FEDD::FE$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{assemblyNonLinearElasticity()}{assemblyNonLinearElasticity()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1FE}{F\+E\+D\+D\+::\+FE}}$<$ SC, LO, GO, NO $>$\+::assembly\+Non\+Linear\+Elasticity (\begin{DoxyParamCaption}\item[{int}]{dim,  }\item[{string}]{F\+E\+Type,  }\item[{int}]{degree,  }\item[{int}]{dofs,  }\item[{Multi\+Vector\+Ptr\+\_\+\+Type}]{d\+\_\+rep,  }\item[{Block\+Matrix\+Ptr\+\_\+\+Type \&}]{A,  }\item[{Block\+Multi\+Vector\+Ptr\+\_\+\+Type \&}]{res\+Vec,  }\item[{Parameter\+List\+Ptr\+\_\+\+Type}]{params,  }\item[{Domain\+Const\+Ptr\+\_\+\+Type}]{domain,  }\item[{Multi\+Vector\+Ptr\+\_\+\+Type}]{e\+Mod\+Vec,  }\item[{bool}]{call\+Fill\+Complete = {\ttfamily true},  }\item[{int}]{F\+E\+Loc\+External = {\ttfamily -\/1} }\end{DoxyParamCaption})}
+
+
+
+Assembly of Jacobian for nonlinear \mbox{\hyperlink{classFEDD_1_1Elasticity}{Elasticity}}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em dim} & Dimension \\
+\hline
+\mbox{\texttt{ in}}  & {\em F\+E\+Type} & \mbox{\hyperlink{classFEDD_1_1FE}{FE}} Discretization \\
+\hline
+\mbox{\texttt{ in}}  & {\em degree} & Degree of basis function \\
+\hline
+\mbox{\texttt{ in}}  & {\em A} & Resulting matrix \\
+\hline
+\mbox{\texttt{ in}}  & {\em call\+Fill\+Complete} & If \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} A should be completely filled at end of function \\
+\hline
+\mbox{\texttt{ in}}  & {\em F\+E\+Loc\+External} & \\
+\hline
+\end{DoxyParams}
+Tupel construction follows follwing pattern\+: string\+: Physical Entity (i.\+e. Velocity) , string\+: Discretisation (i.\+e. \char`\"{}\+P2\char`\"{}), int\+: Degrees of Freedom per Node, int\+: Number of Nodes per element)
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+F\+E/F\+E\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+F\+E/F\+E\+\_\+def.\+hpp\end{DoxyCompactItemize}

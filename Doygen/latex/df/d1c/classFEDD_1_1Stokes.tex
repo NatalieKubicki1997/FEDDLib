@@ -1,0 +1,80 @@
+\hypertarget{classFEDD_1_1Stokes}{}\doxysection{F\+E\+DD\+::Stokes$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1Stokes}\index{FEDD::Stokes$<$ SC, LO, GO, NO $>$@{FEDD::Stokes$<$ SC, LO, GO, NO $>$}}
+
+
+Inheritance diagram for F\+E\+DD\+::Stokes$<$ SC, LO, GO, NO $>$\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=216pt]{d1/dde/classFEDD_1_1Stokes__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for F\+E\+DD\+::Stokes$<$ SC, LO, GO, NO $>$\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=216pt]{df/d05/classFEDD_1_1Stokes__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_ae75592c0c1f95ecfe737f5435aedfb4b}\label{classFEDD_1_1Stokes_ae75592c0c1f95ecfe737f5435aedfb4b}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Problem}{Problem}}$<$ SC, LO, GO, NO $>$ {\bfseries Problem\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_aae5cadc41cfd957b484c5b7a09750465}\label{classFEDD_1_1Stokes_aae5cadc41cfd957b484c5b7a09750465}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Matrix}{Problem\+\_\+\+Type\+::\+Matrix\+\_\+\+Type}} {\bfseries Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_a00183f0427b35d9404b35cf9b83e49c3}\label{classFEDD_1_1Stokes_a00183f0427b35d9404b35cf9b83e49c3}} 
+typedef Problem\+\_\+\+Type\+::\+Matrix\+Ptr\+\_\+\+Type {\bfseries Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_affffda6be51daf5273194f75a01cb26b}\label{classFEDD_1_1Stokes_affffda6be51daf5273194f75a01cb26b}} 
+typedef Problem\+\_\+\+Type\+::\+Map\+Const\+Ptr\+\_\+\+Type {\bfseries Map\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_ac8165035fcd2d3031855f25c6f49afa8}\label{classFEDD_1_1Stokes_ac8165035fcd2d3031855f25c6f49afa8}} 
+typedef \mbox{\hyperlink{classFEDD_1_1BlockMatrix}{Problem\+\_\+\+Type\+::\+Block\+Matrix\+\_\+\+Type}} {\bfseries Block\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_a8f36a00fb1bf6799ba1d5b1afb3a7bcd}\label{classFEDD_1_1Stokes_a8f36a00fb1bf6799ba1d5b1afb3a7bcd}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MultiVector}{Problem\+\_\+\+Type\+::\+Multi\+Vector\+\_\+\+Type}} {\bfseries Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_ae7932d2609bcf0a884a5ab5487abe59d}\label{classFEDD_1_1Stokes_ae7932d2609bcf0a884a5ab5487abe59d}} 
+typedef Problem\+\_\+\+Type\+::\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_a0469c78f6bdf3640c67ececf53707ecf}\label{classFEDD_1_1Stokes_a0469c78f6bdf3640c67ececf53707ecf}} 
+typedef Problem\+\_\+\+Type\+::\+Domain\+Const\+Ptr\+\_\+\+Type {\bfseries Domain\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_ab9ca031bd0fff020fc8594c44df7193d}\label{classFEDD_1_1Stokes_ab9ca031bd0fff020fc8594c44df7193d}} 
+typedef Problem\+\_\+\+Type\+::\+Comm\+Const\+Ptr\+\_\+\+Type {\bfseries Comm\+Const\+Ptr\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_ae24b09ee762d9907280bfac67205a66e}\label{classFEDD_1_1Stokes_ae24b09ee762d9907280bfac67205a66e}} 
+{\bfseries Stokes} (const Domain\+Const\+Ptr\+\_\+\+Type \&domain\+Velocity, std\+::string F\+E\+Type\+Velocity, const Domain\+Const\+Ptr\+\_\+\+Type \&domain\+Pressure, std\+::string F\+E\+Type\+Pressure, Parameter\+List\+Ptr\+\_\+\+Type parameter\+List)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_afc9547c6db3db3526d2a993979697141}\label{classFEDD_1_1Stokes_afc9547c6db3db3526d2a993979697141}} 
+virtual void {\bfseries info} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_a1faa68b692f155f8415b61a5c7e1c027}\label{classFEDD_1_1Stokes_a1faa68b692f155f8415b61a5c7e1c027}} 
+virtual void {\bfseries assemble} (std\+::string type=\char`\"{}\char`\"{}) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_a522045d4b6e78695883e1ad27128520b}\label{classFEDD_1_1Stokes_a522045d4b6e78695883e1ad27128520b}} 
+virtual void {\bfseries get\+Values\+Of\+Interest} (vec\+\_\+dbl\+\_\+\+Type \&values)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_a67cfa96e9b15ce02766b308101c58e5f}\label{classFEDD_1_1Stokes_a67cfa96e9b15ce02766b308101c58e5f}} 
+virtual void {\bfseries compute\+Values\+Of\+Interest\+And\+Export} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Stokes_a94430b919323594861f44f23a650c70d}\label{classFEDD_1_1Stokes_a94430b919323594861f44f23a650c70d}} 
+virtual void {\bfseries assemble\+External} (std\+::string type)
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/specific/Stokes\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/specific/Stokes\+\_\+def.\+hpp\end{DoxyCompactItemize}

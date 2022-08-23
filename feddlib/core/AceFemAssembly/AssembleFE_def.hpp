@@ -134,6 +134,12 @@ vec2D_dbl_Type AssembleFE<SC,LO,GO,NO>::getNodesRefConfig( ){
 
 };
 
+/*
+template <class SC, class LO, class GO, class NO>
+vec_dbl_Type AssembleFE<SC,LO,GO,NO>::getViscositySolution(){
+	return solutionViscosity_;
+}*/
+
 
 }
 #endif

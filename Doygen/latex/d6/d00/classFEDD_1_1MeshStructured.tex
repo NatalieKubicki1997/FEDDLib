@@ -1,0 +1,139 @@
+\hypertarget{classFEDD_1_1MeshStructured}{}\doxysection{F\+E\+DD\+::Mesh\+Structured$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1MeshStructured}\index{FEDD::MeshStructured$<$ SC, LO, GO, NO $>$@{FEDD::MeshStructured$<$ SC, LO, GO, NO $>$}}
+
+
+Inheritance diagram for F\+E\+DD\+::Mesh\+Structured$<$ SC, LO, GO, NO $>$\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=208pt]{da/d4d/classFEDD_1_1MeshStructured__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for F\+E\+DD\+::Mesh\+Structured$<$ SC, LO, GO, NO $>$\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=208pt]{d7/d4e/classFEDD_1_1MeshStructured__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a7a645d63f2839f716cd33fd96ef1d88a}\label{classFEDD_1_1MeshStructured_a7a645d63f2839f716cd33fd96ef1d88a}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Mesh}{Mesh}}$<$ SC, LO, GO, NO $>$ {\bfseries Mesh\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a58c704fff66bf0870ca3e74a5fc74fd1}\label{classFEDD_1_1MeshStructured_a58c704fff66bf0870ca3e74a5fc74fd1}} 
+typedef Mesh\+\_\+\+Type\+::\+Comm\+Ptr\+\_\+\+Type {\bfseries Comm\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a9d8ac148aaf0b438046d55f0b315df6f}\label{classFEDD_1_1MeshStructured_a9d8ac148aaf0b438046d55f0b315df6f}} 
+typedef Mesh\+\_\+\+Type\+::\+Comm\+Const\+Ptr\+Const\+\_\+\+Type {\bfseries Comm\+Const\+Ptr\+Const\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a13874bcc6ffbf7a063abc45a5c9f2f45}\label{classFEDD_1_1MeshStructured_a13874bcc6ffbf7a063abc45a5c9f2f45}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Map}{Mesh\+\_\+\+Type\+::\+Map\+\_\+\+Type}} {\bfseries Map\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_af21cac5cb1e98ab20277642f85d22621}\label{classFEDD_1_1MeshStructured_af21cac5cb1e98ab20277642f85d22621}} 
+typedef Mesh\+\_\+\+Type\+::\+Map\+Ptr\+\_\+\+Type {\bfseries Map\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_aad5955ffd2cc44ce292d09c606808c20}\label{classFEDD_1_1MeshStructured_aad5955ffd2cc44ce292d09c606808c20}} 
+typedef Mesh\+\_\+\+Type\+::\+Elements\+Ptr\+\_\+\+Type {\bfseries Elements\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a6482f1294e428059b9ea0671700c7d00}\label{classFEDD_1_1MeshStructured_a6482f1294e428059b9ea0671700c7d00}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1MeshStructured}{Mesh\+Structured}}$<$ SC, LO, GO, NO $>$ $>$ {\bfseries Mesh\+Str\+Ptr\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_ae4e60691ab0808d718cee139d2d413ab}\label{classFEDD_1_1MeshStructured_ae4e60691ab0808d718cee139d2d413ab}} 
+{\bfseries Mesh\+Structured} (Comm\+Const\+Ptr\+Const\+\_\+\+Type \&comm)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a253a15044c1917a26c79d09dcd115425}\label{classFEDD_1_1MeshStructured_a253a15044c1917a26c79d09dcd115425}} 
+virtual void {\bfseries dummy} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a7dfbb43c2e45b4d3793a6708e3fe8ad7}\label{classFEDD_1_1MeshStructured_a7dfbb43c2e45b4d3793a6708e3fe8ad7}} 
+void {\bfseries set\+Geometry2\+D\+Rectangle} (std\+::vector$<$ double $>$ coordinates, double l, double h)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a0d8b2c993a871811f787021a6a6a6ef2}\label{classFEDD_1_1MeshStructured_a0d8b2c993a871811f787021a6a6a6ef2}} 
+void {\bfseries set\+Geometry3\+D\+Box} (std\+::vector$<$ double $>$ coordinates, double l, double w, double h)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_aa70bee3c9288241542508d9bc27cf084}\label{classFEDD_1_1MeshStructured_aa70bee3c9288241542508d9bc27cf084}} 
+void {\bfseries build\+Mesh2D} (std\+::string F\+E\+Type, int N, int M, int num\+Procs\+Coarse\+Solve=0, std\+::string underlying\+Lib=\char`\"{}Tpetra\char`\"{})
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a432c2729d7b01a85bdf6087221fbe52c}\label{classFEDD_1_1MeshStructured_a432c2729d7b01a85bdf6087221fbe52c}} 
+void {\bfseries build\+Mesh2\+D\+T\+PM} (std\+::string F\+E\+Type, int N, int M, int num\+Procs\+Coarse\+Solve=0, std\+::string underlying\+Lib=\char`\"{}Tpetra\char`\"{})
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a554ce008bd69b6e58af978efa8e143d6}\label{classFEDD_1_1MeshStructured_a554ce008bd69b6e58af978efa8e143d6}} 
+void {\bfseries build\+Mesh3D} (std\+::string F\+E\+Type, int N, int M, int num\+Procs\+Coarse\+Solve=0, std\+::string underlying\+Lib=\char`\"{}Tpetra\char`\"{})
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a66e899c880a74a6309bdd4cc8f66044d}\label{classFEDD_1_1MeshStructured_a66e899c880a74a6309bdd4cc8f66044d}} 
+void {\bfseries build\+Mesh2\+D\+B\+FS} (std\+::string F\+E\+Type, int N, int M, int num\+Procs\+Coarse\+Solve=0, std\+::string underlying\+Lib=\char`\"{}Tpetra\char`\"{})
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_aa296db524faf6376c30a9e1f5218f1b4}\label{classFEDD_1_1MeshStructured_aa296db524faf6376c30a9e1f5218f1b4}} 
+void {\bfseries build\+Mesh3\+D\+B\+FS} (std\+::string F\+E\+Type, int N, int M, int num\+Procs\+Coarse\+Solve=0, std\+::string underlying\+Lib=\char`\"{}Tpetra\char`\"{})
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a4a45c4a418a5d1429d8005971dab53e4}\label{classFEDD_1_1MeshStructured_a4a45c4a418a5d1429d8005971dab53e4}} 
+void {\bfseries build\+P1\+\_\+\+Disc\+\_\+\+Q2\+\_\+3\+D\+B\+FS} (int N, int M, int num\+Procs\+Coarse\+Solve, std\+::string underlying\+Lib)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a7e8c1058ba0893b419bf124186f0af47}\label{classFEDD_1_1MeshStructured_a7e8c1058ba0893b419bf124186f0af47}} 
+void {\bfseries build\+P1\+\_\+\+Disc\+\_\+\+Q2\+\_\+3\+D\+Cube} (int N, int M, int num\+Procs\+Coarse\+Solve, std\+::string underlying\+Lib)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_ae849912f99c1bf9e57780bc380734dd8}\label{classFEDD_1_1MeshStructured_ae849912f99c1bf9e57780bc380734dd8}} 
+void {\bfseries build3\+D\+Q1\+Cube} (int N, int M, int num\+Procs\+Coarse\+Solve, std\+::string underlying\+Lib)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_adbd8ba238ad22d10bbde96e84d3fae1e}\label{classFEDD_1_1MeshStructured_adbd8ba238ad22d10bbde96e84d3fae1e}} 
+void {\bfseries build3\+D\+Q2\+Cube} (int N, int M, int num\+Procs\+Coarse\+Solve, std\+::string underlying\+Lib)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_aa6d4f152518a38649ce8d2b77773d72c}\label{classFEDD_1_1MeshStructured_aa6d4f152518a38649ce8d2b77773d72c}} 
+void {\bfseries build3\+D\+Q2\+\_\+20\+Cube} (int N, int M, int num\+Procs\+Coarse\+Solve, std\+::string underlying\+Lib)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_ad091d6dfc32ef0d4aa9c7dc4cc170dfd}\label{classFEDD_1_1MeshStructured_ad091d6dfc32ef0d4aa9c7dc4cc170dfd}} 
+void {\bfseries build3\+D\+Q2\+B\+FS} (int N, int M, int num\+Procs\+Coarse\+Solve, std\+::string underlying\+Lib)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a845444c889dc0e368196a5f4968d7914}\label{classFEDD_1_1MeshStructured_a845444c889dc0e368196a5f4968d7914}} 
+void {\bfseries build\+Mesh2\+D\+Mini\+T\+PM} (std\+::string F\+E\+Type, int N, int M, int num\+Procs\+Coarse\+Solve=0, std\+::string underlying\+Lib=\char`\"{}Tpetra\char`\"{})
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_ad129fdae48f363a994039b4b7a45e7fd}\label{classFEDD_1_1MeshStructured_ad129fdae48f363a994039b4b7a45e7fd}} 
+void {\bfseries build\+Surface\+Lines\+Square\+Mini\+T\+PM} (string fe\+Type)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_ad02c5ad20d270dd524d8b258879c5e64}\label{classFEDD_1_1MeshStructured_ad02c5ad20d270dd524d8b258879c5e64}} 
+void {\bfseries set\+Rank\+Range} (int num\+Procs\+Coarse\+Solve)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_abe44a26c55a6f0a53f83a2b7dde8fd02}\label{classFEDD_1_1MeshStructured_abe44a26c55a6f0a53f83a2b7dde8fd02}} 
+void {\bfseries build\+Elements\+Class} (vec2\+D\+\_\+int\+\_\+ptr\+\_\+\+Type elements, vec\+\_\+int\+\_\+ptr\+\_\+\+Type element\+Flag=Teuchos\+::null)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_acdc81ce6f44ced503b727eac302ccdad}\label{classFEDD_1_1MeshStructured_acdc81ce6f44ced503b727eac302ccdad}} 
+void {\bfseries build\+Surface\+Lines\+Square} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_ae6a5c8190c3487097c3e8217f2ea14f8}\label{classFEDD_1_1MeshStructured_ae6a5c8190c3487097c3e8217f2ea14f8}} 
+GO {\bfseries global\+I\+D\+\_\+\+Q2\+\_\+20\+Cube} (int r, int s, int t, int \&rr, int off\+\_\+x, int off\+\_\+y, int off\+\_\+z, int M, int N, GO nmb\+Points\+\_\+one\+Dir\+Full, GO nmb\+Points\+\_\+one\+Dir\+Mid)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_afbb54034745a907dc56b1cf820d7d48b}\label{classFEDD_1_1MeshStructured_afbb54034745a907dc56b1cf820d7d48b}} 
+void {\bfseries set\+Structured\+Mesh\+Flags} (int flags\+Option, string F\+E\+Type=\char`\"{}P1\char`\"{})
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a318f05b0369b47d972f125f9a8d307ab}\label{classFEDD_1_1MeshStructured_a318f05b0369b47d972f125f9a8d307ab}} 
+void {\bfseries build\+Element\+Map} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_ab892029b4f2e10c7b0c9658c27ac5d4a}\label{classFEDD_1_1MeshStructured_ab892029b4f2e10c7b0c9658c27ac5d4a}} 
+std\+::vector$<$ double $>$ {\bfseries coor\+Rec}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_a5be3424bc7c05252bba051775c59eb06}\label{classFEDD_1_1MeshStructured_a5be3424bc7c05252bba051775c59eb06}} 
+double {\bfseries length}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_afcdf125d6aacdf7ee19e0c907f6945c5}\label{classFEDD_1_1MeshStructured_afcdf125d6aacdf7ee19e0c907f6945c5}} 
+double {\bfseries height}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1MeshStructured_acc1e0d8ad900544947d0f64c96a6b25c}\label{classFEDD_1_1MeshStructured_acc1e0d8ad900544947d0f64c96a6b25c}} 
+double {\bfseries width}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Mesh/Mesh\+Structured\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Mesh/Mesh\+Structured\+\_\+def.\+hpp\end{DoxyCompactItemize}

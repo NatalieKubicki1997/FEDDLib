@@ -38,14 +38,16 @@ double OneFunction(double* x, int* parameter)
 namespace FEDD {
 
 
-
+// This class is derived from NonLinearProblem which is derived from Problem where classes like fe_factory are initialized
 template<class SC,class LO,class GO,class NO>
 NavierStokesAssFE<SC,LO,GO,NO>::NavierStokesAssFE( const DomainConstPtr_Type &domainVelocity, std::string FETypeVelocity, const DomainConstPtr_Type &domainPressure, std::string FETypePressure, ParameterListPtr_Type parameterList ):
 NonLinearProblem<SC,LO,GO,NO>( parameterList, domainVelocity->getComm() ),
 A_(),
 pressureIDsLoc(new vec_int_Type(2)),
 u_rep_(),
-p_rep_()
+p_rep_(), //member initializer lists
+viscosity_rep_()
+//visco_output_()
 {
 
     this->nonLinearTolerance_ = this->parameterList_->sublist("Parameter").get("relNonLinTol",1.0e-6);
@@ -55,7 +57,8 @@ p_rep_()
     this->addVariable( domainPressure , FETypePressure , "p" , 1);
     this->dim_ = this->getDomain(0)->getDimension();
 
-    u_rep_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getMapVecFieldRepeated() ) );
+    u_rep_         = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getMapVecFieldRepeated() ) );
+    viscosity_rep_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getMapRepeated() ) );
 
     p_rep_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(1)->getMapRepeated() ) );
 
@@ -235,10 +238,11 @@ void NavierStokesAssFE<SC,LO,GO,NO>::reAssemble(std::string type) const {
     
     MatrixPtr_Type ANW = Teuchos::rcp(new Matrix_Type( this->getDomain(0)->getMapVecFieldUnique(), this->getDomain(0)->getDimension() * this->getDomain(0)->getApproxEntriesPerRow() ) );
 
-    MultiVectorConstPtr_Type u = this->solution_->getBlock(0);
-    u_rep_->importFromVector(u, true);
+    MultiVectorConstPtr_Type u = this->solution_->getBlock(0); // solution_ is initialized in problem_def.hpp so the most general class
+    u_rep_->importFromVector(u, true); // this is the current velocity solution at the nodes
+   
     MultiVectorConstPtr_Type p = this->solution_->getBlock(1);
-    p_rep_->importFromVector(p, true); 
+    p_rep_->importFromVector(p, true);  // this is the current pressure solution at the nodes
    
 
    if (type=="Rhs") {
@@ -250,23 +254,29 @@ void NavierStokesAssFE<SC,LO,GO,NO>::reAssemble(std::string type) const {
        
    		this->system_->addBlock(ANW,0,0);
 
+        // jumps into FE_def.hpp because feFactory is an object of FE class
         this->feFactory_->assemblyNavierStokes(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->system_, this->residualVec_,this->coeff_,this->parameterList_, true, "Jacobian",  true);        
  		this->feFactory_->assemblyNavierStokes(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->system_, this->residualVec_,this->coeff_,this->parameterList_, true, "Rhs",  true);
 
     }
     else if (type=="FixedPoint" ) {
 
-   		this->system_->addBlock(ANW,0,0);
+   		this->system_->addBlock(ANW,0,0); // jumps into FE_def.hpp
 		this->feFactory_->assemblyNavierStokes(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->system_, this->residualVec_,this->coeff_,this->parameterList_, true, "FixedPoint",  true);
     }
 	else if(type=="Newton"){ 
         
-        this->system_->addBlock(ANW,0,0);
+        this->system_->addBlock(ANW,0,0); // jumps into FE_def.hpp
 		this->feFactory_->assemblyNavierStokes(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->system_,this->residualVec_, this->coeff_,this->parameterList_, true,"Jacobian", true);
 
     }
-	
     this->system_->addBlock(ANW,0,0);
+
+    if( (this->parameterList_->sublist("Material").get("Newtonian",true) == false) && (this->parameterList_->sublist("Material").get("WriteOutViscosity",false)) == true ) 
+    {
+    Teuchos::RCP<const MultiVector<SC,LO,GO,NO>> exportSolutionViscosityAssFE = this->feFactory_->visco_output_->getBlock(0);
+    viscosity_rep_->importFromVector(exportSolutionViscosityAssFE, true);  
+    }
 
     if (this->verbose_)
         std::cout << "done -- " << std::endl;
@@ -274,12 +284,19 @@ void NavierStokesAssFE<SC,LO,GO,NO>::reAssemble(std::string type) const {
     
 }
 
+/*template<class SC,class LO,class GO,class NO>
+void NavierStokesAssFE<SC,LO,GO,NO>::setVis(MultiVectorConstPtr_Type vis ) const
+{
+   visco_output_=const_cast vis;
+}*/
+
+
 
 template<class SC,class LO,class GO,class NO>
 void NavierStokesAssFE<SC,LO,GO,NO>::calculateNonLinResidualVec(std::string type, double time) const{
     
 	//this->reAssemble("FixedPoint");
-    this->reAssemble("Rhs");
+    this->reAssemble("Rhs"); // inside this file line 288 reAssemble
 
     // We need to account for different parameters of time discretizations here
     // This is ok for bdf with 1.0 scaling of the system. Would be wrong for Crank-Nicolson - might be ok now for CN

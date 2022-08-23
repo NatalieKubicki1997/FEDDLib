@@ -1,0 +1,208 @@
+\hypertarget{classFEDD_1_1Matrix}{}\doxysection{F\+E\+DD\+::Matrix$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1Matrix}\index{FEDD::Matrix$<$ SC, LO, GO, NO $>$@{FEDD::Matrix$<$ SC, LO, GO, NO $>$}}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a2cf92076ac063bd26c4948c391e781ed}\label{classFEDD_1_1Matrix_a2cf92076ac063bd26c4948c391e781ed}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}}$<$ SC, LO, GO, NO $>$ {\bfseries Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a4a38b8825256231d7f0fee4453c2c677}\label{classFEDD_1_1Matrix_a4a38b8825256231d7f0fee4453c2c677}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix\+\_\+\+Type}} $>$ {\bfseries Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a1085b1a7e2174874b722e95f4e29b127}\label{classFEDD_1_1Matrix_a1085b1a7e2174874b722e95f4e29b127}} 
+typedef Xpetra\+::\+Map$<$ LO, GO, NO $>$ {\bfseries Xpetra\+Map\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a11e17a08c2d0ea98518dc77493619bab}\label{classFEDD_1_1Matrix_a11e17a08c2d0ea98518dc77493619bab}} 
+typedef Teuchos\+::\+R\+CP$<$ Xpetra\+Map\+\_\+\+Type $>$ {\bfseries Xpetra\+Map\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_afa78ea3bcf874f6f9c8d026e3f078db1}\label{classFEDD_1_1Matrix_afa78ea3bcf874f6f9c8d026e3f078db1}} 
+typedef Teuchos\+::\+R\+CP$<$ const Xpetra\+Map\+\_\+\+Type $>$ {\bfseries Xpetra\+Map\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_aeb30b7c18622e44dc2253048e0745072}\label{classFEDD_1_1Matrix_aeb30b7c18622e44dc2253048e0745072}} 
+typedef Xpetra\+::\+Matrix$<$ SC, LO, GO, NO $>$ {\bfseries Xpetra\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a27b3c2a35214af5229b08215c31f47a4}\label{classFEDD_1_1Matrix_a27b3c2a35214af5229b08215c31f47a4}} 
+typedef Teuchos\+::\+R\+CP$<$ Xpetra\+Matrix\+\_\+\+Type $>$ {\bfseries Xpetra\+Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a8c7b972cdbc9070bd841f522ccf7a14f}\label{classFEDD_1_1Matrix_a8c7b972cdbc9070bd841f522ccf7a14f}} 
+typedef Teuchos\+::\+R\+CP$<$ const Xpetra\+Matrix\+\_\+\+Type $>$ {\bfseries Xpetra\+Matrix\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a0655948e1677cdb00fccb4cccd66e80e}\label{classFEDD_1_1Matrix_a0655948e1677cdb00fccb4cccd66e80e}} 
+typedef Xpetra\+::\+Multi\+Vector$<$ SC, LO, GO, NO $>$ {\bfseries Xpetra\+M\+V\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a4f092d326a6c481c04af2813daa3c594}\label{classFEDD_1_1Matrix_a4f092d326a6c481c04af2813daa3c594}} 
+typedef Teuchos\+::\+R\+CP$<$ Xpetra\+M\+V\+\_\+\+Type $>$ {\bfseries Xpetra\+M\+V\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a3d7de77266aed4f4f694967306f2070c}\label{classFEDD_1_1Matrix_a3d7de77266aed4f4f694967306f2070c}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Map}{Map}}$<$ LO, GO, NO $>$ {\bfseries Map\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a0d8e495d459738eba24901c3c6f8d005}\label{classFEDD_1_1Matrix_a0d8e495d459738eba24901c3c6f8d005}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Map}{Map\+\_\+\+Type}} $>$ {\bfseries Map\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a9e961db802611e87e03cc7f0c6624ad3}\label{classFEDD_1_1Matrix_a9e961db802611e87e03cc7f0c6624ad3}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1Map}{Map\+\_\+\+Type}} $>$ {\bfseries Map\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a1caf1f1714ff87c8794f7f763ed8d0d4}\label{classFEDD_1_1Matrix_a1caf1f1714ff87c8794f7f763ed8d0d4}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector}}$<$ SC, LO, GO, NO $>$ {\bfseries Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a23adb889d0a0f7721b33304e5d8db680}\label{classFEDD_1_1Matrix_a23adb889d0a0f7721b33304e5d8db680}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_ae4e26d93cb0ecca9fcf044600c851105}\label{classFEDD_1_1Matrix_ae4e26d93cb0ecca9fcf044600c851105}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Multi\+Vector\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a97e0db7046f912dcb958344c3f23ab24}\label{classFEDD_1_1Matrix_a97e0db7046f912dcb958344c3f23ab24}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector}}$<$ SC, LO, GO, NO $>$ {\bfseries Block\+Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a9c1e34ef0c34e14ad6d76ba24c27d457}\label{classFEDD_1_1Matrix_a9c1e34ef0c34e14ad6d76ba24c27d457}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1MultiVector}{Block\+Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Block\+Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a5e079b97ddba66f07f6951a97cd85903}\label{classFEDD_1_1Matrix_a5e079b97ddba66f07f6951a97cd85903}} 
+typedef Teuchos\+::\+Comm$<$ int $>$ {\bfseries Comm\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_acf9baa5150c2e4003fccbaba9606e507}\label{classFEDD_1_1Matrix_acf9baa5150c2e4003fccbaba9606e507}} 
+typedef Teuchos\+::\+R\+CP$<$ const Comm\+\_\+\+Type $>$ {\bfseries Comm\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a188a8dab40554cad3d65b79d181fa2b0}\label{classFEDD_1_1Matrix_a188a8dab40554cad3d65b79d181fa2b0}} 
+typedef Xpetra\+::\+Import$<$ LO, GO, NO $>$ {\bfseries Xpetra\+Import\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a1879e08016f1733fcd75186a857a3fd8}\label{classFEDD_1_1Matrix_a1879e08016f1733fcd75186a857a3fd8}} 
+typedef Teuchos\+::\+R\+CP$<$ Xpetra\+Import\+\_\+\+Type $>$ {\bfseries Xpetra\+Import\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_ab4c2a634591dc252cffd6efae0bab877}\label{classFEDD_1_1Matrix_ab4c2a634591dc252cffd6efae0bab877}} 
+typedef Xpetra\+::\+Export$<$ LO, GO, NO $>$ {\bfseries Xpetra\+Export\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a569f56f5bed320e985688a6be01958bd}\label{classFEDD_1_1Matrix_a569f56f5bed320e985688a6be01958bd}} 
+typedef Teuchos\+::\+R\+CP$<$ Xpetra\+Export\+\_\+\+Type $>$ {\bfseries Xpetra\+Export\+Ptr\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_ad5cef1d9129457cd8fbc385cca49cf87}\label{classFEDD_1_1Matrix_ad5cef1d9129457cd8fbc385cca49cf87}} 
+{\bfseries Matrix} (Xpetra\+Matrix\+Ptr\+\_\+\+Type \&xpetra\+Mat\+Ptr\+In)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a5d712d69309a13078965387ae97b9ed6}\label{classFEDD_1_1Matrix_a5d712d69309a13078965387ae97b9ed6}} 
+{\bfseries Matrix} (Map\+Const\+Ptr\+\_\+\+Type map, LO num\+Entries)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_ac46d133588c2c806cda3b93c960c9e20}\label{classFEDD_1_1Matrix_ac46d133588c2c806cda3b93c960c9e20}} 
+{\bfseries Matrix} (Matrix\+Ptr\+\_\+\+Type matrix\+In)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_aae9ee9c1e6ff0d2de140f106ba2ec350}\label{classFEDD_1_1Matrix_aae9ee9c1e6ff0d2de140f106ba2ec350}} 
+\mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} \& {\bfseries operator+=} (const \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} \&mat\+In)
+\item 
+void \mbox{\hyperlink{classFEDD_1_1Matrix_a8a15f253461212f52905c75c37c7aaf7}{insert\+Global\+Values}} (GO global\+Row, const Teuchos\+::\+Array\+View$<$ const GO $>$ \&cols, const Teuchos\+::\+Array\+View$<$ const SC $>$ \&vals)
+\begin{DoxyCompactList}\small\item\em Intertion of values in global row \textquotesingle{}global\+Row\textquotesingle{}. \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} is distributed nodewise. If values are added to same row, they automatically get summed up. \end{DoxyCompactList}\item 
+LO \mbox{\hyperlink{classFEDD_1_1Matrix_a1d7dc8db7c753b2232f891bbc8d0dfaa}{get\+Node\+Num\+Rows}} () const
+\begin{DoxyCompactList}\small\item\em Returns the local number of rows. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a17f475f42b68e48496cbc5c287923028}\label{classFEDD_1_1Matrix_a17f475f42b68e48496cbc5c287923028}} 
+Map\+Const\+Ptr\+\_\+\+Type \mbox{\hyperlink{classFEDD_1_1Matrix_a17f475f42b68e48496cbc5c287923028}{get\+Map}} (string map\+\_\+string=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Returns map of type \char`\"{} \char`\"{}. i.\+e. row or column map. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a98ff3b425e78958aa387e03698b40875}\label{classFEDD_1_1Matrix_a98ff3b425e78958aa387e03698b40875}} 
+Map\+Const\+Ptr\+\_\+\+Type \mbox{\hyperlink{classFEDD_1_1Matrix_a98ff3b425e78958aa387e03698b40875}{get\+Map}} (string map\+\_\+string=\char`\"{}\char`\"{}) const
+\begin{DoxyCompactList}\small\item\em Returns map of type \char`\"{} \char`\"{}. i.\+e. row or column map. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a347d436a5f0ed5258eb501e9978a11ee}\label{classFEDD_1_1Matrix_a347d436a5f0ed5258eb501e9978a11ee}} 
+Xpetra\+Map\+Const\+Ptr\+\_\+\+Type \mbox{\hyperlink{classFEDD_1_1Matrix_a347d436a5f0ed5258eb501e9978a11ee}{get\+Map\+Xpetra}} (string map\+\_\+string=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Return map in Xpetra Format of type \char`\"{} \char`\"{}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a1cae817803b888a328d24c51b8424312}\label{classFEDD_1_1Matrix_a1cae817803b888a328d24c51b8424312}} 
+Teuchos\+::\+R\+CP$<$ const Thyra\+::\+Linear\+Op\+Base$<$ SC $>$ $>$ \mbox{\hyperlink{classFEDD_1_1Matrix_a1cae817803b888a328d24c51b8424312}{get\+Thyra\+Lin\+Op}} () const
+\begin{DoxyCompactList}\small\item\em i.\+e. for N\+OX \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a82f3b4389bf1988fb7354bb37d52a2d8}\label{classFEDD_1_1Matrix_a82f3b4389bf1988fb7354bb37d52a2d8}} 
+Teuchos\+::\+R\+CP$<$ Thyra\+::\+Linear\+Op\+Base$<$ SC $>$ $>$ \mbox{\hyperlink{classFEDD_1_1Matrix_a82f3b4389bf1988fb7354bb37d52a2d8}{get\+Thyra\+Lin\+Op\+Non\+Const}} ()
+\begin{DoxyCompactList}\small\item\em i.\+e. for N\+OX \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a21c9173316fbbe79085e0b6461b802fa}\label{classFEDD_1_1Matrix_a21c9173316fbbe79085e0b6461b802fa}} 
+void \mbox{\hyperlink{classFEDD_1_1Matrix_a21c9173316fbbe79085e0b6461b802fa}{print}} (Teuchos\+::\+E\+Verbosity\+Level verb\+Level=Teuchos\+::\+V\+E\+R\+B\+\_\+\+E\+X\+T\+R\+E\+ME)
+\begin{DoxyCompactList}\small\item\em printing matrix \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_ac2f4ffec6b12b2520307f603f59886a3}\label{classFEDD_1_1Matrix_ac2f4ffec6b12b2520307f603f59886a3}} 
+void \mbox{\hyperlink{classFEDD_1_1Matrix_ac2f4ffec6b12b2520307f603f59886a3}{resume\+Fill}} ()
+\begin{DoxyCompactList}\small\item\em Resuming filling process. But only limited options i.\+e. scaling remain. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_ac7a973c3c60225c44317ce16688b2e40}\label{classFEDD_1_1Matrix_ac7a973c3c60225c44317ce16688b2e40}} 
+void \mbox{\hyperlink{classFEDD_1_1Matrix_ac7a973c3c60225c44317ce16688b2e40}{fill\+Complete}} ()
+\begin{DoxyCompactList}\small\item\em after inserting global values into matrix. After this step the column map is fixed. Row map is used for filling. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a061fa142bfcf9d6deba4f0b0798216e5}\label{classFEDD_1_1Matrix_a061fa142bfcf9d6deba4f0b0798216e5}} 
+void \mbox{\hyperlink{classFEDD_1_1Matrix_a061fa142bfcf9d6deba4f0b0798216e5}{fill\+Complete}} (Map\+Const\+Ptr\+\_\+\+Type domain\+Map, Map\+Const\+Ptr\+\_\+\+Type range\+Map)
+\begin{DoxyCompactList}\small\item\em Filling of \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} based on specific domainmap (column map) and range\+Map (rowmap). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a249caf11f93ea235e7309665277eb852}\label{classFEDD_1_1Matrix_a249caf11f93ea235e7309665277eb852}} 
+bool {\bfseries is\+Locally\+Indexed} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a95c7c48f147c7be5246e02aa362e4766}\label{classFEDD_1_1Matrix_a95c7c48f147c7be5246e02aa362e4766}} 
+bool \mbox{\hyperlink{classFEDD_1_1Matrix_a95c7c48f147c7be5246e02aa362e4766}{is\+Fill\+Complete}} ()
+\begin{DoxyCompactList}\small\item\em Check if matrix is already filled complete. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a51206cdd69f935cbaf424e4d7ab496fc}\label{classFEDD_1_1Matrix_a51206cdd69f935cbaf424e4d7ab496fc}} 
+void \mbox{\hyperlink{classFEDD_1_1Matrix_a51206cdd69f935cbaf424e4d7ab496fc}{get\+Global\+Row\+View}} (GO global\+Row, Teuchos\+::\+Array\+View$<$ const GO $>$ \&indices, Teuchos\+::\+Array\+View$<$ const SC $>$ \&values) const
+\begin{DoxyCompactList}\small\item\em Extracting single rows of \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} with global row ID. Indices returns global indices of entries stored in values. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a0b0bc2d6e5243c768613334f4bdce79c}\label{classFEDD_1_1Matrix_a0b0bc2d6e5243c768613334f4bdce79c}} 
+void \mbox{\hyperlink{classFEDD_1_1Matrix_a0b0bc2d6e5243c768613334f4bdce79c}{get\+Local\+Row\+View}} (LO local\+Row, Teuchos\+::\+Array\+View$<$ const LO $>$ \&indices, Teuchos\+::\+Array\+View$<$ const SC $>$ \&values) const
+\begin{DoxyCompactList}\small\item\em Extracting single rows of \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} with local row ID. Indices returns local indices of entries stored in values. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a38171cf5dc98f2c3c57d08e22d202b7f}\label{classFEDD_1_1Matrix_a38171cf5dc98f2c3c57d08e22d202b7f}} 
+void \mbox{\hyperlink{classFEDD_1_1Matrix_a38171cf5dc98f2c3c57d08e22d202b7f}{replace\+Global\+Values}} (GO global\+Row, const Teuchos\+::\+Array\+View$<$ const GO $>$ \&indices, const Teuchos\+::\+Array\+View$<$ const SC $>$ \&values)
+\begin{DoxyCompactList}\small\item\em Replacing single rows of \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} with global row ID. Indices returns global indices of entries stored in values. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a3544253497eaa0762112537546138fcf}\label{classFEDD_1_1Matrix_a3544253497eaa0762112537546138fcf}} 
+void \mbox{\hyperlink{classFEDD_1_1Matrix_a3544253497eaa0762112537546138fcf}{replace\+Local\+Values}} (LO local\+Row, const Teuchos\+::\+Array\+View$<$ const LO $>$ \&indices, const Teuchos\+::\+Array\+View$<$ const SC $>$ \&values)
+\begin{DoxyCompactList}\small\item\em Replacing single rows of \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} with local row ID. Indices returns local indices of entries stored in values. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a6108fa025f28c3fdbb4bf2ca81c1fa46}\label{classFEDD_1_1Matrix_a6108fa025f28c3fdbb4bf2ca81c1fa46}} 
+Xpetra\+Matrix\+Const\+Ptr\+\_\+\+Type \mbox{\hyperlink{classFEDD_1_1Matrix_a6108fa025f28c3fdbb4bf2ca81c1fa46}{get\+Xpetra\+Matrix}} () const
+\begin{DoxyCompactList}\small\item\em Return matrix in Xpetra Format of type \char`\"{} \char`\"{}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_ac4c09a28b93ff4303027047a96d98cf1}\label{classFEDD_1_1Matrix_ac4c09a28b93ff4303027047a96d98cf1}} 
+void \mbox{\hyperlink{classFEDD_1_1Matrix_ac4c09a28b93ff4303027047a96d98cf1}{apply}} (const \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector\+\_\+\+Type}} \&X, \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector\+\_\+\+Type}} \&Y, Teuchos\+::\+E\+Transp mode=Teuchos\+::\+N\+O\+\_\+\+T\+R\+A\+NS, SC alpha=Teuchos\+::\+Scalar\+Traits$<$ SC $>$\+::one(), SC beta=Teuchos\+::\+Scalar\+Traits$<$ SC $>$\+::zero()) const
+\begin{DoxyCompactList}\small\item\em \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} Vector Operation. Applying \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector}} X to this. Y = alpha $\ast$ (this)$^\wedge$mode $\ast$ X + beta $\ast$ Y. Mode being transposed or not. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a62f95521fc877430805037d88d501e4d}\label{classFEDD_1_1Matrix_a62f95521fc877430805037d88d501e4d}} 
+void \mbox{\hyperlink{classFEDD_1_1Matrix_a62f95521fc877430805037d88d501e4d}{scale}} (const SC \&alpha)
+\begin{DoxyCompactList}\small\item\em Scaling this with constant alpha. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_aa55f99367fe4a2fe17abee2a331fcfb5}\label{classFEDD_1_1Matrix_aa55f99367fe4a2fe17abee2a331fcfb5}} 
+void \mbox{\hyperlink{classFEDD_1_1Matrix_aa55f99367fe4a2fe17abee2a331fcfb5}{write\+MM}} (std\+::string file\+Name=\char`\"{}matrix.\+mm\char`\"{}) const
+\begin{DoxyCompactList}\small\item\em Writing \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} in file. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_ac493dda825b0165bb1e963bfc1039135}\label{classFEDD_1_1Matrix_ac493dda825b0165bb1e963bfc1039135}} 
+void \mbox{\hyperlink{classFEDD_1_1Matrix_ac493dda825b0165bb1e963bfc1039135}{add\+Matrix}} (SC alpha, const Matrix\+Ptr\+\_\+\+Type \&B, SC beta)
+\begin{DoxyCompactList}\small\item\em B = alpha$\ast$this + beta$\ast$B. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a5ae991c8dead8e6b6d7af34d54aa3a1b}\label{classFEDD_1_1Matrix_a5ae991c8dead8e6b6d7af34d54aa3a1b}} 
+void \mbox{\hyperlink{classFEDD_1_1Matrix_a5ae991c8dead8e6b6d7af34d54aa3a1b}{to\+MV}} (Multi\+Vector\+Ptr\+\_\+\+Type \&mv)
+\begin{DoxyCompactList}\small\item\em Turning \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} into \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector}} Format. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_adad7e424dbc2904f993dc94afe3de53c}\label{classFEDD_1_1Matrix_adad7e424dbc2904f993dc94afe3de53c}} 
+LO \mbox{\hyperlink{classFEDD_1_1Matrix_adad7e424dbc2904f993dc94afe3de53c}{get\+Global\+Max\+Num\+Row\+Entries}} () const
+\begin{DoxyCompactList}\small\item\em Maximum number of entries in any row of the matrix, over all processes. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_ab1cc09c8d0df0259895a16b5e80e2a1f}\label{classFEDD_1_1Matrix_ab1cc09c8d0df0259895a16b5e80e2a1f}} 
+void {\bfseries import\+From\+Vector} (Matrix\+Ptr\+\_\+\+Type mv\+In, bool reuse\+Import=false, std\+::string combine\+Mode=\char`\"{}Insert\char`\"{}, std\+::string type=\char`\"{}Forward\char`\"{})
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a39109e02a3914b754117a24d925ac9ac}\label{classFEDD_1_1Matrix_a39109e02a3914b754117a24d925ac9ac}} 
+void {\bfseries export\+From\+Vector} (Matrix\+Ptr\+\_\+\+Type mv\+In, bool reuse\+Export=false, std\+::string combine\+Mode=\char`\"{}Insert\char`\"{}, std\+::string type=\char`\"{}Forward\char`\"{})
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a1c4ac81f6498905b93eb13627d3d8dc4}\label{classFEDD_1_1Matrix_a1c4ac81f6498905b93eb13627d3d8dc4}} 
+const typedef Teuchos\+::\+R\+CP$<$ const Xpetra\+Map\+\_\+\+Type $>$ {\bfseries Xpetra\+Map\+Const\+Ptr\+Const\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Matrix_ab66ae914355229c90b3f286940df057b}\label{classFEDD_1_1Matrix_ab66ae914355229c90b3f286940df057b}} 
+const typedef Teuchos\+::\+R\+CP$<$ Xpetra\+Matrix\+Const\+Ptr\+\_\+\+Type $>$ {\bfseries Xpetra\+Matrix\+Const\+Ptr\+Const\+\_\+\+Type}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a1d7dc8db7c753b2232f891bbc8d0dfaa}\label{classFEDD_1_1Matrix_a1d7dc8db7c753b2232f891bbc8d0dfaa}} 
+\index{FEDD::Matrix$<$ SC, LO, GO, NO $>$@{FEDD::Matrix$<$ SC, LO, GO, NO $>$}!getNodeNumRows@{getNodeNumRows}}
+\index{getNodeNumRows@{getNodeNumRows}!FEDD::Matrix$<$ SC, LO, GO, NO $>$@{FEDD::Matrix$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{getNodeNumRows()}{getNodeNumRows()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+LO \mbox{\hyperlink{classFEDD_1_1Matrix}{F\+E\+D\+D\+::\+Matrix}}$<$ SC, LO, GO, NO $>$\+::get\+Node\+Num\+Rows}
+
+
+
+Returns the local number of rows. 
+
+\mbox{\Hypertarget{classFEDD_1_1Matrix_a8a15f253461212f52905c75c37c7aaf7}\label{classFEDD_1_1Matrix_a8a15f253461212f52905c75c37c7aaf7}} 
+\index{FEDD::Matrix$<$ SC, LO, GO, NO $>$@{FEDD::Matrix$<$ SC, LO, GO, NO $>$}!insertGlobalValues@{insertGlobalValues}}
+\index{insertGlobalValues@{insertGlobalValues}!FEDD::Matrix$<$ SC, LO, GO, NO $>$@{FEDD::Matrix$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{insertGlobalValues()}{insertGlobalValues()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1Matrix}{F\+E\+D\+D\+::\+Matrix}}$<$ SC, LO, GO, NO $>$\+::insert\+Global\+Values (\begin{DoxyParamCaption}\item[{GO}]{global\+Row,  }\item[{const Teuchos\+::\+Array\+View$<$ const GO $>$ \&}]{cols,  }\item[{const Teuchos\+::\+Array\+View$<$ const SC $>$ \&}]{vals }\end{DoxyParamCaption})}
+
+
+
+Intertion of values in global row \textquotesingle{}global\+Row\textquotesingle{}. \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}} is distributed nodewise. If values are added to same row, they automatically get summed up. 
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Linear\+Algebra/Matrix\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Linear\+Algebra/Matrix\+\_\+def.\+hpp\end{DoxyCompactItemize}

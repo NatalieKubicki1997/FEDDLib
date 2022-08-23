@@ -37,6 +37,7 @@
     <ParameterList name="Material">    
         <Parameter name="Newtonian" type="bool" value="false"/>
         <Parameter name="ShearThinningModel" type="string" value="Carreau-Yasuda"/> <!-- Power-Law, Carreau-Yasuda  -->
+        <Parameter name="WriteOutViscosity" type="bool" value="true"/>
 	<!--********************FOR CHOSEN MODEL USER HAS TO SET MATERIAL PARAMETERS BELOW**************************-->
 
 	<!-- Power Law assumes for the viscosity eta the functional form \eta(\gamma) = K \gamma^(n-1) -->

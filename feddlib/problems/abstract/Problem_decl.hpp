@@ -173,7 +173,7 @@ public:
 
     BCConstPtr_Type getBCFactory();
 
-    DomainConstPtr_Type getDomain(int i) const;
+    DomainConstPtr_Type getDomain(int i) const; // this gives a object of class Domain
 
     DomainConstPtr_vec_Type getDomainVector() const{
         return domainPtr_vec_;
@@ -207,7 +207,7 @@ public:
     mutable CommConstPtr_Type comm_;
     mutable BlockMatrixPtr_Type system_;
     mutable BlockMultiVectorPtr_Type rhs_;
-    mutable BlockMultiVectorPtr_Type solution_;
+    mutable BlockMultiVectorPtr_Type solution_; // so solution is object of class BlockMultiVector
     PreconditionerPtr_Type preconditioner_;
     LinSolverBuilderPtr_Type linearSolverBuilder_;
 
@@ -221,7 +221,7 @@ protected:
     string_vec_Type                 variableName_vec_;
     mutable BCConstPtr_Type         bcFactory_;
 
-    FEFacPtr_Type feFactory_;
+    FEFacPtr_Type feFactory_; // fe type! so object from class FE_hpp!
     std::vector<int> dofsPerNode_vec_;
     
     /*!  sourceTerm_: Is a source term or a surface integral. Fill parasSourceFunc_ for additional parameters */

@@ -1,0 +1,116 @@
+\hypertarget{classFEDD_1_1NonLinElasticity}{}\doxysection{F\+E\+DD\+::Non\+Lin\+Elasticity$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1NonLinElasticity}\index{FEDD::NonLinElasticity$<$ SC, LO, GO, NO $>$@{FEDD::NonLinElasticity$<$ SC, LO, GO, NO $>$}}
+\doxysubsection*{Public Types}
+\begin{Indent}\textbf{ Public Types}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a745aff4ff2a5d03ee054b18ab8370e81}\label{classFEDD_1_1NonLinElasticity_a745aff4ff2a5d03ee054b18ab8370e81}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Problem}{Problem}}$<$ SC, LO, GO, NO $>$ {\bfseries Problem\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_ad8bca655e7b7483e0566168bd9736c1d}\label{classFEDD_1_1NonLinElasticity_ad8bca655e7b7483e0566168bd9736c1d}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Matrix}{Problem\+\_\+\+Type\+::\+Matrix\+\_\+\+Type}} {\bfseries Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a7bd70cd2ac6c993888740a8100eb8736}\label{classFEDD_1_1NonLinElasticity_a7bd70cd2ac6c993888740a8100eb8736}} 
+typedef Problem\+\_\+\+Type\+::\+Matrix\+Ptr\+\_\+\+Type {\bfseries Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a953c815558a3dbe9959e27686de9f192}\label{classFEDD_1_1NonLinElasticity_a953c815558a3dbe9959e27686de9f192}} 
+typedef Problem\+\_\+\+Type\+::\+Map\+Const\+Ptr\+\_\+\+Type {\bfseries Map\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a1e8d44711d20ac9b3b6da9e9810b2e5d}\label{classFEDD_1_1NonLinElasticity_a1e8d44711d20ac9b3b6da9e9810b2e5d}} 
+typedef \mbox{\hyperlink{classFEDD_1_1BlockMatrix}{Problem\+\_\+\+Type\+::\+Block\+Matrix\+\_\+\+Type}} {\bfseries Block\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_ab3409003af2a9613cb9099343d02dcc2}\label{classFEDD_1_1NonLinElasticity_ab3409003af2a9613cb9099343d02dcc2}} 
+typedef Problem\+\_\+\+Type\+::\+Block\+Matrix\+Ptr\+\_\+\+Type {\bfseries Block\+Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_abc7ba153981a3382124ceac3de884d49}\label{classFEDD_1_1NonLinElasticity_abc7ba153981a3382124ceac3de884d49}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MultiVector}{Problem\+\_\+\+Type\+::\+Multi\+Vector\+\_\+\+Type}} {\bfseries Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a68f7b00dbefac5c1c6d2e8891e1c4881}\label{classFEDD_1_1NonLinElasticity_a68f7b00dbefac5c1c6d2e8891e1c4881}} 
+typedef Problem\+\_\+\+Type\+::\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a13e99a3c0b4df93a49f77a037da63f92}\label{classFEDD_1_1NonLinElasticity_a13e99a3c0b4df93a49f77a037da63f92}} 
+typedef Problem\+\_\+\+Type\+::\+Multi\+Vector\+Const\+Ptr\+\_\+\+Type {\bfseries Multi\+Vector\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_ab94a115ff71eeb121eebe04220bb1e66}\label{classFEDD_1_1NonLinElasticity_ab94a115ff71eeb121eebe04220bb1e66}} 
+typedef Problem\+\_\+\+Type\+::\+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries Block\+Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a304c50620a77acd67ba37eb191026643}\label{classFEDD_1_1NonLinElasticity_a304c50620a77acd67ba37eb191026643}} 
+typedef Problem\+\_\+\+Type\+::\+Domain\+Const\+Ptr\+\_\+\+Type {\bfseries Domain\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a2acb55e9a7958db1201be4dd0697e481}\label{classFEDD_1_1NonLinElasticity_a2acb55e9a7958db1201be4dd0697e481}} 
+typedef Problem\+\_\+\+Type\+::\+Comm\+Const\+Ptr\+\_\+\+Type {\bfseries Comm\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a7dfa093a9db02410bba0bb66287601db}\label{classFEDD_1_1NonLinElasticity_a7dfa093a9db02410bba0bb66287601db}} 
+typedef \mbox{\hyperlink{classFEDD_1_1NonLinearProblem}{Non\+Linear\+Problem}}$<$ SC, LO, GO, NO $>$ {\bfseries Non\+Linear\+Problem\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a7b50a296b87557d61c6eb043b74c2b1e}\label{classFEDD_1_1NonLinElasticity_a7b50a296b87557d61c6eb043b74c2b1e}} 
+typedef Non\+Linear\+Problem\+\_\+\+Type\+::\+Block\+Multi\+Vector\+Ptr\+Array\+\_\+\+Type {\bfseries Block\+Multi\+Vector\+Ptr\+Array\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a89f06b4198f375bf735cfc636a15490b}\label{classFEDD_1_1NonLinElasticity_a89f06b4198f375bf735cfc636a15490b}} 
+typedef Non\+Linear\+Problem\+\_\+\+Type\+::\+Tpetra\+Matrix\+\_\+\+Type {\bfseries Tpetra\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a3efe3fdc116e6edd40d123d17acc1cea}\label{classFEDD_1_1NonLinElasticity_a3efe3fdc116e6edd40d123d17acc1cea}} 
+typedef Non\+Linear\+Problem\+\_\+\+Type\+::\+Thyra\+Vec\+Space\+\_\+\+Type {\bfseries Thyra\+Vec\+Space\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a07343b1ab846f0e1fd83ab19ff34c1a4}\label{classFEDD_1_1NonLinElasticity_a07343b1ab846f0e1fd83ab19ff34c1a4}} 
+typedef Non\+Linear\+Problem\+\_\+\+Type\+::\+Thyra\+Vec\+\_\+\+Type {\bfseries Thyra\+Vec\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a3294f5e39f402fe47f79c474e27f27fe}\label{classFEDD_1_1NonLinElasticity_a3294f5e39f402fe47f79c474e27f27fe}} 
+typedef Non\+Linear\+Problem\+\_\+\+Type\+::\+Thyra\+Op\+\_\+\+Type {\bfseries Thyra\+Op\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a2eb9e30d10ad34a139ee905b86cb51ab}\label{classFEDD_1_1NonLinElasticity_a2eb9e30d10ad34a139ee905b86cb51ab}} 
+typedef Non\+Linear\+Problem\+\_\+\+Type\+::\+Tpetra\+Op\+\_\+\+Type {\bfseries Tpetra\+Op\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a8b7807fa8c637f6da278db0af611a8eb}\label{classFEDD_1_1NonLinElasticity_a8b7807fa8c637f6da278db0af611a8eb}} 
+typedef Tpetra\+::\+Crs\+Matrix$<$ SC, LO, GO, NO $>$ {\bfseries tpetra\+\_\+matrix}
+\end{DoxyCompactItemize}
+\end{Indent}
+\doxysubsection*{Constructor/\+Destructor}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_ac327989ba76afb9a8ffa306ffc254639}\label{classFEDD_1_1NonLinElasticity_ac327989ba76afb9a8ffa306ffc254639}} 
+{\bfseries Non\+Lin\+Elasticity} (const Domain\+Const\+Ptr\+\_\+\+Type \&domain, std\+::string F\+E\+Type, Parameter\+List\+Ptr\+\_\+\+Type parameter\+List)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_abfcca5e959f51b65f761f48368652a6d}\label{classFEDD_1_1NonLinElasticity_abfcca5e959f51b65f761f48368652a6d}} 
+{\bfseries $\sim$\+Non\+Lin\+Elasticity} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_ab69cfc6787a1f9f53e92b9be66a0c306}\label{classFEDD_1_1NonLinElasticity_ab69cfc6787a1f9f53e92b9be66a0c306}} 
+virtual void {\bfseries info} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a6e8f9ce7b83d728695220a66142ac563}\label{classFEDD_1_1NonLinElasticity_a6e8f9ce7b83d728695220a66142ac563}} 
+virtual void {\bfseries assemble} (std\+::string type=\char`\"{}\char`\"{}) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a53c9c70b7a5859ee204029a41db376b2}\label{classFEDD_1_1NonLinElasticity_a53c9c70b7a5859ee204029a41db376b2}} 
+void {\bfseries re\+Assemble} (std\+::string type) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_ad8904471b26744e225244e01447e85b8}\label{classFEDD_1_1NonLinElasticity_ad8904471b26744e225244e01447e85b8}} 
+virtual void {\bfseries re\+Assemble} (Block\+Multi\+Vector\+Ptr\+\_\+\+Type previous\+Solution) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_adf0d7238281d9cc19c655ce56be7fbc4}\label{classFEDD_1_1NonLinElasticity_adf0d7238281d9cc19c655ce56be7fbc4}} 
+virtual void {\bfseries re\+Assemble} (Matrix\+Ptr\+\_\+\+Type \&massmatrix, std\+::string type) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_ac55516c15e056c86eaddc0a324517b5d}\label{classFEDD_1_1NonLinElasticity_ac55516c15e056c86eaddc0a324517b5d}} 
+virtual void {\bfseries re\+Assemble\+Extrapolation} (Block\+Multi\+Vector\+Ptr\+Array\+\_\+\+Type previous\+Solutions)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a32ad80e7bedb27d05fac223de4f89576}\label{classFEDD_1_1NonLinElasticity_a32ad80e7bedb27d05fac223de4f89576}} 
+virtual void {\bfseries calculate\+Non\+Lin\+Residual\+Vec} (std\+::string type, double time=0.) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a868c9466b66671dd17136a0157dc5cbe}\label{classFEDD_1_1NonLinElasticity_a868c9466b66671dd17136a0157dc5cbe}} 
+virtual void {\bfseries get\+Values\+Of\+Interest} (vec\+\_\+dbl\+\_\+\+Type \&values)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a4a5c8b6291363a809a44ef7bc257b0f1}\label{classFEDD_1_1NonLinElasticity_a4a5c8b6291363a809a44ef7bc257b0f1}} 
+virtual void {\bfseries compute\+Values\+Of\+Interest\+And\+Export} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_afd5df444ec5cbc9d7fcbe68b7955e023}\label{classFEDD_1_1NonLinElasticity_afd5df444ec5cbc9d7fcbe68b7955e023}} 
+Teuchos\+::\+R\+CP$<$ Thyra\+::\+Linear\+Op\+Base$<$ SC $>$ $>$ {\bfseries create\+\_\+\+W\+\_\+op} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NonLinElasticity_a355b2ded22874b11c5ff3e7c3fa77837}\label{classFEDD_1_1NonLinElasticity_a355b2ded22874b11c5ff3e7c3fa77837}} 
+Teuchos\+::\+R\+CP$<$ Thyra\+::\+Preconditioner\+Base$<$ SC $>$ $>$ {\bfseries create\+\_\+\+W\+\_\+prec} () const
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/specific/F\+S\+I\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/specific/Non\+Lin\+Elasticity\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/specific/Non\+Lin\+Elasticity\+\_\+def.\+hpp\end{DoxyCompactItemize}

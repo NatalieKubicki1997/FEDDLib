@@ -1,0 +1,71 @@
+\hypertarget{classFEDD_1_1LinearSolver}{}\doxysection{F\+E\+DD\+::Linear\+Solver$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1LinearSolver}\index{FEDD::LinearSolver$<$ SC, LO, GO, NO $>$@{FEDD::LinearSolver$<$ SC, LO, GO, NO $>$}}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_a093529689d30d7f243b2bcd958f81715}\label{classFEDD_1_1LinearSolver_a093529689d30d7f243b2bcd958f81715}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Problem}{Problem}}$<$ SC, LO, GO, NO $>$ {\bfseries Problem\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_aa7d30fbf42758c31a97ac193ac6ef440}\label{classFEDD_1_1LinearSolver_aa7d30fbf42758c31a97ac193ac6ef440}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Problem}{Problem\+\_\+\+Type}} $>$ {\bfseries Problem\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_a830108f2eca61652fe07965dede6ea95}\label{classFEDD_1_1LinearSolver_a830108f2eca61652fe07965dede6ea95}} 
+typedef \mbox{\hyperlink{classFEDD_1_1TimeProblem}{Time\+Problem}}$<$ SC, LO, GO, NO $>$ {\bfseries Time\+Problem\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_aafd6a3413626e1a707d1408665d959e0}\label{classFEDD_1_1LinearSolver_aafd6a3413626e1a707d1408665d959e0}} 
+typedef Teuchos\+::\+R\+CP$<$ const Thyra\+::\+Linear\+Op\+Base$<$ SC $>$ $>$ {\bfseries Thyra\+Lin\+Op\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_a5e8747e043ed069758113fba8fc40c3d}\label{classFEDD_1_1LinearSolver_a5e8747e043ed069758113fba8fc40c3d}} 
+typedef Thyra\+::\+Blocked\+Linear\+Op\+Base$<$ SC $>$ {\bfseries Thyra\+Lin\+Op\+Block\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_a2536bfbca8ca868f35486de88ae1821f}\label{classFEDD_1_1LinearSolver_a2536bfbca8ca868f35486de88ae1821f}} 
+typedef Teuchos\+::\+R\+CP$<$ Thyra\+Lin\+Op\+Block\+\_\+\+Type $>$ {\bfseries Thyra\+Lin\+Op\+Block\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_ad8c807740d57669b6f59dd03b4645e8d}\label{classFEDD_1_1LinearSolver_ad8c807740d57669b6f59dd03b4645e8d}} 
+typedef Teuchos\+::\+R\+CP$<$ const Thyra\+Lin\+Op\+Block\+\_\+\+Type $>$ {\bfseries Thyra\+Lin\+Op\+Block\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_a2043bc82ffe7f3d1eefc8726fd5c7c6d}\label{classFEDD_1_1LinearSolver_a2043bc82ffe7f3d1eefc8726fd5c7c6d}} 
+typedef Teuchos\+::\+R\+CP$<$ Thyra\+::\+Preconditioner\+Base$<$ SC $>$ $>$ {\bfseries Thyra\+Prec\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_a13fa39cea2b08a2db073013279eeaf2f}\label{classFEDD_1_1LinearSolver_a13fa39cea2b08a2db073013279eeaf2f}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Matrix}{Problem\+\_\+\+Type\+::\+Matrix\+\_\+\+Type}} {\bfseries Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_a03c8e1d3cc6409ec0f64ad53596a39d4}\label{classFEDD_1_1LinearSolver_a03c8e1d3cc6409ec0f64ad53596a39d4}} 
+typedef Problem\+\_\+\+Type\+::\+Matrix\+Ptr\+\_\+\+Type {\bfseries Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_a3718173e0dfef05348422d0133630736}\label{classFEDD_1_1LinearSolver_a3718173e0dfef05348422d0133630736}} 
+typedef Problem\+\_\+\+Type\+::\+Block\+Matrix\+Ptr\+\_\+\+Type {\bfseries Block\+Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_ad054fd95dc0b3092edde739b0a7a5a00}\label{classFEDD_1_1LinearSolver_ad054fd95dc0b3092edde739b0a7a5a00}} 
+typedef \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector}}$<$ SC, LO, GO, NO $>$ {\bfseries Block\+Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_af416b8b5d3c822efd4cbc36002181d4d}\label{classFEDD_1_1LinearSolver_af416b8b5d3c822efd4cbc36002181d4d}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Block\+Multi\+Vector\+Ptr\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_adb86ac28d97d3db35faae29751a9e662}\label{classFEDD_1_1LinearSolver_adb86ac28d97d3db35faae29751a9e662}} 
+int {\bfseries solve} (\mbox{\hyperlink{classFEDD_1_1Problem}{Problem\+\_\+\+Type}} $\ast$problem, Block\+Multi\+Vector\+Ptr\+\_\+\+Type rhs, std\+::string type=\char`\"{}Monolithic\char`\"{})
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_ae07f03b75143261839ad2ed8d040dba8}\label{classFEDD_1_1LinearSolver_ae07f03b75143261839ad2ed8d040dba8}} 
+int {\bfseries solve} (\mbox{\hyperlink{classFEDD_1_1TimeProblem}{Time\+Problem\+\_\+\+Type}} $\ast$time\+Problem, Block\+Multi\+Vector\+Ptr\+\_\+\+Type rhs, std\+::string type=\char`\"{}Monolithic\char`\"{})
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_a6b1be3b3f5eee893ef83e11d5b935e78}\label{classFEDD_1_1LinearSolver_a6b1be3b3f5eee893ef83e11d5b935e78}} 
+int {\bfseries solve\+Monolithic} (\mbox{\hyperlink{classFEDD_1_1Problem}{Problem\+\_\+\+Type}} $\ast$problem, Block\+Multi\+Vector\+Ptr\+\_\+\+Type rhs, std\+::string type)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_a837d567c479f24f572a1bab5f764c9cd}\label{classFEDD_1_1LinearSolver_a837d567c479f24f572a1bab5f764c9cd}} 
+int {\bfseries solve\+Monolithic} (\mbox{\hyperlink{classFEDD_1_1TimeProblem}{Time\+Problem\+\_\+\+Type}} $\ast$problem, Block\+Multi\+Vector\+Ptr\+\_\+\+Type rhs)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_accdc269bebb9df38a3233c7db61eacbc}\label{classFEDD_1_1LinearSolver_accdc269bebb9df38a3233c7db61eacbc}} 
+int {\bfseries solve\+Block} (\mbox{\hyperlink{classFEDD_1_1Problem}{Problem\+\_\+\+Type}} $\ast$problem, Block\+Multi\+Vector\+Ptr\+\_\+\+Type rhs, std\+::string prec\+Type)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1LinearSolver_a71632bf46498398066b8cf4735eb543d}\label{classFEDD_1_1LinearSolver_a71632bf46498398066b8cf4735eb543d}} 
+int {\bfseries solve\+Block} (\mbox{\hyperlink{classFEDD_1_1TimeProblem}{Time\+Problem\+\_\+\+Type}} $\ast$problem, Block\+Multi\+Vector\+Ptr\+\_\+\+Type rhs, std\+::string prec\+Type)
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/\+Solver/Linear\+Solver\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/\+Solver/Linear\+Solver\+\_\+def.\+hpp\end{DoxyCompactItemize}

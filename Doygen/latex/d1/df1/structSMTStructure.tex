@@ -1,0 +1,107 @@
+\hypertarget{structSMTStructure}{}\doxysection{S\+M\+T\+Structure Struct Reference}
+\label{structSMTStructure}\index{SMTStructure@{SMTStructure}}
+
+
+Collaboration diagram for S\+M\+T\+Structure\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{df/dd9/structSMTStructure__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structSMTStructure_a28f3dd55ea631da38f1191630f171796}\label{structSMTStructure_a28f3dd55ea631da38f1191630f171796}} 
+char $\ast$ {\bfseries Simulation\+Dll\+File}
+\item 
+\mbox{\Hypertarget{structSMTStructure_abd8ac5e704ff0e8169a451c90ab8ab67}\label{structSMTStructure_abd8ac5e704ff0e8169a451c90ab8ab67}} 
+char $\ast$ {\bfseries H5\+Input\+File}
+\item 
+\mbox{\Hypertarget{structSMTStructure_af2a5adeb0dc0523d1dd000dbc46a5c3b}\label{structSMTStructure_af2a5adeb0dc0523d1dd000dbc46a5c3b}} 
+void($\ast$ {\bfseries Initialize\+Convergence} )()
+\item 
+\mbox{\Hypertarget{structSMTStructure_a61c43e28b826d4c88ff87c0db8537a94}\label{structSMTStructure_a61c43e28b826d4c88ff87c0db8537a94}} 
+int($\ast$ {\bfseries Next\+Step} )(double, double, double)
+\item 
+\mbox{\Hypertarget{structSMTStructure_a902ddf77c178b6de5a353c25e6eb4c17}\label{structSMTStructure_a902ddf77c178b6de5a353c25e6eb4c17}} 
+int($\ast$ {\bfseries Step\+Back} )()
+\item 
+\mbox{\Hypertarget{structSMTStructure_a2255a39bfd949daadb1c22cebf91b7dc}\label{structSMTStructure_a2255a39bfd949daadb1c22cebf91b7dc}} 
+int($\ast$ {\bfseries Convergence} )(double, double, char $\ast$)
+\item 
+\mbox{\Hypertarget{structSMTStructure_afeddbb691ce1f32808592f0f35169b47}\label{structSMTStructure_afeddbb691ce1f32808592f0f35169b47}} 
+double($\ast$ {\bfseries Newton\+Iteration} )()
+\item 
+\mbox{\Hypertarget{structSMTStructure_a0d799902c19b29308478f8774a09b2c1}\label{structSMTStructure_a0d799902c19b29308478f8774a09b2c1}} 
+void($\ast$ {\bfseries Free\+Convergence} )()
+\item 
+\mbox{\Hypertarget{structSMTStructure_a11e6c0d81e3303512cc9f234a4f4f7e3}\label{structSMTStructure_a11e6c0d81e3303512cc9f234a4f4f7e3}} 
+void($\ast$ {\bfseries Put} )(int)
+\item 
+\mbox{\Hypertarget{structSMTStructure_a44311b252894934a4aecec408e8b6258}\label{structSMTStructure_a44311b252894934a4aecec408e8b6258}} 
+void($\ast$ {\bfseries Dump\+State} )(char $\ast$dumpkey)
+\item 
+\mbox{\Hypertarget{structSMTStructure_a8b9c2b8e17fe85626e866e3ab4903040}\label{structSMTStructure_a8b9c2b8e17fe85626e866e3ab4903040}} 
+void($\ast$ {\bfseries Restart\+State} )(char $\ast$dumpkey)
+\item 
+\mbox{\Hypertarget{structSMTStructure_ad69b3978348920335910706a73cba66e}\label{structSMTStructure_ad69b3978348920335910706a73cba66e}} 
+double($\ast$ {\bfseries Time\+Stamp} )(char $\ast$msg)
+\item 
+\mbox{\Hypertarget{structSMTStructure_a6a4a990bfd10f524aaefa16905411f69}\label{structSMTStructure_a6a4a990bfd10f524aaefa16905411f69}} 
+void($\ast$ {\bfseries Export\+Vector\+To\+H5\+File} )(char $\ast$, char $\ast$, void $\ast$, int, char $\ast$)
+\item 
+\mbox{\Hypertarget{structSMTStructure_af3be9c8001269be24184e8e133d6adb9}\label{structSMTStructure_af3be9c8001269be24184e8e133d6adb9}} 
+\mbox{\hyperlink{structConvergenceOptions}{Convergence\+Options}} {\bfseries convergence\+Options}
+\item 
+\mbox{\Hypertarget{structSMTStructure_a89ece7991dbff971527363bf0ce47d66}\label{structSMTStructure_a89ece7991dbff971527363bf0ce47d66}} 
+\mbox{\hyperlink{structConvergenceReturn}{Convergence\+Return}} {\bfseries convergence\+Return}
+\item 
+\mbox{\Hypertarget{structSMTStructure_a50007d17043835bb210153771b7741ee}\label{structSMTStructure_a50007d17043835bb210153771b7741ee}} 
+\mbox{\hyperlink{structPutOptions}{Put\+Options}} {\bfseries put\+Options}
+\item 
+\mbox{\Hypertarget{structSMTStructure_aafbd079056aedf85c1ad6e6a19bb8957}\label{structSMTStructure_aafbd079056aedf85c1ad6e6a19bb8957}} 
+int($\ast$ {\bfseries Task} )(char $\ast$code)
+\item 
+\mbox{\Hypertarget{structSMTStructure_a9644bee37d55f14a83ad120ba0b232d1}\label{structSMTStructure_a9644bee37d55f14a83ad120ba0b232d1}} 
+\mbox{\hyperlink{structTaskReturn}{Task\+Return}} {\bfseries task\+Return}
+\item 
+\mbox{\Hypertarget{structSMTStructure_a7e759b8b8a25d8db56a9532962742417}\label{structSMTStructure_a7e759b8b8a25d8db56a9532962742417}} 
+\mbox{\hyperlink{structTaskOptions}{Task\+Options}} {\bfseries task\+Options}
+\item 
+\mbox{\Hypertarget{structSMTStructure_aa9c7ae36b229489e9a42a43815825212}\label{structSMTStructure_aa9c7ae36b229489e9a42a43815825212}} 
+int($\ast$ {\bfseries Sensitivity} )()
+\item 
+\mbox{\Hypertarget{structSMTStructure_a8f3a49c39e39ba81a0b6dbf6d272732c}\label{structSMTStructure_a8f3a49c39e39ba81a0b6dbf6d272732c}} 
+int($\ast$ {\bfseries Find\+Nodes} )(char $\ast$, int $\ast$$\ast$)
+\item 
+\mbox{\Hypertarget{structSMTStructure_a566bfaf29720711be2f571844608192b}\label{structSMTStructure_a566bfaf29720711be2f571844608192b}} 
+int($\ast$ {\bfseries Find\+Nodes\+Point} )(double $\ast$, char $\ast$, double tol, int $\ast$$\ast$)
+\item 
+\mbox{\Hypertarget{structSMTStructure_acd91d0b16887f48723bb3398083ec822}\label{structSMTStructure_acd91d0b16887f48723bb3398083ec822}} 
+int($\ast$ {\bfseries Find\+Nodes\+Line} )(double $\ast$$\ast$, int, char $\ast$, double, int $\ast$$\ast$)
+\item 
+\mbox{\Hypertarget{structSMTStructure_a1760a16981cb15e35d48ecb66135f427}\label{structSMTStructure_a1760a16981cb15e35d48ecb66135f427}} 
+int($\ast$ {\bfseries Find\+Nodes\+Polygon} )(double $\ast$$\ast$, int, char $\ast$, double tol, int $\ast$$\ast$)
+\item 
+\mbox{\Hypertarget{structSMTStructure_a01caec492f730e2661dfb8cb625ab7db}\label{structSMTStructure_a01caec492f730e2661dfb8cb625ab7db}} 
+int($\ast$ {\bfseries Find\+Nodes\+Tetrahedron} )(double $\ast$$\ast$, char $\ast$, double tol, int $\ast$$\ast$)
+\item 
+\mbox{\Hypertarget{structSMTStructure_aaf596ee67ef63d445c0ee5e390e7af12}\label{structSMTStructure_aaf596ee67ef63d445c0ee5e390e7af12}} 
+int($\ast$ {\bfseries Find\+Nodes\+Hexahedron} )(double $\ast$$\ast$, char $\ast$, double tol, int $\ast$$\ast$)
+\item 
+\mbox{\Hypertarget{structSMTStructure_ade9f250a0b628c027f2e8efa36b13626}\label{structSMTStructure_ade9f250a0b628c027f2e8efa36b13626}} 
+int($\ast$ {\bfseries Find\+Nodes\+Function} )(int($\ast$)(double $\ast$, double), char $\ast$, int $\ast$$\ast$)
+\item 
+\mbox{\Hypertarget{structSMTStructure_adde0461474b56c16594c0cb94fb0e537}\label{structSMTStructure_adde0461474b56c16594c0cb94fb0e537}} 
+int($\ast$ {\bfseries Find\+Elements} )(int $\ast$, int, int, int $\ast$$\ast$)
+\item 
+\mbox{\Hypertarget{structSMTStructure_ac1d35f526993c1fea100b45e37dd5231}\label{structSMTStructure_ac1d35f526993c1fea100b45e37dd5231}} 
+void($\ast$ {\bfseries Free} )(void $\ast$)
+\end{DoxyCompactItemize}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+F\+E/sms.\+hpp\end{DoxyCompactItemize}

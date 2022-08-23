@@ -50,7 +50,7 @@ void NonLinearSolver<SC,LO,GO,NO>::solve(NonLinearProblem_Type &problem){
 template<class SC,class LO,class GO,class NO>
 void NonLinearSolver<SC,LO,GO,NO>::solve(TimeProblem_Type &problem, double time, vec_dbl_ptr_Type valuesForExport){
 
-    if (!type_.compare("FixedPoint")) {
+    if (!type_.compare("FixedPoint")) { // problem is for example NavierStokes
         solveFixedPoint(problem,time);
     }
     else if(!type_.compare("Newton")){

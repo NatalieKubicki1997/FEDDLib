@@ -31,6 +31,12 @@ public:
                     std::string FEType,
                     int Degree);
 
+    // Natalie new function to get viscosity at nodal values
+    static int getDPhiAtNodes(vec3D_dbl_ptr_Type &DPhi,
+                     int dim,
+		             std::string FEType,
+		             int Degree, vec2D_dbl_Type nodesRefConfig);
+
     static UN determineDegree(UN dim,
                        std::string FEType,
                        UN degFunc);
@@ -48,6 +54,8 @@ public:
                             std::string FEType,
                             int Degree,
                			    std::string FETypeQuadPoints="");
+
+    static void getCoorNodesEle(vec2D_dbl_Type &RefNodesCor, int dim,   std::string FEType); 
 
 	static void phi(int dim,
 			  int intFE,

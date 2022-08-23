@@ -602,6 +602,208 @@ int Helper::getPhi(vec2D_dbl_ptr_Type &Phi,
 }
 
 
+
+int Helper::getDPhiAtNodes(vec3D_dbl_ptr_Type &DPhi,
+                     int dim,
+		             std::string FEType,
+		             int Degree, vec2D_dbl_Type  nodesCoorInRefConfig){
+
+    int 			nmbLocElPts;
+    int 			intFE;
+    vec_dbl_ptr_Type 	value(new vec_dbl_Type(dim,0.0));
+
+    if (dim==2) {
+        if (FEType == "P0") {
+            nmbLocElPts = 1;
+            intFE = 0;
+        }
+        else if (FEType == "P1") {
+            nmbLocElPts = 3;
+            intFE = 1;
+        }
+        else if (FEType == "P2") {
+            nmbLocElPts = 6;
+            intFE = 2;
+        }
+
+        DPhi.reset(new vec3D_dbl_Type( nodesCoorInRefConfig.size(),vec2D_dbl_Type(nmbLocElPts,vec_dbl_Type(2,0.0))));
+
+        for (int k=0; k<DPhi->size(); k++ ){
+            for (int i=0; i<DPhi->at(0).size(); i++) {
+                gradPhi(dim,intFE,i, nodesCoorInRefConfig[k],value);
+                for (int j=0; j<2; j++) {
+                    DPhi->at(k).at(i).at(j) = value->at(j);
+                }
+            }
+        }
+    }
+
+     else if(dim==3){
+        if (FEType == "P0") {
+            nmbLocElPts = 1;
+            intFE = 0;
+        }
+        else if (FEType == "P1") {
+            nmbLocElPts = 4;
+            intFE = 1;
+        }
+        else if (FEType == "P2") {
+            nmbLocElPts = 10;
+            intFE = 2;
+        }
+        else if (FEType == "Q1") {
+            nmbLocElPts = 8;
+            intFE = 3;
+        }
+        else if (FEType == "Q2") {
+            nmbLocElPts = 27;
+            intFE = 4;
+        }
+        else if (FEType == "Q2-20") {
+            nmbLocElPts = 20;
+            intFE = 5;
+        }
+        else if (FEType == "P1-disc") {
+            nmbLocElPts = 4;
+            intFE = 6;
+        }
+        else if (FEType == "P1-disc-global")
+            TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error   ,"grad of P1-disc-global not implemented yet.");
+
+        DPhi.reset(new vec3D_dbl_Type( nodesCoorInRefConfig.size(),vec2D_dbl_Type(nmbLocElPts,vec_dbl_Type(3,0.0))));
+        for (int k=0; k<DPhi->size(); k++ ){
+            for (int i=0; i<DPhi->at(0).size(); i++) {
+                gradPhi(dim,intFE,i, nodesCoorInRefConfig[k],value);
+                for (int j=0; j<2; j++) {
+                    DPhi->at(k).at(i).at(j) = value->at(j);
+                }
+            }
+        }
+    }
+
+    return intFE;
+}
+
+void Helper::getCoorNodesEle(vec2D_dbl_Type& RefNodesCoor, int dim,  std::string FEType)
+{
+if (dim==1) {
+        if (FEType == "P0") {
+              RefNodesCoor[0][0]= 0.;
+        }
+        else if (FEType == "P1") {
+              RefNodesCoor[0][0]= 0.;
+              RefNodesCoor[1][0]= 1.;
+        }
+        else if (FEType == "P2") {
+              RefNodesCoor[0][0]= 0.;
+              RefNodesCoor[1][0]= 1.;
+              RefNodesCoor[2][0]= 0.5;
+        }
+          else 
+        {
+           TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Not implemented."); 
+        }
+     
+
+    }
+    else if (dim==2) {
+        if (FEType == "P0") {
+           RefNodesCoor[0][0]= 0.; //???
+           RefNodesCoor[0][1]= 0.;
+        }
+        else if (FEType == "P1") {
+             RefNodesCoor[0][0]= 0.;
+             RefNodesCoor[0][1]= 0.;
+             RefNodesCoor[1][0]= 1.;
+             RefNodesCoor[1][1]= 0.;
+             RefNodesCoor[2][0]= 0.;
+             RefNodesCoor[2][1]= 1.;
+        }
+        else if (FEType == "P2") {
+             RefNodesCoor[0][0]= 0.;
+             RefNodesCoor[0][1]= 0.;
+             RefNodesCoor[1][0]= 1.;
+             RefNodesCoor[1][1]= 0.;
+             RefNodesCoor[2][0]= 0.;
+             RefNodesCoor[2][1]= 1.;
+             RefNodesCoor[3][0]= 0.5;
+             RefNodesCoor[3][1]= 0.;
+             RefNodesCoor[4][0]= 0.5;
+             RefNodesCoor[4][1]= 0.5;
+             RefNodesCoor[5][0]= 0.;
+             RefNodesCoor[5][1]= 0.5;
+        }
+        else 
+        {
+           TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Not implemented."); 
+        }
+        
+
+    }
+    else if(dim==3){
+        if (FEType == "P0") {
+           TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "P0 not implemented.");
+        }
+        else if (FEType == "P1") {
+             RefNodesCoor[0][0]= 0.;
+             RefNodesCoor[0][1]= 0.;
+             RefNodesCoor[0][2]= 0.;
+             RefNodesCoor[1][0]= 1.;
+             RefNodesCoor[1][1]= 0.;
+             RefNodesCoor[1][2]= 0.;
+             RefNodesCoor[2][0]= 0.;
+             RefNodesCoor[2][1]= 1.;
+             RefNodesCoor[2][2]= 0.;
+             RefNodesCoor[3][0]= 0.;
+             RefNodesCoor[3][1]= 0.;
+             RefNodesCoor[3][2]= 1.;
+        }
+        else if (FEType == "P2") {
+             RefNodesCoor[0][0]= 0.;
+             RefNodesCoor[0][1]= 0.;
+             RefNodesCoor[0][2]= 0.;
+             RefNodesCoor[1][0]= 1.;
+             RefNodesCoor[1][1]= 0.;
+             RefNodesCoor[1][2]= 0.;
+             RefNodesCoor[2][0]= 0.;
+             RefNodesCoor[2][1]= 1.;
+             RefNodesCoor[2][2]= 0.;
+             RefNodesCoor[3][0]= 0.;
+             RefNodesCoor[3][1]= 0.;
+             RefNodesCoor[3][2]= 1.;
+             RefNodesCoor[4][0]= 0.5;
+             RefNodesCoor[4][1]= 0.;
+             RefNodesCoor[4][2]= 0.;
+             RefNodesCoor[5][0]= 0.5;
+             RefNodesCoor[5][1]= 0.5;
+             RefNodesCoor[5][2]= 0.;
+             RefNodesCoor[6][0]= 0.;
+             RefNodesCoor[6][1]= 0.5;
+             RefNodesCoor[6][2]= 0.;
+             RefNodesCoor[7][0]= 0.;
+             RefNodesCoor[7][1]= 0.;
+             RefNodesCoor[7][2]= 0.5;
+             RefNodesCoor[8][0]= 0.5;
+             RefNodesCoor[8][1]= 0.;
+             RefNodesCoor[8][2]= 0.5;
+             RefNodesCoor[9][0]= 0.;
+             RefNodesCoor[9][1]= 0.5;
+             RefNodesCoor[9][2]= 0.5;
+        }
+         else 
+        {
+           TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Not implemented."); 
+        }
+
+       
+    }
+
+
+}
+
+
+
+
 void Helper::getQuadratureValues(int dim,
                                   int Degree,
                                   vec2D_dbl_ptr_Type &QuadPts,

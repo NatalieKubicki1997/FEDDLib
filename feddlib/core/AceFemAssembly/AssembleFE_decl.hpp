@@ -82,6 +82,12 @@ namespace FEDD {
         virtual void assembleRHS() = 0;
 
         /*!
+         \brief In case of non-newtonian fluids viscosity is not constant 
+         \return the local viscosity solution at the nodes inside an element
+        */
+        vec_dbl_Type getViscositySolution() {return solutionViscosity_;};
+
+        /*!
          \brief Get the currently assembled element Jacobian matrix
          \return the element Jacobian matrix
         */
@@ -181,6 +187,9 @@ namespace FEDD {
         */
 		tuple_sd_vec_ptr_Type getTupleElement(){return elementIntormation_;};
 
+
+       
+       
     protected:
 
         /*!
@@ -207,7 +216,7 @@ namespace FEDD {
 
 		tuple_disk_vec_ptr_Type diskTuple_;
 		tuple_sd_vec_ptr_Type elementIntormation_;
-        /// @todo Why "Reference Configuration"? 
+        /// @todo Why "Reference Configuration"?  - The keyword reference is for FSI problems - in my case these are the coordinates of the nodes in the global coordinate system
         vec2D_dbl_Type nodesRefConfig_;
         bool timeProblem_;
         int flag_;
@@ -216,6 +225,7 @@ namespace FEDD {
         ParameterListPtr_Type paramsMaterial_;
         ParameterListPtr_Type params_;
         vec_dbl_Type solution_ ;
+        vec_dbl_Type solutionViscosity_ ; 
 
         friend class AssembleFEFactory<SC,LO,GO,NO>;
     };

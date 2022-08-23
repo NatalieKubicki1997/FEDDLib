@@ -1,0 +1,147 @@
+\hypertarget{classFEDD_1_1AssembleFEAceLaplace}{}\doxysection{F\+E\+DD\+::Assemble\+F\+E\+Ace\+Laplace$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1AssembleFEAceLaplace}\index{FEDD::AssembleFEAceLaplace$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceLaplace$<$ SC, LO, GO, NO $>$}}
+
+
+Inheritance diagram for F\+E\+DD\+::Assemble\+F\+E\+Ace\+Laplace$<$ SC, LO, GO, NO $>$\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=245pt]{d9/def/classFEDD_1_1AssembleFEAceLaplace__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for F\+E\+DD\+::Assemble\+F\+E\+Ace\+Laplace$<$ SC, LO, GO, NO $>$\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=245pt]{d0/d78/classFEDD_1_1AssembleFEAceLaplace__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceLaplace_ad5a1d233cdc46488449047924e868010}\label{classFEDD_1_1AssembleFEAceLaplace_ad5a1d233cdc46488449047924e868010}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}}$<$ SC, LO, GO, NO $>$ {\bfseries Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceLaplace_aef601b47321c72006e231340b6b79f01}\label{classFEDD_1_1AssembleFEAceLaplace_aef601b47321c72006e231340b6b79f01}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix\+\_\+\+Type}} $>$ {\bfseries Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceLaplace_a73514efbfcde00f29ef48aaffc8f964a}\label{classFEDD_1_1AssembleFEAceLaplace_a73514efbfcde00f29ef48aaffc8f964a}} 
+typedef \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ SC $>$ {\bfseries Small\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceLaplace_a80f37a68305eda24e2cd99eba578109b}\label{classFEDD_1_1AssembleFEAceLaplace_a80f37a68305eda24e2cd99eba578109b}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix\+\_\+\+Type}} $>$ {\bfseries Small\+Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceLaplace_ab83f539437114c2bd9855d6e3e17db75}\label{classFEDD_1_1AssembleFEAceLaplace_ab83f539437114c2bd9855d6e3e17db75}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector}}$<$ SC, LO, GO, NO $>$ {\bfseries Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceLaplace_ab530cd4249acb1258dbe16a4db4e9930}\label{classFEDD_1_1AssembleFEAceLaplace_ab530cd4249acb1258dbe16a4db4e9930}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceLaplace_aa8feabd583240a7d1dc1f826ac01bdff}\label{classFEDD_1_1AssembleFEAceLaplace_aa8feabd583240a7d1dc1f826ac01bdff}} 
+typedef \mbox{\hyperlink{classFEDD_1_1AssembleFE}{Assemble\+FE}}$<$ SC, LO, GO, NO $>$ {\bfseries Assemble\+F\+E\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{classFEDD_1_1AssembleFEAceLaplace_ac47ac062ba522289f4e9a5dd2df78503}{assemble\+Jacobian}} ()
+\begin{DoxyCompactList}\small\item\em Assemble the element Jacobian matrix. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classFEDD_1_1AssembleFEAceLaplace_a6d2759738ff7b596b4f132bf234c772a}{assemble\+R\+HS}} ()
+\begin{DoxyCompactList}\small\item\em Assemble the element right hand side vector. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classFEDD_1_1AssembleFEAceLaplace_a494e6229c1b403423c65810b0719e49e}{Assemble\+F\+E\+Ace\+Laplace}} (int flag, vec2\+D\+\_\+dbl\+\_\+\+Type nodes\+Ref\+Config, Parameter\+List\+Ptr\+\_\+\+Type parameters, tuple\+\_\+disk\+\_\+vec\+\_\+ptr\+\_\+\+Type tuple)
+\begin{DoxyCompactList}\small\item\em Constructor for \mbox{\hyperlink{classFEDD_1_1AssembleFEAceLaplace}{Assemble\+F\+E\+Ace\+Laplace}}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceLaplace_a30ff0dcd1d500892033fc319deacb8fb}\label{classFEDD_1_1AssembleFEAceLaplace_a30ff0dcd1d500892033fc319deacb8fb}} 
+class {\bfseries Assemble\+F\+E\+Factory$<$ S\+C, L\+O, G\+O, N\+O $>$}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceLaplace_a494e6229c1b403423c65810b0719e49e}\label{classFEDD_1_1AssembleFEAceLaplace_a494e6229c1b403423c65810b0719e49e}} 
+\index{FEDD::AssembleFEAceLaplace$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceLaplace$<$ SC, LO, GO, NO $>$}!AssembleFEAceLaplace@{AssembleFEAceLaplace}}
+\index{AssembleFEAceLaplace@{AssembleFEAceLaplace}!FEDD::AssembleFEAceLaplace$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceLaplace$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{AssembleFEAceLaplace()}{AssembleFEAceLaplace()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+\mbox{\hyperlink{classFEDD_1_1AssembleFEAceLaplace}{F\+E\+D\+D\+::\+Assemble\+F\+E\+Ace\+Laplace}}$<$ SC, LO, GO, NO $>$\+::\mbox{\hyperlink{classFEDD_1_1AssembleFEAceLaplace}{Assemble\+F\+E\+Ace\+Laplace}} (\begin{DoxyParamCaption}\item[{int}]{flag,  }\item[{vec2\+D\+\_\+dbl\+\_\+\+Type}]{nodes\+Ref\+Config,  }\item[{Parameter\+List\+Ptr\+\_\+\+Type}]{params,  }\item[{tuple\+\_\+disk\+\_\+vec\+\_\+ptr\+\_\+\+Type}]{tuple }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Constructor for \mbox{\hyperlink{classFEDD_1_1AssembleFEAceLaplace}{Assemble\+F\+E\+Ace\+Laplace}}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em flag} & Flag of element \\
+\hline
+\mbox{\texttt{ in}}  & {\em nodes\+Ref\+Config} & Nodes of element in reference configuration \\
+\hline
+\mbox{\texttt{ in}}  & {\em params} & Parameterlist for current problem \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceLaplace_ac47ac062ba522289f4e9a5dd2df78503}\label{classFEDD_1_1AssembleFEAceLaplace_ac47ac062ba522289f4e9a5dd2df78503}} 
+\index{FEDD::AssembleFEAceLaplace$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceLaplace$<$ SC, LO, GO, NO $>$}!assembleJacobian@{assembleJacobian}}
+\index{assembleJacobian@{assembleJacobian}!FEDD::AssembleFEAceLaplace$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceLaplace$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{assembleJacobian()}{assembleJacobian()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1AssembleFEAceLaplace}{F\+E\+D\+D\+::\+Assemble\+F\+E\+Ace\+Laplace}}$<$ SC, LO, GO, NO $>$\+::assemble\+Jacobian\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Assemble the element Jacobian matrix. 
+
+Assembly Jacobian is simply assembly\+Laplacian for \mbox{\hyperlink{classFEDD_1_1Laplace}{Laplace}} \mbox{\hyperlink{classFEDD_1_1Problem}{Problem}}.
+
+\begin{DoxyReturn}{Returns}
+the element Jacobian matrix
+\end{DoxyReturn}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em \&element\+Matrix} & \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classFEDD_1_1AssembleFE_af48b450dfdf6cea7beeb24feef7dc10f}{F\+E\+D\+D\+::\+Assemble\+F\+E$<$ default\+\_\+sc, default\+\_\+lo, default\+\_\+go, default\+\_\+no $>$}}.
+
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceLaplace_a6d2759738ff7b596b4f132bf234c772a}\label{classFEDD_1_1AssembleFEAceLaplace_a6d2759738ff7b596b4f132bf234c772a}} 
+\index{FEDD::AssembleFEAceLaplace$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceLaplace$<$ SC, LO, GO, NO $>$}!assembleRHS@{assembleRHS}}
+\index{assembleRHS@{assembleRHS}!FEDD::AssembleFEAceLaplace$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceLaplace$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{assembleRHS()}{assembleRHS()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1AssembleFEAceLaplace}{F\+E\+D\+D\+::\+Assemble\+F\+E\+Ace\+Laplace}}$<$ SC, LO, GO, NO $>$\+::assemble\+R\+HS\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Assemble the element right hand side vector. 
+
+Assembly function for $ \int_T f ~ v ~dx $, we need to.
+
+\begin{DoxyReturn}{Returns}
+the element right hand side vector
+\end{DoxyReturn}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em \&element\+Vector} & \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classFEDD_1_1AssembleFE_a43f18446faadb45bb4e2eae4f82ba9ba}{F\+E\+D\+D\+::\+Assemble\+F\+E$<$ default\+\_\+sc, default\+\_\+lo, default\+\_\+go, default\+\_\+no $>$}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Ace\+Fem\+Assembly/specific/Assemble\+F\+E\+Ace\+Laplace\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Ace\+Fem\+Assembly/specific/Assemble\+F\+E\+Ace\+Laplace\+\_\+def.\+hpp\end{DoxyCompactItemize}

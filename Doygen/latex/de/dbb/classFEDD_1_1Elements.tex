@@ -1,0 +1,172 @@
+\hypertarget{classFEDD_1_1Elements}{}\doxysection{F\+E\+DD\+::Elements Class Reference}
+\label{classFEDD_1_1Elements}\index{FEDD::Elements@{FEDD::Elements}}
+
+
+Inheritance diagram for F\+E\+DD\+::Elements\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{d6/d21/classFEDD_1_1Elements__inherit__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a4a17d88d7bebf3096231b22b2abc7114}\label{classFEDD_1_1Elements_a4a17d88d7bebf3096231b22b2abc7114}} 
+typedef std\+::vector$<$ \mbox{\hyperlink{classFEDD_1_1FiniteElement}{Finite\+Element}} $>$ {\bfseries F\+E\+\_\+vec\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a82e68b873ea8a71d7c5b2ed51b604d26}\label{classFEDD_1_1Elements_a82e68b873ea8a71d7c5b2ed51b604d26}} 
+typedef Teuchos\+::\+R\+CP$<$ F\+E\+\_\+vec\+\_\+\+Type $>$ {\bfseries F\+E\+\_\+vec\+\_\+ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a2276a4bfec0d4f02324bf4f66ab956d7}\label{classFEDD_1_1Elements_a2276a4bfec0d4f02324bf4f66ab956d7}} 
+typedef default\+\_\+lo {\bfseries LO}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a588fb380fcc0011b17b2585deb08ea23}\label{classFEDD_1_1Elements_a588fb380fcc0011b17b2585deb08ea23}} 
+typedef default\+\_\+go {\bfseries GO}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a3ec67c6c6e15d60d8e596642d76ae884}\label{classFEDD_1_1Elements_a3ec67c6c6e15d60d8e596642d76ae884}} 
+typedef default\+\_\+sc {\bfseries SC}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a955d4d69149f6708c59a0d4ff2712d8a}\label{classFEDD_1_1Elements_a955d4d69149f6708c59a0d4ff2712d8a}} 
+typedef default\+\_\+no {\bfseries NO}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a3e585a1178543285c9c15aaad4334787}\label{classFEDD_1_1Elements_a3e585a1178543285c9c15aaad4334787}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1Map}{Map}}$<$ LO, GO, NO $>$ $>$ {\bfseries Map\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_ab01357de198bc6ba417c4dd7a920a6d8}\label{classFEDD_1_1Elements_ab01357de198bc6ba417c4dd7a920a6d8}} 
+typedef \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ SC $>$ {\bfseries S\+M\+\_\+\+S\+C\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_ade6e8792d0ea8b5a277272316181fbc8}\label{classFEDD_1_1Elements_ade6e8792d0ea8b5a277272316181fbc8}} 
+typedef std\+::vector$<$ \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{S\+M\+\_\+\+S\+C\+\_\+\+Type}} $>$ {\bfseries vec\+S\+M\+\_\+\+S\+C\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_afa44442aea668a719b46a45f991a2ec4}\label{classFEDD_1_1Elements_afa44442aea668a719b46a45f991a2ec4}} 
+{\bfseries Elements} (std\+::string fe\+Type)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a12564cf5f1bad43683151a95bd332e43}\label{classFEDD_1_1Elements_a12564cf5f1bad43683151a95bd332e43}} 
+{\bfseries Elements} (std\+::string fe\+Type, int dim)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a419db54f80aac7698b44005bb5ef4d08}\label{classFEDD_1_1Elements_a419db54f80aac7698b44005bb5ef4d08}} 
+{\bfseries Elements} (\mbox{\hyperlink{classFEDD_1_1Elements}{Elements}} \&\mbox{\hyperlink{classFEDD_1_1Elements}{Elements}})
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a13a9d6f7c1895f6e38db4286db4fde2e}\label{classFEDD_1_1Elements_a13a9d6f7c1895f6e38db4286db4fde2e}} 
+int {\bfseries number\+Elements} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a2afe3056fc99328c45cf3aef186c4ca5}\label{classFEDD_1_1Elements_a2afe3056fc99328c45cf3aef186c4ca5}} 
+void {\bfseries add\+Element} (\mbox{\hyperlink{classFEDD_1_1FiniteElement}{Finite\+Element}} \&fe)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a1e2c0366bc1eb803f9fb4fcd7042613d}\label{classFEDD_1_1Elements_a1e2c0366bc1eb803f9fb4fcd7042613d}} 
+void {\bfseries add\+Element} (\mbox{\hyperlink{classFEDD_1_1FiniteElement}{Finite\+Element}} \&fe, GO global\+ID)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_abed6c8f5b9358b7b9aa1a411889110d2}\label{classFEDD_1_1Elements_abed6c8f5b9358b7b9aa1a411889110d2}} 
+void {\bfseries switch\+Element} (int loc, \mbox{\hyperlink{classFEDD_1_1FiniteElement}{Finite\+Element}} \&fe)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a9599ae9eb3f335d813a5ef6c87a24057}\label{classFEDD_1_1Elements_a9599ae9eb3f335d813a5ef6c87a24057}} 
+const \mbox{\hyperlink{classFEDD_1_1FiniteElement}{Finite\+Element}} \& {\bfseries get\+Element} (int i) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a50a01f86e80b497a5d243c70e71af646}\label{classFEDD_1_1Elements_a50a01f86e80b497a5d243c70e71af646}} 
+\mbox{\hyperlink{classFEDD_1_1FiniteElement}{Finite\+Element}} \& {\bfseries get\+Element} (int i)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a049f1b601730f39b0671ae215b3354bf}\label{classFEDD_1_1Elements_a049f1b601730f39b0671ae215b3354bf}} 
+GO {\bfseries get\+Global\+ID} (LO i) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_aa47d9b7c2f9d51e2b5013bfc97225030}\label{classFEDD_1_1Elements_aa47d9b7c2f9d51e2b5013bfc97225030}} 
+void {\bfseries set\+Finite\+Element\+Type} (std\+::string fe\+Type)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_ac204f04dabad0d9eb884ec5352d47565}\label{classFEDD_1_1Elements_ac204f04dabad0d9eb884ec5352d47565}} 
+std\+::string {\bfseries get\+Finite\+Element\+Type} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a232319e0fbecab2070d0dff04c5117d7}\label{classFEDD_1_1Elements_a232319e0fbecab2070d0dff04c5117d7}} 
+void {\bfseries set\+Dimension} (int dim)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_ad62cf4ce9e028d5e2f3c44fcea4d5553}\label{classFEDD_1_1Elements_ad62cf4ce9e028d5e2f3c44fcea4d5553}} 
+int {\bfseries get\+Dimension} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a95710ac6fd1af13969730ed795aa07f2}\label{classFEDD_1_1Elements_a95710ac6fd1af13969730ed795aa07f2}} 
+int {\bfseries nodes\+Per\+Element} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a235dad44bf72b3fd5b5aef137f3e3db6}\label{classFEDD_1_1Elements_a235dad44bf72b3fd5b5aef137f3e3db6}} 
+void {\bfseries sort\+Unique} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a731af1fe27442446caa91e3697d13287}\label{classFEDD_1_1Elements_a731af1fe27442446caa91e3697d13287}} 
+void {\bfseries sort\+Unique} (vec2\+D\+\_\+\+G\+O\+\_\+\+Type \&combined\+Elements)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_aeef84a3b72f1f6ee8654940b6ed190cd}\label{classFEDD_1_1Elements_aeef84a3b72f1f6ee8654940b6ed190cd}} 
+void {\bfseries sort\+Unique\+And\+Set\+Global\+I\+Ds} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_ab049b8cb0eb6c36d828d1c9833d10ba0}\label{classFEDD_1_1Elements_ab049b8cb0eb6c36d828d1c9833d10ba0}} 
+void {\bfseries sort\+Unique\+And\+Set\+Global\+I\+Ds} (vec2\+D\+\_\+\+G\+O\+\_\+\+Type \&combined\+Elements)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a4d6462b7bb5c7746f454648838bd0141}\label{classFEDD_1_1Elements_a4d6462b7bb5c7746f454648838bd0141}} 
+void {\bfseries print} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a93e86902f1ecd1797e053b76c2d78909}\label{classFEDD_1_1Elements_a93e86902f1ecd1797e053b76c2d78909}} 
+void {\bfseries global\+To\+Local\+I\+Ds} (Map\+Const\+Ptr\+\_\+\+Type map)
+\item 
+void \mbox{\hyperlink{classFEDD_1_1Elements_a4c85e1340ba638ad26cb83ce881b4789}{set\+To\+Correct\+Element}} (\mbox{\hyperlink{classFEDD_1_1FiniteElement}{Finite\+Element}} \&fe\+Sub)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_ac99e58a579fcfda5ebbc9ec99603751d}\label{classFEDD_1_1Elements_ac99e58a579fcfda5ebbc9ec99603751d}} 
+vec2\+D\+\_\+int\+\_\+\+Type {\bfseries get\+Element\+Edge\+Permutation} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_aa63445769d548af7af05c8b0c7f6aec8}\label{classFEDD_1_1Elements_aa63445769d548af7af05c8b0c7f6aec8}} 
+vec2\+D\+\_\+int\+\_\+\+Type {\bfseries get\+Sub\+Element\+Permutation} ()
+\item 
+void \mbox{\hyperlink{classFEDD_1_1Elements_aaf856c1799a13bbcf7d9eaf4938b63be}{initialize\+F\+E\+Data}} (vec2\+D\+\_\+dbl\+\_\+ptr\+\_\+\+Type points\+Rep)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a79d113f463dfb4cc8aa2f141900275e6}\label{classFEDD_1_1Elements_a79d113f463dfb4cc8aa2f141900275e6}} 
+void {\bfseries build\+Transformation} (const vec\+\_\+int\+\_\+\+Type \&element, vec2\+D\+\_\+dbl\+\_\+ptr\+\_\+\+Type points\+Rep, \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{S\+M\+\_\+\+S\+C\+\_\+\+Type}} \&B)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a2bbe6628f5fa61c3c1a86574d211907b}\label{classFEDD_1_1Elements_a2bbe6628f5fa61c3c1a86574d211907b}} 
+const \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{S\+M\+\_\+\+S\+C\+\_\+\+Type}} \& {\bfseries get\+B\+Tinv} (int i)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a2448a51fa402bab64dd09a68f57a5b7e}\label{classFEDD_1_1Elements_a2448a51fa402bab64dd09a68f57a5b7e}} 
+const double \& {\bfseries get\+Det\+B\+Tinv} (int i)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_aceb6668eb2f13a4d9f9e5511d541cdca}\label{classFEDD_1_1Elements_aceb6668eb2f13a4d9f9e5511d541cdca}} 
+F\+E\+\_\+vec\+\_\+ptr\+\_\+\+Type {\bfseries elements\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a7523f37f14aed049f6473667cc50e075}\label{classFEDD_1_1Elements_a7523f37f14aed049f6473667cc50e075}} 
+vec\+\_\+\+G\+O\+\_\+ptr\+\_\+\+Type {\bfseries global\+I\+Ds\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a8a5d12ced91c355de408ca52c6b11704}\label{classFEDD_1_1Elements_a8a5d12ced91c355de408ca52c6b11704}} 
+std\+::string {\bfseries F\+E\+Type\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a57230118a3c29b65e5fab4782317b706}\label{classFEDD_1_1Elements_a57230118a3c29b65e5fab4782317b706}} 
+int {\bfseries dim\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_ab501b87be3b4733fff32cf42087cca5f}\label{classFEDD_1_1Elements_ab501b87be3b4733fff32cf42087cca5f}} 
+vec\+S\+M\+\_\+\+S\+C\+\_\+\+Type {\bfseries vec\+B\+Tinv\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_a2f17833e0c35dafa3eeb436fe7bf93b1}\label{classFEDD_1_1Elements_a2f17833e0c35dafa3eeb436fe7bf93b1}} 
+vec\+\_\+dbl\+\_\+\+Type {\bfseries vec\+Det\+B\+Tinv\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Elements_ab5161de72e50d44b664dbcfb2db9ce0f}\label{classFEDD_1_1Elements_ab5161de72e50d44b664dbcfb2db9ce0f}} 
+bool {\bfseries fe\+Data\+Initialized\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classFEDD_1_1Elements_aaf856c1799a13bbcf7d9eaf4938b63be}\label{classFEDD_1_1Elements_aaf856c1799a13bbcf7d9eaf4938b63be}} 
+\index{FEDD::Elements@{FEDD::Elements}!initializeFEData@{initializeFEData}}
+\index{initializeFEData@{initializeFEData}!FEDD::Elements@{FEDD::Elements}}
+\doxysubsubsection{\texorpdfstring{initializeFEData()}{initializeFEData()}}
+{\footnotesize\ttfamily void F\+E\+D\+D\+::\+Elements\+::initialize\+F\+E\+Data (\begin{DoxyParamCaption}\item[{vec2\+D\+\_\+dbl\+\_\+ptr\+\_\+\+Type}]{points\+Rep }\end{DoxyParamCaption})}
+
+Initialized B\+T$^\wedge$\{-\/1\} and det(B\+T$^\wedge$\{-\/1\}) for \mbox{\hyperlink{classFEDD_1_1FE}{FE}} element T \mbox{\Hypertarget{classFEDD_1_1Elements_a4c85e1340ba638ad26cb83ce881b4789}\label{classFEDD_1_1Elements_a4c85e1340ba638ad26cb83ce881b4789}} 
+\index{FEDD::Elements@{FEDD::Elements}!setToCorrectElement@{setToCorrectElement}}
+\index{setToCorrectElement@{setToCorrectElement}!FEDD::Elements@{FEDD::Elements}}
+\doxysubsubsection{\texorpdfstring{setToCorrectElement()}{setToCorrectElement()}}
+{\footnotesize\ttfamily void F\+E\+D\+D\+::\+Elements\+::set\+To\+Correct\+Element (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classFEDD_1_1FiniteElement}{Finite\+Element}} \&}]{fe\+Sub }\end{DoxyParamCaption})}
+
+We set the \mbox{\hyperlink{classFEDD_1_1FiniteElement}{Finite\+Element}} of a lower order to the correct \mbox{\hyperlink{classFEDD_1_1FiniteElement}{Finite\+Element}}, i.\+e, an edge is set to the correct triangle(s) 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+F\+E/Elements.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+F\+E/Elements.\+cpp\end{DoxyCompactItemize}

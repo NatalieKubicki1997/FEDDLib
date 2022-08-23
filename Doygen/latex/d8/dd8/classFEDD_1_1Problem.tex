@@ -1,0 +1,358 @@
+\hypertarget{classFEDD_1_1Problem}{}\doxysection{F\+E\+DD\+::Problem$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1Problem}\index{FEDD::Problem$<$ SC, LO, GO, NO $>$@{FEDD::Problem$<$ SC, LO, GO, NO $>$}}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ae937d40090cbeab59834b37b0d76f000}\label{classFEDD_1_1Problem_ae937d40090cbeab59834b37b0d76f000}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Domain}{Domain}}$<$ SC, LO, GO, NO $>$ {\bfseries Domain\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a73dee47a0587952493143ccf5b0fc960}\label{classFEDD_1_1Problem_a73dee47a0587952493143ccf5b0fc960}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1Domain}{Domain\+\_\+\+Type}} $>$ {\bfseries Domain\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a8126471a458a57a0f4573c7c28c59954}\label{classFEDD_1_1Problem_a8126471a458a57a0f4573c7c28c59954}} 
+typedef std\+::vector$<$ Domain\+Const\+Ptr\+\_\+\+Type $>$ {\bfseries Domain\+Const\+Ptr\+\_\+vec\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a6044d916fa9305b81f00f2e64048eab6}\label{classFEDD_1_1Problem_a6044d916fa9305b81f00f2e64048eab6}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}}$<$ SC, LO, GO, NO $>$ {\bfseries Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ab7a07c4f3d28249ef1b340e4970a4061}\label{classFEDD_1_1Problem_ab7a07c4f3d28249ef1b340e4970a4061}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix\+\_\+\+Type}} $>$ {\bfseries Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a0bcb6f0d06929ede31dcf4e473207b78}\label{classFEDD_1_1Problem_a0bcb6f0d06929ede31dcf4e473207b78}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Map}{Matrix\+\_\+\+Type\+::\+Map\+\_\+\+Type}} {\bfseries Map\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a79afa3d49d9923d037a48dcee5aaf5b9}\label{classFEDD_1_1Problem_a79afa3d49d9923d037a48dcee5aaf5b9}} 
+typedef Matrix\+\_\+\+Type\+::\+Map\+Ptr\+\_\+\+Type {\bfseries Map\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_aa841ab19958840556d69b183dbbb3619}\label{classFEDD_1_1Problem_aa841ab19958840556d69b183dbbb3619}} 
+typedef Matrix\+\_\+\+Type\+::\+Map\+Const\+Ptr\+\_\+\+Type {\bfseries Map\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ab11dd12772430c66c9abaaaf4b850475}\label{classFEDD_1_1Problem_ab11dd12772430c66c9abaaaf4b850475}} 
+typedef \mbox{\hyperlink{classFEDD_1_1BlockMatrix}{Block\+Matrix}}$<$ SC, LO, GO, NO $>$ {\bfseries Block\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_adf14ec4f3a5912e1bdfbaa7418fe9b10}\label{classFEDD_1_1Problem_adf14ec4f3a5912e1bdfbaa7418fe9b10}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1BlockMatrix}{Block\+Matrix\+\_\+\+Type}} $>$ {\bfseries Block\+Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a5969930f44de5855e389ba38fe3bb880}\label{classFEDD_1_1Problem_a5969930f44de5855e389ba38fe3bb880}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1BlockMatrix}{Block\+Matrix\+\_\+\+Type}} $>$ {\bfseries Block\+Matrix\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a761315d80ccac9e9bab043a1f8afcd73}\label{classFEDD_1_1Problem_a761315d80ccac9e9bab043a1f8afcd73}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector}}$<$ SC, LO, GO, NO $>$ {\bfseries Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a6727730bfc27917a6bb41e3d1462f48d}\label{classFEDD_1_1Problem_a6727730bfc27917a6bb41e3d1462f48d}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ab44c4a640bb136bb5583a51c294bf5dd}\label{classFEDD_1_1Problem_ab44c4a640bb136bb5583a51c294bf5dd}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Multi\+Vector\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ae8643bc33fb79b9c905205cd3889e42e}\label{classFEDD_1_1Problem_ae8643bc33fb79b9c905205cd3889e42e}} 
+typedef \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector}}$<$ SC, LO, GO, NO $>$ {\bfseries Block\+Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_aca44fb4ff3f8b4d94298808ef321bb87}\label{classFEDD_1_1Problem_aca44fb4ff3f8b4d94298808ef321bb87}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Block\+Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ab4b9d4f7ae1a8658d4b6f967f572ad2b}\label{classFEDD_1_1Problem_ab4b9d4f7ae1a8658d4b6f967f572ad2b}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1BlockMultiVector}{Block\+Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Block\+Multi\+Vector\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_aa58189eca3e62f6b4974b251e9e4e8f5}\label{classFEDD_1_1Problem_aa58189eca3e62f6b4974b251e9e4e8f5}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Preconditioner}{Preconditioner}}$<$ SC, LO, GO, NO $>$ {\bfseries Preconditioner\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_aa0cb2436cd7f1fb0da2e2b4114e6d097}\label{classFEDD_1_1Problem_aa0cb2436cd7f1fb0da2e2b4114e6d097}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Preconditioner}{Preconditioner\+\_\+\+Type}} $>$ {\bfseries Preconditioner\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a07e4ae0b47efa83fa42807d8c948461c}\label{classFEDD_1_1Problem_a07e4ae0b47efa83fa42807d8c948461c}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1Preconditioner}{Preconditioner\+\_\+\+Type}} $>$ {\bfseries Preconditioner\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ad020db14269dd097e93ef308ed4723de}\label{classFEDD_1_1Problem_ad020db14269dd097e93ef308ed4723de}} 
+typedef \mbox{\hyperlink{classFEDD_1_1BCBuilder}{B\+C\+Builder}}$<$ SC, LO, GO, NO $>$ {\bfseries B\+C\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a25a7680f4b73c8627aea39102ea60396}\label{classFEDD_1_1Problem_a25a7680f4b73c8627aea39102ea60396}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1BCBuilder}{B\+C\+\_\+\+Type}} $>$ {\bfseries B\+C\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a9431e932cef560a33122801a47da478b}\label{classFEDD_1_1Problem_a9431e932cef560a33122801a47da478b}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1BCBuilder}{B\+C\+\_\+\+Type}} $>$ {\bfseries B\+C\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a8b52c3d45c509e6ffeda80760bacb0a0}\label{classFEDD_1_1Problem_a8b52c3d45c509e6ffeda80760bacb0a0}} 
+typedef \mbox{\hyperlink{classFEDD_1_1FE}{FE}}$<$ SC, LO, GO, NO $>$ {\bfseries F\+E\+Fac\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_aad891a260c8e4b069279d4dced3ffd0c}\label{classFEDD_1_1Problem_aad891a260c8e4b069279d4dced3ffd0c}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1FE}{F\+E\+Fac\+\_\+\+Type}} $>$ {\bfseries F\+E\+Fac\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a55984339b4b39f8c47bd6a6961d3d560}\label{classFEDD_1_1Problem_a55984339b4b39f8c47bd6a6961d3d560}} 
+typedef Teuchos\+::\+R\+CP$<$ const \mbox{\hyperlink{classFEDD_1_1FE}{F\+E\+Fac\+\_\+\+Type}} $>$ {\bfseries F\+E\+Fac\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a43076a51ec6deeb820fed8d665d9ea9f}\label{classFEDD_1_1Problem_a43076a51ec6deeb820fed8d665d9ea9f}} 
+typedef Teuchos\+::\+Parameter\+List {\bfseries Parameter\+List\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a46af15eadc33ac536db3eb842c86a2e3}\label{classFEDD_1_1Problem_a46af15eadc33ac536db3eb842c86a2e3}} 
+typedef Teuchos\+::\+R\+CP$<$ Parameter\+List\+\_\+\+Type $>$ {\bfseries Parameter\+List\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ab3e781ff7cd1026df7315ad042f4f3e7}\label{classFEDD_1_1Problem_ab3e781ff7cd1026df7315ad042f4f3e7}} 
+typedef Teuchos\+::\+R\+CP$<$ Stratimikos\+::\+Default\+Linear\+Solver\+Builder $>$ {\bfseries Lin\+Solver\+Builder\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_aa5310a59f5b66b3f7ee623f7fe686a25}\label{classFEDD_1_1Problem_aa5310a59f5b66b3f7ee623f7fe686a25}} 
+typedef Teuchos\+::\+R\+CP$<$ const Stratimikos\+::\+Default\+Linear\+Solver\+Builder $>$ {\bfseries Lin\+Solver\+Builder\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a15d43742c0e32088cb9b3ab92c7d4ad4}\label{classFEDD_1_1Problem_a15d43742c0e32088cb9b3ab92c7d4ad4}} 
+typedef Teuchos\+::\+Comm$<$ int $>$ {\bfseries Comm\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a8ed3fc0f561c400c984624d827ba22a1}\label{classFEDD_1_1Problem_a8ed3fc0f561c400c984624d827ba22a1}} 
+typedef Teuchos\+::\+R\+CP$<$ const Comm\+\_\+\+Type $>$ {\bfseries Comm\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a54bb44821325ef2319dbce89def44e78}\label{classFEDD_1_1Problem_a54bb44821325ef2319dbce89def44e78}} 
+typedef Teuchos\+::\+Array\+R\+CP$<$ GO $>$ {\bfseries G\+O\+Vec\+Ptr}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_abd81594943617b5e0f56822cfc3e647a}\label{classFEDD_1_1Problem_abd81594943617b5e0f56822cfc3e647a}} 
+typedef std\+::vector$<$ std\+::string $>$ {\bfseries string\+\_\+vec\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a8c6292a315a8849419e74d5885c132b6}\label{classFEDD_1_1Problem_a8c6292a315a8849419e74d5885c132b6}} 
+typedef Teuchos\+::\+R\+CP$<$ Thyra\+::\+Preconditioner\+Base$<$ SC $>$ $>$ {\bfseries Thyra\+Prec\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a2dd43e2c4501ad4a99ad59674020f45c}\label{classFEDD_1_1Problem_a2dd43e2c4501ad4a99ad59674020f45c}} 
+typedef Teuchos\+::\+R\+CP$<$ Thyra\+::\+Linear\+Op\+Base$<$ SC $>$ $>$ {\bfseries Thyra\+Lin\+Op\+Ptr\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a54446bbeb0bbc6172d1493196e8e77e9}\label{classFEDD_1_1Problem_a54446bbeb0bbc6172d1493196e8e77e9}} 
+{\bfseries Problem} (Comm\+Const\+Ptr\+\_\+\+Type comm)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a9608885b376a01155ed1a4750796a21d}\label{classFEDD_1_1Problem_a9608885b376a01155ed1a4750796a21d}} 
+{\bfseries Problem} (Parameter\+List\+Ptr\+\_\+\+Type \&parameter\+List, Comm\+Const\+Ptr\+\_\+\+Type comm)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a4f4ecc964937c6a4dbb1b6fba52ef41d}\label{classFEDD_1_1Problem_a4f4ecc964937c6a4dbb1b6fba52ef41d}} 
+virtual void {\bfseries info} ()=0
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a06af5dc8c475870e7f4b1d4f3af16292}\label{classFEDD_1_1Problem_a06af5dc8c475870e7f4b1d4f3af16292}} 
+void {\bfseries info\+Problem} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_afc5030d3ac4aac4b721d1fb8947621ec}\label{classFEDD_1_1Problem_afc5030d3ac4aac4b721d1fb8947621ec}} 
+void {\bfseries add\+Variable} (const Domain\+Const\+Ptr\+\_\+\+Type \&domain, std\+::string F\+E\+Type, std\+::string name, int dofs\+Per\+Node)
+\item 
+void \mbox{\hyperlink{classFEDD_1_1Problem_a22f74b9cad55ff27801959281d0ef4d4}{add\+Rhs\+Function}} (Rhs\+Func\+\_\+\+Type func)
+\item 
+void \mbox{\hyperlink{classFEDD_1_1Problem_a291712cda02e33840d487ba222b7bd21}{add\+Rhs\+Function}} (Rhs\+Func\+\_\+\+Type func, int i)
+\item 
+Rhs\+Func\+\_\+\+Type \& \mbox{\hyperlink{classFEDD_1_1Problem_a5f5b59cbf23a852a68b8a54289eae439}{get\+Rhs\+Function}} (int i)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a8a8274e64357fd91ad53d0de7581fa88}\label{classFEDD_1_1Problem_a8a8274e64357fd91ad53d0de7581fa88}} 
+virtual void {\bfseries assemble} (std\+::string type) const =0
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a7726a52dfea7ac78a381c1cb93659e3f}\label{classFEDD_1_1Problem_a7726a52dfea7ac78a381c1cb93659e3f}} 
+void {\bfseries assemble\+Source\+Term} (double time=0.) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ac357b33587b133d77e30dd01cfc022b2}\label{classFEDD_1_1Problem_ac357b33587b133d77e30dd01cfc022b2}} 
+void {\bfseries assemble\+Volume\+Term} (double time) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a14c50168cd2dc55a4440dfb6871af911}\label{classFEDD_1_1Problem_a14c50168cd2dc55a4440dfb6871af911}} 
+void {\bfseries assemble\+Surface\+Term} (double time) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a03b9d2c1c26c21cd376c156b2484437e}\label{classFEDD_1_1Problem_a03b9d2c1c26c21cd376c156b2484437e}} 
+bool {\bfseries has\+Source\+Term} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ac46f6878a16c562d47729d730c976cc6}\label{classFEDD_1_1Problem_ac46f6878a16c562d47729d730c976cc6}} 
+int {\bfseries solve} (Block\+Multi\+Vector\+Ptr\+\_\+\+Type rhs=Teuchos\+::null)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a124c13276a7bd13bebaf135b18d1182b}\label{classFEDD_1_1Problem_a124c13276a7bd13bebaf135b18d1182b}} 
+void {\bfseries setup\+Preconditioner} (std\+::string type=\char`\"{}Monolithic\char`\"{}) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a3e501083c08fb27ecd06afaa3a4fb5fb}\label{classFEDD_1_1Problem_a3e501083c08fb27ecd06afaa3a4fb5fb}} 
+void {\bfseries initialize\+Preconditioner} (std\+::string type=\char`\"{}Monolithic\char`\"{}) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a7761e17d69524a3bb24304ba3900b9bf}\label{classFEDD_1_1Problem_a7761e17d69524a3bb24304ba3900b9bf}} 
+void {\bfseries add\+Boundaries} (const B\+C\+Const\+Ptr\+\_\+\+Type \&bc\+Factory)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a03ff06cdda57ffd892ca07b4d7374903}\label{classFEDD_1_1Problem_a03ff06cdda57ffd892ca07b4d7374903}} 
+void {\bfseries set\+Boundaries} (double time=.\+0) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a3a4d7ea03ef122f307548efae4692bb8}\label{classFEDD_1_1Problem_a3a4d7ea03ef122f307548efae4692bb8}} 
+void {\bfseries set\+Boundaries\+R\+HS} (double time=.\+0) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_aab7a90af938dce68363b51f0403f074c}\label{classFEDD_1_1Problem_aab7a90af938dce68363b51f0403f074c}} 
+void {\bfseries set\+All\+Dirichlet\+Zero} (Block\+Multi\+Vector\+Ptr\+\_\+\+Type rhs) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a4b29f0b0ae856c6052ff869242f16ecb}\label{classFEDD_1_1Problem_a4b29f0b0ae856c6052ff869242f16ecb}} 
+void {\bfseries set\+Boundaries\+System} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a8cad582e292207b25fc470712f0c1775}\label{classFEDD_1_1Problem_a8cad582e292207b25fc470712f0c1775}} 
+void {\bfseries initialize\+Problem} (int nmb\+Vectors=1)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a2539bc1576c6627a055905217a5ff16e}\label{classFEDD_1_1Problem_a2539bc1576c6627a055905217a5ff16e}} 
+void {\bfseries initialize\+Vectors} (int nmb\+Vectors=1)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_add4191b24f4b13efea9d8d91882020b5}\label{classFEDD_1_1Problem_add4191b24f4b13efea9d8d91882020b5}} 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries get\+Rhs} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_accb43d48f63159f9f7cc08399eff8ad4}\label{classFEDD_1_1Problem_accb43d48f63159f9f7cc08399eff8ad4}} 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries get\+Rhs} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ae5b6e23cffa4571916f8f849d8d7a2f8}\label{classFEDD_1_1Problem_ae5b6e23cffa4571916f8f849d8d7a2f8}} 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries get\+Solution} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a59bf919ca46e782a8530bcbcf002a158}\label{classFEDD_1_1Problem_a59bf919ca46e782a8530bcbcf002a158}} 
+Block\+Matrix\+Ptr\+\_\+\+Type {\bfseries get\+System} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_abf577348ed13a16cbd34f485cfdb7be5}\label{classFEDD_1_1Problem_abf577348ed13a16cbd34f485cfdb7be5}} 
+Preconditioner\+Ptr\+\_\+\+Type {\bfseries get\+Preconditioner} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a54dbe13503c5de92152339cc91ac2445}\label{classFEDD_1_1Problem_a54dbe13503c5de92152339cc91ac2445}} 
+Preconditioner\+Const\+Ptr\+\_\+\+Type {\bfseries get\+Preconditioner\+Const} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a084ff4c5313f18605284c4f544280d24}\label{classFEDD_1_1Problem_a084ff4c5313f18605284c4f544280d24}} 
+void {\bfseries set\+Preconditioner\+Thyra\+From\+Lin\+Op} (Thyra\+Lin\+Op\+Ptr\+\_\+\+Type prec\+Lin\+Op)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a75b1c000a0d98546eb796ac5b5979b7a}\label{classFEDD_1_1Problem_a75b1c000a0d98546eb796ac5b5979b7a}} 
+void {\bfseries initialize\+Solver\+Builder} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a778e7f26dd3e18180a8df72100f8a98e}\label{classFEDD_1_1Problem_a778e7f26dd3e18180a8df72100f8a98e}} 
+bool {\bfseries get\+Verbose} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a36d5204e9e1fea6e69924073e0c1bbe3}\label{classFEDD_1_1Problem_a36d5204e9e1fea6e69924073e0c1bbe3}} 
+F\+E\+Fac\+Const\+Ptr\+\_\+\+Type {\bfseries get\+F\+E\+Factory} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_af8b99a6e40c09aa7d940e2c74617998f}\label{classFEDD_1_1Problem_af8b99a6e40c09aa7d940e2c74617998f}} 
+B\+C\+Const\+Ptr\+\_\+\+Type {\bfseries get\+B\+C\+Factory} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ab4541c46abeddf83785dc630fa004e1d}\label{classFEDD_1_1Problem_ab4541c46abeddf83785dc630fa004e1d}} 
+Domain\+Const\+Ptr\+\_\+\+Type {\bfseries get\+Domain} (int i) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a2343265000df4844ac1564a78c4f1251}\label{classFEDD_1_1Problem_a2343265000df4844ac1564a78c4f1251}} 
+Domain\+Const\+Ptr\+\_\+vec\+\_\+\+Type {\bfseries get\+Domain\+Vector} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a7bc73c0d16ccf81ee9c485d9d8a83c6f}\label{classFEDD_1_1Problem_a7bc73c0d16ccf81ee9c485d9d8a83c6f}} 
+std\+::string {\bfseries get\+F\+E\+Type} (int i) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a0b61aa10234c80b66aa512871d9a1120}\label{classFEDD_1_1Problem_a0b61aa10234c80b66aa512871d9a1120}} 
+std\+::string {\bfseries get\+Variable\+Name} (int i) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a2890b4fd08ecfbb9bfdf568bfcbd72b8}\label{classFEDD_1_1Problem_a2890b4fd08ecfbb9bfdf568bfcbd72b8}} 
+int {\bfseries get\+Dofs\+Per\+Node} (int i) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a52e25f0863d26bb93b83da98295f27c9}\label{classFEDD_1_1Problem_a52e25f0863d26bb93b83da98295f27c9}} 
+Parameter\+List\+Ptr\+\_\+\+Type {\bfseries get\+Parameter\+List} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a42539cea7dbf51cd95aec91e21e48c3b}\label{classFEDD_1_1Problem_a42539cea7dbf51cd95aec91e21e48c3b}} 
+void {\bfseries add\+To\+Rhs} (Block\+Multi\+Vector\+Ptr\+\_\+\+Type x) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ac771ccbc5318ff0926dc5e0b24c67969}\label{classFEDD_1_1Problem_ac771ccbc5318ff0926dc5e0b24c67969}} 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries get\+Source\+Term} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ac62e0b9bbd7d80a2976307b7ca1fd374}\label{classFEDD_1_1Problem_ac62e0b9bbd7d80a2976307b7ca1fd374}} 
+void {\bfseries init\+Solution\+With\+Vector} (\mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector\+\_\+\+Type}} \&mv)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a98429a659625a8330a1e7e0fecf4f0c3}\label{classFEDD_1_1Problem_a98429a659625a8330a1e7e0fecf4f0c3}} 
+Lin\+Solver\+Builder\+Ptr\+\_\+\+Type {\bfseries get\+Linear\+Solver\+Builder} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a7c4c7f737672da8b112187cf0b5db6aa}\label{classFEDD_1_1Problem_a7c4c7f737672da8b112187cf0b5db6aa}} 
+Comm\+Const\+Ptr\+\_\+\+Type {\bfseries get\+Comm} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a24f020493a4ba133d961517c51772fed}\label{classFEDD_1_1Problem_a24f020493a4ba133d961517c51772fed}} 
+virtual void {\bfseries get\+Values\+Of\+Interest} (vec\+\_\+dbl\+\_\+\+Type \&values)=0
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a6c9fba711b926f2b3a2f56cb57996258}\label{classFEDD_1_1Problem_a6c9fba711b926f2b3a2f56cb57996258}} 
+virtual void {\bfseries compute\+Values\+Of\+Interest\+And\+Export} ()=0
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a87cfbc850d4c35465f89c5f5353ccaec}\label{classFEDD_1_1Problem_a87cfbc850d4c35465f89c5f5353ccaec}} 
+void {\bfseries add\+Paremeter\+Rhs} (double para)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a09067a5efcdb96dc8ee3896bcb3e98af}\label{classFEDD_1_1Problem_a09067a5efcdb96dc8ee3896bcb3e98af}} 
+int {\bfseries dim\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ade844b9444f579d8f6e0ddaa794c0d68}\label{classFEDD_1_1Problem_ade844b9444f579d8f6e0ddaa794c0d68}} 
+Comm\+Const\+Ptr\+\_\+\+Type {\bfseries comm\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_af2318a254851a1696e089b7b2e153065}\label{classFEDD_1_1Problem_af2318a254851a1696e089b7b2e153065}} 
+Block\+Matrix\+Ptr\+\_\+\+Type {\bfseries system\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_adddcefd5c3468439244584cc3c84560f}\label{classFEDD_1_1Problem_adddcefd5c3468439244584cc3c84560f}} 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries rhs\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_aedb4477d6a4556b586c4dc43a59b8fcf}\label{classFEDD_1_1Problem_aedb4477d6a4556b586c4dc43a59b8fcf}} 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries solution\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_add9fa176461a955310ad5cbd0d621805}\label{classFEDD_1_1Problem_add9fa176461a955310ad5cbd0d621805}} 
+Preconditioner\+Ptr\+\_\+\+Type {\bfseries preconditioner\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a7faa1f5fa5741613b4ef50330efbbb51}\label{classFEDD_1_1Problem_a7faa1f5fa5741613b4ef50330efbbb51}} 
+Lin\+Solver\+Builder\+Ptr\+\_\+\+Type {\bfseries linear\+Solver\+Builder\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a51f2eb2e8ecadc4dff7f4e48cdbfadd5}\label{classFEDD_1_1Problem_a51f2eb2e8ecadc4dff7f4e48cdbfadd5}} 
+bool {\bfseries verbose\+\_\+}
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_ac3f0317fbaa4a242274dbd96a96a9300}\label{classFEDD_1_1Problem_ac3f0317fbaa4a242274dbd96a96a9300}} 
+Parameter\+List\+Ptr\+\_\+\+Type {\bfseries parameter\+List\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a49bff89894e2a044a57045726fa5ceb6}\label{classFEDD_1_1Problem_a49bff89894e2a044a57045726fa5ceb6}} 
+Domain\+Const\+Ptr\+\_\+vec\+\_\+\+Type {\bfseries domain\+Ptr\+\_\+vec\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a17a7b63d54e66a4b2e81815069126a45}\label{classFEDD_1_1Problem_a17a7b63d54e66a4b2e81815069126a45}} 
+string\+\_\+vec\+\_\+\+Type {\bfseries domain\+\_\+\+F\+E\+Type\+\_\+vec\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a116ec094c3cf25a841a212691fb507f1}\label{classFEDD_1_1Problem_a116ec094c3cf25a841a212691fb507f1}} 
+string\+\_\+vec\+\_\+\+Type {\bfseries variable\+Name\+\_\+vec\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a96e7367b4722d117a3f9568ada242c3e}\label{classFEDD_1_1Problem_a96e7367b4722d117a3f9568ada242c3e}} 
+B\+C\+Const\+Ptr\+\_\+\+Type {\bfseries bc\+Factory\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a562833f131b5366b84cd6a784b419e85}\label{classFEDD_1_1Problem_a562833f131b5366b84cd6a784b419e85}} 
+F\+E\+Fac\+Ptr\+\_\+\+Type {\bfseries fe\+Factory\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a1138211d39795077c9bf26eccac842ae}\label{classFEDD_1_1Problem_a1138211d39795077c9bf26eccac842ae}} 
+std\+::vector$<$ int $>$ {\bfseries dofs\+Per\+Node\+\_\+vec\+\_\+}
+\item 
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type \mbox{\hyperlink{classFEDD_1_1Problem_a8ab364ed3f0be15fcd70cb39c36f169e}{source\+Term\+\_\+}}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a12ca12100533e97c0b59e06e3cbd1ac2}\label{classFEDD_1_1Problem_a12ca12100533e97c0b59e06e3cbd1ac2}} 
+std\+::vector$<$ Rhs\+Func\+\_\+\+Type $>$ {\bfseries rhs\+Func\+Vec\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1Problem_a81b83397e6eb6c5b03855597785d6890}\label{classFEDD_1_1Problem_a81b83397e6eb6c5b03855597785d6890}} 
+vec\+\_\+dbl\+\_\+\+Type {\bfseries paras\+Source\+Func\+\_\+}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classFEDD_1_1Problem_a22f74b9cad55ff27801959281d0ef4d4}\label{classFEDD_1_1Problem_a22f74b9cad55ff27801959281d0ef4d4}} 
+\index{FEDD::Problem$<$ SC, LO, GO, NO $>$@{FEDD::Problem$<$ SC, LO, GO, NO $>$}!addRhsFunction@{addRhsFunction}}
+\index{addRhsFunction@{addRhsFunction}!FEDD::Problem$<$ SC, LO, GO, NO $>$@{FEDD::Problem$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{addRhsFunction()}{addRhsFunction()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1Problem}{F\+E\+D\+D\+::\+Problem}}$<$ SC, LO, GO, NO $>$\+::add\+Rhs\+Function (\begin{DoxyParamCaption}\item[{Rhs\+Func\+\_\+\+Type}]{func }\end{DoxyParamCaption})}
+
+Add right hand side function for each block, if you want to skip a block add a dummy function -\/$>$ Error Warning. In case initialize\+Problem() is called beforehand the rhs\+Vec is already initialized with a certain size. -\/-\/$>$ This leads to a problem, if add\+Rhs\+Function is called after, as it is a push\+\_\+back operation. \mbox{\Hypertarget{classFEDD_1_1Problem_a291712cda02e33840d487ba222b7bd21}\label{classFEDD_1_1Problem_a291712cda02e33840d487ba222b7bd21}} 
+\index{FEDD::Problem$<$ SC, LO, GO, NO $>$@{FEDD::Problem$<$ SC, LO, GO, NO $>$}!addRhsFunction@{addRhsFunction}}
+\index{addRhsFunction@{addRhsFunction}!FEDD::Problem$<$ SC, LO, GO, NO $>$@{FEDD::Problem$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{addRhsFunction()}{addRhsFunction()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1Problem}{F\+E\+D\+D\+::\+Problem}}$<$ SC, LO, GO, NO $>$\+::add\+Rhs\+Function (\begin{DoxyParamCaption}\item[{Rhs\+Func\+\_\+\+Type}]{func,  }\item[{int}]{i }\end{DoxyParamCaption})}
+
+Add right hand side function for block i ~\newline
+ \mbox{\Hypertarget{classFEDD_1_1Problem_a5f5b59cbf23a852a68b8a54289eae439}\label{classFEDD_1_1Problem_a5f5b59cbf23a852a68b8a54289eae439}} 
+\index{FEDD::Problem$<$ SC, LO, GO, NO $>$@{FEDD::Problem$<$ SC, LO, GO, NO $>$}!getRhsFunction@{getRhsFunction}}
+\index{getRhsFunction@{getRhsFunction}!FEDD::Problem$<$ SC, LO, GO, NO $>$@{FEDD::Problem$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{getRhsFunction()}{getRhsFunction()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+Rhs\+Func\+\_\+\+Type \& \mbox{\hyperlink{classFEDD_1_1Problem}{F\+E\+D\+D\+::\+Problem}}$<$ SC, LO, GO, NO $>$\+::get\+Rhs\+Function (\begin{DoxyParamCaption}\item[{int}]{i }\end{DoxyParamCaption})}
+
+Adds rhs function and specifies it so certain flag 
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classFEDD_1_1Problem_a8ab364ed3f0be15fcd70cb39c36f169e}\label{classFEDD_1_1Problem_a8ab364ed3f0be15fcd70cb39c36f169e}} 
+\index{FEDD::Problem$<$ SC, LO, GO, NO $>$@{FEDD::Problem$<$ SC, LO, GO, NO $>$}!sourceTerm\_@{sourceTerm\_}}
+\index{sourceTerm\_@{sourceTerm\_}!FEDD::Problem$<$ SC, LO, GO, NO $>$@{FEDD::Problem$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{sourceTerm\_}{sourceTerm\_}}
+{\footnotesize\ttfamily template$<$class SC  = default\+\_\+sc, class LO  = default\+\_\+lo, class GO  = default\+\_\+go, class NO  = default\+\_\+no$>$ \\
+Block\+Multi\+Vector\+Ptr\+\_\+\+Type \mbox{\hyperlink{classFEDD_1_1Problem}{F\+E\+D\+D\+::\+Problem}}$<$ SC, LO, GO, NO $>$\+::source\+Term\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+source\+Term\+\_\+\+: Is a source term or a surface integral. Fill paras\+Source\+Func\+\_\+ for additional parameters 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/abstract/Linear\+Problem\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/abstract/Problem\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/abstract/Problem\+\_\+def.\+hpp\end{DoxyCompactItemize}

@@ -1,0 +1,178 @@
+\hypertarget{classFEDD_1_1NavierStokes}{}\doxysection{F\+E\+DD\+::Navier\+Stokes$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1NavierStokes}\index{FEDD::NavierStokes$<$ SC, LO, GO, NO $>$@{FEDD::NavierStokes$<$ SC, LO, GO, NO $>$}}
+
+
+Navier-\/\+Stokes.  
+
+
+
+
+{\ttfamily \#include $<$Navier\+Stokes\+\_\+decl.\+hpp$>$}
+
+\doxysubsection*{Public Types}
+\begin{Indent}\textbf{ Public Types}\par
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a6f3627b457c360973d8a439711d74986}\label{classFEDD_1_1NavierStokes_a6f3627b457c360973d8a439711d74986}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Problem}{Problem}}$<$ SC, LO, GO, NO $>$ {\bfseries Problem\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_ab56182fda5b1b11ede8b560070fff2c5}\label{classFEDD_1_1NavierStokes_ab56182fda5b1b11ede8b560070fff2c5}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Matrix}{Problem\+\_\+\+Type\+::\+Matrix\+\_\+\+Type}} {\bfseries Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_ad31596d7c5048afe9733dc49802f9f28}\label{classFEDD_1_1NavierStokes_ad31596d7c5048afe9733dc49802f9f28}} 
+typedef Problem\+\_\+\+Type\+::\+Matrix\+Ptr\+\_\+\+Type {\bfseries Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_ab1e5f860a2bab00475e8b960b32d00eb}\label{classFEDD_1_1NavierStokes_ab1e5f860a2bab00475e8b960b32d00eb}} 
+typedef Problem\+\_\+\+Type\+::\+Map\+Const\+Ptr\+\_\+\+Type {\bfseries Map\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_aa9317075848598c4bea2ddaecc921b8d}\label{classFEDD_1_1NavierStokes_aa9317075848598c4bea2ddaecc921b8d}} 
+typedef \mbox{\hyperlink{classFEDD_1_1BlockMatrix}{Problem\+\_\+\+Type\+::\+Block\+Matrix\+\_\+\+Type}} {\bfseries Block\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a6350785b8528a8934f1a7c95ac493af8}\label{classFEDD_1_1NavierStokes_a6350785b8528a8934f1a7c95ac493af8}} 
+typedef Problem\+\_\+\+Type\+::\+Block\+Matrix\+Ptr\+\_\+\+Type {\bfseries Block\+Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_af36971438da5d7bd0a349f9c592fea81}\label{classFEDD_1_1NavierStokes_af36971438da5d7bd0a349f9c592fea81}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MultiVector}{Problem\+\_\+\+Type\+::\+Multi\+Vector\+\_\+\+Type}} {\bfseries Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a388d36059bf2dd4883c427700ebcf8b3}\label{classFEDD_1_1NavierStokes_a388d36059bf2dd4883c427700ebcf8b3}} 
+typedef Problem\+\_\+\+Type\+::\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a8523a3c30a484448f0db20280586dac6}\label{classFEDD_1_1NavierStokes_a8523a3c30a484448f0db20280586dac6}} 
+typedef Problem\+\_\+\+Type\+::\+Multi\+Vector\+Const\+Ptr\+\_\+\+Type {\bfseries Multi\+Vector\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_af8aab235ac6aba1c837f414a5d140688}\label{classFEDD_1_1NavierStokes_af8aab235ac6aba1c837f414a5d140688}} 
+typedef Problem\+\_\+\+Type\+::\+Block\+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries Block\+Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a4d0a73e4c7c468427e67703b540c4d19}\label{classFEDD_1_1NavierStokes_a4d0a73e4c7c468427e67703b540c4d19}} 
+typedef Problem\+\_\+\+Type\+::\+Domain\+Const\+Ptr\+\_\+\+Type {\bfseries Domain\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a6059d660f6136562505f802ea817ff6e}\label{classFEDD_1_1NavierStokes_a6059d660f6136562505f802ea817ff6e}} 
+typedef Problem\+\_\+\+Type\+::\+Comm\+Const\+Ptr\+\_\+\+Type {\bfseries Comm\+Const\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a12844e02b43c772041258f99e3f25b21}\label{classFEDD_1_1NavierStokes_a12844e02b43c772041258f99e3f25b21}} 
+typedef \mbox{\hyperlink{classFEDD_1_1NonLinearProblem}{Non\+Linear\+Problem}}$<$ SC, LO, GO, NO $>$ {\bfseries Non\+Linear\+Problem\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a59140c1e332de04ee598c6b9262bd363}\label{classFEDD_1_1NavierStokes_a59140c1e332de04ee598c6b9262bd363}} 
+typedef Non\+Linear\+Problem\+\_\+\+Type\+::\+Block\+Multi\+Vector\+Ptr\+Array\+\_\+\+Type {\bfseries Block\+Multi\+Vector\+Ptr\+Array\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_aafc4d3c7d3ff9ca867e7766effaf83cb}\label{classFEDD_1_1NavierStokes_aafc4d3c7d3ff9ca867e7766effaf83cb}} 
+typedef Non\+Linear\+Problem\+\_\+\+Type\+::\+Tpetra\+Matrix\+\_\+\+Type {\bfseries Tpetra\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a4493a25b85a31d99de5f1f4670643cda}\label{classFEDD_1_1NavierStokes_a4493a25b85a31d99de5f1f4670643cda}} 
+typedef Non\+Linear\+Problem\+\_\+\+Type\+::\+Thyra\+Vec\+Space\+\_\+\+Type {\bfseries Thyra\+Vec\+Space\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a4a95146345bea92e57fc837ff013fa40}\label{classFEDD_1_1NavierStokes_a4a95146345bea92e57fc837ff013fa40}} 
+typedef Non\+Linear\+Problem\+\_\+\+Type\+::\+Thyra\+Vec\+\_\+\+Type {\bfseries Thyra\+Vec\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_ae147ac5c122d4887860683b5f8ab32ae}\label{classFEDD_1_1NavierStokes_ae147ac5c122d4887860683b5f8ab32ae}} 
+typedef Non\+Linear\+Problem\+\_\+\+Type\+::\+Thyra\+Op\+\_\+\+Type {\bfseries Thyra\+Op\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_ae5d62263363ab9e5c85275f93d8aa9c3}\label{classFEDD_1_1NavierStokes_ae5d62263363ab9e5c85275f93d8aa9c3}} 
+typedef Thyra\+::\+Blocked\+Linear\+Op\+Base$<$ SC $>$ {\bfseries Thyra\+Block\+Op\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a9e6ed893f8718257a1e001ec762f20bb}\label{classFEDD_1_1NavierStokes_a9e6ed893f8718257a1e001ec762f20bb}} 
+typedef Non\+Linear\+Problem\+\_\+\+Type\+::\+Tpetra\+Op\+\_\+\+Type {\bfseries Tpetra\+Op\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\end{Indent}
+\doxysubsection*{Constructor/\+Destructor}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_ab141de7cfd7610dbcbad11ef6f6d9b9b}\label{classFEDD_1_1NavierStokes_ab141de7cfd7610dbcbad11ef6f6d9b9b}} 
+Matrix\+Ptr\+\_\+\+Type {\bfseries A\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_ae511c7a79ea73e185d5432d2d8af262b}\label{classFEDD_1_1NavierStokes_ae511c7a79ea73e185d5432d2d8af262b}} 
+vec\+\_\+int\+\_\+ptr\+\_\+\+Type {\bfseries pressure\+I\+Ds\+Loc}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a79de277b69b847f85fbff7e699187752}\label{classFEDD_1_1NavierStokes_a79de277b69b847f85fbff7e699187752}} 
+Multi\+Vector\+Ptr\+\_\+\+Type {\bfseries u\+\_\+rep\+\_\+}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a953e052ee533a5b132aa4c42044e1d20}\label{classFEDD_1_1NavierStokes_a953e052ee533a5b132aa4c42044e1d20}} 
+{\bfseries Navier\+Stokes} (const Domain\+Const\+Ptr\+\_\+\+Type \&domain\+Velocity, std\+::string F\+E\+Type\+Velocity, const Domain\+Const\+Ptr\+\_\+\+Type \&domain\+Pressure, std\+::string F\+E\+Type\+Pressure, Parameter\+List\+Ptr\+\_\+\+Type parameter\+List)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a9e33cba8929d5db62552488e1843d4be}\label{classFEDD_1_1NavierStokes_a9e33cba8929d5db62552488e1843d4be}} 
+virtual void {\bfseries info} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a0fce4c4a70d3fb5833f3f3100346718c}\label{classFEDD_1_1NavierStokes_a0fce4c4a70d3fb5833f3f3100346718c}} 
+virtual void {\bfseries assemble} (std\+::string type=\char`\"{}\char`\"{}) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_af9272511e10d62a73bd1b2e16603ac34}\label{classFEDD_1_1NavierStokes_af9272511e10d62a73bd1b2e16603ac34}} 
+void {\bfseries assemble\+Constant\+Matrices} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a67e35ceb19a7e153e953ec32e20ce2b5}\label{classFEDD_1_1NavierStokes_a67e35ceb19a7e153e953ec32e20ce2b5}} 
+void {\bfseries assemble\+Div\+And\+Stab} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_ade2f25893ec601e7be85504205dbdd53}\label{classFEDD_1_1NavierStokes_ade2f25893ec601e7be85504205dbdd53}} 
+void {\bfseries re\+Assemble} (std\+::string type) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a907fa81baf4e67588bdabcf6f9c0b228}\label{classFEDD_1_1NavierStokes_a907fa81baf4e67588bdabcf6f9c0b228}} 
+virtual void {\bfseries re\+Assemble} (Block\+Multi\+Vector\+Ptr\+\_\+\+Type previous\+Solution) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_ad426645fdc6a679ace73031ddd8cd11e}\label{classFEDD_1_1NavierStokes_ad426645fdc6a679ace73031ddd8cd11e}} 
+void {\bfseries re\+Assemble\+F\+SI} (std\+::string type, Multi\+Vector\+Ptr\+\_\+\+Type u\+\_\+minus\+\_\+w, Matrix\+Ptr\+\_\+\+Type P) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a5047efc8241c63580af431e14f0228e8}\label{classFEDD_1_1NavierStokes_a5047efc8241c63580af431e14f0228e8}} 
+virtual void {\bfseries re\+Assemble} (Matrix\+Ptr\+\_\+\+Type \&massmatrix, std\+::string type) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a6b8b1a17f1731c171d595560b00b108f}\label{classFEDD_1_1NavierStokes_a6b8b1a17f1731c171d595560b00b108f}} 
+virtual void {\bfseries re\+Assemble\+Extrapolation} (Block\+Multi\+Vector\+Ptr\+Array\+\_\+\+Type previous\+Solutions)
+\item 
+virtual void \mbox{\hyperlink{classFEDD_1_1NavierStokes_ade0b2fbe57e56350f4285fb43dac06b3}{calculate\+Non\+Lin\+Residual\+Vec}} (std\+::string type=\char`\"{}standard\char`\"{}, double time=0.) const
+\begin{DoxyCompactList}\small\item\em Block Approach for Nonlinear Solver N\+OX. Input. Includes calculation of the residual vector and update (re\+Assembly) of non constant matrices with new solution. Residual\+Vec and System\+Matrix of this class are then converted into the corresponding Thyra/\+Tpetra objects for Solver. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_abc4c88153ecdda10021d2e7f45b99355}\label{classFEDD_1_1NavierStokes_abc4c88153ecdda10021d2e7f45b99355}} 
+void {\bfseries calculate\+Non\+Lin\+Residual\+Vec\+With\+Mesh\+Velo} (std\+::string type, double time, Multi\+Vector\+Ptr\+\_\+\+Type u\+\_\+minus\+\_\+w, Matrix\+Ptr\+\_\+\+Type P) const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a207ca82dca0be4fdeed2a5d50afcd1ef}\label{classFEDD_1_1NavierStokes_a207ca82dca0be4fdeed2a5d50afcd1ef}} 
+virtual void {\bfseries get\+Values\+Of\+Interest} (vec\+\_\+dbl\+\_\+\+Type \&values)
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a036861807a3b4edf59408227c8b2300e}\label{classFEDD_1_1NavierStokes_a036861807a3b4edf59408227c8b2300e}} 
+virtual void {\bfseries compute\+Values\+Of\+Interest\+And\+Export} ()
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a13c1b0be032ddc360216e0aa1ccfc17f}\label{classFEDD_1_1NavierStokes_a13c1b0be032ddc360216e0aa1ccfc17f}} 
+Teuchos\+::\+R\+CP$<$ Thyra\+::\+Linear\+Op\+Base$<$ SC $>$ $>$ {\bfseries create\+\_\+\+W\+\_\+op} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_af592c45f93dad21b9f01c5de219284f5}\label{classFEDD_1_1NavierStokes_af592c45f93dad21b9f01c5de219284f5}} 
+Teuchos\+::\+R\+CP$<$ Thyra\+::\+Linear\+Op\+Base$<$ SC $>$ $>$ {\bfseries create\+\_\+\+W\+\_\+op\+\_\+\+Monolithic} () const
+\item 
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_a6ff44150882fe2da004596d8d4918342}\label{classFEDD_1_1NavierStokes_a6ff44150882fe2da004596d8d4918342}} 
+Teuchos\+::\+R\+CP$<$ Thyra\+::\+Preconditioner\+Base$<$ SC $>$ $>$ {\bfseries create\+\_\+\+W\+\_\+prec} () const
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$class SC = default\+\_\+sc, class LO = default\+\_\+lo, class GO = default\+\_\+go, class NO = default\+\_\+no$>$\newline
+class F\+E\+D\+D\+::\+Navier\+Stokes$<$ S\+C, L\+O, G\+O, N\+O $>$}
+
+Navier-\/\+Stokes. 
+
+Declaration of Navier-\/\+Stokes
+
+\begin{DoxyAuthor}{Author}
+Christian Hochmuth 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+1.\+0 
+\end{DoxyVersion}
+\begin{DoxyCopyright}{Copyright}
+CH 
+\end{DoxyCopyright}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classFEDD_1_1NavierStokes_ade0b2fbe57e56350f4285fb43dac06b3}\label{classFEDD_1_1NavierStokes_ade0b2fbe57e56350f4285fb43dac06b3}} 
+\index{FEDD::NavierStokes$<$ SC, LO, GO, NO $>$@{FEDD::NavierStokes$<$ SC, LO, GO, NO $>$}!calculateNonLinResidualVec@{calculateNonLinResidualVec}}
+\index{calculateNonLinResidualVec@{calculateNonLinResidualVec}!FEDD::NavierStokes$<$ SC, LO, GO, NO $>$@{FEDD::NavierStokes$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{calculateNonLinResidualVec()}{calculateNonLinResidualVec()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1NavierStokes}{F\+E\+D\+D\+::\+Navier\+Stokes}}$<$ SC, LO, GO, NO $>$\+::calculate\+Non\+Lin\+Residual\+Vec (\begin{DoxyParamCaption}\item[{std\+::string}]{type = {\ttfamily \char`\"{}standard\char`\"{}},  }\item[{double}]{time = {\ttfamily 0.} }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Block Approach for Nonlinear Solver N\+OX. Input. Includes calculation of the residual vector and update (re\+Assembly) of non constant matrices with new solution. Residual\+Vec and System\+Matrix of this class are then converted into the corresponding Thyra/\+Tpetra objects for Solver. 
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/specific/F\+S\+I\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/specific/Navier\+Stokes\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/problems/specific/Navier\+Stokes\+\_\+def.\+hpp\end{DoxyCompactItemize}

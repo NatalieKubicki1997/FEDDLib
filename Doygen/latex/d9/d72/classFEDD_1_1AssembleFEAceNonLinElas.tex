@@ -1,0 +1,168 @@
+\hypertarget{classFEDD_1_1AssembleFEAceNonLinElas}{}\doxysection{F\+E\+DD\+::Assemble\+F\+E\+Ace\+Non\+Lin\+Elas$<$ SC, LO, GO, NO $>$ Class Template Reference}
+\label{classFEDD_1_1AssembleFEAceNonLinElas}\index{FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$}}
+
+
+Inheritance diagram for F\+E\+DD\+::Assemble\+F\+E\+Ace\+Non\+Lin\+Elas$<$ SC, LO, GO, NO $>$\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=241pt]{d3/daa/classFEDD_1_1AssembleFEAceNonLinElas__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for F\+E\+DD\+::Assemble\+F\+E\+Ace\+Non\+Lin\+Elas$<$ SC, LO, GO, NO $>$\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=241pt]{da/d12/classFEDD_1_1AssembleFEAceNonLinElas__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceNonLinElas_af50e1a534119104b6e34d9dab62d8176}\label{classFEDD_1_1AssembleFEAceNonLinElas_af50e1a534119104b6e34d9dab62d8176}} 
+typedef \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix}}$<$ SC, LO, GO, NO $>$ {\bfseries Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceNonLinElas_a397137c50bc119517e6a36747bc52738}\label{classFEDD_1_1AssembleFEAceNonLinElas_a397137c50bc119517e6a36747bc52738}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1Matrix}{Matrix\+\_\+\+Type}} $>$ {\bfseries Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceNonLinElas_ac63850ac099db321e886bfacc8fdb06e}\label{classFEDD_1_1AssembleFEAceNonLinElas_ac63850ac099db321e886bfacc8fdb06e}} 
+typedef \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix}}$<$ SC $>$ {\bfseries Small\+Matrix\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceNonLinElas_abd9f58f78340f41c01deff6e6dbc2776}\label{classFEDD_1_1AssembleFEAceNonLinElas_abd9f58f78340f41c01deff6e6dbc2776}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1SmallMatrix}{Small\+Matrix\+\_\+\+Type}} $>$ {\bfseries Small\+Matrix\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceNonLinElas_a89e4beb4ca4aef7011ba089385c71b9f}\label{classFEDD_1_1AssembleFEAceNonLinElas_a89e4beb4ca4aef7011ba089385c71b9f}} 
+typedef \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector}}$<$ SC, LO, GO, NO $>$ {\bfseries Multi\+Vector\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceNonLinElas_a43df4bdae79e401fad125e3af7b8488d}\label{classFEDD_1_1AssembleFEAceNonLinElas_a43df4bdae79e401fad125e3af7b8488d}} 
+typedef Teuchos\+::\+R\+CP$<$ \mbox{\hyperlink{classFEDD_1_1MultiVector}{Multi\+Vector\+\_\+\+Type}} $>$ {\bfseries Multi\+Vector\+Ptr\+\_\+\+Type}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceNonLinElas_a60b999c1d0650a22531a06a2e934fcaf}\label{classFEDD_1_1AssembleFEAceNonLinElas_a60b999c1d0650a22531a06a2e934fcaf}} 
+typedef \mbox{\hyperlink{classFEDD_1_1AssembleFE}{Assemble\+FE}}$<$ SC, LO, GO, NO $>$ {\bfseries Assemble\+F\+E\+\_\+\+Type}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void \mbox{\hyperlink{classFEDD_1_1AssembleFEAceNonLinElas_a6770e1ebdb193d12969a757a5fb7e17b}{assemble\+Jacobian}} ()
+\begin{DoxyCompactList}\small\item\em Assemble the element Jacobian matrix. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classFEDD_1_1AssembleFEAceNonLinElas_a105680e674a7c37a59c50a9a16b8bcff}{assemble\+R\+HS}} ()
+\begin{DoxyCompactList}\small\item\em Assemble the element right hand side vector. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classFEDD_1_1AssembleFEAceNonLinElas_aac84554a25f6b4e605c0d9496d23e994}{update\+Parameter}} (string type, double value)
+\begin{DoxyCompactList}\small\item\em Update the parameter read from the Parameter\+List. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classFEDD_1_1AssembleFEAceNonLinElas_a9f4611ca66096b15e5450a51e03b72f0}{Assemble\+F\+E\+Ace\+Non\+Lin\+Elas}} (int flag, vec2\+D\+\_\+dbl\+\_\+\+Type nodes\+Ref\+Config, Parameter\+List\+Ptr\+\_\+\+Type parameters, tuple\+\_\+disk\+\_\+vec\+\_\+ptr\+\_\+\+Type tuple)
+\begin{DoxyCompactList}\small\item\em Constructor for \mbox{\hyperlink{classFEDD_1_1AssembleFEAceNonLinElas}{Assemble\+F\+E\+Ace\+Non\+Lin\+Elas}}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceNonLinElas_a30ff0dcd1d500892033fc319deacb8fb}\label{classFEDD_1_1AssembleFEAceNonLinElas_a30ff0dcd1d500892033fc319deacb8fb}} 
+class {\bfseries Assemble\+F\+E\+Factory$<$ S\+C, L\+O, G\+O, N\+O $>$}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceNonLinElas_a9f4611ca66096b15e5450a51e03b72f0}\label{classFEDD_1_1AssembleFEAceNonLinElas_a9f4611ca66096b15e5450a51e03b72f0}} 
+\index{FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$}!AssembleFEAceNonLinElas@{AssembleFEAceNonLinElas}}
+\index{AssembleFEAceNonLinElas@{AssembleFEAceNonLinElas}!FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{AssembleFEAceNonLinElas()}{AssembleFEAceNonLinElas()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+\mbox{\hyperlink{classFEDD_1_1AssembleFEAceNonLinElas}{F\+E\+D\+D\+::\+Assemble\+F\+E\+Ace\+Non\+Lin\+Elas}}$<$ SC, LO, GO, NO $>$\+::\mbox{\hyperlink{classFEDD_1_1AssembleFEAceNonLinElas}{Assemble\+F\+E\+Ace\+Non\+Lin\+Elas}} (\begin{DoxyParamCaption}\item[{int}]{flag,  }\item[{vec2\+D\+\_\+dbl\+\_\+\+Type}]{nodes\+Ref\+Config,  }\item[{Parameter\+List\+Ptr\+\_\+\+Type}]{params,  }\item[{tuple\+\_\+disk\+\_\+vec\+\_\+ptr\+\_\+\+Type}]{tuple }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Constructor for \mbox{\hyperlink{classFEDD_1_1AssembleFEAceNonLinElas}{Assemble\+F\+E\+Ace\+Non\+Lin\+Elas}}. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em flag} & Flag of element \\
+\hline
+\mbox{\texttt{ in}}  & {\em nodes\+Ref\+Config} & Nodes of element in reference configuration \\
+\hline
+\mbox{\texttt{ in}}  & {\em params} & Parameterlist for current problem \\
+\hline
+ & {\em \mbox{[}in\}} & tuple Vector of tuples with Discretization information \\
+\hline
+\end{DoxyParams}
+Extracting values from Parameter\+List params\+:
+
+Tupel construction follows follwing pattern\+: string\+: Physical Entity (i.\+e. Velocity) , string\+: Discretisation (i.\+e. \char`\"{}\+P2\char`\"{}), int\+: Degrees of Freedom per Node, int\+: Number of Nodes per element)
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceNonLinElas_a6770e1ebdb193d12969a757a5fb7e17b}\label{classFEDD_1_1AssembleFEAceNonLinElas_a6770e1ebdb193d12969a757a5fb7e17b}} 
+\index{FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$}!assembleJacobian@{assembleJacobian}}
+\index{assembleJacobian@{assembleJacobian}!FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{assembleJacobian()}{assembleJacobian()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1AssembleFEAceNonLinElas}{F\+E\+D\+D\+::\+Assemble\+F\+E\+Ace\+Non\+Lin\+Elas}}$<$ SC, LO, GO, NO $>$\+::assemble\+Jacobian\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Assemble the element Jacobian matrix. 
+
+Assembly Jacobian.
+
+\begin{DoxyReturn}{Returns}
+the element Jacobian matrix
+\end{DoxyReturn}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em \&element\+Matrix} & \\
+\hline
+\end{DoxyParams}
+
+
+Implements \mbox{\hyperlink{classFEDD_1_1AssembleFE_af48b450dfdf6cea7beeb24feef7dc10f}{F\+E\+D\+D\+::\+Assemble\+F\+E$<$ default\+\_\+sc, default\+\_\+lo, default\+\_\+go, default\+\_\+no $>$}}.
+
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceNonLinElas_a105680e674a7c37a59c50a9a16b8bcff}\label{classFEDD_1_1AssembleFEAceNonLinElas_a105680e674a7c37a59c50a9a16b8bcff}} 
+\index{FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$}!assembleRHS@{assembleRHS}}
+\index{assembleRHS@{assembleRHS}!FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{assembleRHS()}{assembleRHS()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1AssembleFEAceNonLinElas}{F\+E\+D\+D\+::\+Assemble\+F\+E\+Ace\+Non\+Lin\+Elas}}$<$ SC, LO, GO, NO $>$\+::assemble\+R\+HS\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Assemble the element right hand side vector. 
+
+Assembly R\+HS.
+
+\begin{DoxyReturn}{Returns}
+the element right hand side vector
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classFEDD_1_1AssembleFE_a43f18446faadb45bb4e2eae4f82ba9ba}{F\+E\+D\+D\+::\+Assemble\+F\+E$<$ default\+\_\+sc, default\+\_\+lo, default\+\_\+go, default\+\_\+no $>$}}.
+
+\mbox{\Hypertarget{classFEDD_1_1AssembleFEAceNonLinElas_aac84554a25f6b4e605c0d9496d23e994}\label{classFEDD_1_1AssembleFEAceNonLinElas_aac84554a25f6b4e605c0d9496d23e994}} 
+\index{FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$}!updateParameter@{updateParameter}}
+\index{updateParameter@{updateParameter}!FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$@{FEDD::AssembleFEAceNonLinElas$<$ SC, LO, GO, NO $>$}}
+\doxysubsubsection{\texorpdfstring{updateParameter()}{updateParameter()}}
+{\footnotesize\ttfamily template$<$class SC , class LO , class GO , class NO $>$ \\
+void \mbox{\hyperlink{classFEDD_1_1AssembleFEAceNonLinElas}{F\+E\+D\+D\+::\+Assemble\+F\+E\+Ace\+Non\+Lin\+Elas}}$<$ SC, LO, GO, NO $>$\+::update\+Parameter (\begin{DoxyParamCaption}\item[{string}]{type,  }\item[{double}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Update the parameter read from the Parameter\+List. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em Parameter} & as read from the xml file \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classFEDD_1_1AssembleFE_a66e388259dcbb80d6b2d55d9ff3265de}{F\+E\+D\+D\+::\+Assemble\+F\+E$<$ default\+\_\+sc, default\+\_\+lo, default\+\_\+go, default\+\_\+no $>$}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Ace\+Fem\+Assembly/specific/Assemble\+F\+E\+Ace\+Non\+Lin\+Elas\+\_\+decl.\+hpp\item 
+/home/user/\+Programme/opt/\+F\+E\+D\+D\+Lib/\+F\+E\+E\+D\+L\+I\+B\+\_\+\+L\+E\+A/source/\+F\+E\+D\+D\+Lib/feddlib/core/\+Ace\+Fem\+Assembly/specific/Assemble\+F\+E\+Ace\+Non\+Lin\+Elas\+\_\+def.\+hpp\end{DoxyCompactItemize}

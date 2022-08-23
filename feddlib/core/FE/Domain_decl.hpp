@@ -89,7 +89,7 @@ public:
 
     MapConstPtr_Type getMapUnique() const;
 
-    MapConstPtr_Type getMapRepeated() const;
+    MapConstPtr_Type getMapRepeated() const; // this gives a map object
 
     MapConstPtr_Type getMapUniqueP2() const;
 
