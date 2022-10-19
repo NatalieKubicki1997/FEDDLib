@@ -382,7 +382,7 @@ void FE<SC,LO,GO,NO>::addFeBlockMv(BlockMultiVectorPtr_Type &res, vec_dbl_Type r
 @param[in] FELocExternal 
 
 */
-// das wird aus problem/specific/NavierStokes aufgerufen
+// das wird aus problem/specific/NavierStokesASS aufgerufen
 template <class SC, class LO, class GO, class NO>
 void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	                                    string FETypeVelocity,
@@ -460,7 +460,7 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	resVecRep->addBlock(resVec_p,1);
 
 
-    // We have to add viscosity solution of on each local node to a global solution vector of the viscosity
+    // We have to add viscosity solution on each local node to a global solution vector of the viscosity
 	MultiVectorPtr_Type Sol_viscosity = Teuchos::rcp( new MultiVector_Type( domainVec_.at(FElocVel)->getMapRepeated(), 1 ) );
     BlockMultiVectorPtr_Type visco_output = Teuchos::rcp( new BlockMultiVector_Type(1) );
     visco_output->addBlock(Sol_viscosity,0);
@@ -480,6 +480,7 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
  
  		SmallMatrixPtr_Type elementMatrix;
 
+        // from NavierStokesAssFE we know that our assembleMode is "Jacobian"
 		if(assembleMode == "Jacobian"){
             assemblyFEElements_[T]->assembleJacobian(); // so here we construct the element matrices and we compute the viscosity
 		    
@@ -487,11 +488,14 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 			assemblyFEElements_[T]->advanceNewtonStep(); // n genereal non linear solver step
 
 			if(reAssemble)
+            {
 				addFeBlock(A, elementMatrix, elements->getElement(T), mapVel, 0, 0, problemDisk);
-			else
+            }
+            else
+            {
 				addFeBlockMatrix(A, elementMatrix, elements->getElement(T), mapVel, mapPres, problemDisk);
-
-          // If we want to write out viscosity
+            }
+          // If we want to write out viscosity inside brackets?
           if( (params->sublist("Material").get("Newtonian",true) == false) && (params->sublist("Material").get("WriteOutViscosity",false) == true) ) 
             {
                 solution_viscosity = assemblyFEElements_[T]->getViscositySolution();
@@ -535,8 +539,9 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	    A->getBlock(1,1)->fillComplete();
 	}
 
+    // why do we jump inside here? because if we solve we jump into the function reAssemble which sets assembleMode at one point to RHS
 	if(assembleMode == "Rhs"){
-
+        // but why is this necessary?
 		MultiVectorPtr_Type resVecUnique_u = Teuchos::rcp( new MultiVector_Type( domainVec_.at(FElocVel)->getMapVecFieldUnique(), 1 ) );
 		MultiVectorPtr_Type resVecUnique_p = Teuchos::rcp( new MultiVector_Type( domainVec_.at(FElocPres)->getMapUnique(), 1 ) );
 
@@ -612,7 +617,7 @@ void FE<SC,LO,GO,NO>::addFeBlockVis(BlockMultiVectorPtr_Type &visco_res, vec_dbl
 
 	for(int i=0; i< nodeList_block.size() ; i++){
 		for(int d=0; d<dofs; d++)
-			//resArray_block[nodeList_block[i]*dofs+d] += VecVisco[i*dofs+d];
+			//resArray_block[nodeList_block[i]*dofs+d] = VecVisco[i*dofs+d];
             resArray_block[nodeList_block[i]*dofs+d] = VecVisco[i*dofs+d];
 	}
 }
@@ -736,7 +741,7 @@ void FE<SC,LO,GO,NO>::initAssembleFEElements(string elementType,tuple_disk_vec_p
 	vec2D_dbl_Type nodes;
 	for (UN T=0; T<elements->numberElements(); T++) {
 		
-		nodes = getCoordinates(elements->getElement(T).getVectorNodeList(), pointsRep);
+		nodes = getCoordinates(elements->getElement(T).getVectorNodeList(), pointsRep); //this is later our nodes_ref_config
 
 		AssembleFEFactory<SC,LO,GO,NO> assembleFEFactory;
 

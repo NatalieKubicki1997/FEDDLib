@@ -42,6 +42,8 @@
         <!-- For n=1 we have Newtonian Fluid with constant viscosity corresponding to the value of K-->
         <Parameter name="PowerLawParameter K" type="double" value="1.0"/>
         <Parameter name="PowerLaw index n" type="double" value="1.0"/> <!-- for n<1 we have shear thinning behaviour-->
+        <Parameter name="Numerical_InftyShearRateViscosity" type="double" value="0.0001"/>
+        <Parameter name="Numerical_ZeroShearRateViscosity" type="double" value="0.035"/>
 		
 	<!-- Carreau Yasuda assumes for the viscosity eta the functional form \eta(\gamma) = \eta_{\infty} + (\eta_0 - \eta_{\infty})*( (  1+(\lambda*\gamma)^a  )^((n-1)/a)   ) --> 
         <!-- For a=2 we have Carreau Model-->

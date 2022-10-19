@@ -63,6 +63,15 @@ void one(double* x, double* res, double t, const double* parameters){
 
     return;
 }
+
+void onex(double *x, double *res, double t, const double *parameters)
+{
+
+    res[0] = 1.;
+    res[1] = 0.;
+
+    return;
+}
 void two(double* x, double* res, double t, const double* parameters){
 
     res[0] = 2.;
@@ -96,14 +105,13 @@ void zeroDirichlet3D(double* x, double* res, double t, const double* parameters)
 
 void inflowParabolic2D(double* x, double* res, double t, const double* parameters){
 
-   //double H = parameters[1];
     double H = 0.1;
-    // res[0] = 4*parameters[0]*x[1]*(H-x[1])/(H*H);
-    // For v = 0.01 with rho=1000 so mu = 10
-    // and dp/dx should be= -10^4
-    res[0] = 0.05*(-1.0)*10000.0*(x[1]*x[1] - x[1]*H);
-    //*10.0;
+    double mu = 0.035;
+    double dp = 10.0;
+
+    res[0] = (1/(2*mu))*(-1.0)*dp*(x[1]*x[1] - x[1]*H);
     res[1] = 0.;
+
 
     return;
 }
@@ -264,27 +272,29 @@ int main(int argc, char *argv[]) {
           	 parameter_vec.push_back(0.41);//height of inflow region
 
             if (dim==2){
-                /* COUETTE
-// So for Couette Flow we have a moving upper plate and rigid lower plate  
+/* COUETTE **************************************************************************************************
+// For Couette Flow we have a moving upper plate and rigid lower plate  
                 bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim); // wall
                 bcFactory->addBC(couette2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
 // The flow will be induced by the moving plate so there should be no pressure gradient in this testcase
                 bcFactory->addBC(zeroDirichlet2D, 3, 1, domainPressure, "Dirichlet", 1); // outflow
                 bcFactory->addBC(zeroDirichlet2D, 4, 1, domainPressure, "Dirichlet", 1); // inflow
 */
-/* POISEUILLE */
+/* POISEUILLE **********************************************************************************************/
+// For Poiseuille flow we have rigid plates and the flow is driven by a pressure gradient
+// as we can not set pressure boundary conditions in FEDDLIB we prescribe a inflow velocity profile 
                 bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim); // wall
                 bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
-                //bcFactory->addBC(, 3, 0, domainVelocity, "Dirichlet_Z", dim); // flag 3 is neumann 0, müssen wir nicht explizit angeben, da das defaulr ist 
-                //bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);
+                //bcFactory->addBC(, 3, 0, domainVelocity, "Dirichlet_Z", dim); // outlet 3 is neumann 0, müssen wir nicht explizit angeben, da das defaulr ist 
               
-                  bcFactory->addBC(inflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); 
-               //  bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1); //Outflow
-           //    bcFactory->addBC(FixedDirichlet, 4, 1, domainPressure, "Dirichlet", 1, parameter_vec); // inflow
-           // FESTLEGEN VON WERT AM RECHTEN RAND GEHT NICHT
-                           //  bcFactory->addBC(zeroDirichlet, 4, 1, domainPressure, "Dirichlet", 1, parameter_vec); // inflow
-           // bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1); //Outflow
+               //bcFactory->addBC(inflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
 
+
+              // for test
+               bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
+
+                // OutletPBC
+               bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1); //Outflow
 
 
             }

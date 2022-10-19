@@ -21,8 +21,10 @@ DifferentiableFuncClass<SC,LO,GO,NO>(params)
 
 	
 }
-
-
+/*In power-law fluid model the problem may arise if the local
+strain-rate produces very small number or even zero, this only happen when n <1 because the
+local viscosity will grows up into very huge number and then we get inaccuracy results.
+*/
 template <class SC, class LO, class GO, class NO>
 void PowerLaw<SC,LO,GO,NO>::evaluateFunction(ParameterListPtr_Type params, double shearRate, double &viscosity) {
 	
@@ -32,12 +34,13 @@ void PowerLaw<SC,LO,GO,NO>::evaluateFunction(ParameterListPtr_Type params, doubl
     // Check bounds for viscosity 
     if (viscosity < nu_infty) // If viscosity value is smaller than the infinity shear rate viscosity set viscsoity to limit value nu_infty
     {
-    viscosity = nu_infty;
+    viscosity = nu_infty; 
     }
     else if (abs(viscosity) > nu_zero)  // If viscosity value is greater than the zero shear rate viscosity set viscsoity to limit value nu_zero
     {
     viscosity = nu_zero;
     }
+
 
     this-> viscosity_ = viscosity;
 }

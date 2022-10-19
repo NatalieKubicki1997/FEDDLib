@@ -92,13 +92,15 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assembleJacobian() {
 	ANB_.reset(new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_)); // A + B + N
 	ANB_->add( (*constantMatrix_),(*ANB_));
 
-	assemblyAdvection(elementMatrixN);
+	
+    //WE NOW NEGLECT CONVECTION UNDO HERE AND RHS
+    /*assemblyAdvection(elementMatrixN);
 	elementMatrixN->scale(density_);
 	ANB_->add( (*elementMatrixN),(*ANB_));
     if(linearization_ != "FixedPoint"){
 	    assemblyAdvectionInU(elementMatrixW);
 	    elementMatrixW->scale(density_);
-    }
+    }*/
 
 	//elementMatrix->add((*constantMatrix_),(*elementMatrix));
 	this->jacobian_.reset(new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_));
@@ -110,7 +112,7 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assembleJacobian() {
     }
 }
 
-template <class SC, class LO, class GO, class NO>
+template <class SC, class LO, class GO, class NO> // never jumps inside
 void AssembleFENavierStokes<SC,LO,GO,NO>::assembleFixedPoint() {
 
 	SmallMatrixPtr_Type elementMatrixN =Teuchos::rcp( new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_));
@@ -202,9 +204,11 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assembleRHS(){
 	ANB_.reset(new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_)); // A + B + N
 	ANB_->add( (*constantMatrix_),(*ANB_));
 
+    //WE NOW NEGLECT CONVECTION UNDO HERE AND IN JACOBIAN
+    /*
 	assemblyAdvection(elementMatrixN);
 	elementMatrixN->scale(density_);
-	ANB_->add( (*elementMatrixN),(*ANB_));
+	ANB_->add( (*elementMatrixN),(*ANB_));*/
 
 	this->rhsVec_ = vec_dbl_Type(dofsElement_,0);
 	// Multiplying ANB_ * solution // ANB Matrix without nonlinear part.

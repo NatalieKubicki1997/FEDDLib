@@ -23,18 +23,6 @@ DifferentiableFuncClass<SC,LO,GO,NO>(params)
 	
 }
 
-/*   // Compute viscosity value corresponding to chosen model - we want to have general class
-                // double etavalue = func(&xy.at(0),parameters);
-                /*double k = 0.017;
-                double n = 0.3568; //0.3...
-                double etazero = 0.056 ;
-                double etainfty = 0.00345 ;     
-                double lambda =3.313 ;
-                double a = 2.0;*/
-                //double etavalue = k*gammaDot->at(w); // it worked with this// n-1 -> we get for shear thinning fluids a n < 1
-                //double etavalue = k*pow(gammaDot->at(w),0); // we have to check that gammaDot is not zero because then we divide through something which is almost zero
-
-
 template <class SC, class LO, class GO, class NO>
 void CarreauYasuda<SC,LO,GO,NO>::evaluateFunction(ParameterListPtr_Type params, double shearRate, double &viscosity) {
 	
@@ -42,18 +30,6 @@ void CarreauYasuda<SC,LO,GO,NO>::evaluateFunction(ParameterListPtr_Type params, 
     this-> viscosity_ = viscosity;
 }
 
-
-    /**** Initialize outside! */
-
-                // Compute viscosity value corresponding to chosen model - we want to have general class
-                // double etavalue = func(&xy.at(0),parameters);
-                // CHANGE VALUES HERE AND ABOVE
-                /*double k = 0.017;
-                double n = 0.3568; //0.3...
-                double etazero = 0.056 ;
-                double etainfty = 0.00345 ;     
-                double lambda =3.313 ;
-                double a = 2.0;*/
 
                 
 template <class SC, class LO, class GO, class NO>
@@ -76,7 +52,7 @@ else  // in the other case we have to check that gammaDot is not zero because ot
        }
 res = (-2.0)*(this->nu_0-this->nu_infty)*(this->fluid_index_n-1.0)*pow(this->characteristicTime, this->inflectionPoint)*pow(shearRate,this->inflectionPoint-2.0)*pow(1.0+pow(this->characteristicTime*shearRate,this->inflectionPoint)    , ((this->fluid_index_n-1.0-this->inflectionPoint)/this->inflectionPoint) );
 }
-// Do we have to also catch the case if shearRate goes to infity and we get zero as value? I would argue no because we have a here a result of part of the gateauy derivative which is not used anymore in later calculations 
+// Do we have to also catch the case if shearRate goes to infity and we get zero as value? I would argue no because we have a here a result of part of the gateaux derivative which is not used anymore in later calculations 
 
 }
 

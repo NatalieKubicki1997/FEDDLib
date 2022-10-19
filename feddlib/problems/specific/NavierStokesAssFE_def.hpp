@@ -46,18 +46,19 @@ A_(),
 pressureIDsLoc(new vec_int_Type(2)),
 u_rep_(),
 p_rep_(), //member initializer lists
-viscosity_rep_()
-//visco_output_()
+viscosity_rep_() // Added here also viscosity field 
 {
 
     this->nonLinearTolerance_ = this->parameterList_->sublist("Parameter").get("relNonLinTol",1.0e-6);
     this->initNOXParameters();
 
+    // We can add here new Variables for our solution vector 
     this->addVariable( domainVelocity , FETypeVelocity , "u" , domainVelocity->getDimension());
     this->addVariable( domainPressure , FETypePressure , "p" , 1);
     this->dim_ = this->getDomain(0)->getDimension();
 
     u_rep_         = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getMapVecFieldRepeated() ) );
+    // so because viscosity is a scalar value but it depends on the velocity it is defined on the FE definition of the velocity
     viscosity_rep_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getMapRepeated() ) );
 
     p_rep_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(1)->getMapRepeated() ) );
@@ -169,19 +170,32 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
 	this->system_->addBlock(C,1,1);
 
 
-    // WO SPRINGT ER HIER REIN? --> in die allgemeine fe class jumps inside FE_def.hpp in assemblyNavierStokes
+    // jumps inside FE_def.hpp in assemblyNavierStokes so in the general FE class
+    // our AssembleMode is "Jacobian"
 	this->feFactory_->assemblyNavierStokes(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->system_,this->residualVec_,this->coeff_, this->parameterList_,false, "Jacobian", true/*call fillComplete*/);
 
     if ( !this->getFEType(0).compare("P1") ) {
         C.reset(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
         this->feFactory_->assemblyBDStabilization( this->dim_, "P1", C, true);
         C->resumeFill();
-        C->scale( -1. / ( viscosity * density ) );
+        C->scale( -1. / ( viscosity * density ) ); // this we have to change for non-newtonian model?
         C->fillComplete( pressureMap, pressureMap );
         
         this->system_->addBlock( C, 1, 1 );
     }
-    //// HIER CODE AUS ALTEN VERSIONEN EINFÜGEN FÜR P2-P1 
+    //// Needed for P2-P1 Elements
+     else{
+    // In order to set Dirichlet Boundary Conditions to the pressure block, we need to add an "empty" Matrix at (1,1)
+    // Otherwise the builder will skip the pressure block.
+    // We have to preallocate the diagonal indices of the Matrix, as the 'preset' values structure is used to change them to
+    // ones and zeros for dirichlet values.
+    C.reset(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+    this->feFactory_->assemblyIdentity(C); // assemble as identity matrix with diagonal entries
+    C->resumeFill();
+    C->scale( 0. ); // Scale ones back to zeros
+    C->fillComplete( pressureMap, pressureMap );
+    this->system_->addBlock( C, 1, 1 );
+    }
 
 
 
@@ -247,6 +261,7 @@ void NavierStokesAssFE<SC,LO,GO,NO>::reAssemble(std::string type) const {
 
    if (type=="Rhs") {
 
+        // das ist hier doch mit code oben redundant???
         MultiVectorConstPtr_Type u = this->solution_->getBlock(0);
         u_rep_->importFromVector(u, true);
         MultiVectorConstPtr_Type p = this->solution_->getBlock(1);
@@ -272,6 +287,9 @@ void NavierStokesAssFE<SC,LO,GO,NO>::reAssemble(std::string type) const {
     }
     this->system_->addBlock(ANW,0,0);
 
+
+    // So if we are in the Non-Newtonian case AND we want to write out the viscosity solution then we will get the viscosity field
+    // from feFactory
     if( (this->parameterList_->sublist("Material").get("Newtonian",true) == false) && (this->parameterList_->sublist("Material").get("WriteOutViscosity",false)) == true ) 
     {
     Teuchos::RCP<const MultiVector<SC,LO,GO,NO>> exportSolutionViscosityAssFE = this->feFactory_->visco_output_->getBlock(0);

@@ -289,6 +289,7 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(NonLinearProblem_Type &proble
     double criterionValue = 1.;
     std::string criterion = problem.getParameterList()->sublist("Parameter").get("Criterion","Residual");
 
+    // here is now our nonlinear Iteration loop to solve the nonlinear problem iteratively
     while ( nlIts < maxNonLinIts ) {
 
         problem.calculateNonLinResidualVec("reverse");

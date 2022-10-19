@@ -150,13 +150,14 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
     vec3D_dbl_Type dPhiTransAtNodes( dPhiAtNodes->size(), vec2D_dbl_Type( dPhi->at(0).size(), vec_dbl_Type(dim,0.) ) );
     applyBTinv( dPhiAtNodes, dPhiTransAtNodes, Binv ); 
 
-
     vec_dbl_ptr_Type gammaDoti(new vec_dbl_Type( dPhiAtNodes->size(),0.0)); //gammaDot->at(i) i=0...number Nodal values
     computeShearRate(dPhiTransAtNodes, gammaDoti, dim); // updates gammaDot using velcoity solution 
      for (UN i=0; i<dPhiAtNodes->size(); i++){ //quads points
         this->materialModel->evaluateFunction(this->params_,  gammaDoti->at(i), this->solutionViscosity_.at(i));
     }
    }
+
+
 
 
     TEUCHOS_TEST_FOR_EXCEPTION(dim == 1,std::logic_error, "AssemblyStress Not implemented for dim=1");
@@ -169,18 +170,18 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
     // Compute shear rate gammaDot, which is a vector because it is evaluated at a gaussian quadrature point 
     // for that compute velocity gradient
     vec_dbl_ptr_Type gammaDot(new vec_dbl_Type(weights->size(),0.0)); //gammaDot->at(j) j=0...weights 
-    computeShearRate( dPhiTrans, gammaDot, dim); // updates gammaDot using velcoity solution 
+    computeShearRate( dPhiTrans, gammaDot, dim); // updates gammaDot using velocity solution 
     //*******************************
     // Compute entries    
     // Initialize some helper vectors/matrices
-    double v11, v12, v21, v22, value1_j, value2_j , value1_i, value2_i, viscosity_atw, viscosity_averageOverT;
+    double v11, v12, v21, v22, value1_j, value2_j , value1_i, value2_i, viscosity_atw;
         SmallMatrix<double> e1i(dim);
         SmallMatrix<double> e2i(dim);
         SmallMatrix<double> e1j(dim);
         SmallMatrix<double> e2j(dim);
 
         viscosity_atw = 0.;
-        viscosity_averageOverT=0.;
+    
      
 
     // Construct element matrices 
@@ -223,6 +224,9 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
                 this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
                 //if (i==0 && j==0) viscosity_averageOverT += viscosity_atw; // see below ### 
 
+                //viscosity_atw = viscosity_atw*this->density_; WE CALCULATE THE DYNAMIC VISCOSITY ALREADY SO USE IN FORMULAS DYNAMIC VISCOSITY
+         
+
                 // Construct entries - we go over all quadrature points and if j is updated we set v11 etc. again to zero
                  v11 = v11 + viscosity_atw * weights->at(w) * e1i.innerProduct(e1j); // xx contribution: 2 *dphi_i/dx *dphi_j/dx + dphi_i/dy* dphi_j/dy
                  v12 = v12 + viscosity_atw *  weights->at(w) * e1i.innerProduct(e2j); // xy contribution:  dphi_i/dy* dphi_j/dx
@@ -233,7 +237,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
             } // loop end quadrature points
             
             //multiply determinant from transformation
-            if (i==0 && j==0)  viscosity_averageOverT *= absDetB; 
+           // if (i==0 && j==0)  viscosity_averageOverT *= absDetB; 
             v11 *= absDetB; 
             v12 *= absDetB;
             v21 *= absDetB;
@@ -331,6 +335,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
 
                        this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
 
+                    
                        // Construct entries - we go over all quadrature points and if j is updated we set v11 etc. again to zero
                         v11 = v11 + viscosity_atw *  weights->at(w) * e1i.innerProduct(e1j);
                         v12 = v12 + viscosity_atw *  weights->at(w) * e1i.innerProduct(e2j);

@@ -232,6 +232,18 @@ void NavierStokes<SC,LO,GO,NO>::assembleDivAndStab() const{
         
         this->system_->addBlock( C, 1, 1 );
     }
+    else{
+// In order to set Dirichlet Boundary Conditions to the pressure block, we need to add an "empty" Matrix at (1,1)
+// Otherwise the builder will skip the pressure block.
+// We have to preallocate the diagonal indices of the Matrix, as the 'preset' values structure is used to change them to
+// ones and zeros for dirichlet values.
+C.reset(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+this->feFactory_->assemblyIdentity(C); // assemble as identity matrix with diagonal entries
+C->resumeFill();
+C->scale( 0. ); // Scale ones back to zeros
+C->fillComplete( pressureMap, pressureMap );
+this->system_->addBlock( C, 1, 1 );
+}
 
 };
 
