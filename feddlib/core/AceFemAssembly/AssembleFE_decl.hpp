@@ -82,6 +82,11 @@ namespace FEDD {
         virtual void assembleRHS() = 0;
 
         /*!
+        	 \brief In case of non-newtonian fluids viscosity is not constant - Compute the viscosity for an element depending on the knwon velocity solution.
+        */
+	    virtual void computeLocalViscosity() {};
+
+        /*!
          \brief In case of non-newtonian fluids viscosity is not constant 
          \return the local viscosity solution at the nodes inside an element
         */

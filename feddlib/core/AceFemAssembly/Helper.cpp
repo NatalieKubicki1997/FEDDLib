@@ -602,11 +602,47 @@ int Helper::getPhi(vec2D_dbl_ptr_Type &Phi,
 }
 
 
+int Helper::getDPhiAtCM(vec3D_dbl_ptr_Type &DPhi,
+                     int dim,
+		             std::string FEType,
+		             vec_dbl_Type CM)
+                     {
+    int 			nmbLocElPts;
+    int 			intFE;
+    vec_dbl_ptr_Type 	value(new vec_dbl_Type(dim,0.0));
+
+    if (dim==2) {
+        if (FEType == "P0") {
+            nmbLocElPts = 1;
+            intFE = 0;
+        }
+        else if (FEType == "P1") {
+            nmbLocElPts = 3;
+            intFE = 1;
+        }
+        else if (FEType == "P2") {
+            nmbLocElPts = 6;
+            intFE = 2;
+        }
+
+        DPhi.reset(new vec3D_dbl_Type(1,vec2D_dbl_Type(nmbLocElPts,vec_dbl_Type(2,0.0))));
+
+        for (int k=0; k<DPhi->size(); k++ ){
+            for (int i=0; i<DPhi->at(0).size(); i++) {
+                gradPhi(dim,intFE,i,CM,value);
+                for (int j=0; j<2; j++) {
+                    DPhi->at(k).at(i).at(j) = value->at(j);
+                }
+            }
+        }
+    }
+                     }
+
 
 int Helper::getDPhiAtNodes(vec3D_dbl_ptr_Type &DPhi,
                      int dim,
 		             std::string FEType,
-		             int Degree, vec2D_dbl_Type  nodesCoorInRefConfig){
+		             vec2D_dbl_Type  nodesCoorInRefConfig){
 
     int 			nmbLocElPts;
     int 			intFE;

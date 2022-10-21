@@ -101,6 +101,10 @@ public:
     
     virtual void computeValuesOfInterestAndExport() {};
 
+    // because we do not derive any further classes from NavierStokesAssFE I would not add virtual 
+    void computeViscosity_Solution();
+    void getViscosity_Solution();
+
 //    virtual void assembleExternal( std::string type ){};
     /*####################*/
 
@@ -108,7 +112,8 @@ public:
     vec_int_ptr_Type pressureIDsLoc;
     MultiVectorPtr_Type u_rep_; // wofür steht rep?
     MultiVectorPtr_Type p_rep_;
-    MultiVectorPtr_Type viscosity_rep_;
+
+    MultiVectorPtr_Type viscosity_element_;
     /* ----------------------------------------------------------------------------------------*/
 
 private:

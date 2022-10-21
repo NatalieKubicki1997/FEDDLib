@@ -32,10 +32,6 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 	typedef Teuchos::RCP<DifferentiableFuncClass_Type> DifferentiableFuncClassPtr_Type;
     // smart pointer inside we need a type
 
-    // We have to add here class of specific material model or have we?
-	//typedef CarreauYasuda<SC,LO,GO,NO>  CarreauYasuda_Type;
-	//typedef Teuchos::RCP<CarreauYasuda> CarreauYasudaPtr_Type;
-
 	/*!
 	 \brief Assemble the element Jacobian matrix.
 	*/
@@ -46,11 +42,10 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 	*/
 	virtual void assembleRHS();
 
-	//SmallMatrixPtr_Type getFixedPointMatrix(){return ANB_;};
-
-	//void setCoeff(SmallMatrix_Type coeff);
-
-
+		/*!
+	 \brief Compute the viscosity for an element depending on the knwon velocity solution.
+	*/
+	virtual void computeLocalViscosity();
 
    protected:
  
@@ -102,15 +97,7 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 	*/
 	//void assemblyAdvectionInU(SmallMatrixPtr_Type &elementMatrix); 
 
-	/*!
-
-	 \brief Assembly \f$ \int_T  div(v) p ~dx\f$ / \f$ \int_T  div(u) q ~dx\f$
-	@param[in] &elementMatrix
-
-	*/
-	//void assemblyDivAndDivT(SmallMatrixPtr_Type &elementMatrix);
-
-
+	
 
     friend class AssembleFEFactory<SC,LO,GO,NO>; // Must have for specfic classes
 
@@ -121,10 +108,6 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 		            SmallMatrix<SC>& Binv);
 
 	void computeShearRate(vec3D_dbl_Type dPhiTrans, vec_dbl_ptr_Type& gammaDot, int dim);
-/*
-	void evaluateGeneralizedNewtonianModel(ParameterListPtr_Type params, double shearRate, double &viscosity);
-    void evaluateGeneralizedNewtonianModel_FirstDerivative(ParameterListPtr_Type params, double shearRate, double &res);
-*/
 
     DifferentiableFuncClassPtr_Type materialModel;
 

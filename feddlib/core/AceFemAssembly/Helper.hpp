@@ -35,7 +35,14 @@ public:
     static int getDPhiAtNodes(vec3D_dbl_ptr_Type &DPhi,
                      int dim,
 		             std::string FEType,
-		             int Degree, vec2D_dbl_Type nodesRefConfig);
+		             vec2D_dbl_Type nodesRefConfig);
+
+    // Natalie new function to get viscosity at center of mass
+    static int getDPhiAtCM(vec3D_dbl_ptr_Type &DPhi,
+                     int dim,
+		             std::string FEType,
+		             vec_dbl_Type CM);        
+                     
 
     static UN determineDegree(UN dim,
                        std::string FEType,

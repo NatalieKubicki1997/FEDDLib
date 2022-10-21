@@ -12,7 +12,8 @@ AssembleFENavierStokes<SC,LO,GO,NO>(flag, nodesRefConfig, params,tuple)
 
     ////******************* IF we want to save viscosity**********************************
 	dofsElementViscosity_ = this->dofsPressure_*this->numNodesVelocity_; // So it is a scalar quantity but as it depend on the velocity it is defined at the nodes of the velocity
-	this->solutionViscosity_ = vec_dbl_Type(dofsElementViscosity_ );
+	//this->solutionViscosity_ = vec_dbl_Type(dofsElementViscosity_ );
+    this->solutionViscosity_ = vec_dbl_Type(1 );
     ////**********************************************************************************
     
     // Reading through parameterlist
@@ -138,26 +139,6 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
     //dPhiTrans[0][0].size() = 2 as we have in dim=2 case two derivatives
 
 
-    if( (this->params_->sublist("Material").get("WriteOutViscosity",false)) == true ) 
-    {
-    // So based on the previous solution we can compute viscosity at the nodal values
-// So what we need are the coordinates of an local reference element which are the always the same
-    vec3D_dbl_ptr_Type 	dPhiAtNodes;
-    vec2D_dbl_Type RefNodesCoor(numNodes,  vec_dbl_Type(dim,0.) ); 
-
-    Helper::getCoorNodesEle(RefNodesCoor, dim, FEType );
-    Helper::getDPhiAtNodes(dPhiAtNodes, dim, FEType, deg, RefNodesCoor); // these are the original coordinates of the element
-    vec3D_dbl_Type dPhiTransAtNodes( dPhiAtNodes->size(), vec2D_dbl_Type( dPhi->at(0).size(), vec_dbl_Type(dim,0.) ) );
-    applyBTinv( dPhiAtNodes, dPhiTransAtNodes, Binv ); 
-
-    vec_dbl_ptr_Type gammaDoti(new vec_dbl_Type( dPhiAtNodes->size(),0.0)); //gammaDot->at(i) i=0...number Nodal values
-    computeShearRate(dPhiTransAtNodes, gammaDoti, dim); // updates gammaDot using velcoity solution 
-     for (UN i=0; i<dPhiAtNodes->size(); i++){ //quads points
-        this->materialModel->evaluateFunction(this->params_,  gammaDoti->at(i), this->solutionViscosity_.at(i));
-    }
-   }
-
-
 
 
     TEUCHOS_TEST_FOR_EXCEPTION(dim == 1,std::logic_error, "AssemblyStress Not implemented for dim=1");
@@ -220,12 +201,9 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
                  e2i[1][1] = value2_i;
                 // e2i = [ 0, 0 ; dphi_i/dx  ,  dphi_i/dy ]
 
-                // viscosity function evaluated
+                // viscosity function evaluated where we consider the dynamic viscosity!!
                 this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
                 //if (i==0 && j==0) viscosity_averageOverT += viscosity_atw; // see below ### 
-
-                //viscosity_atw = viscosity_atw*this->density_; WE CALCULATE THE DYNAMIC VISCOSITY ALREADY SO USE IN FORMULAS DYNAMIC VISCOSITY
-         
 
                 // Construct entries - we go over all quadrature points and if j is updated we set v11 etc. again to zero
                  v11 = v11 + viscosity_atw * weights->at(w) * e1i.innerProduct(e1j); // xx contribution: 2 *dphi_i/dx *dphi_j/dx + dphi_i/dy* dphi_j/dy
@@ -255,10 +233,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
 
     } // loop end over i node
 
-    // ### So it should also be possible to computa an averaged viscosity value inside an element and than assign each to each node this averaged value
-    // viscosity_averageOverT *= absDetB; ????? did not work out
-    //for (UN i = 0; i <  this->solutionViscosity_.size() ; i++){this->solutionViscosity_.at(i) =  viscosity_averageOverT;}
-    
+
     } // end if dim 2
     //***************************************************************************
     else if (dim == 3)
@@ -904,22 +879,93 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeShearRate(  vec3D_d
 }
 
 
+
+
+
+// So based on the previous solution we can compute viscosity at the nodal values
+// So what we need are the coordinates of an local reference element which are always the same
+// DOES WORK
 /*
 template <class SC, class LO, class GO, class NO>
-void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::evaluateGeneralizedNewtonianModel(ParameterListPtr_Type params, double shearRate, double &viscosity){
-   if(shearThinningModel == "Carreau-Yasuda"){
-		
-	}
-	else if(shearThinningModel == "Power-Law"){
-		Teuchos::RCP<PowerLaw<SC,LO,GO,NO>> materialModelSpecific(new PowerLaw<SC,LO,GO,NO>(params) );
-		materialModel = materialModelSpecific;
-	}
-	else
-    		TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "No specific implementation for your material model request.");
+void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeLocalViscosity()
+{
+	int dim = this->getDim();
+	int numNodes= this->numNodesVelocity_;
+	int Grad =2; // Needs to be fixed	
+	string FEType = this->FETypeVelocity_;
+	int dofs = this->dofsVelocity_; // for pressure it would be 1 
+   
+    SC detB;
+    SC absDetB;
+    SmallMatrix<SC> B(dim);
+    SmallMatrix<SC> Binv(dim);
+  
+    buildTransformation(B);
+    detB = B.computeInverse(Binv); 
+    absDetB = std::fabs(detB); 
+
+    vec3D_dbl_ptr_Type 	dPhiAtNodes;
+    vec2D_dbl_Type RefNodesCoor(numNodes,  vec_dbl_Type(dim,0.) ); 
+
+    Helper::getCoorNodesEle(RefNodesCoor, dim, FEType );
+    Helper::getDPhiAtNodes(dPhiAtNodes, dim, FEType, RefNodesCoor); // these are the original coordinates of the element
+    vec3D_dbl_Type dPhiTransAtNodes( dPhiAtNodes->size(), vec2D_dbl_Type( dPhiAtNodes->at(0).size(), vec_dbl_Type(dim,0.) ) );
+    applyBTinv( dPhiAtNodes, dPhiTransAtNodes, Binv ); 
+
+    vec_dbl_ptr_Type gammaDoti(new vec_dbl_Type( dPhiAtNodes->size(),0.0)); //gammaDot->at(i) i=0...number Nodal values
+    computeShearRate(dPhiTransAtNodes, gammaDoti, dim); // updates gammaDot using velcoity solution 
+     for (UN i=0; i<dPhiAtNodes->size(); i++){ // for each node
+        this->materialModel->evaluateFunction(this->params_,  gammaDoti->at(i), this->solutionViscosity_.at(i));
+    }
+   
+
+}*/
+
+// So based on the previous solution we can compute viscosity at the nodal values
+// So what we need are the coordinates of an local reference element which are always the same
+
+template <class SC, class LO, class GO, class NO>
+void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeLocalViscosity()
+{
+	int dim = this->getDim();
+	int numNodes= this->numNodesVelocity_;
+	int Grad =2; // Needs to be fixed	
+	string FEType = this->FETypeVelocity_;
+	int dofs = this->dofsVelocity_; // for pressure it would be 1 
+   
+    SC detB;
+    SC absDetB;
+    SmallMatrix<SC> B(dim);
+    SmallMatrix<SC> Binv(dim);
+  
+    buildTransformation(B);
+    detB = B.computeInverse(Binv); 
+    absDetB = std::fabs(detB); 
+
+    vec3D_dbl_ptr_Type 	dPhiAtCM;
+    vec_dbl_Type 	CM(dim,0.0); // center of mass - so we want to compute the viscosity value in the middle of the element
+    if (dim == 2) // center of mass of reference triangle (xi-eta coordinates)
+    {
+    CM[0]=1.0/3.0;
+    CM[1]=1.0/3.0;
+    }
+    else if(dim == 3) // center of mass of reference tetrahedor (xi - eta - omega coordinates)
+    {
+    CM[0]=1.0/4.0;
+    CM[1]=1.0/4.0;
+    CM[2]=1.0/4.0;
+    }
+
+    Helper::getDPhiAtCM(dPhiAtCM, dim, FEType, CM); // these are the original coordinates of the reference element
+    vec3D_dbl_Type dPhiTransAtCM( dPhiAtCM->size(), vec2D_dbl_Type( dPhiAtCM->at(0).size(), vec_dbl_Type(dim,0.) ) );
+    applyBTinv( dPhiAtCM, dPhiTransAtCM, Binv ); 
+
+    vec_dbl_ptr_Type gammaDoti(new vec_dbl_Type( dPhiAtCM->size(),0.0)); //only one value because size is one
+    computeShearRate(dPhiTransAtCM, gammaDoti, dim); // updates gammaDot using velcoity solution 
+    this->materialModel->evaluateFunction(this->params_,  gammaDoti->at(0), this->solutionViscosity_.at(0));
+    
 
 }
-
-*/
 
 }
 #endif

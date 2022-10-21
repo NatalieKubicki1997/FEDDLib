@@ -398,43 +398,55 @@ int main(int argc, char *argv[])
             Teuchos::TimeMonitor::report(cout, "Main");
 
 
-            /*Viskosität berechnen auf Basis der berechnet Geschwindigkeitslösung*/
+                // We only write out viscosity field if we consider non-Newtonian fluid because otherwise it is constant
+            if((parameterListProblem->sublist("Material").get("Newtonian",true) == false) && (parameterListProblem->sublist("Material").get("WriteOutViscosity",false)) == true ) 
+            {
+
+            Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaViscsoity(new ExporterParaView<SC, LO, GO, NO>());
+            DomainPtr_Type domV = domainVelocity;
+            //int nmbElementsGlob = domV->getMesh()->getNumElementsGlobal();
+
+                /*Viskosität berechnen auf Basis der berechnet Geschwindigkeitslösung*/
             navierStokesAssFE.computeViscosity_Solution();
             navierStokesAssFE.getViscosity_Solution();
+            //**************** Write out viscosity ****************** so we need something from type multivector so this is not working because we can not acces  navierStokesAssFE.feFactory_->visco_output_->getBlock(0)
+          /*  Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaViscsoity(new ExporterParaView<SC, LO, GO, NO>());
+            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionViscosityAssFE = navierStokesAssFE.viscosity_unique_; // navierStokesAssFE.getSolution()->getBlock(1);
+
+            DomainPtr_Type domV = domainVelocity;
+            exParaViscsoity->setup("viscosity", domV->getMesh(), domV->getFEType());
+            exParaViscsoity->addVariable(exportSolutionViscosityAssFE, "viscosityAssFE", "Scalar", 1, domV->getMapUnique()); // Unique
+            exParaViscsoity->save(0.0);
+         */
+         
+            
+            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionViscosityAssFE = navierStokesAssFE.viscosity_element_; // navierStokesAssFE.getSolution()->getBlock(1);
+
+            
+          //  MeshPtr_Type meshNonConst = Teuchos::rcp_const_cast<Mesh_Type>( dom->getMesh() );
+
+            //exParaViscsoity->setup("viscosity", meshNonConst, "P0", this->parameterList_);
+            exParaViscsoity->setup("viscosity", domV->getMesh(), "P0");
+            exParaViscsoity->addVariable(exportSolutionViscosityAssFE, "viscosityAssFE", "Scalar", 1,  domV->getElementMap() );
+            exParaViscsoity->save(0.0);
+
+           
+            }
 
 
-        double H = 0.001;
-        double mu = 0.00345;
-        double rho = 1050.0;
-        double Re = 1.0;
-        double averageVelocity = (mu/(rho*H))*Re;
-    
-
+       
 
             Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaVelocity(new ExporterParaView<SC, LO, GO, NO>());
-            Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaVelocityScaled(new ExporterParaView<SC, LO, GO, NO>());
             Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaPressure(new ExporterParaView<SC, LO, GO, NO>());
 
             Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionVAssFE = navierStokesAssFE.getSolution()->getBlock(0);
             Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionPAssFE = navierStokesAssFE.getSolution()->getBlock(1);
-            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionVAssScaledFE = navierStokesAssFE.getSolution()->getBlock(0);
+           
             
-
             DomainPtr_Type dom = domainVelocity;
             exParaVelocity->setup("velocity", dom->getMesh(), dom->getFEType());
             UN dofsPerNode = dim;
             exParaVelocity->addVariable(exportSolutionVAssFE, "uAssFE", "Vector", dofsPerNode, dom->getMapUnique());
-
-            Teuchos::RCP<MultiVector<SC,LO,GO,NO> > velocityScaled = Teuchos::rcp(new MultiVector<SC,LO,GO,NO>( navierStokesAssFE.getSolution()->getBlock(0)->getMap() ) ); 
-
-            exParaVelocityScaled->setup("velocityScaled", dom->getMesh(), dom->getFEType());
-            velocityScaled->update( 1./(2*averageVelocity), exportSolutionVAssFE, 0. ,exportSolutionVAssFE, 0.);
-
-           // velocityScaled->scale(1./averageVelocity);
-            Teuchos::RCP<const MultiVector<SC,LO,GO,NO> > velocityScaledC = velocityScaled;
-            exParaVelocityScaled->addVariable(velocityScaledC, "velocityScaled", "Vector", dofsPerNode, dom->getMapUnique());
-
-
 
     
             dom = domainPressure;
@@ -446,10 +458,30 @@ int main(int argc, char *argv[])
 
 
 
+  bool scaled = false;
+             if (scaled==true){
+             double H = 0.001;
+             double mu = 0.00345;
+             double rho = 1050.0;
+             double Re = 1.0;
+             double averageVelocity = (mu/(rho*H))*Re;
+
+            Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaVelocityScaled(new ExporterParaView<SC, LO, GO, NO>());
+            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionVAssScaledFE = navierStokesAssFE.getSolution()->getBlock(0);
+
+            dom = domainVelocity;
+   
+            Teuchos::RCP<MultiVector<SC,LO,GO,NO> > velocityScaled = Teuchos::rcp(new MultiVector<SC,LO,GO,NO>( navierStokesAssFE.getSolution()->getBlock(0)->getMap() ) ); 
+
+            exParaVelocityScaled->setup("velocityScaled", dom->getMesh(), dom->getFEType());
+            velocityScaled->update( 1./(2*averageVelocity), exportSolutionVAssFE, 0. ,exportSolutionVAssFE, 0.);
+
+            Teuchos::RCP<const MultiVector<SC,LO,GO,NO> > velocityScaledC = velocityScaled;
+            exParaVelocityScaled->addVariable(velocityScaledC, "velocityScaled", "Vector", dofsPerNode, dom->getMapUnique());
 
             exParaVelocityScaled->save(0.0);
-
-
+}
+          
 
 //************************************
 bool compareNavierStokes = false;
@@ -590,18 +622,7 @@ if (compareNavierStokes==true)
 }
 
 
-            // We only write out viscosity field if we consider non-Newtonian fluid because otherwise it is constant
-            if((parameterListProblem->sublist("Material").get("Newtonian",true) == false) && (parameterListProblem->sublist("Material").get("WriteOutViscosity",false)) == true ) 
-            {
-            //**************** Write out viscosity ****************** so we need something from type multivector so this is not working because we can not acces  navierStokesAssFE.feFactory_->visco_output_->getBlock(0)
-            Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaViscsoity(new ExporterParaView<SC, LO, GO, NO>());
-            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionViscosityAssFE = navierStokesAssFE.viscosity_rep_; // navierStokesAssFE.getSolution()->getBlock(1);
-
-            dom = domainVelocity;
-            exParaViscsoity->setup("viscosity", dom->getMesh(), dom->getFEType());
-            exParaViscsoity->addVariable(exportSolutionViscosityAssFE, "viscosityAssFE", "Scalar", 1, dom->getMapUnique());
-            exParaViscsoity->save(0.0);
-            }
+        
         }
     }
     Teuchos::TimeMonitor::report(cout);

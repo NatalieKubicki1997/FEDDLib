@@ -46,7 +46,7 @@ A_(),
 pressureIDsLoc(new vec_int_Type(2)),
 u_rep_(),
 p_rep_(), //member initializer lists
-viscosity_rep_() // Added here also viscosity field 
+viscosity_element_() // Added here also viscosity field 
 {
 
     this->nonLinearTolerance_ = this->parameterList_->sublist("Parameter").get("relNonLinTol",1.0e-6);
@@ -59,7 +59,8 @@ viscosity_rep_() // Added here also viscosity field
 
     u_rep_         = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getMapVecFieldRepeated() ) );
     // so because viscosity is a scalar value but it depends on the velocity it is defined on the FE definition of the velocity
-    viscosity_rep_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getMapRepeated() ) );
+    //viscosity_rep_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getMapRepeated() ) );
+    
 
     p_rep_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(1)->getMapRepeated() ) );
 
@@ -288,14 +289,6 @@ void NavierStokesAssFE<SC,LO,GO,NO>::reAssemble(std::string type) const {
     this->system_->addBlock(ANW,0,0);
 
 
-    // So if we are in the Non-Newtonian case AND we want to write out the viscosity solution then we will get the viscosity field
-    // from feFactory
-    if( (this->parameterList_->sublist("Material").get("Newtonian",true) == false) && (this->parameterList_->sublist("Material").get("WriteOutViscosity",false)) == true ) 
-    {
-    Teuchos::RCP<const MultiVector<SC,LO,GO,NO>> exportSolutionViscosityAssFE = this->feFactory_->visco_output_->getBlock(0);
-    viscosity_rep_->importFromVector(exportSolutionViscosityAssFE, true);  
-    }
-
     if (this->verbose_)
         std::cout << "done -- " << std::endl;
  
@@ -324,6 +317,7 @@ void NavierStokesAssFE<SC,LO,GO,NO>::calculateNonLinResidualVec(std::string type
     else
         this->system_->apply( *this->solution_, *this->residualVec_, this->coeff_ );*/
     
+    // so because we have "reverse" we wil jump into the standard case because of the !
     if (!type.compare("standard")){
         this->residualVec_->update(-1.,*this->rhs_,1.);
 //        if ( !this->sourceTerm_.is_null() )
@@ -342,6 +336,36 @@ void NavierStokesAssFE<SC,LO,GO,NO>::calculateNonLinResidualVec(std::string type
     }
 
 }
+
+
+// we use therefore the current solution
+template<class SC,class LO,class GO,class NO>
+void NavierStokesAssFE<SC,LO,GO,NO>::computeViscosity_Solution() {
+  
+    viscosity_element_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getElementMap() ) );
+
+    MultiVectorConstPtr_Type u = this->solution_->getBlock(0); // solution_ is initialized in problem_def.hpp so the most general class
+    u_rep_->importFromVector(u, true); // this is the current velocity solution at the nodes - distributed at the processors with repeated values
+   
+    MultiVectorConstPtr_Type p = this->solution_->getBlock(1);
+    p_rep_->importFromVector(p, true);  // this is the current pressure solution at the nodes - distributed at the processors with repeated values
+   
+    this->feFactory_->updateViscosityFE(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->parameterList_);        
+ 	
+    Teuchos::RCP<const MultiVector<SC,LO,GO,NO>> exportSolutionViscosityAssFE = this->feFactory_->visco_output_->getBlock(0);
+
+    viscosity_element_->importFromVector(exportSolutionViscosityAssFE, true);  
+  
+  
+
+}
+
+template<class SC,class LO,class GO,class NO>
+void NavierStokesAssFE<SC,LO,GO,NO>::getViscosity_Solution() {
+
+
+}
+
 
 
 template<class SC,class LO,class GO,class NO>
