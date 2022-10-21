@@ -102,7 +102,7 @@ public:
     virtual void computeValuesOfInterestAndExport() {};
 
     // because we do not derive any further classes from NavierStokesAssFE I would not add virtual 
-    void computeViscosity_Solution();
+    void computeViscosity_Solution(bool viscosityAtNodes);
     void getViscosity_Solution();
 
 //    virtual void assembleExternal( std::string type ){};

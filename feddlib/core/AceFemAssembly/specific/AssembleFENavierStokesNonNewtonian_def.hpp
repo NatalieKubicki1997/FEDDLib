@@ -12,8 +12,8 @@ AssembleFENavierStokes<SC,LO,GO,NO>(flag, nodesRefConfig, params,tuple)
 
     ////******************* IF we want to save viscosity**********************************
 	dofsElementViscosity_ = this->dofsPressure_*this->numNodesVelocity_; // So it is a scalar quantity but as it depend on the velocity it is defined at the nodes of the velocity
-	//this->solutionViscosity_ = vec_dbl_Type(dofsElementViscosity_ );
-    this->solutionViscosity_ = vec_dbl_Type(1 );
+	this->solutionViscosity_ = vec_dbl_Type(dofsElementViscosity_ );
+    //this->solutionViscosity_ = vec_dbl_Type(1 );
     ////**********************************************************************************
     
     // Reading through parameterlist
@@ -885,9 +885,9 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeShearRate(  vec3D_d
 // So based on the previous solution we can compute viscosity at the nodal values
 // So what we need are the coordinates of an local reference element which are always the same
 // DOES WORK
-/*
+
 template <class SC, class LO, class GO, class NO>
-void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeLocalViscosity()
+void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeLocalViscosity_AtNodes()
 {
 	int dim = this->getDim();
 	int numNodes= this->numNodesVelocity_;
@@ -919,7 +919,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeLocalViscosity()
     }
    
 
-}*/
+}
 
 // So based on the previous solution we can compute viscosity at the nodal values
 // So what we need are the coordinates of an local reference element which are always the same

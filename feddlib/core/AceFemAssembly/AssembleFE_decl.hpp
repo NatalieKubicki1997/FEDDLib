@@ -85,6 +85,11 @@ namespace FEDD {
         	 \brief In case of non-newtonian fluids viscosity is not constant - Compute the viscosity for an element depending on the knwon velocity solution.
         */
 	    virtual void computeLocalViscosity() {};
+          /*!
+        	 \brief In case of non-newtonian fluids viscosity is not constant - Compute the viscosity for an element depending on the knwon velocity solution.
+        */
+	    virtual void computeLocalViscosity_AtNodes() {};
+
 
         /*!
          \brief In case of non-newtonian fluids viscosity is not constant 
