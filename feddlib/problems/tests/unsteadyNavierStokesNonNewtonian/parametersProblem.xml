@@ -1,20 +1,20 @@
 <ParameterList name="unsteady Navier-Stokes">
+ <!-- Problem specific parameters like e.g. dimension, FE type -->
     <ParameterList name="Parameter">
         <Parameter name="Dimension" type="int" value="2"/>
         <Parameter name="Discretization Velocity" type="string" value="P2"/><!--P1, P2; velocity -->
         <Parameter name="Discretization Pressure" type="string" value="P1"/>
         <Parameter name="Mesh Type" type="string" value="unstructured"/> <!--structured, unstructured -->
         <Parameter name="BC Type" type="string"   value="partialCFD"/><!-- parabolic, parabolic_benchmark, partialCFD, parabolic_benchmark_sin-->
-        <Parameter name="Newtonian" type="bool" value="false"/>
         <Parameter name="Mesh Delimiter" type="string" value=" "/>
         <Parameter name="H/h" type="int" value="3"/>
-        <Parameter name="Viscosity" type="double" value="1.0e-2"/> <!-- kinematic Viscosity-->
+        <Parameter name="Viscosity" type="double" value="0.000035"/> <!-- kinematic Viscosity-->
         <Parameter name="Density" type="double" value="1000.0"/>
         <Parameter name="MaxVelocity" type="double" value="1.5"/>
         <Parameter name="MeanVelocity"  type="double" value="1.0"/>
         
-        <Parameter name="relNonLinTol" type="double" value="1.0e-4"/>
-        <Parameter name="absNonLinTol" type="double" value="1.0e-4"/>
+        <Parameter name="relNonLinTol" type="double" value="1.0e-6"/> <!-- -4 -->
+        <Parameter name="absNonLinTol" type="double" value="1.0e-6"/>
         <Parameter name="updateTol" type="double" value="1.0e-4"/>
         <Parameter name="Combo" type="string" value="OR"/>
         <Parameter name="Use update tol" type="bool" value="false"/>
@@ -29,30 +29,33 @@
 
     <ParameterList name="Mesh Partitioner">
         <Parameter name="Contiguous" type="bool" value="true"/>        
-        <Parameter name="Mesh 1 Name" type="string" value="rectangleCouette.mesh"/>
+	<Parameter name="Mesh 1 Name" type="string" value="Meshes_Rectangle/rectangle_test2x2.mesh"/>
 </ParameterList>
 
     <!-- Material specific parameters like e.g. Newtonian fluid, Carreau-Yasuda model and corresponding parameters -->
     <ParameterList name="Material">    
-        <Parameter name="Newtonian" type="bool" value="false"/> 
-        <Parameter name="ShearThinningModel" type="string" value="Carreau-Yasuda"/> <!-- Power-Law, Carreau-Yasuda  -->
+        <Parameter name="Newtonian" type="bool" value="false"/>
+        <Parameter name="ShearThinningModel" type="string" value="Power-Law"/> <!-- Power-Law, Carreau-Yasuda  -->
+        <Parameter name="WriteOutViscosity" type="bool" value="false"/>
+	    <Parameter name="compareNavierStokes" type="bool" value="false"/>	
+        <Parameter name="NeumannIntegral" type="bool" value="false"/>
 	<!--********************FOR CHOSEN MODEL USER HAS TO SET MATERIAL PARAMETERS BELOW**************************-->
 
 	<!-- Power Law assumes for the viscosity eta the functional form \eta(\gamma) = K \gamma^(n-1) -->
         <!-- For n=1 we have Newtonian Fluid with constant viscosity corresponding to the value of K-->
-        <Parameter name="PowerLawParameter K" type="double" value="1.0"/>
+        <Parameter name="PowerLawParameter K" type="double" value="0.035"/>
         <Parameter name="PowerLaw index n" type="double" value="1.0"/> <!-- for n<1 we have shear thinning behaviour-->
         <Parameter name="Numerical_InftyShearRateViscosity" type="double" value="0.0001"/>
-        <Parameter name="Numerical_ZeroShearRateViscosity" type="double" value="0.035"/>
+	<Parameter name="Numerical_ZeroShearRateViscosity" type="double" value="0.035"/> <!-- lower , higher? -->
 		
 	<!-- Carreau Yasuda assumes for the viscosity eta the functional form \eta(\gamma) = \eta_{\infty} + (\eta_0 - \eta_{\infty})*( (  1+(\lambda*\gamma)^a  )^((n-1)/a)   ) --> 
         <!-- For a=2 we have Carreau Model-->
         <!-- For a=1-n we have Cross Model-->
         <!-- For a=1 and n=0 we have Simplified Cross Model-->
         <Parameter name="InftyShearRateViscosity_etaInfty" type="double" value="0."/>
-        <Parameter name="ZeroShearRateViscosity_eta0" type="double" value="1.0"/>
+        <Parameter name="ZeroShearRateViscosity_eta0" type="double" value="0.035"/>
         <Parameter name="InflectionPoint_a" type="double" value="1.0"/>
-        <Parameter name="FluidIndex_n" type="double" value="1.0"/>
+        <Parameter name="FluidIndex_n" type="double" value="0.6"/>
         <Parameter name="CharacteristicTime_Lambda" type="double" value="1.0"/>
 </ParameterList>
 

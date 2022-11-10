@@ -350,19 +350,19 @@ int main(int argc, char *argv[])
                 }
              */
             
-            //** POISEUILLE FLOW - Rectangle Grid 
+            //** POISEUILLE FLOW - Rectangle Grid //**//**//**//**//**//**//**//**//**//**//**
             bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
             bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
-           // bcFactory->addBC(inflowPowerLaw2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet
+            bcFactory->addBC(inflowPowerLaw2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet
             // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
             bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1); //Outflow
-            // for test 1x1, 2x2, 4x4 because else inflow is unsymmetric
+            // For test 1x1, 2x2, 4x4 because else inflow is unsymmetric
             //bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
-                          //bcFactory->addBC(inflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
-                 bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
+    
        
                 
-              //  bcFactory->addBC(zeroDirichlet, 3, 0, domainVelocity, "Neumann", dim); //Outflow - Try Neumann but then we have to set a pressure point anywhere else
+                
+            //  bcFactory->addBC(zeroDirichlet, 3, 0, domainVelocity, "Neumann", dim); //Outflow - Try Neumann but then we have to set a pressure point anywhere else
 
                 // We want to add now a Flag for Neumann boundary Term 
          

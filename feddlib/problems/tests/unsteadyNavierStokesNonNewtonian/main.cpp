@@ -71,12 +71,9 @@ void inflowPartialCFD(double* x, double* res, double t, const double* parameters
     return;
 }
 
+// Stepwise Inflow profile 
 void TimeDependentinflowParabolic2D(double* x, double* res, double t, const double* parameters){
 
-   /* double H = parameters[1];
-    res[0] = 4.*parameters[0]*x[1]*(H-x[1])/(H*H);
-    res[1] = 0.;
-   */
 
     double H = 0.1;
     double n = 0.6;
@@ -84,9 +81,7 @@ void TimeDependentinflowParabolic2D(double* x, double* res, double t, const doub
     double nu_0 = 0.035;
     double dp = 10000.0;
 
-    // res[0] = 4*parameters[0]*x[1]*(H-x[1])/(H*H);
-    // For v = 0.01 with rho=1000 so mu = 10
-    // and dp/dx should be= -10^4
+
     if(t <= 0.25)
     {
     res[0] = 0.25*(n/(n+1.0))*pow( dp/(rho_ref*nu_0), 1.0/n)*( pow( H/(2.0), (n+1.0)/n) - pow( abs( (H/2.0) -x[1] ) , (n+1.0)/n  ) );
@@ -113,12 +108,9 @@ void TimeDependentinflowParabolic2D(double* x, double* res, double t, const doub
     return;
 }
 
+// Slowly increasing velcoity profile depending on time t
 void TimeDependentSmoothinflowParabolic2D(double* x, double* res, double t, const double* parameters){
 
-   /* double H = parameters[1];
-    res[0] = 4.*parameters[0]*x[1]*(H-x[1])/(H*H);
-    res[1] = 0.;
-   */
 
     double H = 0.1;
     double n = 0.6;
@@ -126,9 +118,6 @@ void TimeDependentSmoothinflowParabolic2D(double* x, double* res, double t, cons
     double nu_0 = 0.035;
     double dp = 10000.0;
 
-    // res[0] = 4*parameters[0]*x[1]*(H-x[1])/(H*H);
-    // For v = 0.01 with rho=1000 so mu = 10
-    // and dp/dx should be= -10^4
     if(t < 1.)
     {
     res[0] = t*(n/(n+1.0))*pow( dp/(rho_ref*nu_0), 1.0/n)*( pow( H/(2.0), (n+1.0)/n) - pow( abs( (H/2.0) -x[1] ) , (n+1.0)/n  ) );
@@ -146,24 +135,32 @@ void TimeDependentSmoothinflowParabolic2D(double* x, double* res, double t, cons
 
 void inflowParabolic2D(double* x, double* res, double t, const double* parameters){
 
-   /* double H = parameters[1];
-    res[0] = 4.*parameters[0]*x[1]*(H-x[1])/(H*H);
-    res[1] = 0.;
-*/
-        //double H = parameters[1];
-   double H = 0.1;
+
+    double H = 0.1;
     double n = 0.6;
     double rho_ref = 1000.0;
     double nu_0 = 0.035;
     double dp = 10000.0;
 
-    // res[0] = 4*parameters[0]*x[1]*(H-x[1])/(H*H);
-    // For v = 0.01 with rho=1000 so mu = 10
-    // and dp/dx should be= -10^4
     res[0] = (n/(n+1.0))*pow( dp/(rho_ref*nu_0), 1.0/n)*( pow( H/(2.0), (n+1.0)/n) - pow( abs( (H/2.0) -x[1] ) , (n+1.0)/n  ) );
-    //*10.0;
     res[1] = 0.;
     
+    return;
+}
+
+// Inflow profile analytical solution of powr law problem 
+void inflowPowerLaw2D(double *x, double *res, double t, const double *parameters)
+{
+
+double H = 0.1;
+double dp = 10.0;
+
+double K =  parameters[0]; // 0.035;
+double n =  parameters[1]; // 1.0; // For n=1.0 we have parabolic inflow profile (Newtonian case)
+
+res[0] = (n / (n + 1.0)) * pow(dp / (K), 1.0 / n) * (pow(H / (2.0), (n + 1.0) / n) - pow(abs((H / 2.0) - x[1]), (n + 1.0) / n));
+res[1] = 0.;
+
     return;
 }
 
@@ -341,25 +338,49 @@ int main(int argc, char *argv[]) {
             Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory( new BCBuilder<SC,LO,GO,NO>( ) );
 
 
-          	 parameter_vec.push_back(0.41);//height of inflow region
+                      /***** For boundary condition read parameter values */
+            std::vector<double> parameter_vec(1, parameterListProblem->sublist("Material").get("PowerLawParameter K",0.));
+            parameter_vec.push_back(parameterListProblem->sublist("Material").get("PowerLaw index n",1.)); 
 
-            if (dim==2){
-                //*** POISEUILLE FLOW
-                bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim); // wall
-                bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
-                //bcFactory->addBC(, 3, 0, domainVelocity, "Dirichlet_Z", dim); // flag 3 is neumann 0, müssen wir nicht explizit angeben, da das defaulr ist 
-                //bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);
-              
-                 bcFactory->addBC(TimeDependentSmoothinflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); 
-            }
-            else if (dim==3){
-                bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);
-                bcFactory->addBC(inflowParabolic3D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
-//                        bcFactory->addBC(dummyFunc, 3, 0, domainVelocity, "Neumann", dim);
-//                        bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
-                bcFactory->addBC(zeroDirichlet3D, 2, 0, domainVelocity, "Dirichlet", dim);
-                
-            }
+            //          **********************  BOUNDARY CONDITIONS ***********************************
+            //          **********************  BOUNDARY CONDITIONS ***********************************     
+            //          **********************  BOUNDARY CONDITIONS ***********************************
+        
+            Teuchos::RCP<BCBuilder<SC, LO, GO, NO>> bcFactory(new BCBuilder<SC, LO, GO, NO>());
+            parameter_vec.push_back(1); // 0.41);
+
+            //** COUETTE FLOW
+            /*    if (dim==2){
+                // So for Couette Flow we have a moving upper plate and rigid lower plate
+                    bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim); // wall
+                    bcFactory->addBC(couette2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+                // The flow will be induced by the moving plate so there should be no pressure gradient in this testcase
+                    bcFactory->addBC(zeroDirichlet2D, 3, 1, domainPressure, "Dirichlet", 1); // outflow
+                    bcFactory->addBC(zeroDirichlet2D, 4, 1, domainPressure, "Dirichlet", 1); // inflow
+                }
+             */
+            
+            //** POISEUILLE FLOW - Rectangle Grid //**//**//**//**//**//**//**//**//**//**//**
+            bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
+            bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+            bcFactory->addBC(inflowPowerLaw2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet
+            // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
+            bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1); //Outflow
+            // For test 1x1, 2x2, 4x4 because else inflow is unsymmetric
+            //bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
+    
+       
+            //** Flow over step//**//**//**//**//**//**//**//**//**//**//**//**//**//**//**
+            /*
+            bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
+            bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+            bcFactory->addBC(zeroDirichlet2D, 3, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+            bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+            bcFactory->addBC(inflowParabolicAverageVelocity2D, 5, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet
+            */
+            // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
+            //bcFactory->addBC(zeroDirichlet, , 1, domainPressure, "Dirichlet", 1); //Outflow
+            // Ich muss irgendwo ein Druck Punkt festlegen bestimmt!!
    
                      
             int timeDisc = parameterListProblem->sublist("Timestepping Parameter").get("Butcher table",0);
