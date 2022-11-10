@@ -86,6 +86,33 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian() {
 	this->ANB_->add( (*elementMatrixN),((*this->ANB_)));
 
 
+
+    //****************
+    // Because we have stress-divergence form of Navier-Stokes equations in the non-newtonian case
+    // we have to add a extra boundary term to get the same outflow boundary condition as in the laplacian form
+    // because our natural boundary condition is different 
+
+    // We have to check whether it is an element which has edges (2D) / surfaces (3D) coressponding to an Neumann boundary
+    // if 
+  
+    // If yes we have to compute the Normals 
+    // compute Normals
+
+    // Then we have to compute contribution 
+    /*if (this->surfaceElement == true)
+    {
+      SmallMatrixPtr_Type elementMatrixNB =Teuchos::rcp( new SmallMatrix_Type( this->dofsElementVelocity_+this->numNodesPressure_));
+      this->assemblyNeumannBoundaryTerm(elementMatrixNB);
+      this->ANB_->add( (*elementMatrixNB),((*this->ANB_)));
+    }*/
+    //    SmallMatrixPtr_Type elementMatrixNB =Teuchos::rcp( new SmallMatrix_Type( this->dofsElementVelocity_+this->numNodesPressure_));
+    //    this->assemblyNeumannBoundaryTerm(elementMatrixNB);
+	//    this->ANB_->add( (*elementMatrixNB),((*this->ANB_)));
+
+
+    //****************
+
+
     // If linearization is not FixdPoint (so NOX or Newton) we add the derivative to the Jacobian matrix. Otherwise the FixedPoint formulation becomes the jacobian.
     if(this->linearization_ != "FixedPoint"){
 	    this->assemblyStressDev(elementMatrixW);
@@ -337,7 +364,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
                     v32 *= absDetB ;
                     v33 *= absDetB ;
 
-                   // Put values on the right position in element matrix - d=2 because we are in two dimensional case
+                   // Put values on the right position in element matrix 
                    // [v11  v12  v13]
                    // [v21  v22  v23]
                    // [v31  v32  v33]
@@ -713,6 +740,137 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
 
 
 
+
+
+// Boundary integral over Neumann boundary resulting from the fact that we want our outflow boundary conditions 
+// as in the case for reduced stress tensor - therefore we have to subtract the boundary integral
+// int_NeumannBoundary ( \nabla u)^T n \cdot w dNeumannBoundary
+
+template <class SC, class LO, class GO, class NO>
+void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTerm(SmallMatrixPtr_Type &elementMatrix) //, dblVecPtr normalVector) 
+{
+
+
+	int dim = this->getDim();
+	int numNodes= this->numNodesVelocity_;
+	string FEType = this->FETypeVelocity_;
+	int dofs = this->dofsVelocity_; // 
+
+    vec3D_dbl_ptr_Type 	dPhi; // derivative of basisfunction
+    vec2D_dbl_ptr_Type phi; // basisfunction 
+
+    // Now we have to compute the weights and the quadrature points for our line integral (2D), surface integral (3D)
+    // where we want to evaluate our dPhi, phi 
+
+   // vec_dbl_ptr_Type weights = Teuchos::rcp(new vec_dbl_Type(0));
+    //UN deg = Helper::determineDegree(dim,FEType,Grad); // for P1 3
+    //vec2D_dbl_ptr_Type quadPoints;
+    //getQuadratureValues(dim-1, deg, quadPoints, weights, FEType);
+    //w.reset();
+    // So what we have to do is determine the edge from the physical space in reference element in order to compute the
+    // quad points and weights at the correct (2D) position in reference element 
+    vec2D_dbl_ptr_Type QuadPts;
+    vec_dbl_ptr_Type QuadW(new vec_dbl_Type(2.0,0.0));
+    vec_dbl_Type normalVector(2); // we have to calculate it beforehand
+    normalVector[0]=1.0;
+    normalVector[1]=0.0;
+    QuadPts.reset(new vec2D_dbl_Type(2,vec_dbl_Type(2,0.0)));
+    QuadW->resize(2);
+    QuadPts->at(0).at(1) = - 0.5/sqrt(3.)+0.5;
+    QuadPts->at(0).at(0) = 0.;
+    QuadPts->at(1).at(0) = 0.;
+    QuadPts->at(1).at(1) = 0.5/sqrt(3.)+0.5;
+    QuadW->at(0) = .5;
+    QuadW->at(1) = .5;
+
+    Helper::getPhi(phi, QuadW,QuadPts, dim, FEType);
+    Helper::getDPhi(dPhi, QuadW,QuadPts, dim, FEType); // for deg 5 we get weight vector with 7 entries weights->at(7)
+    // Example Values: dPhi->size() = 7 so number of quadrature points, dPhi->at(0).size() = 3 number of local element points, dPhi->at(0).at(0).size() = 2 as we have dim 2 therefore we have 2 derivatives (xi/eta in natural coordinates)
+    //so phi is defined on the reference element
+
+    SC detB;
+    SC absDetB;
+    SmallMatrix<SC> B(dim);
+    SmallMatrix<SC> Binv(dim);
+  
+    buildTransformation(B);
+    detB = B.computeInverse(Binv); // The function computeInverse returns a double value corrsponding to determinant of B
+    absDetB = std::fabs(detB); // absolute value of B
+
+
+    // dPhiTrans are the transorfmed basisfunctions, so B^(-T) * \grad_phi bzw. \grad_phi^T * B^(-1)
+    // Corresponds to \hat{grad_phi}.
+    vec3D_dbl_Type dPhiTrans( dPhi->size(), vec2D_dbl_Type( dPhi->at(0).size(), vec_dbl_Type(dim,0.) ) );
+    applyBTinv( dPhi, dPhiTrans, Binv ); // so dPhiTrans corresponds now to our basisfunction in natural coordinates
+    //dPhiTrans.size() = 7 so number of quadrature points
+    //dPhiTrans[0].size() = 3 number local element points
+    //dPhiTrans[0][0].size() = 2 as we have in dim=2 case two derivatives
+
+
+    // Compute shear rate gammaDot, which is a vector because it is evaluated at a gaussian quadrature point 
+    // for that compute velocity gradient
+    vec_dbl_ptr_Type gammaDot(new vec_dbl_Type(QuadW->size(),0.0)); //gammaDot->at(j) j=0...weights 
+    computeShearRate( dPhiTrans, gammaDot, dim); // updates gammaDot using velocity solution 
+    double viscosity_atw = 0.;
+
+    double v11, v12, v21, v22;
+    
+      
+                // loop over basis functions
+                for (UN i=0; i < phi->at(0).size(); i++) 
+                {
+                    for (UN j=0; j < numNodes; j++)
+                    {
+                        // Reset values
+                        v11 = 0.0;v12 = 0.0;v21 = 0.0;v22 = 0.0;
+
+                        // loop over basis functions quadrature points
+                        for (UN w=0; w<phi->size(); w++) 
+                        {
+                            this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
+                
+                            v11 = v11 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * normalVector[0] * (*phi)[w][i]); // xx contribution: 
+                            v12 = v12 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * normalVector[1] * (*phi)[w][i]); // xy contribution:  
+                            v21 = v21 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][2] * normalVector[0] * (*phi)[w][i]); // yx contribution:  
+                            v22 = v22 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][2] * normalVector[1] * (*phi)[w][i]); // yy contribution:                     
+                   
+                  
+                        } // End loop over quadrature points
+
+                        //multiply determinant from transformation
+                        v11 *= absDetB; 
+                        v12 *= absDetB;
+                        v21 *= absDetB; 
+                        v22 *= absDetB;
+            
+                        // Put values on the right position in element matrix - d=2 because we are in two dimensional case
+                        // [v11  v12  ]
+                        // [v21  v22  ]
+                        (*elementMatrix)[i*dofs][j*dofs]   = v11; // d=0, first dimension
+                        (*elementMatrix)[i*dofs][j*dofs+1] = v12;  //
+                        (*elementMatrix)[i*dofs+1][j*dofs] = v21;
+                        (*elementMatrix)[i*dofs +1][j*dofs+1] =v22; //d=1, second dimension
+                                                
+
+                    } // End loop over j nodes
+
+                } // End loop over i nodes
+
+} // Function End loop 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // "Fixpunkt"- Matrix without jacobian for calculating Ax 
 // Here update please to unlinearized System Matrix accordingly.
 template <class SC, class LO, class GO, class NO>
@@ -726,6 +884,15 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleRHS(){
 	this->assemblyStress(elementMatrixN);
 	//elementMatrixN->scale(-1.0);
 	this->ANB_->add( (*elementMatrixN),(*this->ANB_));
+
+//BOUNDARY TERM    
+ /*   if (this->surfaceElement == true)
+    {
+      SmallMatrixPtr_Type elementMatrixNB =Teuchos::rcp( new SmallMatrix_Type( this->dofsElementVelocity_+this->numNodesPressure_));
+      this->assemblyNeumannBoundaryTerm(elementMatrixNB);
+      this->ANB_->add( (*elementMatrixNB),((*this->ANB_)));
+    }
+*/
 
 	this->rhsVec_ = vec_dbl_Type(this->dofsElement_,0);
 	// Multiplying ANB_ * solution // System Matrix times solution
@@ -817,7 +984,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeShearRate(  vec3D_d
       u21[0][w] = 0.0;
       u22[0][w] = 0.0;
       
-            for (UN i=0; i < dPhiTrans[0].size(); i++) {
+            for (UN i=0; i < dPhiTrans[0].size(); i++) { // loop unrolling
                 LO index1 = dim * i + 0; // x
                 LO index2 = dim * i + 1; //y 
                // uLoc[d][w] += this->solution_[index] * phi->at(w).at(i);
@@ -884,7 +1051,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeShearRate(  vec3D_d
 
 // So based on the previous solution we can compute viscosity at the nodal values
 // So what we need are the coordinates of an local reference element which are always the same
-// DOES WORK
+// Works but it dependence on how the solver runs through the elements because it is only valid in one element
 
 template <class SC, class LO, class GO, class NO>
 void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeLocalViscosity_AtNodes()
@@ -907,10 +1074,10 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeLocalViscosity_AtNo
     vec3D_dbl_ptr_Type 	dPhiAtNodes;
     vec2D_dbl_Type RefNodesCoor(numNodes,  vec_dbl_Type(dim,0.) ); 
 
-    Helper::getCoorNodesEle(RefNodesCoor, dim, FEType );
-    Helper::getDPhiAtNodes(dPhiAtNodes, dim, FEType, RefNodesCoor); // these are the original coordinates of the element
-    vec3D_dbl_Type dPhiTransAtNodes( dPhiAtNodes->size(), vec2D_dbl_Type( dPhiAtNodes->at(0).size(), vec_dbl_Type(dim,0.) ) );
-    applyBTinv( dPhiAtNodes, dPhiTransAtNodes, Binv ); 
+    Helper::getCoorNodesEle(RefNodesCoor, dim, FEType ); // Here we get the node coordinates of the reference ! element
+    Helper::getDPhiAtNodes(dPhiAtNodes, dim, FEType, RefNodesCoor); // now we compute the derivative at the nodes
+    vec3D_dbl_Type dPhiTransAtNodes( dPhiAtNodes->size(), vec2D_dbl_Type( dPhiAtNodes->at(0).size(), vec_dbl_Type(dim,0.) ) ); // compute derivative of all basisfunction at each node
+    applyBTinv( dPhiAtNodes, dPhiTransAtNodes, Binv ); // transformation in x-y coordinates
 
     vec_dbl_ptr_Type gammaDoti(new vec_dbl_Type( dPhiAtNodes->size(),0.0)); //gammaDot->at(i) i=0...number Nodal values
     computeShearRate(dPhiTransAtNodes, gammaDoti, dim); // updates gammaDot using velcoity solution 

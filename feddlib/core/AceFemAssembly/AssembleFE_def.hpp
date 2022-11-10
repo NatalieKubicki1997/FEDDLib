@@ -24,6 +24,8 @@ AssembleFE<SC,LO,GO,NO>::AssembleFE(int flag, vec2D_dbl_Type nodesRefConfig, Par
 	
 	checkParameters();
 
+	surfaceElement=false; // To check whether we have surface element
+
 /// Element Numbering for triangular elements:
 /*!
     - Triangle numbering

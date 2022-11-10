@@ -353,12 +353,19 @@ int main(int argc, char *argv[])
             //** POISEUILLE FLOW - Rectangle Grid 
             bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
             bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
-            bcFactory->addBC(inflowPowerLaw2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet
+           // bcFactory->addBC(inflowPowerLaw2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet
             // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
             bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1); //Outflow
             // for test 1x1, 2x2, 4x4 because else inflow is unsymmetric
             //bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
-            
+                          //bcFactory->addBC(inflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
+                 bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
+       
+                
+              //  bcFactory->addBC(zeroDirichlet, 3, 0, domainVelocity, "Neumann", dim); //Outflow - Try Neumann but then we have to set a pressure point anywhere else
+
+                // We want to add now a Flag for Neumann boundary Term 
+         
 
             //** Flow over step
             /*
@@ -397,12 +404,13 @@ int main(int argc, char *argv[])
             Teuchos::TimeMonitor::report(cout, "Main");
 
 
-            //****************************************************************************************
+
+  //****************************************************************************************
             //****************************************************************************************
             //          **********************  POST-PROCESSING - VISCOSITY COMPUTATION FOR NON-NEWTONIAN FLUID ***********************************
             // We only write out viscosity field if we consider non-Newtonian fluid because otherwise it is constant
-            if((parameterListProblem->sublist("Material").get("Newtonian",true) == false) && (parameterListProblem->sublist("Material").get("WriteOutViscosity",false)) == true ) 
-            {
+          if((parameterListProblem->sublist("Material").get("Newtonian",true) == false) && (parameterListProblem->sublist("Material").get("WriteOutViscosity",false)) == true ) 
+          {
 
             Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaViscsoity(new ExporterParaView<SC, LO, GO, NO>());
             DomainPtr_Type domV = domainVelocity;
@@ -412,6 +420,8 @@ int main(int argc, char *argv[])
             bool viscosityAtNodes = parameterListProblem->sublist("Material").get("ViscosityAtNodes",false);
             navierStokesAssFE.computeViscosity_Solution(viscosityAtNodes);
             navierStokesAssFE.getViscosity_Solution();
+           //Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionViscosityAssFE = navierStokesAssFE.viscosity_element_; 
+
             //**************** Write out viscosity ****************** so we need something from type multivector so this is not working because we can not acces  navierStokesAssFE.feFactory_->visco_output_->getBlock(0)
             if (viscosityAtNodes==true)
             {
@@ -429,6 +439,7 @@ int main(int argc, char *argv[])
             }         
             }
 
+         
             //****************************************************************************************
             //****************************************************************************************
             //          **********************  POST-PROCESSING - WRITE OUT VELOCITY AND PRESSURE ***********************************
@@ -444,6 +455,10 @@ int main(int argc, char *argv[])
             UN dofsPerNode = dim;
             exParaVelocity->addVariable(exportSolutionVAssFE, "uAssFE", "Vector", dofsPerNode, dom->getMapUnique());
 
+            // TRY THIS TO GET IT ON SAME GRID not working 
+           // exParaVelocity->setup("viscosity", dom->getMesh(), "P0");
+           // exParaVelocity->addVariable(exportSolutionViscosityAssFE, "viscosityAssFE", "Scalar", 1,  dom->getElementMap() );
+           
     
             dom = domainPressure;
             exParaPressure->setup("pressure", dom->getMesh(), dom->getFEType());
@@ -478,6 +493,9 @@ int main(int argc, char *argv[])
 
             exParaVelocityScaled->save(0.0);
 }
+
+
+ 
 
       //****************************************************************************************    
       //****************************************************************************************

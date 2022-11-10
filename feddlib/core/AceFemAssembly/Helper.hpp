@@ -41,7 +41,14 @@ public:
     static int getDPhiAtCM(vec3D_dbl_ptr_Type &DPhi,
                      int dim,
 		             std::string FEType,
-		             vec_dbl_Type CM);        
+		             vec_dbl_Type CM);   
+
+    // Natalie new function to get DPhi at specified quadrature Pnts
+    static int getDPhi(vec3D_dbl_ptr_Type &DPhi,
+                     vec_dbl_ptr_Type weightsDPhi,
+                     vec2D_dbl_ptr_Type QuadPts,
+                     int dim,
+		             std::string FEType);     
                      
 
     static UN determineDegree(UN dim,
@@ -61,6 +68,13 @@ public:
                             std::string FEType,
                             int Degree,
                			    std::string FETypeQuadPoints="");
+
+    // natalie new function to get phi at specific quadrature points
+    static int getPhi(vec2D_dbl_ptr_Type &Phi,
+                            vec_dbl_ptr_Type weightsDPhi,
+                            vec2D_dbl_ptr_Type QuadPts,
+                            int dim,
+                            std::string FEType);
 
     static void getCoorNodesEle(vec2D_dbl_Type &RefNodesCor, int dim,   std::string FEType); 
 

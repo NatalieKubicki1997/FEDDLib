@@ -197,7 +197,7 @@ namespace FEDD {
         */
 		tuple_sd_vec_ptr_Type getTupleElement(){return elementIntormation_;};
 
-
+            bool surfaceElement; // have to be changed just for test
        
        
     protected:
@@ -236,6 +236,8 @@ namespace FEDD {
         ParameterListPtr_Type params_;
         vec_dbl_Type solution_ ;
         vec_dbl_Type solutionViscosity_ ; 
+
+
 
         friend class AssembleFEFactory<SC,LO,GO,NO>;
     };

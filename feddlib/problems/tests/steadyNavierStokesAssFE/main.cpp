@@ -287,14 +287,16 @@ int main(int argc, char *argv[]) {
                 bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
                 //bcFactory->addBC(, 3, 0, domainVelocity, "Dirichlet_Z", dim); // outlet 3 is neumann 0, müssen wir nicht explizit angeben, da das defaulr ist 
               
-               //bcFactory->addBC(inflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
+                //bcFactory->addBC(inflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
+                 bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
+              
+                bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1); //Outflow
+                
+                
+              //  bcFactory->addBC(zeroDirichlet, 3, 0, domainVelocity, "Neumann", dim); //Outflow - Try Neumann but then we have to set a pressure point anywhere else
 
-
-              // for test
-               bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
-
-                // OutletPBC
-               bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1); //Outflow
+                // We want to add now a Flag for Neumann boundary Term 
+         
 
 
             }

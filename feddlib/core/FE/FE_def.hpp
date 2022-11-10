@@ -461,7 +461,7 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 
 
    
-    
+    // In this loop we go over all elements 
 	for (UN T=0; T<assemblyFEElements_.size(); T++) {
        
 		vec_dbl_Type solution(0);
@@ -474,6 +474,35 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 		assemblyFEElements_[T]->updateSolution(solution); // here we update the value of the solutions inside an element
  
  		SmallMatrixPtr_Type elementMatrix;
+/* FOR BOUNDARY TERM
+if(params->sublist("Material").get("Newtonian",true) == false && params->sublist("Material").get("NeumannIntegral",false) == true)
+{
+        vec_dbl_Type n(2); // first in 2d
+        double norm_n;
+        // We should check if 
+        ElementsPtr_Type subEl = elements->getElement(T).getSubElements();
+        for (int surface=0; surface<elements->getElement(T).numSubElements(); surface++) 
+        { // I go here over all surface elements ??
+            FiniteElement feSub = subEl->getElement( surface  );
+            if (3 == feSub.getFlag()) // here we have ro check if our surface element corresponds to our neumann boundary 
+            {
+// compute normal 
+// the question is how do we ensure that the normal is pointing in the right direction
+            n[0] = pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1); // P2(y)-P1(y)
+            n[1] = -(pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0));  // -(P2(x)-P1(x))
+            norm_n = sqrt(pow(n[0],2)+pow(n[1],2));
+            n[0] = abs(n[0]/norm_n); // we could hardcode for now that the normal in the x direction has to be positive ...
+            n[1] = n[1]/norm_n;
+            assemblyFEElements_[T]->surfaceElement = true;
+            }
+            else
+            {
+// do nothing
+            }
+        }
+}
+*/
+
 
         // from NavierStokesAssFE we know that our assembleMode is "Jacobian"
 		if(assembleMode == "Jacobian"){

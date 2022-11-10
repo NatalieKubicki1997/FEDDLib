@@ -189,7 +189,93 @@ int Helper::getDPhi(vec3D_dbl_ptr_Type &DPhi,
     return intFE;
 }
 
+int Helper::getDPhi(vec3D_dbl_ptr_Type &DPhi,
+                     vec_dbl_ptr_Type weightsDPhi,
+                     vec2D_dbl_ptr_Type QuadPts,
+                     int dim,
+		             std::string FEType){
 
+    int 			nmbLocElPts;
+    int 			intFE;
+    vec_dbl_ptr_Type 	value(new vec_dbl_Type(dim,0.0));
+
+    if (dim==2) {
+        if (FEType == "P0") {
+            nmbLocElPts = 1;
+            intFE = 0;
+        }
+        else if (FEType == "P1") {
+            nmbLocElPts = 3;
+            intFE = 1;
+        }
+        else if (FEType == "P2") {
+            nmbLocElPts = 6;
+            intFE = 2;
+        }
+
+        DPhi.reset(new vec3D_dbl_Type(weightsDPhi->size(),vec2D_dbl_Type(nmbLocElPts,vec_dbl_Type(2,0.0))));
+
+        for (int k=0; k<DPhi->size(); k++ ){
+            for (int i=0; i<DPhi->at(0).size(); i++) {
+                gradPhi(dim,intFE,i,QuadPts->at(k),value);
+                for (int j=0; j<2; j++) {
+                    DPhi->at(k).at(i).at(j) = value->at(j);
+                }
+            }
+        }
+    }
+
+    else if(dim==3){
+        if (FEType == "P0") {
+            nmbLocElPts = 1;
+            intFE = 0;
+        }
+        else if (FEType == "P1") {
+            nmbLocElPts = 4;
+            intFE = 1;
+        }
+        else if (FEType == "P2") {
+            nmbLocElPts = 10;
+            intFE = 2;
+        }
+        else if (FEType == "Q1") {
+            nmbLocElPts = 8;
+            intFE = 3;
+        }
+        else if (FEType == "Q2") {
+            nmbLocElPts = 27;
+            intFE = 4;
+        }
+        else if (FEType == "Q2-20") {
+            nmbLocElPts = 20;
+            intFE = 5;
+        }
+        else if (FEType == "P1-disc") {
+            nmbLocElPts = 4;
+            intFE = 6;
+        }
+        else if (FEType == "P1-disc-global")
+            TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error   ,"grad of P1-disc-global not implemented yet.");
+
+        DPhi.reset( new vec3D_dbl_Type( weightsDPhi->size(), vec2D_dbl_Type( nmbLocElPts, vec_dbl_Type(3,0.0) ) ) );
+        for (int k=0; k<DPhi->size(); k++ ){
+            for (int i=0; i<DPhi->at(0).size(); i++) {
+                gradPhi(dim,intFE,i,QuadPts->at(k),value);
+                for (int j=0; j<3; j++) {
+                    DPhi->at(k).at(i).at(j) = value->at(j);
+                }
+            }
+        }
+    }
+
+    return intFE;
+}
+
+
+
+
+
+// Gradient of basisfunctions (xi,eta,zeta)
 void Helper::gradPhi(int dim,
                 int intFE,
                 int i,
@@ -491,6 +577,105 @@ void Helper::phi(int dim,
                 
         }
 
+}
+
+int Helper::getPhi(vec2D_dbl_ptr_Type &Phi,
+                            vec_dbl_ptr_Type weightsPhi,
+                            vec2D_dbl_ptr_Type QuadPts,
+                            int dim,
+                            std::string FEType){
+
+    int 			nmbLocElPts;
+    int 			intFE;
+    double  		value;
+    if (dim==1) {
+        if (FEType == "P0") {
+            nmbLocElPts = 1;
+            intFE = 0;
+        }
+        else if (FEType == "P1") {
+            nmbLocElPts = 2;
+            intFE = 1;
+        }
+        else if (FEType == "P2") {
+            nmbLocElPts = 3;
+            intFE = 2;
+        }
+        Phi.reset( new vec2D_dbl_Type( weightsPhi->size(), vec_dbl_Type( nmbLocElPts, 0.0 ) ) );
+        for (int k=0; k<Phi->size(); k++ ){
+            for (int i=0; i<Phi->at(0).size(); i++) {
+                phi(dim,intFE,i,QuadPts->at(k),&value);
+                Phi->at(k).at(i) = value;
+            }
+        }
+
+    }
+    else if (dim==2) {
+        if (FEType == "P0") {
+            nmbLocElPts = 1;
+            intFE = 0;
+        }
+        else if (FEType == "P1") {
+            nmbLocElPts = 3;
+            intFE = 1;
+        }
+        else if (FEType == "P2") {
+            nmbLocElPts = 6;
+            intFE = 2;
+        }
+
+        Phi.reset(new vec2D_dbl_Type(weightsPhi->size(),vec_dbl_Type(nmbLocElPts,0.0)));
+
+        for (int k=0; k<Phi->size(); k++ ){
+            for (int i=0; i<Phi->at(0).size(); i++) {
+                phi(dim,intFE,i,QuadPts->at(k),&value);
+                Phi->at(k).at(i) = value;
+            }
+        }
+    }
+    else if(dim==3){
+        if (FEType == "P0") {
+            nmbLocElPts = 1;
+            intFE = 0;
+        }
+        else if (FEType == "P1") {
+            nmbLocElPts = 4;
+            intFE = 1;
+        }
+        else if (FEType == "P2") {
+            nmbLocElPts = 10;
+            intFE = 2;
+        }
+        else if (FEType == "Q1") {
+            nmbLocElPts = 8;
+            intFE = 3;
+        }
+        else if (FEType == "Q2") {
+            nmbLocElPts = 27;
+            intFE = 4;
+        }
+        else if (FEType == "Q2-20") {
+            nmbLocElPts = 20;
+            intFE = 5;
+        }
+        else if (FEType == "P1-disc") {
+            nmbLocElPts = 4;
+            intFE = 1;
+        }
+        else if (FEType == "P1-disc-global")
+            TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "P1-disc-global not implemented yet.");
+        
+
+        Phi.reset(new vec2D_dbl_Type(weightsPhi->size(),vec_dbl_Type(nmbLocElPts,0.0)));
+
+        for (int k=0; k<Phi->size(); k++ ){
+            for (int i=0; i<Phi->at(0).size(); i++) {
+                phi(dim,intFE,i,QuadPts->at(k),&value);
+                Phi->at(k).at(i) = value;
+            }
+        }
+    }
+    return intFE;
 }
 
 int Helper::getPhi(vec2D_dbl_ptr_Type &Phi,
@@ -865,7 +1050,7 @@ void Helper::getQuadratureValues(int dim,
                 QuadW->at(0) = 1.;
                 break;
             case 2:
-                QuadPts.reset(new vec2D_dbl_Type(2,vec_dbl_Type(1,0.0)));
+                QuadPts.reset(new vec2D_dbl_Type(2,vec_dbl_Type(1,0.0))); // case 2 and 3 are the same?
                 QuadW->resize(2);
                 QuadPts->at(0).at(0) = - 0.5/sqrt(3.)+0.5;
                 QuadPts->at(1).at(0) = 0.5/sqrt(3.)+0.5;

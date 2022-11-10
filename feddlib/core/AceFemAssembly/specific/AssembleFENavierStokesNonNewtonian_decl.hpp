@@ -80,6 +80,15 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 
 	/*!
 
+/*!
+
+	 \brief Assembly function for neumann boundary term
+
+	*/
+	void assemblyNeumannBoundaryTerm(SmallMatrixPtr_Type &elementMatrix);
+
+	/*!
+
 	/*!
 
 	 \brief Assembly function for extra derivative of extra stress tensor  resulting of applying the Gateaux-derivative
