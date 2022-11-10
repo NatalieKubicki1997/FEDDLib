@@ -333,9 +333,8 @@ int main(int argc, char *argv[]) {
                 domainVelocity = domainPressure;
       
            // std::vector<double> parameter_vec(1, parameterListProblem->sublist("Parameter").get("MaxVelocity",1.));
-
-            // ####################
-            Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory( new BCBuilder<SC,LO,GO,NO>( ) );
+           // ####################
+           // Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory( new BCBuilder<SC,LO,GO,NO>( ) );
 
 
                       /***** For boundary condition read parameter values */
