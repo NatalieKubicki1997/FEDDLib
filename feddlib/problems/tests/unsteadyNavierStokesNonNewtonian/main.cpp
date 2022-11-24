@@ -420,7 +420,40 @@ int main(int argc, char *argv[]) {
 			Teuchos::TimeMonitor::report(cout,"Main");
 			// ###########################################################################################################
 
+
+     if((parameterListProblem->sublist("Material").get("Newtonian",true) == false) && (parameterListProblem->sublist("Material").get("WriteOutViscosity",false)) == true ) 
+          {
+
+            Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaViscsoity(new ExporterParaView<SC, LO, GO, NO>());
+            DomainPtr_Type domV = domainVelocity;
+            //int nmbElementsGlob = domV->getMesh()->getNumElementsGlobal();
+
+            /*Viskosität berechnen auf Basis der berechnet Geschwindigkeitslösung*/
+            bool viscosityAtNodes = parameterListProblem->sublist("Material").get("ViscosityAtNodes",false);
+            navierStokesFE.computeViscosity_Solution(viscosityAtNodes);
+            navierStokesFE.getViscosity_Solution();
+           //Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionViscosityAssFE = navierStokesAssFE.viscosity_element_; 
+
+            //**************** Write out viscosity ****************** so we need something from type multivector so this is not working because we can not acces  navierStokesAssFE.feFactory_->visco_output_->getBlock(0)
+            if (viscosityAtNodes==true)
+            {
+            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionViscosityAssFE = navierStokesFE.viscosity_element_; 
+            exParaViscsoity->setup("viscosity", domV->getMesh(), domV->getFEType());
+            exParaViscsoity->addVariable(exportSolutionViscosityAssFE, "viscosityAssFE", "Scalar", 1, domV->getMapUnique()); // Unique
+            exParaViscsoity->save(0.0);
+            }
+            else
+            {
+            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionViscosityAssFE = navierStokesFE.viscosity_element_; 
+            exParaViscsoity->setup("viscosity", domV->getMesh(), "P0");
+            exParaViscsoity->addVariable(exportSolutionViscosityAssFE, "viscosityAssFE", "Scalar", 1,  domV->getElementMap() );
+            exParaViscsoity->save(0.0);
+            }         
+            }
+
         }
+
+        
     }
 
     Teuchos::TimeMonitor::report(cout);

@@ -68,6 +68,14 @@
         <Parameter name="ParaView export subdomain" type="bool" value="false"/>
         <Parameter name="Preconditioner Method" type="string" value="Teko"/><!-- Monolithic, Teko-->
     </ParameterList>
+
+    <ParameterList name="Exporter">
+        <Parameter name="Export coarse functions" type="bool" value="false"/>
+        <Parameter name="Name coarse functions block1" type="string" value="phiU"/>
+        <Parameter name="Exclude coarse functions block1" type="bool" value="false"/>
+        <Parameter name="Name coarse functions block1" type="string" value="phiP"/>
+        <Parameter name="Exclude coarse functions block1" type="bool" value="false"/>
+    </ParameterList>
     
     <ParameterList name="Timestepping Parameter"> 
         <Parameter name="Class"                                 type="string"		value="Multistep"/> <!--Multistep, Singlestep-->
