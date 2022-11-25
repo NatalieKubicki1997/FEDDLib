@@ -355,9 +355,8 @@ int main(int argc, char *argv[])
             bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
             bcFactory->addBC(inflowPowerLaw2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet
             // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
-            bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1); //Outflow
             // For test 1x1, 2x2, 4x4 because else inflow is unsymmetric
-            //bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
+            bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
     
        
                 

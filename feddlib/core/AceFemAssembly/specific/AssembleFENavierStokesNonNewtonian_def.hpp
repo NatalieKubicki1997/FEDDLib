@@ -91,20 +91,18 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian() {
     // Because we have stress-divergence form of Navier-Stokes equations in the non-newtonian case
     // we have to add a extra boundary term to get the same outflow boundary condition as in the laplacian form
     // because our natural boundary condition is different 
-
     // We have to check whether it is an element which has edges (2D) / surfaces (3D) coressponding to an Neumann boundary
-    // if 
   
     // If yes we have to compute the Normals 
     // compute Normals
 
     // Then we have to compute contribution 
-    /*if (this->surfaceElement == true)
+    if (this->surfaceElement == true)
     {
       SmallMatrixPtr_Type elementMatrixNB =Teuchos::rcp( new SmallMatrix_Type( this->dofsElementVelocity_+this->numNodesPressure_));
       this->assemblyNeumannBoundaryTerm(elementMatrixNB);
       this->ANB_->add( (*elementMatrixNB),((*this->ANB_)));
-    }*/
+    }
     //    SmallMatrixPtr_Type elementMatrixNB =Teuchos::rcp( new SmallMatrix_Type( this->dofsElementVelocity_+this->numNodesPressure_));
     //    this->assemblyNeumannBoundaryTerm(elementMatrixNB);
 	//    this->ANB_->add( (*elementMatrixNB),((*this->ANB_)));
@@ -771,9 +769,16 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTer
     // quad points and weights at the correct (2D) position in reference element 
     vec2D_dbl_ptr_Type QuadPts;
     vec_dbl_ptr_Type QuadW(new vec_dbl_Type(2.0,0.0));
+    
     vec_dbl_Type normalVector(2); // we have to calculate it beforehand
+    // Lets assume that normal vector is on right boundary in horizontal direction
+    // or do we have to transorm normal?
     normalVector[0]=1.0;
     normalVector[1]=0.0;
+    
+    
+    
+    
     QuadPts.reset(new vec2D_dbl_Type(2,vec_dbl_Type(2,0.0)));
     QuadW->resize(2);
     QuadPts->at(0).at(1) = - 0.5/sqrt(3.)+0.5;
@@ -788,7 +793,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTer
     // Example Values: dPhi->size() = 7 so number of quadrature points, dPhi->at(0).size() = 3 number of local element points, dPhi->at(0).at(0).size() = 2 as we have dim 2 therefore we have 2 derivatives (xi/eta in natural coordinates)
     //so phi is defined on the reference element
 
-    SC detB;
+    SC detB, detB_line;
     SC absDetB;
     SmallMatrix<SC> B(dim);
     SmallMatrix<SC> Binv(dim);
@@ -797,6 +802,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTer
     detB = B.computeInverse(Binv); // The function computeInverse returns a double value corrsponding to determinant of B
     absDetB = std::fabs(detB); // absolute value of B
 
+    detB_line = std::sqrt( std::pow( B[0][1] , 2.0) + std::pow( B[1][1], 2.0) );
 
     // dPhiTrans are the transorfmed basisfunctions, so B^(-T) * \grad_phi bzw. \grad_phi^T * B^(-1)
     // Corresponds to \hat{grad_phi}.
@@ -829,19 +835,26 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTer
                         {
                             this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
                 
-                            v11 = v11 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * normalVector[0] * (*phi)[w][i]); // xx contribution: 
+                       /*     v11 = v11 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * normalVector[0] * (*phi)[w][i]); // xx contribution: 
                             v12 = v12 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * normalVector[1] * (*phi)[w][i]); // xy contribution:  
                             v21 = v21 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][2] * normalVector[0] * (*phi)[w][i]); // yx contribution:  
                             v22 = v22 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][2] * normalVector[1] * (*phi)[w][i]); // yy contribution:                     
+                   */
+
+                            v11 = v11 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * normalVector[0] * (*phi)[w][i]); // xx contribution: 
+                            v12 = v12 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * normalVector[1] * (*phi)[w][i]); // xy contribution:  
+                            v21 = v21 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * normalVector[0] * (*phi)[w][i]); // yx contribution:  
+                            v22 = v22 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * normalVector[1] * (*phi)[w][i]); // yy contribution:                     
                    
+                  
                   
                         } // End loop over quadrature points
 
                         //multiply determinant from transformation
-                        v11 *= absDetB; 
-                        v12 *= absDetB;
-                        v21 *= absDetB; 
-                        v22 *= absDetB;
+                        v11 *= detB_line; 
+                        v12 *= detB_line;
+                        v21 *= detB_line; 
+                        v22 *= detB_line;
             
                         // Put values on the right position in element matrix - d=2 because we are in two dimensional case
                         // [v11  v12  ]
@@ -886,13 +899,13 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleRHS(){
 	this->ANB_->add( (*elementMatrixN),(*this->ANB_));
 
 //BOUNDARY TERM    
- /*   if (this->surfaceElement == true)
+    if (this->surfaceElement == true)
     {
       SmallMatrixPtr_Type elementMatrixNB =Teuchos::rcp( new SmallMatrix_Type( this->dofsElementVelocity_+this->numNodesPressure_));
       this->assemblyNeumannBoundaryTerm(elementMatrixNB);
       this->ANB_->add( (*elementMatrixNB),((*this->ANB_)));
     }
-*/
+
 
 	this->rhsVec_ = vec_dbl_Type(this->dofsElement_,0);
 	// Multiplying ANB_ * solution // System Matrix times solution
