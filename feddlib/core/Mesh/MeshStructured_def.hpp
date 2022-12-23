@@ -1868,6 +1868,7 @@ void MeshStructured<SC,LO,GO,NO>::build3DQ2BFS(int N,
             }
         }
     }
+    buildElementsClass(elementsVec);
 }
 
 template <class SC, class LO, class GO, class NO>
