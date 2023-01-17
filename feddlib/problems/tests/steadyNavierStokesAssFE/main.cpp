@@ -287,8 +287,8 @@ int main(int argc, char *argv[]) {
                 bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
                 //bcFactory->addBC(, 3, 0, domainVelocity, "Dirichlet_Z", dim); // outlet 3 is neumann 0, müssen wir nicht explizit angeben, da das defaulr ist 
               
-                //bcFactory->addBC(inflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
-                 bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
+                bcFactory->addBC(inflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
+               // bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
               
                 bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1); //Outflow
                 

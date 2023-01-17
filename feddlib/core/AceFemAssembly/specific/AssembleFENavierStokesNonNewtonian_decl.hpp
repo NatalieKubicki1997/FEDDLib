@@ -91,6 +91,15 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 
 	/*!
 
+	 \brief Assembly function for neumann boundary term
+
+	*/
+	void assemblyNeumannBoundaryTermDev(SmallMatrixPtr_Type &elementMatrix);
+
+	/*!
+
+	/*!
+
 	 \brief Assembly function for extra derivative of extra stress tensor  resulting of applying the Gateaux-derivative
 	@param[in] &elementMatrix
 	*/
@@ -115,6 +124,8 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
     friend class AssembleFEFactory<SC,LO,GO,NO>; // Must have for specfic classes
 
 	void buildTransformation(SmallMatrix<SC>& B);
+
+	void buildTransformationSurface( SmallMatrix<SC>& B, vec_dbl_Type& b);
 
 	void applyBTinv(vec3D_dbl_ptr_Type& dPhiIn,
 		            vec3D_dbl_Type& dPhiOut,

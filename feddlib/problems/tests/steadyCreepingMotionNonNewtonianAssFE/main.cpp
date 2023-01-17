@@ -86,6 +86,15 @@ void onex(double *x, double *res, double t, const double *parameters)
     return;
 }
 
+void oney(double *x, double *res, double t, const double *parameters)
+{
+
+    res[1] = 1.;
+    res[0] = 0.;
+
+    return;
+}
+
 void two(double *x, double *res, double t, const double *parameters)
 {
 
@@ -130,6 +139,24 @@ res[1] = 0.;
 
     return;
 }
+
+
+void inflowPowerLaw2D_y(double *x, double *res, double t, const double *parameters)
+{
+
+double H = 0.1;
+double dp = 10.0;
+
+double K =  parameters[0]; // 0.035;
+double n =  parameters[1]; // 1.0; // For n=1.0 we have parabolic inflow profile (Newtonian case)
+
+res[1] = (n / (n + 1.0)) * pow(dp / (K), 1.0 / n) * (pow(H / (2.0), (n + 1.0) / n) - pow(abs((H / 2.0) - x[0]), (n + 1.0) / n));
+res[0] = 0.;
+
+    return;
+}
+
+
 
 void inflowParabolicAverageVelocity2D(double* x, double* res, double t, const double* parameters){
 
@@ -307,6 +334,7 @@ int main(int argc, char *argv[])
         int numProcsCoarseSolve = parameterListProblem->sublist("General").get("Mpi Ranks Coarse", 0);
         int size = comm->getSize() - numProcsCoarseSolve;
 
+        // Inside we construct the mesh so define connectivities etc.
         {
             DomainPtr_Type domainPressure;
             DomainPtr_Type domainVelocity;
@@ -323,7 +351,7 @@ int main(int argc, char *argv[])
             partitionerP1.readAndPartition();
 
             if (discVelocity == "P2")
-                domainVelocity->buildP2ofP1Domain(domainPressure);
+                domainVelocity->buildP2ofP1Domain(domainPressure); // jumps 
             else
                 domainVelocity = domainPressure;
 
@@ -334,8 +362,7 @@ int main(int argc, char *argv[])
 
             //          **********************  BOUNDARY CONDITIONS ***********************************
             //          **********************  BOUNDARY CONDITIONS ***********************************     
-            //          **********************  BOUNDARY CONDITIONS ***********************************
-        
+
             Teuchos::RCP<BCBuilder<SC, LO, GO, NO>> bcFactory(new BCBuilder<SC, LO, GO, NO>());
             parameter_vec.push_back(1); // 0.41);
 
@@ -351,22 +378,29 @@ int main(int argc, char *argv[])
              */
             
             //** POISEUILLE FLOW - Rectangle Grid //**//**//**//**//**//**//**//**//**//**//**
-            bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
+            /*bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
             bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
             bcFactory->addBC(inflowPowerLaw2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet
             // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
             // For test 1x1, 2x2, 4x4 because else inflow is unsymmetric
-            bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
-    
-       
-                
-                
-            //  bcFactory->addBC(zeroDirichlet, 3, 0, domainVelocity, "Neumann", dim); //Outflow - Try Neumann but then we have to set a pressure point anywhere else
+            //bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
+            bcFactory->addBC(zeroDirichlet, 3,  1, domainPressure, "Dirichlet", 1); //Outflow - Try Neumann but then we have to set a pressure point anywhere else
+            */
 
-                // We want to add now a Flag for Neumann boundary Term 
-         
+            //** POISEUILLE FLOW - Rectangle Grid //**//**//**//**//**//**//**//**//**//**//**
+            // ROTATED GRID
+            bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
+            bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+           // bcFactory->addBC(inflowPowerLaw2D_y, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet
+            bcFactory->addBC(inflowPowerLaw2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet
 
-            //** Flow over step
+            // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
+            // For test 1x1, 2x2, 4x4 because else inflow is unsymmetric
+            //bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
+            bcFactory->addBC(zeroDirichlet, 3,  1, domainPressure, "Dirichlet", 1); //Outflow - Try Neumann but then we have to set a pressure point anywhere else
+
+
+            //** Flow over step *******************************************************************************
             /*
             bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
             bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall

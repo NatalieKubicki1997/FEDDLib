@@ -38,7 +38,7 @@ void CarreauYasuda<SC,LO,GO,NO>::evaluateDerivative(ParameterListPtr_Type params
 // The function is composed of d_eta/ d_GammaDot * d_GammaDot/ D_Tau while d_GammaDot * d_GammaDot/ D_Tau= - 2/GammaDot
 // So a problematic case is if this->inflectionPoint-2.0 < 0 than the shear rate is in the denominator and because it can
 // be zero we may get nan/inf values. Therefore we have to check these cases and catch them
-double epsilon = 10e-6;
+double epsilon = 10e-8;
 
 if ( abs(this->inflectionPoint-2.0) < epsilon ) // for a=2.0 we get gammaDot^{-0} which is 1
 {

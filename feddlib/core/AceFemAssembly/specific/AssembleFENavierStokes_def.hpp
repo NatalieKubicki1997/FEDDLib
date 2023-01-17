@@ -94,13 +94,13 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assembleJacobian() {
 
 	
     //WE NOW NEGLECT CONVECTION UNDO HERE AND RHS
-    /*assemblyAdvection(elementMatrixN);
+    assemblyAdvection(elementMatrixN);
 	elementMatrixN->scale(density_);
 	ANB_->add( (*elementMatrixN),(*ANB_));
     if(linearization_ != "FixedPoint"){
 	    assemblyAdvectionInU(elementMatrixW);
 	    elementMatrixW->scale(density_);
-    }*/
+    }
 
 	//elementMatrix->add((*constantMatrix_),(*elementMatrix));
 	this->jacobian_.reset(new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_));
@@ -205,10 +205,9 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assembleRHS(){
 	ANB_->add( (*constantMatrix_),(*ANB_));
 
     //WE NOW NEGLECT CONVECTION UNDO HERE AND IN JACOBIAN
-    /*
 	assemblyAdvection(elementMatrixN);
 	elementMatrixN->scale(density_);
-	ANB_->add( (*elementMatrixN),(*ANB_));*/
+	ANB_->add( (*elementMatrixN),(*ANB_));
 
 	this->rhsVec_ = vec_dbl_Type(dofsElement_,0);
 	// Multiplying ANB_ * solution // ANB Matrix without nonlinear part.
@@ -329,7 +328,7 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assemblyAdvectionInU(SmallMatrixPtr_Ty
     vec2D_dbl_Type uLoc( dim, vec_dbl_Type( weights->size() , -1. ) );
 
     buildTransformation(B);
-      B.print(); // !!!
+    //B.print(); // !!!
     detB = B.computeInverse(Binv);
     absDetB = std::fabs(detB);
 

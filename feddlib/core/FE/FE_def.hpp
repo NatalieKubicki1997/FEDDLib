@@ -442,12 +442,18 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	problemDisk->push_back(vel);
 	problemDisk->push_back(pres);
 
+    // we go in this if condition only in first iteration
 	if(assemblyFEElements_.size()== 0){
         if(params->sublist("Material").get("Newtonian",true) == false)
+        {
 	 	    initAssembleFEElements("NavierStokesNonNewtonian",problemDisk,elements, params,pointsRep); // In case of non Newtonian Fluid
-            // jumps inside FEDDLib/FEEDLIB_LEA/source/FEDDLib/feddlib/core/AceFemAssembly/specific/AssembleFENavierStokesNonNewtonian_def.hpp:9
+            if(params->sublist("Material").get("NeumannIntegral",false) == true) // Only if we have stress-divergence formulation and want to include boundary integral
+                setBoundaryFlagAssembleFEEElements(elements,params, pointsRep);
+        }
         else
+        {
         	initAssembleFEElements("NavierStokes",problemDisk,elements, params,pointsRep);
+        }
     }
 	else if(assemblyFEElements_.size() != elements->numberElements())
 	     TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error, "Number Elements not the same as number assembleFE elements." );
@@ -474,35 +480,6 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 		assemblyFEElements_[T]->updateSolution(solution); // here we update the value of the solutions inside an element
  
  		SmallMatrixPtr_Type elementMatrix;
-/* FOR BOUNDARY TERM */
-if(params->sublist("Material").get("Newtonian",true) == false && params->sublist("Material").get("NeumannIntegral",false) == true)
-{
-        // vec_dbl_Type n(2); // first in 2d
-        // double norm_n;
-        // We should check if 
-        ElementsPtr_Type subEl = elements->getElement(T).getSubElements();
-        for (int surface=0; surface<elements->getElement(T).numSubElements(); surface++) 
-        { // I go here over all surface elements ??
-            FiniteElement feSub = subEl->getElement( surface  );
-            if (3 == feSub.getFlag()) // here we have ro check if our surface element corresponds to our neumann boundary 
-            {
-// compute normal 
-// the question is how do we ensure that the normal is pointing in the right direction
-//           n[0] = pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1); // P2(y)-P1(y)
-//            n[1] = -(pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0));  // -(P2(x)-P1(x))
-//            norm_n = sqrt(pow(n[0],2)+pow(n[1],2));
-//            n[0] = abs(n[0]/norm_n); // we could hardcode for now that the normal in the x direction has to be positive ...
-//            n[1] = n[1]/norm_n;
-            assemblyFEElements_[T]->surfaceElement = true; // we set that the regared element is an boundary element
-            }
-            else
-            {
-// do nothing
-            }
-        }
-}/*
-*/
-
 
         // from NavierStokesAssFE we know that our assembleMode is "Jacobian"
 		if(assembleMode == "Jacobian"){
@@ -557,7 +534,7 @@ if(params->sublist("Material").get("Newtonian",true) == false && params->sublist
 	    A->getBlock(1,1)->fillComplete();
 	}
 
-    // why do we jump inside here? because if we solve we jump into the function reAssemble which sets assembleMode at one point to RHS
+    // Why do we jump inside here? because if we solve we jump into the function reAssemble which sets assembleMode at one point to RHS
 	if(assembleMode == "Rhs"){
         // but why is this necessary?
 		MultiVectorPtr_Type resVecUnique_u = Teuchos::rcp( new MultiVector_Type( domainVec_.at(FElocVel)->getMapVecFieldUnique(), 1 ) );
@@ -577,12 +554,6 @@ if(params->sublist("Material").get("Newtonian",true) == false && params->sublist
 }
 
 
-/*!
-
-\brief Compute Viscosity field based on velocity solutions of last newton iteration step 
-
-
-*/
 
 /*!
 
@@ -765,7 +736,6 @@ void FE<SC,LO,GO,NO>::addFeBlockMv(BlockMultiVectorPtr_Type &res, vec_dbl_Type r
 
 
 /******************************************
-/// I introduced this
 /*!
 
  \brief Inserting local viscosity values into global viscosity vector - it is redundant because at each shared node we rewirte it ;
@@ -922,7 +892,101 @@ void FE<SC,LO,GO,NO>::initAssembleFEElements(string elementType,tuple_disk_vec_p
 
 }
 
+
 /*!
+
+ \brief We set the flag for the boundary where we want add boundary integral into FE formulation
+@param[in] elements
+@param[in] params parameter list
+
+*/
+template <class SC, class LO, class GO, class NO>
+void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(ElementsPtr_Type elements, ParameterListPtr_Type params, vec2D_dbl_ptr_Type pointsRep){
+    
+    // 2D !!!
+    vec_dbl_Type n(2);
+    vec_dbl_Type n_normalized(2);
+    vec_dbl_Type helper_normalized(2);
+    vec_dbl_Type helper(2);
+    double norm_n, norm_helper;
+    double det_L;
+    vec_dbl_Type 	CM(2.0,0.0);
+    double check_orientation;
+
+    double quad_p1, quad_p2; // For intervall [0,1]
+    quad_p1=-0.5/sqrt(3.)+0.5;
+    quad_p2=0.5/sqrt(3.)+0.5;
+    vec2D_dbl_ptr_Type QuadPts;
+   
+    
+   
+	for (UN T=0; T<elements->numberElements(); T++) {
+		
+        ElementsPtr_Type subEl = elements->getElement(T).getSubElements();
+        for (int surface=0; surface<elements->getElement(T).numSubElements(); surface++) 
+        { // Go over all surface elements
+            FiniteElement feSub = subEl->getElement( surface  );
+            if (3 == feSub.getFlag()) // check if our surface element corresponds to our neumann boundary 
+            {
+            assemblyFEElements_[T]->surfaceElement = true; // we set that the regared element is an boundary element
+            // Precompute normal vectors for that edge/surface, But we have to ensure that this is outer normal 
+            // Compute normal
+            n[0] = pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1); // P2(y)-P1(y)
+            n[1] = -(pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0));  // -(P2(x)-P1(x))
+            norm_n = sqrt(pow(n[0],2)+pow(n[1],2));
+            n_normalized[0] = n[0]/norm_n; 
+            n_normalized[1] = n[1]/norm_n;
+            // Now check if it is a outward normal if not than flip sign   
+            // Compute Center of mass
+            CM[0]= (pointsRep->at(elements->getElement(T).getNode(0)).at(0)+pointsRep->at(elements->getElement(T).getNode(1)).at(0)+pointsRep->at(elements->getElement(T).getNode(2)).at(0))/3.0;
+            CM[1]= (pointsRep->at(elements->getElement(T).getNode(0)).at(1)+pointsRep->at(elements->getElement(T).getNode(1)).at(1)+pointsRep->at(elements->getElement(T).getNode(2)).at(1))/3.0;
+     
+            // cross product between tangent and normal vector will always be negative because tangent vector is alsp flipped if normal vector points inwards
+            //z_coordinate_crossProduct= (pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0))*n[1]-(pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1))*n[0];
+            //Vector from Center of Mass to One corner point
+            helper[0]=pointsRep->at(elements->getElement(T).getNode(0)).at(0)-CM[0];
+            helper[1]=pointsRep->at(elements->getElement(T).getNode(0)).at(1)-CM[1];
+            norm_helper=sqrt(pow(helper[0],2)+pow(helper[1],2));
+            helper_normalized[0]=helper[0]/norm_helper; 
+            helper_normalized[1]=helper[1]/norm_helper; 
+            //Now check if the dot product between the normalized normal vector and the normalized vector from the
+            //center of mass to one of the corner points is negative - than they do not point in the same direction and we have to flip the orientation of the normal vector
+            //If it is positive than the normal vector is oriented outwards
+            check_orientation= std::inner_product(n_normalized.begin(), n_normalized.end(), helper_normalized.begin(),0.0);
+            if(std::signbit(check_orientation)==1) //If the sign of a number is negative, it returns 1 otherwise 0.
+            {
+                // then sign is negative and we have to flip the normal vector 
+                n_normalized[0]=-1.0*n_normalized[0];
+                n_normalized[1]=-1.0*n_normalized[1];
+            } 
+            // else fo nothing becuase than it is already oriented in the outward direction
+            assemblyFEElements_[T]->surfaceElement_OutwardNormal[0]=n_normalized[0];
+            assemblyFEElements_[T]->surfaceElement_OutwardNormal[1]=n_normalized[1];
+
+             //Wir brauchen Längenänderung 
+             det_L = std::sqrt( std::pow( (pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0)) , 2.0) + std::pow( pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1), 2.0) );
+             assemblyFEElements_[T]->surfaceElement_MappingChangeInArea=det_L;
+              
+             //Wir brauchen Quadraturpunkte die wir dann mit dem Mapping auf Referenzelement maoppen
+             
+             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace.reset(new vec2D_dbl_Type(2,vec_dbl_Type(2,0.0)));
+             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(0) = pointsRep->at(feSub.getNode(0)).at(0)+((pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0)))*quad_p1;
+             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(1) = pointsRep->at(feSub.getNode(0)).at(1)+(pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1))*quad_p1;
+             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(0) = pointsRep->at(feSub.getNode(0)).at(0)+((pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0)))*quad_p2;
+             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(1) = pointsRep->at(feSub.getNode(0)).at(1)+(pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1))*quad_p2;
+            }
+            //else{// do nothing}
+        }
+
+        
+       }
+
+// 3D nicht implementiert!!!!
+	
+
+}
+
+/*! 
 
  \brief Returns coordinates of local node ids
 
@@ -943,14 +1007,7 @@ vec2D_dbl_Type FE<SC,LO,GO,NO>::getCoordinates(vec_LO_Type localIDs, vec2D_dbl_p
     return coordinates;
 }
 
-/*
-// I ADDED THIS
-template <class SC, class LO, class GO, class NO>
- BlockMultiVectorPtr_Type getViscoBlock() const{
 
-    return this->visco_output_;
-}
-*/
 
 
 /*!

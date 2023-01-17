@@ -117,6 +117,12 @@ void FiniteElement::addSubElementIfPart( FiniteElement& feSub, const vec2D_int_T
     }
 }
 
+void FiniteElement::computeOutward_NormalVector( FiniteElement& fe, vec2D_dbl_ptr_Type pointsRep )
+{
+
+
+}
+
 void FiniteElement::findEdgeFlagInSubElements( const vec_LO_Type& edgeIDs, vec_int_Type& flags, bool isSubElement, const vec2D_int_Type& permutation, bool& foundLineSegment ){
 
     if ( numSubElements_ > 0 ){

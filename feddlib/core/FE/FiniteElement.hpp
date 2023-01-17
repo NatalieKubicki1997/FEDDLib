@@ -57,6 +57,8 @@ class FiniteElement {
     int numSubElements();
     
     bool subElementsInitialized();
+
+    void computeOutward_NormalVector( FiniteElement& fe, vec2D_dbl_ptr_Type pointsRep);
     
     void initializeSubElements( std::string feType, int dim ) ;
     
