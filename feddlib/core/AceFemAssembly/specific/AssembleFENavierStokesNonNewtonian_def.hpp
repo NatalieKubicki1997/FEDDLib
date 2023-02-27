@@ -88,13 +88,13 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
 	elementMatrixNC->scale(this->density_);
 	this->ANB_->add( (*elementMatrixNC),((*this->ANB_)));
 
-
     // For a non-newtonian fluid we add additional element matrix and fill it with specific contribution
     // Remember that this term is based on the stress-divergence formulation of the momentum equation
     // \nabla \dot \tau with \tau=\eta(\gammaDot)(\nabla u + (\nabla u)^T)
     //*************** STRESS TENSOR************************
     this->assemblyStress(elementMatrixN);
 	this->ANB_->add( (*elementMatrixN),((*this->ANB_)));
+
 
     this->jacobian_.reset(new SmallMatrix_Type( this->dofsElementVelocity_+this->numNodesPressure_));
 	this->jacobian_->add((*this->ANB_),(*this->jacobian_));
@@ -115,7 +115,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
     // we have to add a extra boundary term to get the same outflow boundary condition as in the conventional formulation with
     // the laplacian operator in the equations due to the fact that in the stress-divergence formulation the
     // natural boundary condition is different 
-    // We have to check whether it is an element which has edges (2D) / surfaces (3D) coressponding to an Outflow Neumann boundary
+    // We have to check whether it is an element which has edges (2D) / surfaces (3D) corresponding to an Outflow Neumann boundary
     // Then we have to compute contribution 
     if (this->surfaceElement == true) // Only if we consider element with neumann edge
     {
@@ -183,12 +183,8 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
     // Compute entries    
     // Initialize some helper vectors/matrices
     double v11, v12, v21, v22, value1_j, value2_j , value1_i, value2_i, viscosity_atw;
-        SmallMatrix<double> e1i(dim);
-        SmallMatrix<double> e2i(dim);
-        SmallMatrix<double> e1j(dim);
-        SmallMatrix<double> e2j(dim);
 
-        viscosity_atw = 0.;
+    viscosity_atw = 0.;
     
     // Construct element matrices 
     for (UN i=0; i < numNodes; i++) 
@@ -210,35 +206,15 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
                  value1_i = dPhiTrans[w][i][0]; // so this corresponds to d\phi_i/dx
                  value2_i = dPhiTrans[w][i][1]; // so this corresponds to d\phi_i/dy
 
-                // Now we compute the helper matrices which we need that we later can multiply the different values of dphi_j dphi_i together to get the single components of element matrice entry
-                 e1j[0][0] = 2.*value1_j;
-                 e1j[0][1] = value2_j;
-                 e1j[1][0] = value2_j;
-                 // e1j = [ 2 dphi_j/dx  ,  dphi_j/dy ; dphi_j/dy , 0]
-
-                 e1i[0][0] = value1_i;
-                 e1i[0][1] = value2_i;
-                // e1i = [ dphi_i/dx  ,  dphi_i/dy ; 0 , 0]
-
-                 e2j[1][0] = value1_j;
-                 e2j[0][1] = value1_j;
-                 e2j[1][1] = 2*value2_j;
-                // e2j = [0 ,  dphi_j/dx ; dphi_j/dx , 2  dphi_j/dy ]
-
-                 e2i[1][0] = value1_i;
-                 e2i[1][1] = value2_i;
-                // e2i = [ 0, 0 ; dphi_i/dx  ,  dphi_i/dy ]
 
                 // viscosity function evaluated where we consider the dynamic viscosity!!
                 this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
                 //if (i==0 && j==0) viscosity_averageOverT += viscosity_atw; // see below ### 
 
-                // Construct entries - we go over all quadrature points and if j is updated we set v11 etc. again to zero
-                 v11 = v11 + viscosity_atw * weights->at(w) * e1i.innerProduct(e1j); // xx contribution: 2 *dphi_i/dx *dphi_j/dx + dphi_i/dy* dphi_j/dy
-                 v12 = v12 + viscosity_atw *  weights->at(w) * e1i.innerProduct(e2j); // xy contribution:  dphi_i/dy* dphi_j/dx
-                 v21 = v21 + viscosity_atw *  weights->at(w) * e2i.innerProduct(e1j); // yx contribution:  dphi_i/dx* dphi_j/dy
-                 v22 = v22 + viscosity_atw *  weights->at(w) * e2i.innerProduct(e2j); // yy contribution: 2 *dphi_i/dy *dphi_j/dy + dphi_i/dx* dphi_j/dx
-
+                 v11 = v11 + viscosity_atw * weights->at(w) *(2.0*value1_i*value1_j+value2_i*value2_j);
+                 v12 = v12 + viscosity_atw * weights->at(w) *(value2_i*value1_j);
+                 v21 = v21 + viscosity_atw * weights->at(w) *(value1_i*value2_j);
+                 v22 = v22 + viscosity_atw * weights->at(w) *(2.0*value2_i*value2_j+value1_i*value1_j);
             
             } // loop end quadrature points
             
@@ -274,15 +250,9 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
     computeShearRate( dPhiTrans, gammaDot, dim); // updates gammaDot using velcoity solution 
 
          // Initialize some helper vectors/matrices
-        double v11, v12, v13, v21, v22, v23, v31, v32, v33, value1_j, value2_j, value3_j , value1_i, value2_i, value3_i, viscosity_atw;
-        SmallMatrix<double> e1i(dim);
-        SmallMatrix<double> e2i(dim);
-        SmallMatrix<double> e3i(dim);
-        SmallMatrix<double> e1j(dim);
-        SmallMatrix<double> e2j(dim);
-        SmallMatrix<double> e3j(dim);
+    double v11, v12, v13, v21, v22, v23, v31, v32, v33, value1_j, value2_j, value3_j , value1_i, value2_i, value3_i, viscosity_atw;
 
-        viscosity_atw = 0.;
+    viscosity_atw = 0.;
 
     // Construct element matrices 
      for (UN i=0; i < numNodes; i++) {
@@ -291,6 +261,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
         for (UN j=0; j < numNodes; j++) {
         // Reset values
         v11 = 0.0;v12 = 0.0;v13=0.0; v21 = 0.0;v22 = 0.0;v23=0.0;v31=0.0;v32=0.0;v33=0.0;
+
 
             // So in general compute the components of eta*[ dPhiTrans_i : ( dPhiTrans_j + (dPhiTrans_j)^T )]
             for (UN w=0; w<dPhiTrans.size(); w++) {
@@ -304,53 +275,21 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
                         value2_i = dPhiTrans.at(w).at(i).at(1); // so this corresponds to d\phi_i/dy
                         value3_i = dPhiTrans.at(w).at(i).at(2); // so this corresponds to d\phi_i/dz
 
-                        // In an analagous way as in 2D
-                        e1j[0][0] = 2.*value1_j;
-                        e1j[0][1] = value2_j;
-                        e1j[0][2] = value3_j;
-                        e1j[1][0] = value2_j;
-                        e1j[2][0] = value3_j;
-
-                        e1i[0][0] = value1_i;
-                        e1i[0][1] = value2_i;
-                        e1i[0][2] = value3_i;
-
-
-                        e2j[1][0] = value1_j;
-                        e2j[1][1] = 2.*value2_j;
-                        e2j[1][2] = value3_j;
-                        e2j[0][1] = value1_j;
-                        e2j[2][1] = value3_j;
-
-                        e2i[1][0] = value1_i;
-                        e2i[1][1] = value2_i;
-                        e2i[1][2] = value3_i;
-
-                        e3j[2][0] = value1_j;
-                        e3j[2][1] = value2_j;
-                        e3j[2][2] = 2.*value3_j;
-                        e3j[0][2] = value1_j;
-                        e3j[1][2] = value2_j;
-
-                        e3i[2][0] = value1_i;
-                        e3i[2][1] = value2_i;
-                        e3i[2][2] = value3_i;
-
                        this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
 
                     
                        // Construct entries - we go over all quadrature points and if j is updated we set v11 etc. again to zero
-                        v11 = v11 + viscosity_atw *  weights->at(w) * e1i.innerProduct(e1j);
-                        v12 = v12 + viscosity_atw *  weights->at(w) * e1i.innerProduct(e2j);
-                        v13 = v13 + viscosity_atw *  weights->at(w) * e1i.innerProduct(e3j);
+                        v11 = v11 + viscosity_atw * weights->at(w)*(2.0*value1_j*value1_i+value2_j*value2_i+value3_j*value3_i);
+                        v12 = v12 + viscosity_atw *  weights->at(w)*(value2_i*value1_j);
+                        v13 = v13 + viscosity_atw *  weights->at(w)*(value3_i*value1_j);
 
-                        v21 = v21 + viscosity_atw *  weights->at(w) * e2i.innerProduct(e1j);
-                        v22 = v22 + viscosity_atw *  weights->at(w) * e2i.innerProduct(e2j);
-                        v23 = v23 + viscosity_atw *  weights->at(w) * e2i.innerProduct(e3j);
+                        v21 = v21 + viscosity_atw *  weights->at(w)*(value1_i*value2_j);
+                        v22=  v22 + viscosity_atw *  weights->at(w)*(value1_i*value1_j+2.0*value2_j*value2_i+value3_j*value3_i);
+                        v23 = v23 + viscosity_atw *  weights->at(w)*(value3_i*value2_j);
 
-                        v31 = v31 + viscosity_atw *  weights->at(w) * e3i.innerProduct(e1j);
-                        v32 = v32 + viscosity_atw *  weights->at(w) * e3i.innerProduct(e2j);
-                        v33 = v33 + viscosity_atw *  weights->at(w) * e3i.innerProduct(e3j);
+                        v31 = v31 + viscosity_atw *  weights->at(w)*(value1_i*value3_j);
+                        v32 = v32 + viscosity_atw *  weights->at(w)*(value2_i*value3_j);
+                        v33 = v33 + viscosity_atw *  weights->at(w)*(value1_i*value1_j+value2_i*value2_j+2.0*value3_i*value3_j);
 
                     }// loop end quadrature points
             
@@ -391,6 +330,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
 
 //Extra Derivative of Extra stress term resulting from chosen nonlinear non-newtonian model  -----
 //Same structure and functions as in assemblyStress 
+// (dPhiTrans_i : [-1/4 * deta/dgammaDot * dgammaDot/dTau * (dv^k + (dvh^k)^T)^2 * ( dPhiTrans_j + (dPhiTrans_j)^T)    ]
 template <class SC, class LO, class GO, class NO>
 void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMatrixPtr_Type &elementMatrix) {
 
