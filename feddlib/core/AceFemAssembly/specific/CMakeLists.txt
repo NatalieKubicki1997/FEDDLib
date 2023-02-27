@@ -20,6 +20,9 @@ SET(AceFemAssemblySpecific_HEADERS
 	AceFemAssembly/specific/GeneralizedNewtonianModels/PowerLaw_decl.hpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/PowerLaw_def.hpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/PowerLaw.hpp
+	AceFemAssembly/specific/GeneralizedNewtonianModels/Dimless_Carreau_decl.hpp
+	AceFemAssembly/specific/GeneralizedNewtonianModels/Dimless_Carreau_def.hpp
+	AceFemAssembly/specific/GeneralizedNewtonianModels/Dimless_Carreau.hpp
 CACHE INTERNAL "")
 
 SET(AceFemAssemblySpecific_SOURCES
@@ -30,6 +33,7 @@ SET(AceFemAssemblySpecific_SOURCES
 	AceFemAssembly/specific/AssembleFEAceNonLinElas.cpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda.cpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/PowerLaw.cpp
+	AceFemAssembly/specific/GeneralizedNewtonianModels/Dimless_Carreau.cpp
 CACHE INTERNAL "")
 
 

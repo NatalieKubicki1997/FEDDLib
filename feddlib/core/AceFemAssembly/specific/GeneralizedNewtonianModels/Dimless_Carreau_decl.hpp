@@ -1,5 +1,5 @@
-#ifndef POWERLAW_DECL_hpp
-#define POWERLAW_DECL_hpp
+#ifndef DIMLESS_CARREAU_DECL_hpp
+#define DIMLESS_CARREAU_DECL_hpp
 
 #include "feddlib/core/General/DifferentiableFuncClass.hpp"
 //#include "feddlib/core/AceFemAssembly/Helper.hpp"
@@ -16,8 +16,8 @@ namespace FEDD {
     class AssembleFENavierStokesNonNewtonian;
 */
     /*!
-    \class PowerLaw
-    \brief This class is derived from the abstract class DifferentiableFuncClass and should provide functionality to evaluate the viscosity function specified by PowerLaw model (see [1])
+    \class Dimless_Carreau
+    \brief This class is derived from the abstract class DifferentiableFuncClass and should provide functionality to evaluate the viscosity function specified by Carreau model in dimensionless form that why we need to multiply with a reference viscosity to obtain the actual viscosity value(see [1])
     \tparam SC The scalar type. So far, this is always double, but having it as a template parameter would allow flexibily, e.g., for using complex instead
     \tparam LO The local ordinal type. The is the index type for local indices
     \tparam GO The global ordinal type. The is the index type for global indices
@@ -38,14 +38,14 @@ namespace FEDD {
     The structure of the input file and, hence, of the resulting parameter list can be chosen freely. The FEDDLib will take care of reading the parameters 
     from the file and making them available.
 
-    In this class we define the PowerLaw model.
+    In this class we define the Carreau model in dimensionless form so the .
 
     */
 
     
 
 template <class SC = default_sc, class LO = default_lo, class GO = default_go, class NO = default_no>
-class PowerLaw : public DifferentiableFuncClass<SC,LO,GO,NO> {
+class Dimless_Carreau : public DifferentiableFuncClass<SC,LO,GO,NO> {
   public:
 
    /* typedef Matrix<SC,LO,GO,NO> Matrix_Type;
@@ -104,13 +104,13 @@ class PowerLaw : public DifferentiableFuncClass<SC,LO,GO,NO> {
         virtual void echoParams();
 
 
-   // protected: Why dould we protect it?
+   // protected:
 
 	/*!
 
-	\brief Constructor for CarreauYasuda
+	\brief Constructor for Dimless_Carreau
 	@param[in] parameters Parameterlist for current problem	*/
-	PowerLaw(ParameterListPtr_Type parameters); 
+	Dimless_Carreau(ParameterListPtr_Type parameters); 
 
 
    private:
@@ -118,11 +118,14 @@ class PowerLaw : public DifferentiableFuncClass<SC,LO,GO,NO> {
 	double viscosity_;
     std::string shearThinningModel_;// for printing out which model is actually used
     //! 
-    double powerlaw_index_n;      // corresponds to n in the formulas being the power-law index
-    double powerlaw_constant_K;   // is the zero shear-rate viscosity
-    double nu_infty;              // is the infnite shear-rate viscosity needed for making bounds for the viscosity
-    double nu_zero;               // is the zero shear-rate viscosity needed for making bounds for the viscosity
+    double characteristicTime; // corresponds to \lambda in the formulas in the literature here dimensionless
+    double fluid_index_n;      // corresponds to n in the formulas being the power-law index
+    double nu_0;               // is the zero shear-rate viscosity here dimensionless
+    double nu_infty;           // is the infnite shear-rate viscosity here dimensionless
     double shear_rate_limitZero;
+    double reference_viscosity; // to obtain actual viscosity we have to multiply with reference viscosity
+
+    
 
   //  friend class AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>; why dit it not work?
 

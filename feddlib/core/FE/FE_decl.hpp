@@ -495,7 +495,7 @@ class FE {
                                     int FELocExternal=-1);
 /* ----------------------------------------------------------------------------------------*/
   //  BlockMultiVectorPtr_Type getViscoBlock() const;
-    void updateViscosityFE(int dim,
+    void updateViscosityFE_CM(int dim,
 								string FETypeVelocity,
 								string FETypePressure,
 								int degree,
@@ -504,17 +504,6 @@ class FE {
 								MultiVectorPtr_Type u_rep,
 								MultiVectorPtr_Type p_rep,
 								ParameterListPtr_Type params);
-   void updateViscosityFE_Nodes(int dim,
-								string FETypeVelocity,
-								string FETypePressure,
-								int degree,
-								int dofsVelocity,
-								int dofsPressure,
-								MultiVectorPtr_Type u_rep,
-								MultiVectorPtr_Type p_rep,
-								ParameterListPtr_Type params);
-
-                                
                                 
 
     BlockMultiVectorPtr_Type visco_output_;
@@ -532,11 +521,9 @@ private:
 			
 	void initAssembleFEElements(string elementType,tuple_disk_vec_ptr_Type problemDisk,ElementsPtr_Type elements, ParameterListPtr_Type params,vec2D_dbl_ptr_Type pointsRep);
 
-    void setBoundaryFlagAssembleFEEElements(ElementsPtr_Type elements, ParameterListPtr_Type params, vec2D_dbl_ptr_Type pointsRep);
-	// I inserted this
-    void addFeBlockVis(BlockMultiVectorPtr_Type &visco_res, vec_dbl_Type VecVisco, FiniteElement elementBlock);
-
-    
+    // We check if an element corresponds to an outflow boundary element by comparing flags
+    void setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Type elements, ParameterListPtr_Type params, vec2D_dbl_ptr_Type pointsRep);
+	
     AssembleFEPtr_vec_Type assemblyFEElements_;
 
 	vec2D_dbl_Type getCoordinates(vec_LO_Type localIDs, vec2D_dbl_ptr_Type points);

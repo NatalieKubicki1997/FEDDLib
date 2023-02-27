@@ -10,6 +10,8 @@
 #include "feddlib/core/General/DifferentiableFuncClass.hpp"
 #include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda.hpp"
 #include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/PowerLaw.hpp"
+#include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/Dimless_Carreau.hpp"
+
 
 namespace FEDD {
 
@@ -47,10 +49,6 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 	*/
 	virtual void computeLocalViscosity();
 
-		/*!
-	 \brief Compute the viscosity for an element depending on the knwon velocity solution.
-	*/
-	virtual void computeLocalViscosity_AtNodes();
    protected:
  
    std::string shearThinningModel;
@@ -125,7 +123,6 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 
 	void buildTransformation(SmallMatrix<SC>& B);
 
-	void buildTransformationSurface( SmallMatrix<SC>& B, vec_dbl_Type& b);
 
 	void applyBTinv(vec3D_dbl_ptr_Type& dPhiIn,
 		            vec3D_dbl_Type& dPhiOut,

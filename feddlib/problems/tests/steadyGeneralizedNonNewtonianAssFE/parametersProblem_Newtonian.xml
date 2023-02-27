@@ -1,4 +1,5 @@
 <!-- Problem specific parameters like e.g. dimension, FE type -->
+<!-- This file is for comparison of Power-law solver with n=1.0 with (normal) Navier-Stokes Solver-->
 <ParameterList name="Problem">
     <ParameterList name="Parameter">
         <Parameter name="Dimension" type="int" value="2"/>
@@ -13,7 +14,7 @@
         <Parameter name="MaxVelocity" type="double" value="1.5"/>
         <Parameter name="MeanVelocity"  type="double" value="1.0"/>
         
-        <Parameter name="relNonLinTol" type="double" value="1.0e-6"/> <!-- -4 -->
+        <Parameter name="relNonLinTol" type="double" value="1.0e-6"/>
         <Parameter name="absNonLinTol" type="double" value="1.0e-6"/>
         <Parameter name="updateTol" type="double" value="1.0e-4"/>
         <Parameter name="Combo" type="string" value="OR"/>
@@ -29,16 +30,15 @@
 
     <ParameterList name="Mesh Partitioner">
         <Parameter name="Contiguous" type="bool" value="true"/>        
-	<Parameter name="Mesh 1 Name" type="string" value="Meshes_Rectangle/rectangle_test2x2.mesh"/>
+	<Parameter name="Mesh 1 Name" type="string" value="Meshes_Rectangle/rectangle_test2x2_rotated.mesh.mesh"/>
 </ParameterList>
 
     <!-- Material specific parameters like e.g. Newtonian fluid, Carreau-Yasuda model and corresponding parameters -->
     <ParameterList name="Material">    
-        <Parameter name="Newtonian" type="bool" value="false"/>
+        <Parameter name="Newtonian" type="bool" value="true"/>
         <Parameter name="ShearThinningModel" type="string" value="Power-Law"/> <!-- Power-Law, Carreau-Yasuda  -->
         <Parameter name="WriteOutViscosity" type="bool" value="false"/>
-	    <Parameter name="compareNavierStokes" type="bool" value="false"/>	
-        <Parameter name="NeumannIntegral" type="bool" value="false"/>
+         <Parameter name="NeumannIntegral" type="bool" value="false"/>
 	<!--********************FOR CHOSEN MODEL USER HAS TO SET MATERIAL PARAMETERS BELOW**************************-->
 
 	<!-- Power Law assumes for the viscosity eta the functional form \eta(\gamma) = K \gamma^(n-1) -->

@@ -442,17 +442,17 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	problemDisk->push_back(vel);
 	problemDisk->push_back(pres);
 
-    // we go in this if condition only in first iteration
+    // We go in this only if there are no entries - Therefore we construct our AssemblyFEElements only once
 	if(assemblyFEElements_.size()== 0){
-        if(params->sublist("Material").get("Newtonian",true) == false)
+        if(params->sublist("Material").get("Newtonian",true) == false) // NON-NEWTONIAN CASE - STRESS-DIVERGENCE FORMULATION
         {
 	 	    initAssembleFEElements("NavierStokesNonNewtonian",problemDisk,elements, params,pointsRep); // In case of non Newtonian Fluid
-            if(params->sublist("Material").get("NeumannIntegral",false) == true) // Only if we have stress-divergence formulation and want to include boundary integral
-                setBoundaryFlagAssembleFEEElements(elements,params, pointsRep);
+            if(params->sublist("Material").get("Additional NeumannBoundaryIntegral",false) == true) // Only if we have stress-divergence formulation and want to include boundary integral
+                setBoundaryFlagAssembleFEEElements(dim, elements,params, pointsRep);
         }
         else
         {
-        	initAssembleFEElements("NavierStokes",problemDisk,elements, params,pointsRep);
+        	initAssembleFEElements("NavierStokes",problemDisk,elements, params,pointsRep); // NEWTONIAN CASE _ CONVENTIONAL FORMULATION
         }
     }
 	else if(assemblyFEElements_.size() != elements->numberElements())
@@ -555,76 +555,6 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 
 
 
-/*!
-
-\brief Compute Viscosity inside an element at nodes of element
-@param[in] dim Dimension
-@param[in] FEType FE Discretization
-@param[in] degree Degree of basis function
-@param[in] repeated solution fields for u and p
-@param[in] parameter lists
-*/
-// das wird aus problem/specific/NavierStokesASS aufgerufen
-
-template <class SC, class LO, class GO, class NO>
-void FE<SC,LO,GO,NO>::updateViscosityFE_Nodes(int dim,
-	                                    string FETypeVelocity,
-	                                    string FETypePressure,
-	                                    int degree,
-										int dofsVelocity,
-										int dofsPressure,
-										MultiVectorPtr_Type u_rep,
-										MultiVectorPtr_Type p_rep,
- 										ParameterListPtr_Type params){
-	
-
-    UN FElocVel = checkFE(dim,FETypeVelocity); // Checks for different domains which belongs to a certain fetype
-    UN FElocPres = checkFE(dim,FETypePressure); // Checks for different domains which belongs to a certain fetype
-
-	ElementsPtr_Type elements = domainVec_.at(FElocVel)->getElementsC();
-	ElementsPtr_Type elementsPres = domainVec_.at(FElocPres)->getElementsC();
-
-	int dofsElement = elements->getElement(0).getVectorNodeList().size();
-
-	vec_dbl_Type solution(0);
-	vec_dbl_Type solution_u;
-	vec_dbl_Type solution_p;
-    vec_dbl_Type solution_viscosity;
-
-    // We have to add viscosity solution on each local node to a global solution vector of the viscosity
-	MultiVectorPtr_Type Sol_viscosity = Teuchos::rcp( new MultiVector_Type( domainVec_.at(FElocVel)->getMapRepeated(), 1 ) ); // repeated
-    BlockMultiVectorPtr_Type visco_output = Teuchos::rcp( new BlockMultiVector_Type(1) );
-    visco_output->addBlock(Sol_viscosity,0);
-    //assemblyFEElements_[0]->materialModel->echoParams();
-
-    
-	for (UN T=0; T<assemblyFEElements_.size(); T++) {
-       
-		vec_dbl_Type solution(0);
-		solution_u = getSolution(elements->getElement(T).getVectorNodeList(), u_rep,dofsVelocity); // get the solution inside an element on the nodes
-		solution_p = getSolution(elementsPres->getElement(T).getVectorNodeList(), p_rep,dofsPressure);
-
-		solution.insert( solution.end(), solution_u.begin(), solution_u.end() ); // here we insert the solution
-		solution.insert( solution.end(), solution_p.begin(), solution_p.end() );
-
-		assemblyFEElements_[T]->updateSolution(solution); // here we update the value of the solutions inside an element
- 
-        assemblyFEElements_[T]->computeLocalViscosity_AtNodes(); // so here we construct the element matrices and we compute the viscosity
-		        
-        solution_viscosity = assemblyFEElements_[T]->getViscositySolution();
-
-        addFeBlockVis(visco_output, solution_viscosity, elements->getElement(T)  );
-        
-			
-	} // end loop over all elements
-    this->visco_output_= visco_output;
-
-
-}
-
-
-
-
 
 
 
@@ -640,7 +570,7 @@ void FE<SC,LO,GO,NO>::updateViscosityFE_Nodes(int dim,
 // das wird aus problem/specific/NavierStokesASS aufgerufen
 
 template <class SC, class LO, class GO, class NO>
-void FE<SC,LO,GO,NO>::updateViscosityFE(int dim,
+void FE<SC,LO,GO,NO>::updateViscosityFE_CM(int dim,
 	                                    string FETypeVelocity,
 	                                    string FETypePressure,
 	                                    int degree,
@@ -696,9 +626,6 @@ void FE<SC,LO,GO,NO>::updateViscosityFE(int dim,
 }
 
 
-
-
-
 /*!
 
  \brief Inserting local rhsVec into global residual Mv;
@@ -732,33 +659,6 @@ void FE<SC,LO,GO,NO>::addFeBlockMv(BlockMultiVectorPtr_Type &res, vec_dbl_Type r
 			resArray_block2[nodeList_block2[i]*dofs2+d] += rhsVec[i*dofs2+d+offset];
 	}
 
-}
-
-
-/******************************************
-/*!
-
- \brief Inserting local viscosity values into global viscosity vector - it is redundant because at each shared node we rewirte it ;
-
-
-@param[in] visco_res; Repeated distribution; 2 blocks
-@param[in] rhsVec sorted the same way as residual vec
-@param[in] element of block1
-@param[in] degree of freedom
-*/
-// 
-
-template <class SC, class LO, class GO, class NO>
-void FE<SC,LO,GO,NO>::addFeBlockVis(BlockMultiVectorPtr_Type &visco_res, vec_dbl_Type VecVisco, FiniteElement elementBlock){
-
-    Teuchos::ArrayRCP<SC>  resArray_block = visco_res->getBlockNonConst(0)->getDataNonConst(0);
-	vec_LO_Type nodeList_block = elementBlock.getVectorNodeList();
-
-	for(int i=0; i< nodeList_block.size() ; i++){
-	//	for(int d=0; d<dofs; d++)
-			resArray_block[nodeList_block[i]] = VecVisco[i];
-          //  resArray_block[map->getGlobalElement(T)] = VecVisco[0];
-	}
 }
 
 
@@ -901,23 +801,25 @@ void FE<SC,LO,GO,NO>::initAssembleFEElements(string elementType,tuple_disk_vec_p
 
 */
 template <class SC, class LO, class GO, class NO>
-void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(ElementsPtr_Type elements, ParameterListPtr_Type params, vec2D_dbl_ptr_Type pointsRep){
+void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Type elements, ParameterListPtr_Type params, vec2D_dbl_ptr_Type pointsRep)
+{
     
     // 2D !!!
-    vec_dbl_Type n(2);
-    vec_dbl_Type n_normalized(2);
-    vec_dbl_Type helper_normalized(2);
-    vec_dbl_Type helper(2);
-    double norm_n, norm_helper;
-    double det_L;
-    vec_dbl_Type 	CM(2.0,0.0);
-    double check_orientation;
+    TEUCHOS_TEST_FOR_EXCEPTION(dim == 1,std::logic_error, "setBoundaryFlagAssembleFEEElements Not implemented for dim=1");
+    TEUCHOS_TEST_FOR_EXCEPTION(dim == 3,std::logic_error, "setBoundaryFlagAssembleFEEElements Not implemented for dim=3");
 
+    if (dim==2)
+    {
+    // Variables for computing normal vector on edge
+    vec_dbl_Type n(dim), n_normalized(dim), helper_normalized(dim), helper(dim);
+    double norm_n, norm_helper, det_L, check_orientation;
+    vec_dbl_Type 	CM(dim,0.0);
+
+    // Variables for computing quadrature points on physical element edge
     double quad_p1, quad_p2; // For intervall [0,1]
     quad_p1=-0.5/sqrt(3.)+0.5;
     quad_p2=0.5/sqrt(3.)+0.5;
     vec2D_dbl_ptr_Type QuadPts;
-   
     
    
 	for (UN T=0; T<elements->numberElements(); T++) {
@@ -926,9 +828,10 @@ void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(ElementsPtr_Type elemen
         for (int surface=0; surface<elements->getElement(T).numSubElements(); surface++) 
         { // Go over all surface elements
             FiniteElement feSub = subEl->getElement( surface  );
-            if (3 == feSub.getFlag()) // check if our surface element corresponds to our neumann boundary 
+            if (params->sublist("Material").get("BoundaryFlag_Additional NeumannBoundaryIntegral",-1) == feSub.getFlag()) // check if our surface element corresponds to our neumann boundary 
             {
             assemblyFEElements_[T]->surfaceElement = true; // we set that the regared element is an boundary element
+            
             // Precompute normal vectors for that edge/surface, But we have to ensure that this is outer normal 
             // Compute normal
             n[0] = pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1); // P2(y)-P1(y)
@@ -936,22 +839,22 @@ void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(ElementsPtr_Type elemen
             norm_n = sqrt(pow(n[0],2)+pow(n[1],2));
             n_normalized[0] = n[0]/norm_n; 
             n_normalized[1] = n[1]/norm_n;
+            // ************** ORIENTATION CHECK OF NORMAL VECTOR ******************************
             // Now check if it is a outward normal if not than flip sign   
             // Compute Center of mass
             CM[0]= (pointsRep->at(elements->getElement(T).getNode(0)).at(0)+pointsRep->at(elements->getElement(T).getNode(1)).at(0)+pointsRep->at(elements->getElement(T).getNode(2)).at(0))/3.0;
             CM[1]= (pointsRep->at(elements->getElement(T).getNode(0)).at(1)+pointsRep->at(elements->getElement(T).getNode(1)).at(1)+pointsRep->at(elements->getElement(T).getNode(2)).at(1))/3.0;
      
-            // cross product between tangent and normal vector will always be negative because tangent vector is alsp flipped if normal vector points inwards
-            //z_coordinate_crossProduct= (pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0))*n[1]-(pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1))*n[0];
-            //Vector from Center of Mass to One corner point
+            // Cross product between tangent and normal vector will always be negative because tangent vector is also flipped if normal vector points inwards
+            // Therefore compute: Vector from Center of Mass to One corner point
             helper[0]=pointsRep->at(elements->getElement(T).getNode(0)).at(0)-CM[0];
             helper[1]=pointsRep->at(elements->getElement(T).getNode(0)).at(1)-CM[1];
             norm_helper=sqrt(pow(helper[0],2)+pow(helper[1],2));
             helper_normalized[0]=helper[0]/norm_helper; 
             helper_normalized[1]=helper[1]/norm_helper; 
-            //Now check if the dot product between the normalized normal vector and the normalized vector from the
-            //center of mass to one of the corner points is negative - than they do not point in the same direction and we have to flip the orientation of the normal vector
-            //If it is positive than the normal vector is oriented outwards
+            // Now check if the dot product between the normalized normal vector and the normalized vector from the
+            // center of mass to one of the corner points is negative - than they do not point in the same direction and we have to flip the orientation of the normal vector
+            // If it is positive than the normal vector is oriented outwards
             check_orientation= std::inner_product(n_normalized.begin(), n_normalized.end(), helper_normalized.begin(),0.0);
             if(std::signbit(check_orientation)==1) //If the sign of a number is negative, it returns 1 otherwise 0.
             {
@@ -959,30 +862,32 @@ void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(ElementsPtr_Type elemen
                 n_normalized[0]=-1.0*n_normalized[0];
                 n_normalized[1]=-1.0*n_normalized[1];
             } 
-            // else fo nothing becuase than it is already oriented in the outward direction
+            // else do nothing because than it is already oriented in the outward direction
             assemblyFEElements_[T]->surfaceElement_OutwardNormal[0]=n_normalized[0];
             assemblyFEElements_[T]->surfaceElement_OutwardNormal[1]=n_normalized[1];
 
-             //Wir brauchen Längenänderung 
+            // We also need the determinant for the integral transformation later in 2D we consider the length change of the element
              det_L = std::sqrt( std::pow( (pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0)) , 2.0) + std::pow( pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1), 2.0) );
              assemblyFEElements_[T]->surfaceElement_MappingChangeInArea=det_L;
               
              //Wir brauchen Quadraturpunkte die wir dann mit dem Mapping auf Referenzelement maoppen
-             
+             // We need quadrature point on element edges which we will later map back to the reference element via inverse mapping
+             // the advantage is that we do not have to check which edge is mapped to an edge in a referenece element
              assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace.reset(new vec2D_dbl_Type(2,vec_dbl_Type(2,0.0)));
              assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(0) = pointsRep->at(feSub.getNode(0)).at(0)+((pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0)))*quad_p1;
              assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(1) = pointsRep->at(feSub.getNode(0)).at(1)+(pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1))*quad_p1;
              assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(0) = pointsRep->at(feSub.getNode(0)).at(0)+((pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0)))*quad_p2;
              assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(1) = pointsRep->at(feSub.getNode(0)).at(1)+(pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1))*quad_p2;
             }
-            //else{// do nothing}
+
         }
-
-        
-       }
-
-// 3D nicht implementiert!!!!
+    }//end dim=2
+    // 3D nicht implementiert!!!!
 	
+        
+}
+
+
 
 }
 

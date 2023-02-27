@@ -338,9 +338,9 @@ void NavierStokesAssFE<SC,LO,GO,NO>::calculateNonLinResidualVec(std::string type
 }
 
 
-// we use therefore the current solution
+// We use therefore the current solution
 template<class SC,class LO,class GO,class NO>
-void NavierStokesAssFE<SC,LO,GO,NO>::computeViscosity_Solution(bool viscosityAtNodes) {
+void NavierStokesAssFE<SC,LO,GO,NO>::computeViscosity_Solution() {
     
     MultiVectorConstPtr_Type u = this->solution_->getBlock(0); // solution_ is initialized in problem_def.hpp so the most general class
     u_rep_->importFromVector(u, true); // this is the current velocity solution at the nodes - distributed at the processors with repeated values
@@ -349,18 +349,9 @@ void NavierStokesAssFE<SC,LO,GO,NO>::computeViscosity_Solution(bool viscosityAtN
     p_rep_->importFromVector(p, true);  // this is the current pressure solution at the nodes - distributed at the processors with repeated values
    
   
-    if (viscosityAtNodes==true)
-    {
-    viscosity_element_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getMapUnique() ) ); // here we have to have unique other wise we get wrong paraview plot because of doubled values
-    this->feFactory_->updateViscosityFE_Nodes(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->parameterList_);        
-    }
-    else
-    {
     viscosity_element_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getElementMap() ) );
-    this->feFactory_->updateViscosityFE(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->parameterList_);        
-    }
+    this->feFactory_->updateViscosityFE_CM(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->parameterList_);        
   
-    
     Teuchos::RCP<const MultiVector<SC,LO,GO,NO>> exportSolutionViscosityAssFE = this->feFactory_->visco_output_->getBlock(0);
     viscosity_element_->importFromVector(exportSolutionViscosityAssFE, true);  
   

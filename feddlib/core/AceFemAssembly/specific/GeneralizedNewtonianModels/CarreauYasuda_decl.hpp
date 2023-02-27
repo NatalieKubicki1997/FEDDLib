@@ -123,6 +123,7 @@ class CarreauYasuda : public DifferentiableFuncClass<SC,LO,GO,NO> {
     double nu_0;               // is the zero shear-rate viscosity
     double nu_infty;           // is the infnite shear-rate viscosity
     double inflectionPoint;    // corresponds to a in the formulas in the literature
+    double shear_rate_limitZero;
 
     
 
