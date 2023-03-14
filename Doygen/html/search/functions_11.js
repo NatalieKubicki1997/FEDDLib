@@ -1,5 +1,0 @@
-var searchData=
-[
-  ['valid_5findex_587',['valid_index',['../d8/d87/classtribits__mixed_1_1Vector__Lite.html#a84ea801cc76507d1c023e0577d84fcba',1,'tribits_mixed::Vector_Lite']]],
-  ['vector_5flite_588',['Vector_Lite',['../d8/d87/classtribits__mixed_1_1Vector__Lite.html#a9a4955cfc3a4d4a11862a000deea957a',1,'tribits_mixed::Vector_Lite::Vector_Lite(const T &amp;u=T())'],['../d8/d87/classtribits__mixed_1_1Vector__Lite.html#af446817c5d6036d879d5f773475aaae7',1,'tribits_mixed::Vector_Lite::Vector_Lite(const T &amp;u0, const T &amp;u1)'],['../d8/d87/classtribits__mixed_1_1Vector__Lite.html#a03f7408f9fad3329e348c46ec7568492',1,'tribits_mixed::Vector_Lite::Vector_Lite(const T &amp;u0, const T &amp;u1, const T &amp;u2)'],['../d8/d87/classtribits__mixed_1_1Vector__Lite.html#a11ce2ae92e4d243f4f31696e001bc6df',1,'tribits_mixed::Vector_Lite::Vector_Lite(const T &amp;u0, const T &amp;u1, const T &amp;u2, const T &amp;u3)'],['../d8/d87/classtribits__mixed_1_1Vector__Lite.html#a04910d34d21198be03fa5123d10dd57b',1,'tribits_mixed::Vector_Lite::Vector_Lite(const T &amp;u0, const T &amp;u1, const T &amp;u2, const T &amp;u3, const T &amp;u4)']]]
-];

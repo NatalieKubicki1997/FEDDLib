@@ -1,9 +1,0 @@
-<map id="SMTStructure" name="SMTStructure">
-<area shape="rect" id="node1" title=" " alt="" coords="365,184,475,211"/>
-<area shape="rect" id="node2" href="$d1/d35/structConvergenceOptions.html" title=" " alt="" coords="5,95,163,121"/>
-<area shape="rect" id="node3" href="$d1/df6/structConvergenceReturn.html" title=" " alt="" coords="187,95,338,121"/>
-<area shape="rect" id="node4" href="$de/ddc/structConvergenceStatus.html" title=" " alt="" coords="189,5,337,32"/>
-<area shape="rect" id="node5" href="$dd/da4/structPutOptions.html" title=" " alt="" coords="369,95,463,121"/>
-<area shape="rect" id="node6" href="$db/dc2/structTaskOptions.html" title=" " alt="" coords="487,95,588,121"/>
-<area shape="rect" id="node7" href="$d0/d2a/structTaskReturn.html" title=" " alt="" coords="613,95,707,121"/>
-</map>

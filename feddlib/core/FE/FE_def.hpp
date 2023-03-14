@@ -806,8 +806,8 @@ void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Ty
     
     // 2D !!!
     TEUCHOS_TEST_FOR_EXCEPTION(dim == 1,std::logic_error, "setBoundaryFlagAssembleFEEElements Not implemented for dim=1");
-    TEUCHOS_TEST_FOR_EXCEPTION(dim == 3,std::logic_error, "setBoundaryFlagAssembleFEEElements Not implemented for dim=3");
 
+    // If two-dimensional 
     if (dim==2)
     {
     // Variables for computing normal vector on edge
@@ -821,17 +821,22 @@ void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Ty
     quad_p2=0.5/sqrt(3.)+0.5;
     vec2D_dbl_ptr_Type QuadPts;
     
-   
-	for (UN T=0; T<elements->numberElements(); T++) {
+    // Loop over all elements
+	for (UN T=0; T<elements->numberElements(); T++) 
+    {
 		
+        // Loop over all subelements so for example for 2D triangle loop over the edges
         ElementsPtr_Type subEl = elements->getElement(T).getSubElements();
         for (int surface=0; surface<elements->getElement(T).numSubElements(); surface++) 
-        { // Go over all surface elements
+        {   // Go over all surface elements
             FiniteElement feSub = subEl->getElement( surface  );
+            // Check whether the subelement is part of the boundary where we want to include boundary integral contribution
             if (params->sublist("Material").get("BoundaryFlag_Additional NeumannBoundaryIntegral",-1) == feSub.getFlag()) // check if our surface element corresponds to our neumann boundary 
             {
             assemblyFEElements_[T]->surfaceElement = true; // we set that the regared element is an boundary element
-            
+        
+
+            // ################# COMPUTATION OF OUTWARD NORMAL CAN BE REPLACED ####################
             // Precompute normal vectors for that edge/surface, But we have to ensure that this is outer normal 
             // Compute normal
             n[0] = pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1); // P2(y)-P1(y)
@@ -865,12 +870,13 @@ void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Ty
             // else do nothing because than it is already oriented in the outward direction
             assemblyFEElements_[T]->surfaceElement_OutwardNormal[0]=n_normalized[0];
             assemblyFEElements_[T]->surfaceElement_OutwardNormal[1]=n_normalized[1];
+            // ################# END ####################
+
 
             // We also need the determinant for the integral transformation later in 2D we consider the length change of the element
              det_L = std::sqrt( std::pow( (pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0)) , 2.0) + std::pow( pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1), 2.0) );
              assemblyFEElements_[T]->surfaceElement_MappingChangeInArea=det_L;
               
-             //Wir brauchen Quadraturpunkte die wir dann mit dem Mapping auf Referenzelement maoppen
              // We need quadrature point on element edges which we will later map back to the reference element via inverse mapping
              // the advantage is that we do not have to check which edge is mapped to an edge in a referenece element
              assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace.reset(new vec2D_dbl_Type(2,vec_dbl_Type(2,0.0)));
@@ -881,11 +887,66 @@ void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Ty
             }
 
         }
-    }//end dim=2
-    // 3D nicht implementiert!!!!
-	
+    }
+	}//end dim=2
+    else if(dim==3)
+    {
+    vec_dbl_Type n(dim), n_normalized(dim), helper_normalized(dim), helper(dim);
+    double norm_n, norm_helper, det_L, check_orientation;
+    vec_dbl_Type 	CM(dim,0.0);
+
+    // Variables for computing quadrature points on physical element edge
+    double quad_p1, quad_p2; // For intervall [0,1]
+    quad_p1=-0.5/sqrt(3.)+0.5;
+    quad_p2=0.5/sqrt(3.)+0.5;
+    vec2D_dbl_ptr_Type QuadPts;
+    
+    // Loop over all elements
+	for (UN T=0; T<elements->numberElements(); T++) 
+    {
+		
+        // Loop over all subelements so for example for 3D tetraeodon loop over the surface triangles
+        ElementsPtr_Type subEl = elements->getElement(T).getSubElements();
+        for (int surface=0; surface<elements->getElement(T).numSubElements(); surface++) 
+        {   // Go over all surface elements
+            FiniteElement feSub = subEl->getElement( surface  );
+            // Check whether the subelement is part of the boundary where we want to include boundary integral contribution
+            if (params->sublist("Material").get("BoundaryFlag_Additional NeumannBoundaryIntegral",-1) == feSub.getFlag()) // check if our surface element corresponds to our neumann boundary 
+            {
+            assemblyFEElements_[T]->surfaceElement = true; // we set that the regared element is an boundary element
         
-}
+
+            // ################# COMPUTATION OF OUTWARD NORMAL CAN BE REPLACED ####################
+            // Precompute normal vectors for that edge/surface, But we have to ensure that this is outer normal 
+            // Compute normal
+   
+            // else do nothing because than it is already oriented in the outward direction
+            assemblyFEElements_[T]->surfaceElement_OutwardNormal[0]=n_normalized[0];
+            assemblyFEElements_[T]->surfaceElement_OutwardNormal[1]=n_normalized[1];
+            assemblyFEElements_[T]->surfaceElement_OutwardNormal[1]=n_normalized[3];
+            // ################# END ####################
+
+
+            // We also need the determinant for the integral transformation later in 2D we consider the length change of the element
+             //assemblyFEElements_[T]->surfaceElement_MappingChangeInArea=det_L;
+              
+             // We need quadrature point on element edges which we will later map back to the reference element via inverse mapping
+             // the advantage is that we do not have to check which edge is mapped to an edge in a referenece element
+             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace.reset(new vec2D_dbl_Type(2,vec_dbl_Type(2,0.0)));
+             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(0) = pointsRep->at(feSub.getNode(0)).at(0)+((pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0)))*quad_p1;
+             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(1) = pointsRep->at(feSub.getNode(0)).at(1)+(pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1))*quad_p1;
+             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(0) = pointsRep->at(feSub.getNode(0)).at(0)+((pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0)))*quad_p2;
+             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(1) = pointsRep->at(feSub.getNode(0)).at(1)+(pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1))*quad_p2;
+           
+            }
+
+        }
+    }
+
+
+
+
+    }
 
 
 

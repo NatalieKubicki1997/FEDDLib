@@ -1,9 +1,0 @@
-The file Project\+Ci\+File\+Change\+Logic.\+py in this directory is only a symlink to the real file under\+:
-
-
-\begin{DoxyCode}{0}
-\DoxyCodeLine{commonTools/framework/ProjectCiFileChangeLogic.py}
-\end{DoxyCode}
-
-
-That is because that file is under the base directory for the {\ttfamily Trilinos\+Framework\+Tests} Tri\+B\+I\+TS package. We want changes to the file {\ttfamily Project\+Ci\+File\+Change\+Logic.\+py} to trigger the enable of the Trilinos\+Framework\+Tests package so as to run the unit tests for that Python module. But the file {\ttfamily Project\+Ci\+File\+Change\+Logic.\+py} also needs to exist in this {\ttfamily cmake/} directory so that Tri\+B\+I\+TS tools will find it and use it automatically. Using a symbolic link satisfies both of these requirements. 

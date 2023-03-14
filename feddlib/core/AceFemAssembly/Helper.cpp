@@ -796,8 +796,7 @@ int Helper::getDPhiAtCM(vec3D_dbl_ptr_Type &DPhi,
     int 			intFE;
     vec_dbl_ptr_Type 	value(new vec_dbl_Type(dim,0.0));
     TEUCHOS_TEST_FOR_EXCEPTION(dim == 1,std::logic_error, "getDPhiAtCMNot implemented for dim=1");
-    TEUCHOS_TEST_FOR_EXCEPTION(dim == 3,std::logic_error, "getDPhiAtCM Not implemented for dim=3");
-
+  
     if (dim==2) {
         if (FEType == "P0") {
             nmbLocElPts = 1;
@@ -814,16 +813,49 @@ int Helper::getDPhiAtCM(vec3D_dbl_ptr_Type &DPhi,
 
         DPhi.reset(new vec3D_dbl_Type(1,vec2D_dbl_Type(nmbLocElPts,vec_dbl_Type(2,0.0))));
 
-        for (int k=0; k<DPhi->size(); k++ ){
-            for (int i=0; i<DPhi->at(0).size(); i++) {
+        for (int k=0; k<DPhi->size(); k++ )
+        {
+            for (int i=0; i<DPhi->at(0).size(); i++) 
+            {
                 gradPhi(dim,intFE,i,CM,value);
-                for (int j=0; j<2; j++) {
+                for (int j=0; j<2; j++) 
+                {
                     DPhi->at(k).at(i).at(j) = value->at(j);
                 }
             }
         }
     }
-                     }
+    else if(dim==3)
+    {
+        if (FEType == "P0") {
+            nmbLocElPts = 1;
+            intFE = 0;
+        }
+        else if (FEType == "P1") {
+            nmbLocElPts = 4;
+            intFE = 1;
+        }
+        else if (FEType == "P2") {
+            nmbLocElPts = 10;
+            intFE = 2;
+        }
+        DPhi.reset(new vec3D_dbl_Type(1,vec2D_dbl_Type(nmbLocElPts,vec_dbl_Type(3,0.0))));
+        for (int k=0; k<DPhi->size(); k++ )
+        {
+            for (int i=0; i<DPhi->at(0).size(); i++)
+            {
+                gradPhi(dim,intFE,i,CM,value);
+                for (int j=0; j<3; j++) 
+                {
+                    DPhi->at(k).at(i).at(j) = value->at(j);
+                }
+            }
+        }
+
+
+    }
+
+    }
 
 
 int Helper::getDPhiAtNodes(vec3D_dbl_ptr_Type &DPhi,
