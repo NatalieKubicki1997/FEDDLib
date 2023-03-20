@@ -448,7 +448,7 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
         {
 	 	    initAssembleFEElements("NavierStokesNonNewtonian",problemDisk,elements, params,pointsRep); // In case of non Newtonian Fluid
             if(params->sublist("Material").get("Additional NeumannBoundaryIntegral",false) == true) // Only if we have stress-divergence formulation and want to include boundary integral
-                setBoundaryFlagAssembleFEEElements(dim, elements,params, pointsRep);
+                setBoundaryFlagAssembleFEEElements(dim, elements,params, pointsRep, FETypeVelocity);
         }
         else
         {
@@ -801,7 +801,7 @@ void FE<SC,LO,GO,NO>::initAssembleFEElements(string elementType,tuple_disk_vec_p
 
 */
 template <class SC, class LO, class GO, class NO>
-void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Type elements, ParameterListPtr_Type params, vec2D_dbl_ptr_Type pointsRep)
+void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Type elements, ParameterListPtr_Type params, vec2D_dbl_ptr_Type pointsRep, std::string FETypeVelocity)
 {
     
     // 2D !!!
@@ -814,13 +814,26 @@ void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Ty
     vec_dbl_Type n(dim), n_normalized(dim), helper_normalized(dim), helper(dim);
     double norm_n, norm_helper, det_L, check_orientation;
     vec_dbl_Type 	CM(dim,0.0);
-
-    // Variables for computing quadrature points on physical element edge
-    double quad_p1, quad_p2; // For intervall [0,1]
-    quad_p1=-0.5/sqrt(3.)+0.5;
-    quad_p2=0.5/sqrt(3.)+0.5;
+   
     vec2D_dbl_ptr_Type QuadPts;
     
+    int Num_weights; 
+    if(FETypeVelocity == "P1")
+    {
+        Num_weights=1;
+    }
+    else if(FETypeVelocity == "P2")
+    {   
+        Num_weights=2;
+    }
+    else
+    {
+      TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error   ,"setBoundaryFlagAssembleFEEElements not implemented for FE_Types different than P1 or P2");
+    }
+    vec_dbl_Type QuadW(Num_weights);
+    vec2D_dbl_Type QuadPts_Physical(QuadW.size(), vec_dbl_Type(dim));
+    vec_LO_Type nodeList_surfaceElement;
+
     // Loop over all elements
 	for (UN T=0; T<elements->numberElements(); T++) 
     {
@@ -831,10 +844,10 @@ void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Ty
         {   // Go over all surface elements
             FiniteElement feSub = subEl->getElement( surface  );
             // Check whether the subelement is part of the boundary where we want to include boundary integral contribution
-            if (params->sublist("Material").get("BoundaryFlag_Additional NeumannBoundaryIntegral",-1) == feSub.getFlag()) // check if our surface element corresponds to our neumann boundary 
+            if (params->sublist("Material").get("BoundaryFlag_Additional NeumannBoundaryIntegral",-1) == feSub.getFlag()) // check if our surface element corresponds to our neumann boundary where we want to add the additional contribution 
             {
             assemblyFEElements_[T]->surfaceElement = true; // we set that the regared element is an boundary element
-        
+            nodeList_surfaceElement = feSub.getVectorNodeList();
 
             // ################# COMPUTATION OF OUTWARD NORMAL CAN BE REPLACED ####################
             // Precompute normal vectors for that edge/surface, But we have to ensure that this is outer normal 
@@ -873,17 +886,28 @@ void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Ty
             // ################# END ####################
 
 
+
+             
+
             // We also need the determinant for the integral transformation later in 2D we consider the length change of the element
              det_L = std::sqrt( std::pow( (pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0)) , 2.0) + std::pow( pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1), 2.0) );
              assemblyFEElements_[T]->surfaceElement_MappingChangeInArea=det_L;
-              
-             // We need quadrature point on element edges which we will later map back to the reference element via inverse mapping
-             // the advantage is that we do not have to check which edge is mapped to an edge in a referenece element
-             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace.reset(new vec2D_dbl_Type(2,vec_dbl_Type(2,0.0)));
-             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(0) = pointsRep->at(feSub.getNode(0)).at(0)+((pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0)))*quad_p1;
-             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(1) = pointsRep->at(feSub.getNode(0)).at(1)+(pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1))*quad_p1;
-             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(0) = pointsRep->at(feSub.getNode(0)).at(0)+((pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0)))*quad_p2;
-             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(1) = pointsRep->at(feSub.getNode(0)).at(1)+(pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1))*quad_p2;
+
+ 
+             
+             // Compute Quadrature Values and Weights On Physical Surface Element
+             QuadPts_Physical= Helper::getQuadratureValuesOnSurface(dim, FETypeVelocity, QuadW, nodeList_surfaceElement, pointsRep);
+             assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace.reset(new vec2D_dbl_Type(QuadPts_Physical.size(),vec_dbl_Type(dim,0.0)));
+             assemblyFEElements_[T]->surfaceElement_QuadratureWeightsPhysicalSpace.reset(new vec_dbl_Type(QuadW.size(),0.0));
+             for (int k=0; k<QuadPts_Physical.size(); k++)
+             {
+                assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(k).at(0) = QuadPts_Physical[k][0];
+                assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace->at(k).at(1) = QuadPts_Physical[k][1];
+                assemblyFEElements_[T]->surfaceElement_QuadratureWeightsPhysicalSpace->at(k) = QuadW[k];
+                
+             }
+             
+
             }
 
         }

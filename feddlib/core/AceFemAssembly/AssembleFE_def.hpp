@@ -24,6 +24,7 @@ AssembleFE<SC,LO,GO,NO>::AssembleFE(int flag, vec2D_dbl_Type nodesRefConfig, Par
 	
 	checkParameters();
 
+
 	surfaceElement=false; // To check whether we have surface element
 	surfaceElement_MappingChangeInArea=0.0;
 	surfaceElement_OutwardNormal.resize(dim_);

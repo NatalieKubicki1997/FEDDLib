@@ -201,6 +201,7 @@ namespace FEDD {
         bool surfaceElement; // in order to only access surface assembly elements
         double surfaceElement_MappingChangeInArea; // 2D: change of length , 3D: change of area 
         vec2D_dbl_ptr_Type surfaceElement_QuadraturePointsPhysicalSpace; // 2D: quadrature points on line, 3D: quadrature points in plane, have to be mapped on reference element with mapping
+        vec_dbl_ptr_Type surfaceElement_QuadratureWeightsPhysicalSpace;
         vec_dbl_Type surfaceElement_OutwardNormal; // 2D: two dimensional vector , 3D: three dimensional vector in outward direction from line/plane
        
     protected:

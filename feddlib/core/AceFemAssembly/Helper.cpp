@@ -1097,7 +1097,7 @@ vec2D_dbl_Type Helper::getQuadratureValuesOnSurface(int dim, std::string FEType,
 			QuadW[0] = 1.;
 		}
 		else if(FEType == "P2"){
-
+            /*
 			QuadPts[0][0] =  x0;
 			QuadPts[0][1] =  y0;
 			QuadPts[1][0] =  (x0+x1)/2.;
@@ -1108,6 +1108,24 @@ vec2D_dbl_Type Helper::getQuadratureValuesOnSurface(int dim, std::string FEType,
 			QuadW[0] = 1.;
 			QuadW[1] = 4.;
 			QuadW[2] = 1.;
+            */ // This lead to not so good results mac
+             // Variables for computing gaussian-legendre-quadrature points on physical element edge
+             // For Degree 3! We need the quadrature points for intervall [0,1] and then we compute the
+             // corresponding quadrature points for the physical element such that if we map back on 
+             // the UNIT reference element we get the correct quadrature points BUT We still have to check if we are not on
+             // the diagonal of the unit triangle because then we have to multiply by a factor of sqrt(2)
+             double quad_p1, quad_p2; 
+             quad_p1=-0.5/sqrt(3.)+0.5;
+             quad_p2=0.5/sqrt(3.)+0.5;
+
+             QuadPts[0][0] = x0+(x1- x0)*quad_p1;
+             QuadPts[0][1] = y0+(y1- y0)*quad_p1;
+             QuadPts[1][0] = x0+(x1- x0)*quad_p2;
+             QuadPts[1][1] = y0+(y1- y0)*quad_p2;
+
+             QuadW[0] = 0.5;
+			 QuadW[1] = 0.5;
+
 		}
 		
 	}	
@@ -1190,7 +1208,7 @@ void Helper::getQuadratureValues(int dim,
                 QuadW->at(1) = .5;
                 break;
             case 3:
-                QuadPts.reset(new vec2D_dbl_Type(2,vec_dbl_Type(1,0.0)));
+                QuadPts.reset(new vec2D_dbl_Type(2,vec_dbl_Type(1,0.0))); // quadrature rule for degree 3
                 QuadW->resize(2);
                 QuadPts->at(0).at(0) = - 0.5/sqrt(3.)+0.5;
                 QuadPts->at(1).at(0) = 0.5/sqrt(3.)+0.5;

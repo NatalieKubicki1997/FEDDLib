@@ -522,7 +522,7 @@ private:
 	void initAssembleFEElements(string elementType,tuple_disk_vec_ptr_Type problemDisk,ElementsPtr_Type elements, ParameterListPtr_Type params,vec2D_dbl_ptr_Type pointsRep);
 
     // We check if an element corresponds to an outflow boundary element by comparing flags
-    void setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Type elements, ParameterListPtr_Type params, vec2D_dbl_ptr_Type pointsRep);
+    void setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Type elements, ParameterListPtr_Type params, vec2D_dbl_ptr_Type pointsRep, std::string FE_Type);
 	
     AssembleFEPtr_vec_Type assemblyFEElements_;
 

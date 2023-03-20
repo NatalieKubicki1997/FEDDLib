@@ -183,14 +183,12 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
     // Compute entries    
     // Initialize some helper vectors/matrices
     double v11, v12, v21, v22, value1_j, value2_j , value1_i, value2_i, viscosity_atw;
-
     viscosity_atw = 0.;
     
     // Construct element matrices 
     for (UN i=0; i < numNodes; i++) 
     {
        // Teuchos::Array<SC> value(dPhiTrans[0].size(), 0. ); // dPhiTrans[0].size() is 3        
-      
         for (UN j=0; j < numNodes; j++) 
         {
         // Reset values
@@ -716,26 +714,40 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTer
     detB = B.computeInverse(Binv); // The function computeInverse returns a double value corrsponding to determinant of B
     absDetB = std::fabs(detB); // absolute value of B    
 
-
     // Now we have to compute the weights and the quadrature points for our line integral (2D), surface integral (3D)
     // where we want to evaluate our dPhi, phi 
     vec2D_dbl_ptr_Type QuadPts;
-    vec_dbl_ptr_Type QuadW(new vec_dbl_Type(2.0,0.0));
+    vec_dbl_ptr_Type QuadW(new vec_dbl_Type(this->surfaceElement_QuadratureWeightsPhysicalSpace->size(),0.0));
     // So we are now mapping back the quadrature points from the physical edge element to the reference element 
     // via the inverse mapping xi = Binv(x-tau) where tau is p0
     // tau = [this->nodesRefConfig_.at(0).at(0) ;  this->nodesRefConfig_.at(0).at(1)]
-    QuadPts.reset(new vec2D_dbl_Type(2,vec_dbl_Type(2,0.0)));
-    
-    QuadPts->at(0).at(0)= Binv[0][0]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(0)-this->nodesRefConfig_.at(0).at(0)) + Binv[0][1]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(1)-this->nodesRefConfig_.at(0).at(1));
-    QuadPts->at(0).at(1)= Binv[1][0]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(0)-this->nodesRefConfig_.at(0).at(0))  + Binv[1][1]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(1)-this->nodesRefConfig_.at(0).at(1));
+    QuadPts.reset(new vec2D_dbl_Type(this->surfaceElement_QuadraturePointsPhysicalSpace->size(),vec_dbl_Type(dim,0.0)));
+  
+    for(int l=0; l< this->surfaceElement_QuadraturePointsPhysicalSpace->size(); l++)
+    {
+        QuadW->at(l)=this->surfaceElement_QuadratureWeightsPhysicalSpace->at(l);
+        for (int p = 0; p < dim; p++)
+        {
+            for (int q=0; q < dim; q++)
+            {
+            QuadPts->at(l).at(p)+= Binv[p][q]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(l).at(q)-this->nodesRefConfig_.at(0).at(q) );
+            }
+        }    
+    }
 
-    QuadPts->at(1).at(0)= Binv[0][0]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(0)-this->nodesRefConfig_.at(0).at(0)) + Binv[0][1]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(1)-this->nodesRefConfig_.at(0).at(1));
-    QuadPts->at(1).at(1)= Binv[1][0]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(0)-this->nodesRefConfig_.at(0).at(0))  + Binv[1][1]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(1)-this->nodesRefConfig_.at(0).at(1));
-    
-    QuadW->resize(2); // The intervall is between 0 and 1, does this also holds true if we are on the diagonal edge ?
-    QuadW->at(0) = .5;
-    QuadW->at(1) = .5;
-    // Mit der Länge der Kante multiplizieren falls wir auf der Diagnonalen sind
+    // SO NOW WE HAVE TO CATCH THE CASE THAT IF WE PROJECTED ONTO THE DIAGONAL LINE WE HAVE TO MULTIPLY BY THE LENGTH SO SQRT(2)
+    // HOW TO CHECK IF WE ARE ON THE DIAGONAL LINE? We check if the x and y component of a quafrature point a nonzero
+    if (  QuadPts->at(0).at(0) != 0. && QuadPts->at(0).at(1) != 0.) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
+    {
+        for(int l=0; l< this->surfaceElement_QuadraturePointsPhysicalSpace->size(); l++)
+        {
+        QuadW->at(l)=std::sqrt(2.0)*QuadW->at(l);
+         for (int q=0; q < dim; q++)
+            {
+                QuadPts->at(l).at(q)=std::sqrt(2.0)*QuadPts->at(l).at(q);
+            }
+        }
+    }
 
     Helper::getPhi(phi, QuadW,QuadPts, dim, FEType);
     Helper::getDPhi(dPhi, QuadW,QuadPts, dim, FEType); 
@@ -901,23 +913,36 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTer
     // Now we have to compute the weights and the quadrature points for our line integral (2D), surface integral (3D)
     // where we want to evaluate our dPhi, phi 
     vec2D_dbl_ptr_Type QuadPts;
-    vec_dbl_ptr_Type QuadW(new vec_dbl_Type(2.0,0.0));
+    vec_dbl_ptr_Type QuadW(new vec_dbl_Type(this->surfaceElement_QuadratureWeightsPhysicalSpace->size(),0.0));
     // So we are now mapping back the quadrature points from the physical edge element to the reference element 
     // via the inverse mapping xi = Binv(x-tau) where tau is p0
     // tau = [this->nodesRefConfig_.at(0).at(0) ;  this->nodesRefConfig_.at(0).at(1)]
-    QuadPts.reset(new vec2D_dbl_Type(2,vec_dbl_Type(2,0.0)));
-    
-    QuadPts->at(0).at(0)= Binv[0][0]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(0)-this->nodesRefConfig_.at(0).at(0)) + Binv[0][1]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(1)-this->nodesRefConfig_.at(0).at(1));
-    QuadPts->at(0).at(1)= Binv[1][0]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(0)-this->nodesRefConfig_.at(0).at(0))  + Binv[1][1]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(0).at(1)-this->nodesRefConfig_.at(0).at(1));
-
-    QuadPts->at(1).at(0)= Binv[0][0]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(0)-this->nodesRefConfig_.at(0).at(0)) + Binv[0][1]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(1)-this->nodesRefConfig_.at(0).at(1));
-    QuadPts->at(1).at(1)= Binv[1][0]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(0)-this->nodesRefConfig_.at(0).at(0))  + Binv[1][1]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(1).at(1)-this->nodesRefConfig_.at(0).at(1));
-    
-    QuadW->resize(2); // The intervall is between 0 and 1 for xi=0 or eta=0
-                      // but this is not ture true if we are on the diagonal edge 
-    QuadW->at(0) = .5;
-    QuadW->at(1) = .5;
-
+    QuadPts.reset(new vec2D_dbl_Type(this->surfaceElement_QuadraturePointsPhysicalSpace->size(),vec_dbl_Type(dim,0.0)));
+  
+    for(int l=0; l< this->surfaceElement_QuadraturePointsPhysicalSpace->size(); l++)
+    {
+        QuadW->at(l)=this->surfaceElement_QuadratureWeightsPhysicalSpace->at(l);
+        for (int p = 0; p < dim; p++)
+        {
+            for (int q=0; q < dim; q++)
+            {
+            QuadPts->at(l).at(p)+= Binv[p][q]*(this->surfaceElement_QuadraturePointsPhysicalSpace->at(l).at(q)-this->nodesRefConfig_.at(0).at(q) );
+            }
+        }    
+    }
+      // SO NOW WE HAVE TO CATCH THE CASE THAT IF WE PROJECTED ONTO THE DIAGONAL LINE WE HAVE TO MULTIPLY BY THE LENGTH SO SQRT(2)
+    // HOW TO CHECK IF WE ARE ON THE DIAGONAL LINE? We check if the x and y component of a quafrature point a nonzero
+    if (  QuadPts->at(0).at(0) != 0. && QuadPts->at(0).at(1) != 0.) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
+    {
+        for(int l=0; l< this->surfaceElement_QuadraturePointsPhysicalSpace->size(); l++)
+        {
+        QuadW->at(l)=std::sqrt(2.0)*QuadW->at(l);
+         for (int q=0; q < dim; q++)
+            {
+                QuadPts->at(l).at(q)=std::sqrt(2.0)*QuadPts->at(l).at(q);
+            }
+        }
+    }
 
     Helper::getPhi(phi, QuadW,QuadPts, dim, FEType);
     Helper::getDPhi(dPhi, QuadW,QuadPts, dim, FEType); 
