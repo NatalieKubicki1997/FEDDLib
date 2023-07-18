@@ -5,12 +5,12 @@
 
 namespace FEDD {
 // All important things are so far defined in AssembleFENavierStokes. Please check there.
-/*
-This class is specifically for Non-Newtonian fluids where we consider generalized Newtonian models for the viscosity
+/* *******************************************************************************
+This class is for Non-Newtonian fluids where we consider in specifc generalized Newtonian models where the viscosityis non-constant
 - Because the viscosity is no longer constant the conventional formulation with the laplacian term can not be considered
 (but there is a generalized laplacian version of the equation see "On outflow boundary conditions in finite element simulations of non- Newtonian internal flow" 2021)
 Instead we use the stress-divergence formulation of the momentum equation and derive from that the element-wise entries
-*/
+******************************************************************************* */
 template <class SC, class LO, class GO, class NO>
 AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::AssembleFENavierStokesNonNewtonian(int flag, vec2D_dbl_Type nodesRefConfig, ParameterListPtr_Type params,tuple_disk_vec_ptr_Type tuple):
 AssembleFENavierStokes<SC,LO,GO,NO>(flag, nodesRefConfig, params,tuple)
