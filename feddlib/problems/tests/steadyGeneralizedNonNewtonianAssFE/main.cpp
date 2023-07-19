@@ -133,10 +133,14 @@ void zeroDirichlet3D(double *x, double *res, double t, const double *parameters)
     return;
 }
 
+// For a 2D-Poiseulle-Flow of a Power-Law fluid with eta=K*gamma^(n-1) an analytical solution for the velocity field
+// can be derived depending on K, n, H and the pressure gradient dp/dx
+// So a simple test case for the generalized-Newtonian fluid solver is a 2D-Poiseuille Flow, prescribing the analytical velocity profile u(y) and 
+// checking if correct pressure gradient is recovered
 void inflowPowerLaw2D(double *x, double *res, double t, const double *parameters)
 {
 
-    double K = parameters[0]; // 0.035;
+    double K = parameters[0]; // 0.0035;
     double n = parameters[1]; // 1.0; // For n=1.0 we have parabolic inflow profile (Newtonian case)
     double H = parameters[2];
     double dp = parameters[3];
@@ -165,10 +169,10 @@ void inflowPowerLaw2D_y(double *x, double *res, double t, const double *paramete
 void inflowParabolicAverageVelocity2D(double *x, double *res, double t, const double *parameters)
 {
 
-    double H = 0.001;
+    double H = parameters[2];
     double mu = 0.00345;
     double rho = 1050.0;
-    double Re = 1.0;
+    double Re=1.0;
     double averageVelocity = (mu / (rho * H)) * Re;
 
     res[0] = 4 * (2 * averageVelocity) * ((x[1] - H) * H - pow(x[1] - H, 2)) / (H * H);
@@ -406,13 +410,13 @@ int main(int argc, char *argv[])
                 bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                 // wall
                 bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);  // wall
                                                                                                            // bcFactory->addBC(inflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet onex
-                bcFactory->addBC(inflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // original bc Inlet onex
+                bcFactory->addBC(inflowPowerLaw2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // original bc Inlet onex
 
                 // bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet onex
 
                 // For test 1x1, 2x2, 4x4 because else inflow is unsymmetric
                 // bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
-                bcFactory->addBC(zeroDirichlet, 3,  1, domainPressure, "Dirichlet", 1); //Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
+                //bcFactory->addBC(zeroDirichlet, 3,  1, domainPressure, "Dirichlet", 1); //Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
 
                 //** Flow over step **************************************************************************/*
                 /*

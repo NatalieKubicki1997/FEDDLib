@@ -22,7 +22,7 @@ AssembleFENavierStokes<SC,LO,GO,NO>(flag, nodesRefConfig, params,tuple)
     
     // Reading through parameterlist
     shearThinningModel= params->sublist("Material").get("ShearThinningModel","");
-    // New: We have to check which material model we use 
+    // New: We have to check which material model we use
 	if(shearThinningModel == "Carreau-Yasuda"){
 		Teuchos::RCP<CarreauYasuda<SC,LO,GO,NO>> materialModelSpecific(new CarreauYasuda<SC,LO,GO,NO>(params) );
 		materialModel = materialModelSpecific;
@@ -76,7 +76,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
     // As the stress tensor term, considering a non-newtonian constitutive equation, is nonlinear we add its contribution here
   
     // ANB is the FixedPoint Formulation which was named for newtonian fluids. 
-    // Matrix A (Laplacian term (here not occuring)), Matrix B for div-Pressure Part, Matrix Nx for nonlinear parts -
+    // Matrix A (Laplacian term (here not occuring)), Matrix B for div-Pressure Part, Matrix N for nonlinear parts -
 
 	this->ANB_.reset(new SmallMatrix_Type( this->dofsElementVelocity_+this->numNodesPressure_)); // A + B + N
 	this->ANB_->add( ((*this->constantMatrix_)),((*this->ANB_)));
@@ -84,10 +84,10 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
     // Nonlinear advection term \rho (u \cdot \nabla) u 
     // As this class is derived from NavierStokes class we can call already implemented function
     //*************** ADVECTION************************
-	this->assemblyAdvection(elementMatrixNC);
+	/*this->assemblyAdvection(elementMatrixNC);
 	elementMatrixNC->scale(this->density_);
 	this->ANB_->add( (*elementMatrixNC),((*this->ANB_)));
-
+    */
     // For a non-newtonian fluid we add additional element matrix and fill it with specific contribution
     // Remember that this term is based on the stress-divergence formulation of the momentum equation
     // \nabla \dot \tau with \tau=\eta(\gammaDot)(\nabla u + (\nabla u)^T)
@@ -103,8 +103,8 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
     if(this->linearization_ != "FixedPoint"){
 
 	    this->assemblyStressDev(elementMatrixW);     // stress tensor
-        this->assemblyAdvectionInU(elementMatrixWC); // convection
-	    elementMatrixWC->scale(this->density_);
+        //this->assemblyAdvectionInU(elementMatrixWC); // convection
+	    //elementMatrixWC->scale(this->density_);
         
         this->jacobian_->add((*elementMatrixW),(*this->jacobian_)); 
         this->jacobian_->add((*elementMatrixWC),(*this->jacobian_));  // int add(SmallMatrix<T> &bMat, SmallMatrix<T> &cMat); //this+B=C elementMatrix + constantMatrix_;
@@ -207,7 +207,6 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
 
                 // viscosity function evaluated where we consider the dynamic viscosity!!
                 this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
-                //if (i==0 && j==0) viscosity_averageOverT += viscosity_atw; // see below ### 
 
                  v11 = v11 + viscosity_atw * weights->at(w) *(2.0*value1_i*value1_j+value2_i*value2_j);
                  v12 = v12 + viscosity_atw * weights->at(w) *(value2_i*value1_j);
@@ -217,7 +216,6 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
             } // loop end quadrature points
             
             //multiply determinant from transformation
-           // if (i==0 && j==0)  viscosity_averageOverT *= absDetB; 
             v11 *= absDetB; 
             v12 *= absDetB;
             v21 *= absDetB;
@@ -324,11 +322,9 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
 
 
 
-
-
 //Extra Derivative of Extra stress term resulting from chosen nonlinear non-newtonian model  -----
 //Same structure and functions as in assemblyStress 
-// (dPhiTrans_i : [-1/4 * deta/dgammaDot * dgammaDot/dTau * (dv^k + (dvh^k)^T)^2 * ( dPhiTrans_j + (dPhiTrans_j)^T)    ]
+// ( -2.0*deta/dgammaDot * dgammaDot/dTau * (0.5(dv^k + (dvh^k)^T): 0.5( dPhiTrans_j + (dPhiTrans_j)^T))0.5(dv^k + (dvh^k)^T): 0.5( dPhiTrans_i + (dPhiTrans_i)^T)    )
 template <class SC, class LO, class GO, class NO>
 void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMatrixPtr_Type &elementMatrix) {
 
@@ -363,7 +359,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
     {
     //************************************
     //************************************
-    // Due to the extra term related to the Gaetaeux-derivative there arise prefactors (a, b, fab) which depend on the velocity gradients solutions
+    // Due to the extra term related to the Gaetaeux-derivative there arise prefactors which depend on the velocity gradients solutions
     // which therefore also have to be computed here therefore we compute it directly here
     vec_dbl_Type u11(dPhiTrans.size(), -1.); // should correspond to du/dx at each quadrature point
     vec_dbl_Type u12(dPhiTrans.size(), -1.); // should correspond to du/dy at each quadrature point
@@ -371,16 +367,15 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
     vec_dbl_Type u22(dPhiTrans.size(), -1.); // should correspond to dv/dy at each quadrature point
     vec_dbl_ptr_Type 	gammaDot(new vec_dbl_Type(weights->size(),0.0)); //gammaDot->at(j) j=0...weights 
 
-    vec_dbl_ptr_Type 	a1(new vec_dbl_Type(weights->size(),0.0));   // prefactor a= 4*(du/dx)^2 + (du/dy+dv/dx)^2
-    vec_dbl_ptr_Type 	b1(new vec_dbl_Type(weights->size(),0.0));   // prefactor b= 4*(dv/dy)^2 + (du/dy+dv/dx)^2
-    vec_dbl_ptr_Type 	fab1(new vec_dbl_Type(weights->size(),0.0)); // prefactor fab = 2*(du/dy+dv/dx)*(du/dx+dv/dy)
+  
+    vec_dbl_ptr_Type 	mixed_term_xy(new vec_dbl_Type(weights->size(),0.0)); 
     for (UN w=0; w<dPhiTrans.size(); w++)
      { //quads points
       // set again to zero 
-      u11[w] = 0.0;
-      u12[w] = 0.0;
-      u21[w] = 0.0;
-      u22[w] = 0.0;
+      u11[w] = 0.0; //du_dx
+      u12[w] = 0.0; //du_dy
+      u21[w] = 0.0; //dv_dx
+      u22[w] = 0.0; //dv_dy
             for (UN i=0; i < dPhiTrans[0].size(); i++) 
             { // loop unrolling
                 LO index1 = dim * i + 0; // x
@@ -393,10 +388,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
                 
             }
             gammaDot->at(w) = sqrt(2.0*u11[w]*u11[w]+ 2.0*u22[w]*u22[w] + (u12[w]+u21[w])*(u12[w]+u21[w]));
-
-            a1->at(w)= 4.0*(u11[w]*u11[w]) + (u12[w]+u21[w])*(u12[w]+u21[w]);
-            b1->at(w)= 4.0*(u22[w]*u22[w]) + (u12[w]+u21[w])*(u12[w]+u21[w]);
-            fab1->at(w) = 2.0*(u12[w]+u21[w])*(u11[w]+u22[w]);
+            mixed_term_xy->at(w) = 0.5*(u12[w]+u21[w]);
 
      }
      //*******************************
@@ -404,12 +396,6 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
         // Initialize some helper vectors/matrices
         double v11, v12, v21, v22, value1_j, value2_j , value1_i, value2_i, deta_dgamma_dgamma_dtau ;
     
-        SmallMatrix<double> tmpRes1(dim);
-        SmallMatrix<double> tmpRes2(dim);
-        SmallMatrix<double> e1i(dim);
-        SmallMatrix<double> e2i(dim);
-        SmallMatrix<double> e1j(dim);
-        SmallMatrix<double> e2j(dim);
         deta_dgamma_dgamma_dtau =0.;
 
     // Construct element matrices 
@@ -420,7 +406,6 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
         // Reset values
         v11 = 0.0;v12 = 0.0;v21 = 0.0;v22 = 0.0;
 
-            // So in general compute the components of (dPhiTrans_i : [-1/4 * deta/dgammaDot * dgammaDot/dTau * (dv^k + (dvh^k)^T)^2 * ( dPhiTrans_j + (dPhiTrans_j)^T)    ]
             // Only the part  deta/dgammaDot is different for all shear thinning models (because we make the assumption of incompressibility)? NO ALSO DIFFERENT FOR EXAMPLE FOR CASSON SO CONSIDERING YIELD STRESS
             // but we put the two terms together because then we can multiply them together and get e.g. for carreau yasuda  : gammaDot^{a-2.0} which is for a=2.0 equals 0 and we do not have to worry about the problem what if gammaDot = 0.0
             for (UN w=0; w<dPhiTrans.size(); w++) {
@@ -431,39 +416,20 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
                  value1_i = dPhiTrans[w][i][0]; // so this corresponds to d\phi_i/dx
                  value2_i = dPhiTrans[w][i][1]; // so this corresponds to d\phi_i/dy
 
-                // Now we compute the helper matrices which we need that we later can multiply the different values of dphi_j dphi_i together to get the single components of element matrice entry
-                 e1j[0][0] = 2.*value1_j;
-                 e1j[0][1] = value2_j;
-                 e1j[1][0] = value2_j;
-                 // e1j = [ 2 dphi_j/dx  ,  dphi_j/dy ; dphi_j/dy , 0]
+                 this->materialModel->evaluateDerivative(this->params_,  gammaDot->at(w), deta_dgamma_dgamma_dtau);
+	             /* EInfacher in unausmultiplizierter Form
+                 v11 = v11 + (-2.0)*deta_dgamma_dgamma_dtau  * weights->at(w) *(u11[w]*u11[w]*value1_i*value1_j+u11[w]*mixed_terms->at(w)*(value1_i*value2_j+value2_i*value1_j)+ mixed_terms->at(w)*mixed_terms->at(w)*(value2_i*value2_j)); // xx contribution: (dv_x/dx)^2*dphi_i/dx*dphi_j/dx+dv_x/dx*f*(dphi_i/dx*dphi_j/dy+dphi_i/dy*dphi_j/dx)+f^2*dphi_i/dy*dphi_j/dy
+                 v12 = v12 + (-2.0)*deta_dgamma_dgamma_dtau  * weights->at(w) *(u11[w]*mixed_terms->at(w)*value1_i*value1_j+u11[w]*u22[w]*(value1_i*value2_j)        +mixed_terms->at(w)*mixed_terms->at(w)*value2_i*value1_j+mixed_terms->at(w)*u22[w]*value2_i*value2_j ); // xy contribution:  dv_x/dx*f*dphi_i/dx*dphi_j/dx+dv_x/dx*dv_y/dy*dphi_i/dx*dphi_j/dy+f^2*dphi_i_dy*dphi_j/dx+f*dv_y/dy*dphi_i/dy*dphi_j/dy
+                 v21 = v21 + (-2.0)*deta_dgamma_dgamma_dtau  * weights->at(w) *(u11[w]*mixed_terms->at(w)*value1_i*value1_j+mixed_terms->at(w)*mixed_terms->at(w)*value1_i*value2_j+u11[w]*u22[w]*value2_i*value1_j          +mixed_terms->at(w)*u22[w]*value2_i*value2_j ); // yx contribution:  dv_x/dx*f*dphi_i/dx*dphi_j/dx+dv_x/dx*dv_y/dy*dphi_i/dy*dphi_j/dx+f^2*dphi_i_dx*dphi_j/dy+f*dv_y/dy*dphi_i/dy*dphi_j/dy 
+                 v22 = v22 + (-2.0)*deta_dgamma_dgamma_dtau  * weights->at(w) *(u22[w]*u22[w]*value2_i*value2_j+u22[w]*mixed_terms->at(w)*(value1_i*value2_j+value2_i*value1_j)+ mixed_terms->at(w)*mixed_terms->at(w)*(value1_i*value1_j) ); // yy contribution: (dv_y/dy)^2*dphi_i/dy*dphi_j/dy+dv_y/dy*f*(dphi_i/dx*dphi_j/dy+dphi_i/dy*dphi_j/dx)+f^2*dphi_i/dx*dphi_j/dx
+                 */
+                 v11 = v11 + (-2.0)*deta_dgamma_dgamma_dtau  *  weights->at(w) * ( (value1_j*u11[w]+value2_j*mixed_term_xy->at(w))*(value1_i*u11[w]+value2_i*mixed_term_xy->at(w)));
+                 v12 = v12 + (-2.0)*deta_dgamma_dgamma_dtau  *  weights->at(w) * ( (value1_j*mixed_term_xy->at(w)+u22[w]*value2_j)*(value1_i*u11[w]+value2_i*mixed_term_xy->at(w)));
 
-                // We get prefactors because due to the term  (dv^k + (dvh^k)^T)^2 
-                 e1i[0][0] = value1_i*a1->at(w);
-                 e1i[0][1] = value2_i*a1->at(w);
-                 e1i[1][0] = value1_i*fab1->at(w);
-                 e1i[1][1] = value2_i*fab1->at(w);
-                // e1i = [ dphi_i/dx*a1  ,  dphi_i/dy*a1 ; dphi_i/dx*f , dphi_i/dy*f]
+                 v21 = v21 + (-2.0)*deta_dgamma_dgamma_dtau  *  weights->at(w) * ( (value1_j*u11[w]+value2_j*mixed_term_xy->at(w))*(value1_i*mixed_term_xy->at(w)+value2_i*u22[w]));
+                 v22 = v22 + (-2.0)*deta_dgamma_dgamma_dtau  *  weights->at(w) * ( (value1_j*mixed_term_xy->at(w)+u22[w]*value2_j)*(value1_i*mixed_term_xy->at(w)+value2_i*u22[w]));
 
-                e2j[1][0] = value1_j;
-                e2j[0][1] = value1_j;
-                e2j[1][1] = 2*value2_j;
-                // e2j = [0 ,  dphi_j/dx ; dphi_j/dx , 2  dphi_j/dy ]
-
-                 e2i[0][0] = value1_i*fab1->at(w);
-                 e2i[0][1] = value2_i*fab1->at(w);
-                 e2i[1][0] = value1_i*b1->at(w);
-                 e2i[1][1] = value2_i*b1->at(w);
-                // e2i = [  dphi_i/dx*f  , dphi_i/dy*f ; dphi_i/dx*b1  ,  dphi_i/dy*b1 ]
-
-
-                this->materialModel->evaluateDerivative(this->params_,  gammaDot->at(w), deta_dgamma_dgamma_dtau);
-	
-                 v11 = v11 + (-0.25)*deta_dgamma_dgamma_dtau  * weights->at(w) * (e1i.innerProduct(e1j) ); // xx contribution: 2 *dphi_i/dx *dphi_j/dx*a1 + dphi_i/dy* dphi_j/dy*a1 + dphi_i/dx *dphi_j/dy*f
-                 v12 = v12 + (-0.25)*deta_dgamma_dgamma_dtau  * weights->at(w) * (e1i.innerProduct(e2j) ); // xy contribution:  dphi_i/dy* dphi_j/dx*a1 + 2 *dphi_i/dy *dphi_j/dy*f + dphi_i/dx* dphi_j/dx*f
-                 v21 = v21 + (-0.25)*deta_dgamma_dgamma_dtau  * weights->at(w) * (e2i.innerProduct(e1j) ); // yx contribution:  dphi_i/dx* dphi_j/dy*b1 + 2 *dphi_i/dx *dphi_j/dx*f + dphi_i/dy* dphi_j/dy*f
-                 v22 = v22 + (-0.25)*deta_dgamma_dgamma_dtau  * weights->at(w) * (e2i.innerProduct(e2j) ); // yy contribution: 2 *dphi_i/dy *dphi_j/dy*b1 + dphi_i/dx* dphi_j/dx*b1 +  dphi_i/dy* dphi_j/dx*f
-
-            } // loop end quadrature points
+   } // loop end quadrature points
             
             //multiply determinant from transformation
             v11 *= absDetB; 
@@ -505,12 +471,10 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
 
     vec_dbl_ptr_Type gammaDot(new vec_dbl_Type(weights->size(),0.0)); //gammaDot->at(j) j=0...weights 
 
-    vec_dbl_ptr_Type 	a1(new vec_dbl_Type(weights->size(),0.0)); // prefactor a= 4*(du/dx)^2 + (du/dy+dv/dx)^2 +  (dw/dx+du/dz)^2
-    vec_dbl_ptr_Type 	b1(new vec_dbl_Type(weights->size(),0.0)); // prefactor b= 4*(dv/dy)^2 + (du/dy+dv/dx)^2 +  (dw/dy+dv/dz)^2
-    vec_dbl_ptr_Type 	c1(new vec_dbl_Type(weights->size(),0.0)); // prefactor c= 4*(dw/dz)^2 + (dw/dx+du/dz)^2 +  (dw/dy+dv/dz)^2
-    vec_dbl_ptr_Type 	d1(new vec_dbl_Type(weights->size(),0.0)); // prefactor d= 2*(du/dy+dv/dx)*(du/dx+dv/dy) + (dw/dx+du/dz)*(dw/dy+dv/dz)
-    vec_dbl_ptr_Type 	e1(new vec_dbl_Type(weights->size(),0.0)); // prefactor e= 2*(dw/dx+du/dz)*(du/dx+dw/dz) + (du/dy+dv/dx)*(dw/dy+dv/dz)
-    vec_dbl_ptr_Type 	g1(new vec_dbl_Type(weights->size(),0.0)); // prefactor g= 2*(dw/dy+dv/dz)*(dv/dy+dw/dz) + (du/dy+dv/dx)*(dw/dx+du/dz)
+
+    vec_dbl_ptr_Type 	mixed_term_xy(new vec_dbl_Type(weights->size(),0.0)); 
+    vec_dbl_ptr_Type 	mixed_term_xz(new vec_dbl_Type(weights->size(),0.0)); 
+    vec_dbl_ptr_Type 	mixed_term_yz(new vec_dbl_Type(weights->size(),0.0)); 
    
     for (UN w=0; w<dPhiTrans.size(); w++)
      { //quads points
@@ -543,24 +507,16 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
                 
             }
             gammaDot->at(w) = sqrt(2.0*u11[w]*u11[w]+ 2.0*u22[w]*u22[w] + 2.0*u33[w]*u33[w] +  (u12[w]+u21[w])*(u12[w]+u21[w])   + (u13[w]+u31[w])*(u13[w]+u31[w]) + (u23[w]+u32[w])*(u23[w]+u32[w]) );
-            a1->at(w)= 4.0*(u11[w]*u11[w]) + (u12[w]+u21[w])*(u12[w]+u21[w])+(u31[w]+u13[w])*(u31[w]+u13[w]);
-            b1->at(w)= 4.0*(u22[w]*u22[w]) + (u12[w]+u21[w])*(u12[w]+u21[w])+(u32[w]+u23[w])*(u32[w]+u23[w]);
-            c1->at(w)= 4.0*(u33[w]*u33[w]) + (u31[w]+u13[w])*(u31[w]+u13[w])+(u32[w]+u23[w])*(u32[w]+u23[w]);
-            d1->at(w)= 2.0*(u12[w]+u21[w])*(u11[w]+u22[w])+(u31[w]+u13[w])*(u32[w]+u23[w]);
-            e1->at(w)= 2.0*(u31[w]+u13[w])*(u11[w]+u33[w])+(u12[w]+u21[w])*(u32[w]+u23[w]);
-            g1->at(w)= 2.0*(u32[w]+u23[w])*(u22[w]+u33[w])+(u12[w]+u21[w])*(u31[w]+u13[w]);
+           
+
+            mixed_term_xy->at(w)= 0.5*(u12[w]+u21[w]);
+            mixed_term_xz->at(w)= 0.5*(u31[w]+u13[w]);
+            mixed_term_yz->at(w)= 0.5*(u32[w]+u23[w]);
 
       }
 
-
       // Initialize some helper vectors/matrices
         double v11, v12, v13, v21, v22, v23, v31, v32, v33, value1_j, value2_j, value3_j , value1_i, value2_i, value3_i,deta_dgamma_dgamma_dtau;
-        SmallMatrix<double> e1i(dim);
-        SmallMatrix<double> e2i(dim);
-        SmallMatrix<double> e3i(dim);
-        SmallMatrix<double> e1j(dim);
-        SmallMatrix<double> e2j(dim);
-        SmallMatrix<double> e3j(dim);
 
          deta_dgamma_dgamma_dtau =0.;
 
@@ -586,68 +542,20 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
                         value2_i = dPhiTrans.at(w).at(i).at(1); // so this corresponds to d\phi_i/dy
                         value3_i = dPhiTrans.at(w).at(i).at(2); // so this corresponds to d\phi_i/dz
 
-                        e1j[0][0] = 2.*value1_j;
-                        e1j[0][1] = value2_j;
-                        e1j[0][2] = value3_j;
-                        e1j[1][0] = value2_j;
-                        e1j[2][0] = value3_j;
-
-                        e1i[0][0] = value1_i*a1->at(w);
-                        e1i[0][1] = value2_i*a1->at(w);
-                        e1i[0][2] = value3_i*a1->at(w);
-                        e1i[1][0] = value1_i*d1->at(w);
-                        e1i[1][1] = value2_i*d1->at(w);
-                        e1i[1][2] = value3_i*d1->at(w);
-                        e1i[2][0] = value1_i*e1->at(w);
-                        e1i[2][1] = value2_i*e1->at(w);
-                        e1i[2][2] = value3_i*e1->at(w);
-                        
-                        e2j[1][0] = value1_j;
-                        e2j[1][1] = 2.*value2_j;
-                        e2j[1][2] = value3_j;
-                        e2j[0][1] = value1_j;
-                        e2j[2][1] = value3_j;
-
-                        e2i[0][0] = value1_i*d1->at(w);
-                        e2i[0][1] = value2_i*d1->at(w);
-                        e2i[0][2] = value3_i*d1->at(w);
-                        e2i[1][0] = value1_i*b1->at(w);
-                        e2i[1][1] = value2_i*b1->at(w);
-                        e2i[1][2] = value3_i*b1->at(w);
-                        e2i[2][0] = value1_i*g1->at(w);
-                        e2i[2][1] = value2_i*g1->at(w);
-                        e2i[2][2] = value3_i*g1->at(w);
-
-                        e3j[2][0] = value1_j;
-                        e3j[2][1] = value2_j;
-                        e3j[2][2] = 2.*value3_j;
-                        e3j[0][2] = value1_j;
-                        e3j[1][2] = value2_j;
-
-                        e3i[0][0] = value1_i*e1->at(w);
-                        e3i[0][1] = value2_i*e1->at(w);
-                        e3i[0][2] = value3_i*e1->at(w);
-                        e3i[1][0] = value1_i*g1->at(w);
-                        e3i[1][1] = value2_i*g1->at(w);
-                        e3i[1][2] = value3_i*g1->at(w);
-                        e3i[2][0] = value1_i*c1->at(w);
-                        e3i[2][1] = value2_i*c1->at(w);
-                        e3i[2][2] = value3_i*c1->at(w);
-
                        this->materialModel->evaluateDerivative(this->params_,  gammaDot->at(w), deta_dgamma_dgamma_dtau);
 	
                        // Construct entries - we go over all quadrature points and if j is updated we set v11 etc. again to zero
-                        v11 = v11 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e1i.innerProduct(e1j);
-                        v12 = v12 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e1i.innerProduct(e2j);
-                        v13 = v13 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e1i.innerProduct(e3j);
+                        v11 = v11 + (-2.0)*deta_dgamma_dgamma_dtau  *  weights->at(w) * ( (value1_j*u11[w]+value2_j*mixed_term_xy->at(w)+value3_j*mixed_term_xz->at(w))*(value1_i*u11[w]+value2_i*mixed_term_xy->at(w)+value3_i*mixed_term_xz->at(w)) );
+                        v12 = v12 + (-2.0)*deta_dgamma_dgamma_dtau  *  weights->at(w) * ( (value1_j*mixed_term_xy->at(w)+u22[w]*value2_j+mixed_term_yz->at(w)*value3_j)*(value1_i*u11[w]+value2_i*mixed_term_xy->at(w)+value3_i*mixed_term_xz->at(w)) );
+                        v13 = v13 + (-2.0)*deta_dgamma_dgamma_dtau  *  weights->at(w) * ( (value3_j*mixed_term_xz->at(w)+value2_j*mixed_term_yz->at(w)+value3_j*u33[w])*(value1_i*u11[w]+value2_i*mixed_term_xy->at(w)+value3_i*mixed_term_xz->at(w)) );
 
-                        v21 = v21 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e2i.innerProduct(e1j);
-                        v22 = v22 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e2i.innerProduct(e2j);
-                        v23 = v23 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e2i.innerProduct(e3j);
+                        v21 = v21 + (-2.0)*deta_dgamma_dgamma_dtau  *  weights->at(w) * ( (value1_j*u11[w]+value2_j*mixed_term_xy->at(w)+value3_j*mixed_term_xz->at(w))*(value1_i*mixed_term_xy->at(w)+value2_i*u22[w]+value3_i*mixed_term_yz->at(w)));
+                        v22 = v22 + (-2.0)*deta_dgamma_dgamma_dtau  *  weights->at(w) * ( (value1_j*mixed_term_xy->at(w)+u22[w]*value2_j+mixed_term_yz->at(w)*value3_j)*(value1_i*mixed_term_xy->at(w)+value2_i*u22[w]+value3_i*mixed_term_yz->at(w)));
+                        v23 = v23 + (-2.0)*deta_dgamma_dgamma_dtau  *  weights->at(w) * ( (value3_j*mixed_term_xz->at(w)+value2_j*mixed_term_yz->at(w)+value3_j*u33[w])*(value1_i*mixed_term_xy->at(w)+value2_i*u22[w]+value3_i*mixed_term_yz->at(w)));
 
-                        v31 = v31 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e3i.innerProduct(e1j);
-                        v32 = v32 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e3i.innerProduct(e2j);
-                        v33 = v33 + (-0.25)*deta_dgamma_dgamma_dtau  *  weights->at(w) * e3i.innerProduct(e3j);
+                        v31 = v31 + (-2.0)*deta_dgamma_dgamma_dtau  *  weights->at(w) * ( (value1_j*u11[w]+value2_j*mixed_term_xy->at(w)+value3_j*mixed_term_xz->at(w))*(value1_i*mixed_term_xz->at(w)+mixed_term_yz->at(w)*value2_i+u33[w]*value3_i));
+                        v32 = v32 + (-2.0)*deta_dgamma_dgamma_dtau  *  weights->at(w) * ( (value1_j*mixed_term_xy->at(w)+u22[w]*value2_j+mixed_term_yz->at(w)*value3_j)*(value1_i*mixed_term_xz->at(w)+mixed_term_yz->at(w)*value2_i+u33[w]*value3_i));
+                        v33 = v33 + (-2.0)*deta_dgamma_dgamma_dtau  *  weights->at(w) * ( (value3_j*mixed_term_xz->at(w)+value2_j*mixed_term_yz->at(w)+value3_j*u33[w])*(value1_i*mixed_term_xz->at(w)+mixed_term_yz->at(w)*value2_i+u33[w]*value3_i));
 
             }// loop end quadrature points
             
@@ -1199,10 +1107,10 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleRHS(){
 	this->ANB_->add( (*elementMatrixN),(*this->ANB_));
 
     // Nonlinear convection term *******************************
-    this->assemblyAdvection(elementMatrixNC);
+    /*this->assemblyAdvection(elementMatrixNC);
 	elementMatrixNC->scale(this->density_);
 	this->ANB_->add( (*elementMatrixNC),(*this->ANB_));
-
+    */
     // If boundary element - nonlinear boundar term *******************************
     if (this->surfaceElement == true)
     {
