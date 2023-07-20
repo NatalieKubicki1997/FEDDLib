@@ -105,9 +105,8 @@ class FE {
     /* ###################################################################### */
 
     FE(bool saveAssembly=false);
-    
-    void assemblyIdentity(MatrixPtr_Type &A);
-    
+
+    // Line/ Surface integral     
     void assemblySurfaceIntegral(int dim,
                                  std::string FEType,
                                  MultiVectorPtr_Type  a,
@@ -162,23 +161,7 @@ class FE {
 
     void doSetZeros(double eps = 10*Teuchos::ScalarTraits<SC>::eps());
 
-    void assemblyEmptyMatrix(MatrixPtr_Type &A);
-
-    void applyBTinv(vec3D_dbl_ptr_Type& dPhiIn,
-                    vec3D_dbl_Type& dPhiOut,
-                    SmallMatrix<SC>& Binv);
-
-    void applyBTinv(vec3D_dbl_ptr_Type& dPhiIn,
-                    vec3D_dbl_Type& dPhiOut,
-                    const SmallMatrix<SC>& Binv);
-    
-    void assemblyLaplace(int Dimension,
-                        std::string FEType,
-                        int degree,
-                        MatrixPtr_Type &A,
-                        bool callFillComplete = true,
-                         int FELocExternal = -1);
-
+    // Globale Massematrix-Assemblierung
     void assemblyMass(int dim,
                       std::string FEType,
                       std::string fieldType,
@@ -195,17 +178,6 @@ class FE {
                       int FEloc,
                       bool callFillComplete = true);
 
-    void assemblyLaplaceVecField(int dim,
-                                 std::string FEType,
-                                 int degree,
-                                 MatrixPtr_Type &A,
-                                 bool callFillComplete = true);
-
-    void assemblyLaplaceVecFieldV2(int dim,
-                                 std::string FEType,
-                                 int degree,
-                                 MatrixPtr_Type &A,
-                                 bool callFillComplete = true);
 
     // Assembling the reaction term of the reaction diffusion equation. Maybe add default function.
 	void assemblyLinearReactionTerm(int dim,
@@ -224,7 +196,7 @@ class FE {
                      			std::vector<SC>& funcParameter,
 								RhsFunc_Type reactionFunc);	
 
-                                // Assembling the reaction term of the reaction diffusion equation. Maybe add default function.
+    // Assembling the reaction term of the reaction diffusion equation. Maybe add default function.
 	void assemblyDReactionTerm(int dim,
     							std::string FEType,
                                 MatrixPtr_Type &A,
@@ -245,6 +217,8 @@ class FE {
                        MultiVectorPtr_Type &eModVec,
                        DomainConstPtr_Type domain,
                        ParameterListPtr_Type params);
+
+    // Assembly of \nabla \cdot A \nabla u
     void assemblyLaplaceDiffusion(int Dimension,
                         std::string FEType,
                         int degree,
@@ -281,39 +255,6 @@ class FE {
                                          double nu,
                                          double C,
                                          bool callFillComplete=true);
-
-    void assemblyAdvectionVecField(int dim,
-                                   std::string FEType,
-                                   MatrixPtr_Type &A,
-                                   MultiVectorPtr_Type u,
-                                   bool callFillComplete);
-
-    void assemblyAdvectionInUVecField(int dim,
-                                      std::string FEType,
-                                      MatrixPtr_Type &A,
-                                      MultiVectorPtr_Type u,
-                                      bool callFillComplete);
-
-    void assemblyDivAndDivT( int dim,
-                            std::string FEType1,
-                            std::string FEType2,
-                            int degree,
-                            MatrixPtr_Type &Bmat,
-                            MatrixPtr_Type &BTmat,
-                            MapConstPtr_Type map1,
-                            MapConstPtr_Type map2,
-                            bool callFillComplete = true);
-
-    void assemblyDivAndDivTFast( int dim,
-                                std::string FEType1,
-                                std::string FEType2,
-                                int degree,
-                                MatrixPtr_Type &Bmat,
-                                MatrixPtr_Type &BTmat,
-                                MapConstPtr_Type map1,
-                                MapConstPtr_Type map2,
-                                bool callFillComplete = true);
-
     
     /*! Bochev-Dohrmann stabilization for P1-P1 finite elements. Must be scaled with 1/nu for general Navier-Stokes problem. */
     void assemblyBDStabilization(int dim,
@@ -448,12 +389,11 @@ class FE {
                              std::vector<SC>& funcParameter,
                              int degree) ;
 
-    void buildFullDPhi(vec3D_dbl_ptr_Type dPhi, Teuchos::Array<SmallMatrix<double> >& dPhiMat);
-
-    void fillMatrixArray(SmallMatrix<double> &matIn, double* matArrayOut, std::string order, int offset=0);
-
     void epsilonTensor(vec_dbl_Type &basisValues, SmallMatrix<SC> &epsilonValues, int activeDof);
 
+
+
+    // All these function should not be necessary
     void assemblyNavierStokes(int dim,
 								string FETypeVelocity,
 								string FETypePressure,
@@ -531,6 +471,7 @@ class FE {
         
     };
 
+
 	void assemblyLinearElasticity(int dim,
                                 string FEType,
                                 int degree,
@@ -583,128 +524,14 @@ private:
 		
 	AssembleFEPtr_vec_Type assemblyFEElements_;
 
-	vec2D_dbl_Type getCoordinates(vec_LO_Type localIDs, vec2D_dbl_ptr_Type points);
-	vec_dbl_Type getSolution(vec_LO_Type localIDs, MultiVectorPtr_Type u_rep, int dofsVelocity);
-
-    //Start of AceGen code
-    /*! AceGen code for 3D Neo-Hooke material model
-    @param[out] v: values needed for the computaion of F, not needed after computation
-    @param[in] E: E module
-    @param[in] nu: Poisson ratio
-    @param[in] F: deformation gradient, basis functions
-    @param[out] P: stresses
-    @param[out] A: strains
-    */
-    void nh3d(double* v, double (*E), double (*Nu), double** F , double** Pmat, double**** Amat);
-
-    /*! AceGen code for 3D Mooney-Rivlin material model
-     @param[out] v: values needed for the computaion of F, not needed after computation
-     @param[in] E: E module
-     @param[in] nu: Poisson ratio
-     @param[in] C: material constant
-     @param[in] F: deformation gradient, basis functions
-     @param[out] P: stresses
-     @param[out] A: strains
-     */
-    void mr3d(double* v, double (*E), double (*Nu), double (*C), double** F, double** Pmat, double**** Amat);
-
-    void stvk3d(double* v,double (*lam),double (*mue),double** F,double** Pmat,double**** Amat);
-
-    void stvk2d(double* v, double (*lam),double (*mue),double** F ,double** Pmat,double**** Amat);
-    
-    void SMTSetElSpecBiot(ElementSpec *es,int *idata/*not needed*/,int ic,int ng, vec_dbl_Type& paraVec);
-    
-    void SMTSetElSpecBiotStVK(ElementSpec *es,int *idata/*not needed*/,int ic,int ng, vec_dbl_Type& paraVec);
-    
-    void SMTSetElSpecBiot3D(ElementSpec *es,int *idata/*not needed*/,int ic,int ng, vec_dbl_Type& paraVec);
-    
-    void SKR_Biot(double* v,ElementSpec *es,ElementData *ed, NodeSpec **ns, NodeData **nd,double *rdata,int *idata,double *p,double **s);
-    
-    void SKR_Biot_StVK(double* v,ElementSpec *es,ElementData *ed, NodeSpec **ns, NodeData **nd,double *rdata,int *idata,double *p,double **s);
-    
-    void SKR_Biot3D(double* v,ElementSpec *es,ElementData *ed, NodeSpec **ns, NodeData **nd,double *rdata,int *idata,double *p,double **s);
-    
-    //End of AceGen code
-    
-    void buildTransformation(const vec_int_Type& element,
-                             vec2D_dbl_ptr_Type pointsRep,
-                             SmallMatrix<SC>& B,
-                             std::string FEType="P");
-    
-    void buildTransformation(const vec_int_Type& element,
-                             vec2D_dbl_ptr_Type pointsRep,
-                             SmallMatrix<SC>& B,
-                             vec_dbl_Type& b,
-                             std::string FEType="P");
-
-    
-    void buildTransformationSurface(const vec_int_Type& element,
-                                    vec2D_dbl_ptr_Type pointsRep,
-                                    SmallMatrix<SC>& B,
-                                    vec_dbl_Type& b,
-                                    std::string FEType="P");
 
     void applyDiff(vec3D_dbl_Type& dPhiIn,
                    vec3D_dbl_Type& dPhiOut,
                    SmallMatrix<SC>& diffT);
     
     
-    void phi(       int Dimension,
-                    int intFE,
-            		int i,
-            		vec_dbl_Type &QuadPts,
-            		double* value);
+    vec_dbl_Type   getSolution(vec_LO_Type localIDs, MultiVectorPtr_Type u_rep, int dofsVelocity);
 
-
-    void gradPhi(	int Dimension,
-                    int intFE,
-                    int i,
-                    vec_dbl_Type &QuadPts,
-                    vec_dbl_ptr_Type &value);
-    
-    /*! Most of the quadrature formulas can be found in http://code-aster.org/doc/v11/en/man_r/r3/r3.01.01.pdf 01/2021  */
-    void getQuadratureValues(int Dimension,
-                            int Degree,
-                            vec2D_dbl_ptr_Type &QuadPts,
-                            vec_dbl_ptr_Type &QuadW,
-                            std::string FEType);
-    
-    int getPhi(	vec2D_dbl_ptr_Type &Phi,
-                vec_dbl_ptr_Type &weightsPhi,
-                int Dimension,
-                std::string FEType,
-                int Degree,
-                std::string FETypeQuadPoints="");
-
-    int getPhiGlobal(vec2D_dbl_ptr_Type &Phi,
-                     vec_dbl_ptr_Type &weightsPhi,
-                     int Dimension,
-                     std::string FEType,
-                     int Degree);
-
-    int getDPhi(	vec3D_dbl_ptr_Type &DPhi,
-                	vec_dbl_ptr_Type &weightsDPhi,
-                    int Dimension,
-                    std::string FEType,
-                    int Degree);
-
-    int checkFE(int Dimension,
-                std::string FEType);
-
-    UN determineDegree(UN dim,
-                       std::string FEType1,
-                       std::string FEType2,
-                       VarType type1,
-                       VarType type2,
-                       UN extraDeg = 0);
-
-    UN determineDegree(UN dim,
-                       std::string FEType,
-                       VarType type);
-
-    UN determineDegree(UN dim,
-                       std::string FEType,
-                       UN degFunc);
     
 
     bool setZeros_;

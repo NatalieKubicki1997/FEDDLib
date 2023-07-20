@@ -43,11 +43,6 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
 	
 	void setCoeff(SmallMatrix_Type coeff);
 
-	/*! 
-	\brief Assembly of FixedPoint- Matrix (System Matrix K with current u) 
-	*/
-	void assembleFixedPoint();
-
 	SmallMatrixPtr_Type getFixedPointMatrix(){return ANB_;};
 
    protected:
@@ -96,11 +91,6 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
 
     friend class AssembleFEFactory<SC,LO,GO,NO>; // Must have for specfic classes
 
-	void buildTransformation(SmallMatrix<SC>& B);
-
-	void applyBTinv(vec3D_dbl_ptr_Type& dPhiIn,
-		            vec3D_dbl_Type& dPhiOut,
-		            SmallMatrix<SC>& Binv);
 
 	//tuple_disk_vec_ptr_Type returnTuple(); /// @todo return tuple in case or check tuple
 

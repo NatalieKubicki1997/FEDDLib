@@ -110,39 +110,6 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assembleJacobian() {
     }
 }
 
-template <class SC, class LO, class GO, class NO>
-void AssembleFENavierStokes<SC,LO,GO,NO>::assembleFixedPoint() {
-
-	SmallMatrixPtr_Type elementMatrixN =Teuchos::rcp( new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_));
-
-	if(this->newtonStep_ ==0){
-		SmallMatrixPtr_Type elementMatrixA =Teuchos::rcp( new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_));
-		SmallMatrixPtr_Type elementMatrixB =Teuchos::rcp( new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_));
-
-		constantMatrix_.reset(new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_));
-
-		assemblyLaplacian(elementMatrixA);
-
-		elementMatrixA->scale(viscosity_);
-		elementMatrixA->scale(density_);
-
-		constantMatrix_->add( (*elementMatrixA),(*constantMatrix_));
-
-		assemblyDivAndDivT(elementMatrixB); // For Matrix B
-
-		elementMatrixB->scale(-1.);
-
-		constantMatrix_->add( (*elementMatrixB),(*constantMatrix_));
-    }
-
-	ANB_.reset(new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_)); // A + B + N
-	ANB_->add( (*constantMatrix_),(*ANB_));
-
-	assemblyAdvection(elementMatrixN);
-	elementMatrixN->scale(density_);
-	ANB_->add( (*elementMatrixN),(*ANB_));
-
-}
 
 
 template <class SC, class LO, class GO, class NO>
@@ -165,13 +132,12 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assemblyLaplacian(SmallMatrixPtr_Type 
     SmallMatrix<SC> B(dim);
     SmallMatrix<SC> Binv(dim);
   
-    buildTransformation(B);
-
+    Helper::buildTransformation(B, this->nodesRefConfig_);
     detB = B.computeInverse(Binv);
     absDetB = std::fabs(detB);
 
     vec3D_dbl_Type dPhiTrans( dPhi->size(), vec2D_dbl_Type( dPhi->at(0).size(), vec_dbl_Type(dim,0.) ) );
-    applyBTinv( dPhi, dPhiTrans, Binv );
+    Helper::applyBTinv( dPhi, dPhiTrans, Binv );( dPhi, dPhiTrans, Binv );
   	
     for (UN i=0; i < numNodes; i++) {
         Teuchos::Array<SC> value( dPhiTrans[0].size(), 0. );
@@ -191,34 +157,6 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assemblyLaplacian(SmallMatrixPtr_Type 
         }
 
     }
-}
-
-// Assemble RHS with updated solution coming from Fixed Point Iter or der Newton.
-template <class SC, class LO, class GO, class NO>
-void AssembleFENavierStokes<SC,LO,GO,NO>::assembleRHS(){
-
-	SmallMatrixPtr_Type elementMatrixN =Teuchos::rcp( new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_));
-
-	ANB_.reset(new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_)); // A + B + N
-	ANB_->add( (*constantMatrix_),(*ANB_));
-
-	assemblyAdvection(elementMatrixN);
-	elementMatrixN->scale(density_);
-	ANB_->add( (*elementMatrixN),(*ANB_));
-
-	this->rhsVec_.reset( new vec_dbl_Type ( dofsElement_,0.) );
-	// Multiplying ANB_ * solution // ANB Matrix without nonlinear part.
-	int s=0,t=0;
-	for(int i=0 ; i< ANB_->size();i++){
-		if (i >= dofsElementVelocity_)
-			s=1;
-		for(int j=0; j < ANB_->size(); j++){
-			if(j >= dofsElementVelocity_)
-				t=1;
-			(*this->rhsVec_)[i] += (*ANB_)[i][j]*(*this->solution_)[j]*coeff_[s][t];
-		}
-		t=0;
-	}
 }
 
 
@@ -250,12 +188,12 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assemblyAdvection(SmallMatrixPtr_Type 
 
     vec2D_dbl_Type uLoc( dim, vec_dbl_Type( weights->size() , -1. ) );
 
-    buildTransformation(B);
+    Helper::buildTransformation(B, this->nodesRefConfig_);(B);
     detB = B.computeInverse(Binv);
     absDetB = std::fabs(detB);
 
     vec3D_dbl_Type dPhiTrans( dPhi->size(), vec2D_dbl_Type( dPhi->at(0).size(), vec_dbl_Type(dim,0.) ) );
-    applyBTinv( dPhi, dPhiTrans, Binv );
+    Helper::applyBTinv( dPhi, dPhiTrans, Binv );( dPhi, dPhiTrans, Binv );
 
     for (int w=0; w<phi->size(); w++){ //quads points
         for (int d=0; d<dim; d++) {
@@ -324,12 +262,12 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assemblyAdvectionInU(SmallMatrixPtr_Ty
 
     vec2D_dbl_Type uLoc( dim, vec_dbl_Type( weights->size() , -1. ) );
 
-    buildTransformation(B);
+    Helper::buildTransformation(B, this->nodesRefConfig_);(B);
     detB = B.computeInverse(Binv);
     absDetB = std::fabs(detB);
 
     vec3D_dbl_Type dPhiTrans( dPhi->size(), vec2D_dbl_Type( dPhi->at(0).size(), vec_dbl_Type(dim,0.) ) );
-    applyBTinv( dPhi, dPhiTrans, Binv );
+    Helper::applyBTinv( dPhi, dPhiTrans, Binv );( dPhi, dPhiTrans, Binv );
     //UN FEloc = checkFE(dim,FEType);
 
 
@@ -393,12 +331,12 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assemblyDivAndDivT(SmallMatrixPtr_Type
     SmallMatrix<SC> Binv(dim);
 
 
-	buildTransformation(B);
+	Helper::buildTransformation(B, this->nodesRefConfig_);
     detB = B.computeInverse(Binv);
     absDetB = std::fabs(detB);
 
     vec3D_dbl_Type dPhiTrans( dPhi->size(), vec2D_dbl_Type( dPhi->at(0).size(), vec_dbl_Type(dim,0.) ) );
-    applyBTinv( dPhi, dPhiTrans, Binv );
+    Helper::applyBTinv( dPhi, dPhiTrans, Binv );
 
     Teuchos::Array<GO> rowIndex( 1, 0 );
     Teuchos::Array<SC> value(1, 0.);
@@ -423,80 +361,40 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assemblyDivAndDivT(SmallMatrixPtr_Type
             }
         }
     }
-	//elementMatrix->print();
-    // We compute value twice, maybe we should change this
-    /*for (UN i=0; i < dPhiTrans[0].size(); i++) {
-
-        Teuchos::Array<Teuchos::Array<SC> >valueVec( dim, Teuchos::Array<SC>( phi->at(0).size(), 0. ) );
-        Teuchos::Array<GO> indices( phi->at(0).size(), 0 );
-        for (UN j=0; j < valueVec[0].size(); j++) {
-            for (UN w=0; w<dPhiTrans.size(); w++) {
-                for (UN d=0; d<dim; d++)
-                    valueVec[d][j] += weights->at(w) * phi->at(w)[j] * dPhiTrans[w][i][d];
-            }
-            for (UN d=0; d<dim; d++){
-                valueVec[d][j] *= absDetB;
-                if (setZeros_ && std::fabs(valueVec[d][j]) < myeps_) {
-                    valueVec[d][j] = 0.;
-                }
-            }
-        }
-
-        for (UN j=0; j < indices.size(); j++){
-            if (FEType2=="P0")
-                indices[j] = GO ( mapping2->getGlobalElement( T ) );
-            else
-                indices[j] = GO ( mapping2->getGlobalElement( elements2->getElement(T).getNode(j) ) );
-        }
-        for (UN d=0; d<dim; d++) {
-            GO row = GO ( dim * mapping1->getGlobalElement( elements1->getElement(T).getNode(i) ) + d );
-            BTmat->insertGlobalValues( row, indices(), valueVec[d]() );
-        }
-
-    }*/
-
 
 }
 
 
-/*!
 
- \brief Building Transformation
-
-@param[in] &B
-
-*/
-
+// Assemble RHS with updated solution coming from Fixed Point Iter or der Newton.
 template <class SC, class LO, class GO, class NO>
-void AssembleFENavierStokes<SC,LO,GO,NO>::buildTransformation(SmallMatrix<SC>& B){
+void AssembleFENavierStokes<SC,LO,GO,NO>::assembleRHS(){
 
-    TEUCHOS_TEST_FOR_EXCEPTION( (B.size()<2 || B.size()>3), std::logic_error, "Initialize SmallMatrix for transformation.");
-    UN index;
-    UN index0 = 0;
-    for (UN j=0; j<B.size(); j++) {
-        index = j+1;
-        for (UN i=0; i<B.size(); i++) {
-            B[i][j] = this->nodesRefConfig_.at(index).at(i) - this->nodesRefConfig_.at(index0).at(i);
-        }
-    }
+	SmallMatrixPtr_Type elementMatrixN =Teuchos::rcp( new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_));
 
+	ANB_.reset(new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_)); // A + B + N
+	ANB_->add( (*constantMatrix_),(*ANB_));
+
+	assemblyAdvection(elementMatrixN);
+	elementMatrixN->scale(density_);
+	ANB_->add( (*elementMatrixN),(*ANB_));
+
+	this->rhsVec_.reset( new vec_dbl_Type ( dofsElement_,0.) );
+	// Multiplying ANB_ * solution // ANB Matrix without nonlinear part.
+	int s=0,t=0;
+	for(int i=0 ; i< ANB_->size();i++){
+		if (i >= dofsElementVelocity_)
+			s=1;
+		for(int j=0; j < ANB_->size(); j++){
+			if(j >= dofsElementVelocity_)
+				t=1;
+			(*this->rhsVec_)[i] += (*ANB_)[i][j]*(*this->solution_)[j]*coeff_[s][t];
+		}
+		t=0;
+	}
 }
 
-template <class SC, class LO, class GO, class NO>
-void AssembleFENavierStokes<SC,LO,GO,NO>::applyBTinv( vec3D_dbl_ptr_Type& dPhiIn,
-                                    vec3D_dbl_Type& dPhiOut,
-                                    SmallMatrix<SC>& Binv){
-    UN dim = Binv.size();
-    for (UN w=0; w<dPhiIn->size(); w++){
-        for (UN i=0; i < dPhiIn->at(w).size(); i++) {
-            for (UN d1=0; d1<dim; d1++) {
-                for (UN d2=0; d2<dim; d2++) {
-                    dPhiOut[w][i][d1] += dPhiIn->at(w).at(i).at(d2) * Binv[d2][d1];
-                }
-            }
-        }
-    }
-}
+
 
 }
 #endif

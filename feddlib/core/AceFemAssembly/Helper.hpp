@@ -11,6 +11,8 @@ public:
 
     enum VarType {Std=0,Grad=1};
 
+    /* Everything related to basisfunctions: */
+
 	static void gradPhi(	int Dimension,
                     int intFE,
                     int i,
@@ -30,6 +32,7 @@ public:
     										vec_LO_Type surfaceIDs, 
     										vec2D_dbl_ptr_Type points);
     
+
     static int getDPhi(	vec3D_dbl_ptr_Type &DPhi,
                 	vec_dbl_ptr_Type &weightsDPhi,
                     int Dimension,
@@ -39,8 +42,11 @@ public:
     static UN determineDegree(UN dim,
                        std::string FEType,
                        UN degFunc);
+                       
+    static UN determineDegree(UN dim, std::string FEType, VarType type);
 
-	static UN determineDegree2(UN dim, 
+
+	static UN determineDegree(UN dim, 
 								std::string FEType1, 		
 								std::string FEType2, 
 								VarType type1,
@@ -59,6 +65,40 @@ public:
 			  int i,
 			  vec_dbl_Type &p,
 			  double* value);
+
+
+
+    void applyBTinv(vec3D_dbl_ptr_Type& dPhiIn,
+		            vec3D_dbl_Type& dPhiOut,
+		            SmallMatrix<SC>& Binv);          
+
+    void buildTransformation(SmallMatrix<SC>& B, vec2D_dbl_Type& nodesRefConfig);
+    // 
+    void buildTransformation(const vec_int_Type& element, vec2D_dbl_ptr_Type pointsRep,SmallMatrix<SC>& B,std::string FEType);
+    //
+    void buildTransformation(const vec_int_Type& element,
+                                          vec2D_dbl_ptr_Type pointsRep,
+                                          SmallMatrix<SC>& B,
+                                          vec_dbl_Type& b,
+                                          std::string FEType);
+
+    void buildTransformationSurface(const vec_int_Type& element,
+                                                 vec2D_dbl_ptr_Type pointsRep,
+                                                 SmallMatrix<SC>& B,
+                                                 vec_dbl_Type& b,
+                                                 std::string FEType);
+
+    void fillMatrixArray(SmallMatrix<double> &matIn, double* matArrayOut, std::string order,int offset);
+
+    void buildFullDPhi(vec3D_dbl_ptr_Type dPhi, Teuchos::Array<SmallMatrix<double> >& dPhiMat);
+
+    void assemblyEmptyMatrix(MatrixPtr_Type &A);
+    void assemblyIdentity(MatrixPtr_Type &A);
+
+
+    int checkFE(int dim,std::string FEType);
+
+    vec2D_dbl_Type getCoordinates(vec_LO_Type localIDs, vec2D_dbl_ptr_Type points);
 
 
 private:
