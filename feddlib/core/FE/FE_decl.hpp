@@ -271,13 +271,6 @@ class FE {
                             double* parameters,
                             bool callFillComplete = true);
 
-    //! (\grad u + (\grad u)^T, \grad v ); symmetrischer Gradient, wenn func = 1.0
-    void assemblyStress(int dim,
-                       std::string FEType,
-                       MatrixPtr_Type &A,
-                       CoeffFunc_Type func,
-                       int* parameters,
-                       bool callFillComplete = true);
 
     /*! 2*\mu*(\eps(u):\eps(v)) + \lambda*tr(\eps(u))*tr(\eps(v)), wobei
      tr(\eps(u)) = div(u) */
