@@ -75,7 +75,14 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assembleJacobian() {
 
 		constantMatrix_.reset(new SmallMatrix_Type( dofsElementVelocity_+numNodesPressure_));
 
-		assemblyLaplacian(elementMatrixA);
+        if ( this->parameterList_->sublist("Parameter").get("Symmetric gradient",false) )
+        {
+        assemblyStress_Divergence(elementMatrixA); // 2 \mu  \nabla \cdot ( 0.5(\nabla u + (\nabla u)^T ))
+        }
+        else
+		{
+        assemblyLaplacian(elementMatrixA); // \mu \Delta u
+        }
 
 		elementMatrixA->scale(viscosity_);
 		elementMatrixA->scale(density_);
@@ -157,6 +164,174 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assemblyLaplacian(SmallMatrixPtr_Type 
         }
 
     }
+}
+
+
+// Implementation from weak formulation of 2 \mu (1/2*(\nabla \phi_j + \nabla \phi_j^T)  :  \nabla \phi_i  )
+// BUT viscosity is multiplied above because it is a constant  
+template <class SC, class LO, class GO, class NO>
+void AssembleFEStokes<SC,LO,GO,NO>::assemblyStress_Divergence(SmallMatrixPtr_Type &elementMatrix) 
+{
+
+	int dim = this->getDim();
+	int numNodes= this->numNodesVelocity_;
+	int Grad =2; // Needs to be fixed	
+	string FEType = this->FETypeVelocity_;
+	int dofs = this->dofsVelocity_; // For pressure it would be 1 
+
+    vec3D_dbl_ptr_Type 	dPhi;
+    vec_dbl_ptr_Type weights = Teuchos::rcp(new vec_dbl_Type(0));
+    
+    UN deg = Helper::determineDegree(dim,FEType,Grad); //  for P1 3
+    Helper::getDPhi(dPhi, weights, dim, FEType, deg);  //  for deg 5 we get weight vector with 7 entries weights->at(7)
+    // Example Values: dPhi->size() = 7 so number of quadrature points, dPhi->at(0).size() = 3 number of local element points, dPhi->at(0).at(0).size() = 2 as we have dim 2 therefore we have 2 derivatives (xi/eta in natural coordinates)
+    // Phi is defined on reference element
+
+    SC detB;
+    SC absDetB;
+    SmallMatrix<SC> B(dim);
+    SmallMatrix<SC> Binv(dim);
+  
+    buildTransformation(B);
+    detB = B.computeInverse(Binv); // The function computeInverse returns a double value corrsponding to determinant of B     //B.print();
+    absDetB = std::fabs(detB); // absolute value of B
+
+
+    // dPhiTrans are the transorfmed basisfunctions, so B^(-T) * \grad_phi bzw. \grad_phi^T * B^(-1)
+    // Corresponds to \hat{grad_phi}.
+    vec3D_dbl_Type dPhiTrans( dPhi->size(), vec2D_dbl_Type( dPhi->at(0).size(), vec_dbl_Type(dim,0.) ) );
+    applyBTinv( dPhi, dPhiTrans, Binv ); // so dPhiTrans corresponds now to our basisfunction in natural coordinates
+    //dPhiTrans.size() = 7 so number of quadrature points, dPhiTrans[0].size() = 3 number local element points, dPhiTrans[0][0].size() = 2 as we have in dim=2 case two derivatives
+
+    TEUCHOS_TEST_FOR_EXCEPTION(dim == 1,std::logic_error, "AssemblyStress Not implemented for dim=1");
+    //***************************************************************************
+    //***************************************************************************
+    if (dim == 2)
+    {
+    
+    //************************************
+    // Compute entries    
+    // Initialize some helper vectors/matrices
+    double v11, v12, v21, v22, value1_j, value2_j , value1_i, value2_i, viscosity_atw;
+       // Construct element matrices 
+    for (UN i=0; i < numNodes; i++) 
+    {
+       // Teuchos::Array<SC> value(dPhiTrans[0].size(), 0. ); // dPhiTrans[0].size() is 3        
+        for (UN j=0; j < numNodes; j++) 
+        {
+        // Reset values
+        v11 = 0.0;v12 = 0.0;v21 = 0.0;v22 = 0.0;
+
+            // So in general compute the components of eta*[ dPhiTrans_i : ( dPhiTrans_j + (dPhiTrans_j)^T )]
+            for (UN w=0; w<dPhiTrans.size(); w++) 
+            {
+
+                 value1_j = dPhiTrans[w][j][0]; // so this corresponds to d\phi_j/dx
+                 value2_j = dPhiTrans[w][j][1]; // so this corresponds to d\phi_j/dy
+
+                 value1_i = dPhiTrans[w][i][0]; // so this corresponds to d\phi_i/dx
+                 value2_i = dPhiTrans[w][i][1]; // so this corresponds to d\phi_i/dy
+
+                 v11 = v11 +  weights->at(w) *(2.0*value1_i*value1_j+value2_i*value2_j);
+                 v12 = v12 +  weights->at(w) *(value2_i*value1_j);
+                 v21 = v21 +  weights->at(w) *(value1_i*value2_j);
+                 v22 = v22 +  weights->at(w) *(2.0*value2_i*value2_j+value1_i*value1_j);
+            
+            } // loop end quadrature points
+                //multiply determinant from transformation
+            v11 *= absDetB; 
+            v12 *= absDetB;
+            v21 *= absDetB;
+            v22 *= absDetB;
+            
+            // Put values on the right position in element matrix - d=2 because we are in two dimensional case
+            // [v11  v12  ]
+            // [v21  v22  ]
+            (*elementMatrix)[i*dofs][j*dofs]   = v11; // d=0, first dimension
+            (*elementMatrix)[i*dofs][j*dofs+1] = v12;
+            (*elementMatrix)[i*dofs+1][j*dofs] = v21;
+            (*elementMatrix)[i*dofs +1][j*dofs+1] =v22; //d=1, second dimension
+
+        } // loop end over j node 
+
+    } // loop end over i node
+
+
+    } // end if dim 2
+
+        else if (dim == 3)
+    {
+          //************************************#
+         // Initialize some helper vectors/matrices
+    double v11, v12, v13, v21, v22, v23, v31, v32, v33, value1_j, value2_j, value3_j , value1_i, value2_i, value3_i, viscosity_atw;
+
+
+    // Construct element matrices 
+     for (UN i=0; i < numNodes; i++) {
+       // Teuchos::Array<SC> value(dPhiTrans[0].size(), 0. ); // dPhiTrans[0].size() is 3        
+      
+        for (UN j=0; j < numNodes; j++) {
+        // Reset values
+        v11 = 0.0;v12 = 0.0;v13=0.0; v21 = 0.0;v22 = 0.0;v23=0.0;v31=0.0;v32=0.0;v33=0.0;
+
+
+            // So in general compute the components of eta*[ dPhiTrans_i : ( dPhiTrans_j + (dPhiTrans_j)^T )]
+            for (UN w=0; w<dPhiTrans.size(); w++) {
+
+                        value1_j = dPhiTrans.at(w).at(j).at(0); // so this corresponds to d\phi_j/dx
+                        value2_j = dPhiTrans.at(w).at(j).at(1); // so this corresponds to d\phi_j/dy
+                        value3_j = dPhiTrans.at(w).at(j).at(2); // so this corresponds to d\phi_j/dz
+
+
+                        value1_i = dPhiTrans.at(w).at(i).at(0); // so this corresponds to d\phi_i/dx
+                        value2_i = dPhiTrans.at(w).at(i).at(1); // so this corresponds to d\phi_i/dy
+                        value3_i = dPhiTrans.at(w).at(i).at(2); // so this corresponds to d\phi_i/dz
+
+                    
+                       // Construct entries - we go over all quadrature points and if j is updated we set v11 etc. again to zero
+                        v11 = v11 + weights->at(w)*(2.0*value1_j*value1_i+value2_j*value2_i+value3_j*value3_i);
+                        v12 = v12 + weights->at(w)*(value2_i*value1_j);
+                        v13 = v13 + weights->at(w)*(value3_i*value1_j);
+
+                        v21 = v21 + weights->at(w)*(value1_i*value2_j);
+                        v22=  v22 + weights->at(w)*(value1_i*value1_j+2.0*value2_j*value2_i+value3_j*value3_i);
+                        v23 = v23 + weights->at(w)*(value3_i*value2_j);
+
+                        v31 = v31 + weights->at(w)*(value1_i*value3_j);
+                        v32 = v32 + weights->at(w)*(value2_i*value3_j);
+                        v33 = v33 + weights->at(w)*(value1_i*value1_j+value2_i*value2_j+2.0*value3_i*value3_j);
+
+                    }// loop end quadrature points
+
+                         //multiply determinant from transformation
+                    v11 *= absDetB ;
+                    v12 *= absDetB ;
+                    v13 *= absDetB ;
+                    v21 *= absDetB ;
+                    v22 *= absDetB ;
+                    v23 *= absDetB ;
+                    v31 *= absDetB ;
+                    v32 *= absDetB ;
+                    v33 *= absDetB ;
+
+                   // Put values on the right position in element matrix 
+                   // [v11  v12  v13]
+                   // [v21  v22  v23]
+                   // [v31  v32  v33]
+            (*elementMatrix)[i*dofs][j*dofs]   = v11; // d=0, first dimension
+            (*elementMatrix)[i*dofs][j*dofs+1] = v12;
+            (*elementMatrix)[i*dofs][j*dofs+2] = v13;
+            (*elementMatrix)[i*dofs+1][j*dofs] = v21;
+            (*elementMatrix)[i*dofs +1][j*dofs+1] =v22; //d=1, second dimension
+            (*elementMatrix)[i*dofs +1][j*dofs+2] =v23; //d=1, second dimension
+            (*elementMatrix)[i*dofs+2][j*dofs] = v31;
+            (*elementMatrix)[i*dofs +2][j*dofs+1] =v32; //d=2, third dimension
+            (*elementMatrix)[i*dofs +2][j*dofs+2] =v33; //d=2, third dimension
+
+                }// loop end over j node 
+            }// loop end over i node 
+        }// end if dim==3
+
 }
 
 

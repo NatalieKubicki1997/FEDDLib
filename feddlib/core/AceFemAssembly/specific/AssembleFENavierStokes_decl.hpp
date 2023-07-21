@@ -66,6 +66,16 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
 	*/
 	void assemblyLaplacian(SmallMatrixPtr_Type &elementMatrix);
 
+
+	/*!
+
+	 \brief Assembly function for viscous stress tensor with strain-rate tensor \f$ \int_T \nabla \cdot (2 \mu  0.5(\nabla u + (\nabla u)^T )) ~dx\f$ 
+	@param[in] &elementMatrix
+
+	*/
+	void assemblyStress_Divergence(SmallMatrixPtr_Type &elementMatrix);
+
+
 	/*!
 
 	 \brief Assembly advection vector field \f$ \int_T \nabla v \cdot u(\nabla u) ~dx\f$ 
