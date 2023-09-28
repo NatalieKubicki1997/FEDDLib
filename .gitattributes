@@ -1,0 +1,15 @@
+*.html merge=theirs
+*.map merge=theirs
+*.md5 merge=theirs
+*.png merge=theirs
+*.tex merge=theirs
+*.pdf merge=theirs
+*.dot merge=theirs
+*.css merge=theirs
+*.svg merge=theirs
+*.jpg merge=theirs
+*.js merge=theirs
+*.sty merge=theirs
+# These are filetypes mainly from ACEInterface for the mechanics  
+#*.h merge=theirs
+#*.F merge=theirs
