@@ -70,14 +70,24 @@ namespace FEDD {
         typedef AssembleFE<SC,LO,GO,NO> AssembleFE_Type;
 
         /*!
+         \brief Compute everything.
+        */
+        //virtual void compute() = 0;
+
+        /*!
          \brief Assemble the element Jacobian matrix.
-         \return the element Jacobian matrix
         */
         virtual void assembleJacobian() = 0;
 
+
+        /*!
+         \brief Assemble the element Jacobian matrix.
+         @param[in] block ID i
+        */
+        virtual void assembleJacobianBlock(LO i) = 0;
+
         /*!
          \brief Assemble the element right hand side vector.
-         \return the element right hand side vector
         */
         virtual void assembleRHS() = 0;
 
@@ -107,7 +117,18 @@ namespace FEDD {
          \brief Get the currently assembled right hand side vector.
          \return the element right hand side vector
         */
-        vec_dbl_Type getRHS(){return rhsVec_;};
+        //vec_dbl_Type getRHS(){return rhsVec_;};
+         
+         /*\brief Get the currently assembled element Jacobian matrix
+         \return the element Jacobian matrix
+        */
+        SmallMatrixPtr_Type getJacobianBlock(LO i) {return jacobianBlock_;}; 
+
+        /*!
+         \brief Get the currently assembled right hand side vector.
+         \return the element right hand side vector
+        */
+        vec_dbl_ptr_Type getRHS(){return rhsVec_;};
 
         //virtual void assembleMass(MatrixPtr_Type &A) =0;
 
@@ -131,7 +152,7 @@ namespace FEDD {
          \brief This function is called every time the FEDDLib proceeds from one to the next time step. The size of the time step will always be provided as input.
          @param[in] dt Timestepping length
         */
-        void advanceInTime(double dt);
+        virtual void advanceInTime(double dt);
         /*!
          \brief Get the time state of the object.
          \return the timestep
@@ -160,7 +181,7 @@ namespace FEDD {
          \brief Get the current local solution vector.
          \return the solution vector.
         */
-        vec_dbl_Type getSolution();
+        vec_dbl_ptr_Type getSolution();
 
         /*!
          \brief This function is called in the beginning of each Newton step before actually assmblying anything.
@@ -197,6 +218,19 @@ namespace FEDD {
         */
 		tuple_sd_vec_ptr_Type getTupleElement(){return elementIntormation_;};
 
+
+
+        /*!
+         \brief Returns the time increment. Required by AceGen implementation.
+            \return timeIncrement
+        */
+        double getTimeIncrement(){return timeIncrement_;};
+
+        void setGlobalElementID(GO goID){globalElementID_ = goID;};
+
+        GO getGlobalElementID(){return globalElementID_;};
+
+
         // Here we set the needed variables for an boundary element where we set a neumann boundary integral term
         bool surfaceElement; // in order to only access surface assembly elements
         double surfaceElement_MappingChangeInArea; // 2D: change of length , 3D: change of area 
@@ -222,7 +256,9 @@ namespace FEDD {
 		//tuple_disk_vec_ptr_Type getTuple();  
 
 		SmallMatrixPtr_Type jacobian_;
-		vec_dbl_Type rhsVec_;
+   		SmallMatrixPtr_Type jacobianBlock_;
+
+		vec_dbl_ptr_Type rhsVec_;
 
         RhsFunc_Type rhsFunc_;
 
@@ -230,6 +266,7 @@ namespace FEDD {
 
 		tuple_disk_vec_ptr_Type diskTuple_;
 		tuple_sd_vec_ptr_Type elementIntormation_;
+       
         /// @todo Why "Reference Configuration"?  - The keyword reference is for FSI problems - in my case these are the coordinates of the nodes in the global coordinate system
         vec2D_dbl_Type nodesRefConfig_;
         bool timeProblem_;
@@ -238,10 +275,11 @@ namespace FEDD {
         int newtonStep_ ;
         ParameterListPtr_Type paramsMaterial_;
         ParameterListPtr_Type params_;
-        vec_dbl_Type solution_ ;
+        vec_dbl_ptr_Type solution_ ;
         vec_dbl_Type solutionViscosity_ ; 
 
-
+        double timeIncrement_;
+        GO globalElementID_;
 
         friend class AssembleFEFactory<SC,LO,GO,NO>;
     };

@@ -138,7 +138,7 @@ typedef unsigned UN;
 typedef double SC;
 typedef int LO;
 typedef default_go GO;
-typedef KokkosClassic::DefaultNode::DefaultNodeType NO;
+typedef Tpetra::KokkosClassic::DefaultNode::DefaultNodeType NO;
 
 using namespace FEDD;
 using namespace Teuchos;
@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
         sublist( parameterListGeometry, "Parameter" )->set( "Poisson Ratio", 0.4 );
         sublist( parameterListGeometry, "Parameter" )->set( "Mu", 2.0e+6 );
             
-        int 		dim				= parameterListProblem->sublist("Parameter").get("Dimension",2);
+        int 		dim				= parameterListProblem->sublist("Parameter").get("Dimension",3);
         string		meshType    	= parameterListProblem->sublist("Parameter").get("Mesh Type","unstructured");
         
         string      discType        = parameterListProblem->sublist("Parameter").get("Discretization","P2");
@@ -427,7 +427,7 @@ int main(int argc, char *argv[])
             DomainPtr_Type domainInterface;
             domainInterface.reset( new Domain_Type( comm ) );
             domainInterface->setDummyInterfaceDomain(domainFluidVelocity);
-            
+
             domainFluidVelocity->setReferenceConfiguration();
             domainFluidPressure->setReferenceConfiguration();
 

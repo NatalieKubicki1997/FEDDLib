@@ -152,6 +152,7 @@ public:
 
     CommConstPtrConst_Type  comm_;
     
+    
     vec2D_dbl_ptr_Type		pointsRepRef_; // Repeated Referenzkonfiguration
     vec2D_dbl_ptr_Type		pointsUniRef_; // Unique Referenzkonfiguration
     

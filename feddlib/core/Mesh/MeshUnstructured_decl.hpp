@@ -7,6 +7,7 @@
 #include "MeshFileReader.hpp"
 #include "feddlib/core/FE/EdgeElements.hpp"
 #include "feddlib/core/LinearAlgebra/BlockMatrix.hpp"
+#include "feddlib/core/FE/TriangleElements.hpp"
 
 /*!
  Declaration of MeshUnstructured
@@ -42,6 +43,9 @@ public:
     
     typedef EdgeElements EdgeElements_Type;
     typedef Teuchos::RCP<EdgeElements_Type> EdgeElementsPtr_Type;
+
+    typedef SurfaceElements SurfaceElements_Type;
+    typedef Teuchos::RCP<SurfaceElements_Type> SurfaceElementsPtr_Type;
     
     typedef MeshInterface<SC,LO,GO,NO> MeshInterface_Type;
     typedef Teuchos::RCP<MeshInterface_Type> MeshInterfacePtr_Type;
@@ -82,7 +86,7 @@ public:
     void setP2SurfaceElements( MeshUnstrPtr_Type meshP1 );
     
 	/*! 
-		\brief Helper function for setP2SurfaceElements. Adds the correct nodes to the meshP1 subelements.
+		\brief Helper function for setP2SurfaceElements. Adds the correct nodes to the meshP1 subelements. Based on sorted Elements.
 		@param[in] feP2 P2 element 
 		@param[in] surfFeP1 P1 surface element that need new P2 nodes
 		@param[in] surfacePermutation Surface permutations of element
@@ -90,6 +94,15 @@ public:
 	*/
     void setSurfaceP2( FiniteElement &feP2, const FiniteElement &surfFeP1, const vec2D_int_Type &surfacePermutation, int dim );
     
+	/*! 
+		\brief Helper function for setP2SurfaceElements. Adds the correct nodes to the meshP1 subelements. Based on unsorted elements. Different approach than above. Based on edge Midpoints.
+
+		@param[in] feP2 P2 element 
+		@param[in] surfFeP1 P1 surface element that need new P2 nodes
+		@param[in] surfacePermutation Surface permutations of element
+		@param[in] dim Dimension
+	*/
+	void addSurfaceP2Nodes( FiniteElement &feP2, const FiniteElement &surfFeP1, const vec2D_int_Type &surfacePermutation, int dim );
 	/*! 
 		\brief Depending on the sorting of P1 surface nodes we have to adjust the new ordering of P2 edge midpoints for surfaces in 3D
 	*/	
@@ -135,6 +148,8 @@ public:
     int determineFlagP2( LO p1ID, LO p2ID,  LO localEdgeID, vec2D_LO_Type& markedPoint );
     
     void getTriangles(int vertex1ID, int vertex2ID, vec_int_Type &vertices3ID);
+
+    SurfaceElementsPtr_Type getSurfaceTriangleElements(){return surfaceTriangleElements_;};
     
     void findSurfaces( const vec_int_Type& elementNodeList, vec_int_Type numbering,  vec2D_int_Type& localSurfaceNodeList_vec, vec_int_Type& locSurfaces, bool critical = false );
 
@@ -229,6 +244,7 @@ public:
 
  	EdgeElementsPtr_Type edgeElements_;    
     ElementsPtr_Type surfaceEdgeElements_;
+	SurfaceElementsPtr_Type surfaceTriangleElements_;
 
  	string meshFileName_;
     string delimiter_;

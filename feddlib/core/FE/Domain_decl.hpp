@@ -5,7 +5,6 @@
 #include "feddlib/core/General/DefaultTypeDefs.hpp"
 #include "feddlib/core/Mesh/MeshStructured.hpp"
 #include "feddlib/core/Mesh/MeshUnstructured.hpp"
-#include "feddlib/core/Mesh/MeshUnstructuredRefinement.hpp"
 
 /*!
  Declaration of Domain
@@ -49,10 +48,6 @@ public:
     typedef MeshUnstructured<SC,LO,GO,NO> MeshUnstr_Type;
     typedef Teuchos::RCP<MeshUnstr_Type> MeshUnstrPtr_Type;
     typedef std::vector<MeshUnstrPtr_Type> MeshUnstrPtrArray_Type; // Array of meshUnstr for meshRefinement
-
-    typedef MeshUnstructuredRefinement<SC,LO,GO,NO> MeshUnstrRef_Type;
-    typedef Teuchos::RCP<MeshUnstrRef_Type> MeshUnstrRefPtr_Type;
-    typedef std::vector<MeshUnstrRefPtr_Type> MeshUnstrRefPtrArray_Type; // Array of meshUnstr for meshRefinement
     
     typedef typename MeshUnstr_Type::MeshInterfacePtr_Type MeshInterfacePtr_Type;
     
@@ -98,7 +93,7 @@ public:
     Domain(CommConstPtr_Type comm, int dimension);
 
     /*!
-         \brief Constructor for structured meshes build in FEDDLib
+         \brief Constructor for 2D structured meshes build in FEDDLib
          @param[in] coor
          @param[in] l
          @param[in] h
@@ -107,7 +102,7 @@ public:
     Domain(vec_dbl_Type coor, double l, double h, CommConstPtr_Type comm);
 
  	/*!
-         \brief Constructor for strucutred meshes build in FEDDLib
+         \brief Constructor for 3D strucutred meshes build in FEDDLib
          @param[in] coor
          @param[in] l length
          @param[in] w width
@@ -131,7 +126,7 @@ public:
     /*!
          \brief Information about the domain
     */
-    void info();
+    void info() const;
 
  	/*!
          \brief Build structured mesh in FEDDLib 
@@ -324,11 +319,19 @@ public:
     */
     void buildP2ofP1Domain( DomainPtr_Type domainP1 );
 
-    void refineMesh( DomainPtrArray_Type domainP1, int j, bool checkRestrictions, string restriction); // Mesh Refinement
+    /*!
+         \brief Initialize domain with already existing domain.
+         @param[in] domainP1 the domain with the mesh we read from .mesh file
 
-	vec_dbl_Type errorEstimation(MultiVectorPtrConst_Type valuesSolution, double theta, string strategy);
+    */
+    void initWithDomain(DomainPtr_Type domainsP1); 
+    
+    /*!
+         \brief Settng mesh from domain
+         @param[in] meshUnstr mesh of MeshUnstr_Type which is generally the type of meshes from .mesh files
 
-	void initMeshRef( DomainPtr_Type domainP1 );
+    */
+    void setMesh(MeshUnstrPtr_Type meshUnstr); 
     
     /*!
          \brief  Build unique node and dof interfaceMap in interface numbering
@@ -413,7 +416,7 @@ public:
     LO getNumPoints(std::string type="Unique") const;/*local*/
 
 	/*!
-         \brief Check geometriy
+         \brief Checks geometriy
          @param[in] MeshType
          @param[in] dim
          \return 
@@ -521,22 +524,22 @@ public:
 
 private:
 
-    CommConstPtr_Type 		comm_;
-    MeshPtr_Type 			mesh_;
-    int                     dim_;
-    vec_dbl_Type            coorRec;
+    CommConstPtr_Type 		comm_; // underlying comm
+    MeshPtr_Type 			mesh_; // underlying mesh as base class mesh type. usually underlying mesh is either structured or unstructured
+    int                     dim_; // dimension
+    vec_dbl_Type            coorRec; 
     double 					length;
     double		 			height;
     double 					width;
     int 					n_;
     int 					m_;
-    std::string				FEType_;
+    std::string				FEType_; // Finite element discretization
     mutable MapPtr_Type mapVecFieldUnique_;
     mutable  MapPtr_Type mapVecFieldRepeated_;
     
-    string_vec_ptr_Type     geometries2DVec_;
-    string_vec_ptr_Type		geometries3DVec_;
-    vec_dbl_ptr_Type        distancesToInterface_;
+    string_vec_ptr_Type     geometries2DVec_; // list with available 2D structured geometries
+    string_vec_ptr_Type		geometries3DVec_; // list with available 3D structured geometries
+    vec_dbl_ptr_Type        distancesToInterface_; 
 
     // Unique Interface-Maps als nodes und als dofs in der Interface-Nummerierung
     MapPtr_Type             interfaceMapUnique_; // nodes

@@ -13,3 +13,4 @@
 # These are filetypes mainly from ACEInterface for the mechanics  
 #*.h merge=theirs
 #*.F merge=theirs
+#*.f merge=theirs

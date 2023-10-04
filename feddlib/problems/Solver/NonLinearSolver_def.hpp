@@ -77,15 +77,15 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNOX(NonLinearProblem_Type &problem){
 //    sublist( sublist(p, "Linear Solver Types") , "Belos")->set("Left Preconditioner If Unspecified",true);
     problemPtr->getLinearSolverBuilder()->setParameterList(p);
 
-    Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<SC> >
-        lowsFactory = problemPtr->getLinearSolverBuilder()->createLinearSolveStrategy("");
+    Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<SC> > lowsFactory = problemPtr->getLinearSolverBuilder()->createLinearSolveStrategy("");
 
-//    problemPtr->set_W_factory(lowsFactory);
+	//problemPtr->set_W_factory(lowsFactory);
 
     // Create the initial guess
     Teuchos::RCP<Thyra::VectorBase<SC> > initial_guess = problemPtr->getNominalValues().get_x()->clone_v();
     Thyra::V_S(initial_guess.ptr(),Teuchos::ScalarTraits<SC>::zero());
     
+      
     Teuchos::RCP<NOX::Thyra::Group> nox_group(new NOX::Thyra::Group(initial_guess,
                                                                     problemPtr.getConst(),
                                                                     problemPtr->create_W_op(),
@@ -186,8 +186,8 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNOX(TimeProblem_Type &problem, vec_dbl_p
         solMV = problemPtr->getSolution()->getThyraMultiVector();
 
     Thyra::assign(initialGuess.ptr(), *solMV->col(0));
-    
-//    Thyra::V_S(initialGuess.ptr(),Teuchos::ScalarTraits<SC>::zero());
+
+    //Thyra::V_S(initialGuess.ptr(),Teuchos::ScalarTraits<SC>::zero());
     Teuchos::RCP<NOX::Thyra::Group> nox_group(new NOX::Thyra::Group(initialGuess,
                                                                     problemPtr.getConst(),
                                                                     problemPtr->create_W_op(),
@@ -478,6 +478,7 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNewton(TimeProblem_Type &problem, double
     double criterionValue = 1.;
     std::string criterion = problem.getParameterList()->sublist("Parameter").get("Criterion","Residual");
     std::string timestepping = problem.getParameterList()->sublist("Timestepping Parameter").get("Class","Singlestep");
+
     while ( nlIts < maxNonLinIts ) {
         if (timestepping == "External")
             problem.calculateNonLinResidualVec("external", time);
@@ -498,25 +499,33 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNewton(TimeProblem_Type &problem, double
                 break;
         }
 
-        // Systems are combined in reAssemble("Newton")
-        problem.assemble("Newton"); // Nothing should happen here.
-        
+        // Systems are combined in timeProblem.assemble("Newton") and then combined
+        problem.assemble("Newton"); 
+
         problem.setBoundariesSystem();
+
+        problem.getSystem()->writeMM("Assembled");
+
 
         if (timestepping == "External"){//AceGen
             gmresIts += problem.solveAndUpdate( "ResidualAceGen", criterionValue );
+        //    exporterTxt->exportData( criterionValue );
+
             //problem.assembleExternal( "OnlyUpdate" );// update AceGEN internal variables
         }
         else
             gmresIts += problem.solveAndUpdate( criterion, criterionValue );
-                    
+        
         nlIts++;
+
+        //problem.getSolution()->getBlock(0)->print();
         if(criterion=="Update"){
             if (verbose)
                 cout << "### Newton iteration : " << nlIts << "  residual of update : " << criterionValue << endl;
             if ( criterionValue < tol )
                 break;
         }
+
         // ####### end FPI #######
     }
 
@@ -531,6 +540,8 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNewton(TimeProblem_Type &problem, double
             (*valuesForExport)[0] = gmresIts;
             (*valuesForExport)[1] = nlIts;
         }
+       
+
     }
     
 }

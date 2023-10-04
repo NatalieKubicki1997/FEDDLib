@@ -11,15 +11,15 @@
 #include "Domain.hpp"
 #include "sms.hpp"
 #include "feddlib/core/AceFemAssembly/AssembleFE.hpp"
+#include "feddlib/core/AceFemAssembly/specific/AssembleFE_SCI_SMC_Active_Growth_Reorientation_decl.hpp"
 #include "feddlib/core/AceFemAssembly/specific/AssembleFENavierStokes_decl.hpp"
+
 #include "feddlib/core/AceFemAssembly/AssembleFEFactory.hpp"
 
 #include <Teuchos_Array.hpp>
 #include <Teuchos_BLAS.hpp>
 
 #include <boost/function.hpp>
-
-
 
 /*!
  Declaration of FE
@@ -72,15 +72,6 @@ class FE {
     typedef Teuchos::RCP<MultiVector_Type> MultiVectorPtr_Type;
     typedef Teuchos::RCP<const MultiVector_Type> MultiVectorConstPtr_Type;
 
-    // natalie inserted this
-  //  typedef Problem<SC,LO,GO,NO> Problem_Type;
-   // typedef typename Problem_Type::BlockMultiVector_Type BlockMultiVector2_Type;
-  //  typedef typename Problem_Type::BlockMultiVectorPtr_Type BlockMultiVectorPtr2_Type;
-   /* typedef BlockMultiVector<SC,LO,GO,NO> BlockMultiVector_Type;
-    typedef typename BlockMultiVector_Type::BlockMultiVector_Typ BlockMultiVector2_Type;
-    typedef typename BlockMultiVector_Type::BlockMultiVectorPtr_Type BlockMultiVectorPtr2_Type;
-*/
-
     typedef std::vector<GO> vec_GO_Type;
     typedef std::vector<vec_GO_Type> vec2D_GO_Type;
     typedef std::vector<vec2D_GO_Type> vec3D_GO_Type;
@@ -93,6 +84,9 @@ class FE {
 
 	typedef AssembleFENavierStokes<SC,LO,GO,NO> AssembleFENavierStokes_Type;
     typedef Teuchos::RCP<AssembleFENavierStokes_Type> AssembleFENavierStokesPtr_Type;
+
+    typedef AssembleFE_SCI_SMC_Active_Growth_Reorientation<SC,LO,GO,NO> AssembleFE_SCI_SMC_Active_Growth_Reorientation_Type;
+    typedef Teuchos::RCP<AssembleFE_SCI_SMC_Active_Growth_Reorientation_Type> AssembleFE_SCI_SMC_Active_Growth_Reorientation_Ptr_Type;
 
     typedef std::vector<AssembleFEPtr_Type> AssembleFEPtr_vec_Type;	
 
@@ -120,6 +114,25 @@ class FE {
                                  std::string fieldType,
                                  RhsFunc_Type func,
                                  std::vector<SC>& funcParameter);
+                    
+    void assemblySurfaceIntegralExternal(int dim,
+                                    std::string FEType,
+                                    MultiVectorPtr_Type f,
+                                    MultiVectorPtr_Type d_rep,
+                                    std::vector<SC>& funcParameter,
+                                    RhsFunc_Type func,
+                                    ParameterListPtr_Type params,
+                                    int FEloc=0);
+
+    void assemblyNonlinearSurfaceIntegralExternal(int dim,
+                                    std::string FEType,
+                                    MultiVectorPtr_Type f,
+                                    MultiVectorPtr_Type d_rep,
+                                    MatrixPtr_Type &Kext,
+                                    std::vector<SC>& funcParameter,
+                                    RhsFunc_Type func,
+                                    ParameterListPtr_Type params,
+                                    int FEloc = 0);
     
     void assemblySurfaceIntegralFlag(int dim,
                                     std::string FEType,
@@ -457,6 +470,67 @@ class FE {
 							    string assembleMode,
 								bool callFillComplete = true,
 								int FELocExternal=-1);
+
+    void assemblyAceDeformDiffu(int dim,
+								string FETypeChem,
+								string FETypeSolid,
+								int degree,
+								int dofsChem,
+								int dofsSolid,
+								MultiVectorPtr_Type c_rep,
+								MultiVectorPtr_Type d_rep,
+								BlockMatrixPtr_Type &A,
+								BlockMultiVectorPtr_Type &resVec,
+								ParameterListPtr_Type params,
+							    string assembleMode,
+								bool callFillComplete = true,
+								int FELocExternal=-1);
+
+    void assemblyAceDeformDiffuBlock(int dim,
+                                string FETypeChem,
+                                string FETypeSolid,
+                                int degree,
+                                int dofsChem,
+                                int dofsSolid,
+                                MultiVectorPtr_Type c_rep,
+                                MultiVectorPtr_Type d_rep,
+                                BlockMatrixPtr_Type &A,
+                                int blockRow,
+                                int blockCol,
+                                BlockMultiVectorPtr_Type &resVec,
+                                int block,
+                                ParameterListPtr_Type params,
+                                string assembleMode,
+                                bool callFillComplete = true,
+                                int FELocExternal=-1);
+
+    void advanceInTimeAssemblyFEElements(double dt ,MultiVectorPtr_Type d_rep , MultiVectorPtr_Type c_rep) 
+    {
+        //UN FElocChem = 1; //checkFE(dim,FETypeChem); // Checks for different domains which belongs to a certain fetype
+        UN FElocSolid = 0; //checkFE(dim,FETypeSolid); // Checks for different domains which belongs to a certain fetype
+
+        //ElementsPtr_Type elementsChem= domainVec_.at(FElocChem)->getElementsC();
+
+        ElementsPtr_Type elementsSolid = domainVec_.at(FElocSolid)->getElementsC();
+        
+        vec_dbl_Type solution_c;
+	    vec_dbl_Type solution_d;
+        for (UN T=0; T<assemblyFEElements_.size(); T++) {
+		    vec_dbl_Type solution(0);
+
+            solution_c = getSolution(elementsSolid->getElement(T).getVectorNodeList(), c_rep,1);
+            solution_d = getSolution(elementsSolid->getElement(T).getVectorNodeList(), d_rep,3);
+            // First Solid, then Chemistry
+            solution.insert( solution.end(), solution_d.begin(), solution_d.end() );
+            solution.insert( solution.end(), solution_c.begin(), solution_c.end() );
+            
+            assemblyFEElements_[T]->updateSolution(solution);
+
+            assemblyFEElements_[T]->advanceInTime(dt);
+        }
+        
+    };
+
 	void assemblyLinearElasticity(int dim,
                                 string FEType,
                                 int degree,
@@ -493,8 +567,8 @@ class FE {
                                     MultiVectorPtr_Type eModVec,
                                     bool callFillComplete = true,
                                     int FELocExternal=-1);
-/* ----------------------------------------------------------------------------------------*/
-  //  BlockMultiVectorPtr_Type getViscoBlock() const;
+
+/*-----------Natalie added 29.09.2023----------*/
     void updateViscosityFE_CM(int dim,
 								string FETypeVelocity,
 								string FETypePressure,
@@ -510,20 +584,26 @@ class FE {
 //***
 
 
+
+
+
+/* ----------------------------------------------------------------------------------------*/
 private:
 	void addFeBlockMatrix(BlockMatrixPtr_Type &A, SmallMatrixPtr_Type elementMatrix, FiniteElement element, MapConstPtr_Type mapFirstColumn,MapConstPtr_Type mapSecondColumn, tuple_disk_vec_ptr_Type problemDisk);
 
 	void addFeBlock(BlockMatrixPtr_Type &A, SmallMatrixPtr_Type elementMatrix, FiniteElement element, MapConstPtr_Type mapFirstRow, int row, int column, tuple_disk_vec_ptr_Type problemDisk);
 
-	void addFeBlockMv(BlockMultiVectorPtr_Type &res, vec_dbl_Type rhsVec, FiniteElement elementBlock1,FiniteElement elementBlock2, int dofs1, int dofs2 );
+    void initAssembleFEElements(string elementType, tuple_disk_vec_ptr_Type problemDisk, ElementsPtr_Type elements, ParameterListPtr_Type params, vec2D_dbl_ptr_Type pointsRep, MapConstPtr_Type elementMap);
 
-    void addFeBlockMv(BlockMultiVectorPtr_Type &res, vec_dbl_Type rhsVec, FiniteElement elementBlock, int dofs);
-			
-	void initAssembleFEElements(string elementType,tuple_disk_vec_ptr_Type problemDisk,ElementsPtr_Type elements, ParameterListPtr_Type params,vec2D_dbl_ptr_Type pointsRep);
+    void addFeBlockMv(BlockMultiVectorPtr_Type &res, vec_dbl_ptr_Type rhsVec, FiniteElement elementBlock1,FiniteElement elementBlock2, int dofs1, int dofs2 );
 
+    void addFeBlockMv(BlockMultiVectorPtr_Type &res, vec_dbl_ptr_Type rhsVec, FiniteElement elementBlock, int dofs);
+		
+	
     // We check if an element corresponds to an outflow boundary element by comparing flags
     void setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Type elements, ParameterListPtr_Type params, vec2D_dbl_ptr_Type pointsRep, std::string FE_Type);
 	
+    
     AssembleFEPtr_vec_Type assemblyFEElements_;
 
 	vec2D_dbl_Type getCoordinates(vec_LO_Type localIDs, vec2D_dbl_ptr_Type points);
@@ -654,9 +734,6 @@ private:
     SC myeps_;
     std::vector<Teuchos::RCP<DataElement> > ed_;
     bool saveAssembly_;
-
-
-
 };
 }
 #endif

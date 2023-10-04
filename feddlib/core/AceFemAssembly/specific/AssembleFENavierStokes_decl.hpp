@@ -34,11 +34,15 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
 	*/
 	virtual void assembleRHS();
 
+    /*!
+		\brief Assemble the element Jacobian matrix.
+		@param[in] block ID i
+	*/
+	virtual void assembleJacobianBlock(LO i) {};
+
 	void setCoeff(SmallMatrix_Type coeff);
 
-	/*! 
-	\brief Assembly of FixedPoint- Matrix (System Matrix K with current u) 
-	*/
+	
 	void assembleFixedPoint();
 
 	SmallMatrixPtr_Type getFixedPointMatrix(){return ANB_;};
@@ -115,8 +119,6 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
 
 	vec_dbl_Type solutionVelocity_;
 	vec_dbl_Type solutionPressure_;
-
-
 
 	SmallMatrixPtr_Type constantMatrix_;
 	SmallMatrixPtr_Type ANB_;

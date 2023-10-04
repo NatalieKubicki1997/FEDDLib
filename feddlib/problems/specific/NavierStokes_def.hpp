@@ -542,6 +542,7 @@ void NavierStokes<SC,LO,GO,NO>::evalModelImplMonolithic(const Thyra::ModelEvalua
     const bool fill_W = nonnull(W_out);
     const bool fill_W_prec = nonnull(W_prec_out);
 
+
     if ( fill_f || fill_W || fill_W_prec ) {
 
         // ****************
@@ -589,6 +590,7 @@ void NavierStokes<SC,LO,GO,NO>::evalModelImplMonolithic(const Thyra::ModelEvalua
         }
 
         if (fill_W_prec) {
+        
             this->setupPreconditioner( "Monolithic" );
 
             // ch 26.04.19: After each setup of the preconditioner we check if we use a two-level precondtioner with multiplicative combination between the levels.
@@ -715,8 +717,9 @@ void NavierStokes<SC,LO,GO,NO>::evalModelImplBlock(const Thyra::ModelEvaluatorBa
         }
 
         if (fill_W_prec) {
-            if (stokesTekoPrecUsed_)
+            if (stokesTekoPrecUsed_){
                 this->setupPreconditioner( "Teko" );
+            }
             else
                 stokesTekoPrecUsed_ = true;
 
@@ -871,8 +874,9 @@ Teuchos::RCP<Thyra::PreconditionerBase<SC> > NavierStokes<SC,LO,GO,NO>::create_W
         stokesTekoPrecUsed_ = false;
     }
     else{
-        this->initializePreconditioner( type );
+        this->setupPreconditioner( type ); // initializePreconditioner( type );
     }
+    
 
     Teuchos::RCP<const Thyra::PreconditionerBase<SC> > thyraPrec =  this->getPreconditionerConst()->getThyraPrecConst();
     Teuchos::RCP<Thyra::PreconditionerBase<SC> > thyraPrecNonConst = Teuchos::rcp_const_cast<Thyra::PreconditionerBase<SC> >(thyraPrec);

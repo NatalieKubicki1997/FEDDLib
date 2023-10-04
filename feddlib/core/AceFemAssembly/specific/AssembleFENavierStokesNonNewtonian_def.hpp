@@ -380,11 +380,11 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
             { // loop unrolling
                 LO index1 = dim * i + 0; // x
                 LO index2 = dim * i + 1; // y 
-                // uLoc[d][w] += this->solution_[index] * phi->at(w).at(i);
-                u11[w] += this->solution_[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
-                u12[w] += this->solution_[index1] * dPhiTrans[w][i][1]; // because we are in 2D , 0 and 1 
-                u21[w] += this->solution_[index2] * dPhiTrans[w][i][0];
-                u22[w] += this->solution_[index2] * dPhiTrans[w][i][1];
+                // uLoc[d][w] += (*this->solution_)[index] * phi->at(w).at(i);
+                u11[w] += (*this->solution_)[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
+                u12[w] += (*this->solution_)[index1] * dPhiTrans[w][i][1]; // because we are in 2D , 0 and 1 
+                u21[w] += (*this->solution_)[index2] * dPhiTrans[w][i][0];
+                u22[w] += (*this->solution_)[index2] * dPhiTrans[w][i][1];
                 
             }
             gammaDot->at(w) = sqrt(2.0*u11[w]*u11[w]+ 2.0*u22[w]*u22[w] + (u12[w]+u21[w])*(u12[w]+u21[w]));
@@ -494,16 +494,16 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStressDev(SmallMat
                 LO index1 = dim * i + 0; //x
                 LO index2 = dim * i + 1; //y 
                 LO index3 = dim * i + 2; //z
-                // uLoc[d][w] += this->solution_[index] * phi->at(w).at(i);
-                u11[w] += this->solution_[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
-                u12[w] += this->solution_[index1] * dPhiTrans[w][i][1]; // because we are in 3D , 0 and 1, 2 
-                u13[w] += this->solution_[index1] * dPhiTrans[w][i][2]; 
-                u21[w] += this->solution_[index2] * dPhiTrans[w][i][0]; // v*dphi_dx
-                u22[w] += this->solution_[index2] * dPhiTrans[w][i][1];
-                u23[w] += this->solution_[index2] * dPhiTrans[w][i][2];
-                u31[w] += this->solution_[index3] * dPhiTrans[w][i][0]; // w*dphi_dx
-                u32[w] += this->solution_[index3] * dPhiTrans[w][i][1];
-                u33[w] += this->solution_[index3] * dPhiTrans[w][i][2];
+                // uLoc[d][w] += (*this->solution_)[index] * phi->at(w).at(i);
+                u11[w] += (*this->solution_)[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
+                u12[w] += (*this->solution_)[index1] * dPhiTrans[w][i][1]; // because we are in 3D , 0 and 1, 2 
+                u13[w] += (*this->solution_)[index1] * dPhiTrans[w][i][2]; 
+                u21[w] += (*this->solution_)[index2] * dPhiTrans[w][i][0]; // v*dphi_dx
+                u22[w] += (*this->solution_)[index2] * dPhiTrans[w][i][1];
+                u23[w] += (*this->solution_)[index2] * dPhiTrans[w][i][2];
+                u31[w] += (*this->solution_)[index3] * dPhiTrans[w][i][0]; // w*dphi_dx
+                u32[w] += (*this->solution_)[index3] * dPhiTrans[w][i][1];
+                u33[w] += (*this->solution_)[index3] * dPhiTrans[w][i][2];
                 
             }
             gammaDot->at(w) = sqrt(2.0*u11[w]*u11[w]+ 2.0*u22[w]*u22[w] + 2.0*u33[w]*u33[w] +  (u12[w]+u21[w])*(u12[w]+u21[w])   + (u13[w]+u31[w])*(u13[w]+u31[w]) + (u23[w]+u32[w])*(u23[w]+u32[w]) );
@@ -900,10 +900,10 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTer
             { // loop unrolling
                 LO index1 = dim * i + 0; // x
                 LO index2 = dim * i + 1; // y 
-                u11[w] += this->solution_[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
-                u12[w] += this->solution_[index1] * dPhiTrans[w][i][1]; // because we are in 2D , 0 and 1 
-                u21[w] += this->solution_[index2] * dPhiTrans[w][i][0];
-                u22[w] += this->solution_[index2] * dPhiTrans[w][i][1];
+                u11[w] += (*this->solution_)[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
+                u12[w] += (*this->solution_)[index1] * dPhiTrans[w][i][1]; // because we are in 2D , 0 and 1 
+                u21[w] += (*this->solution_)[index2] * dPhiTrans[w][i][0];
+                u22[w] += (*this->solution_)[index2] * dPhiTrans[w][i][1];
                 
             }
             gammaDot->at(w) = sqrt(2.0*u11[w]*u11[w]+ 2.0*u22[w]*u22[w] + (u12[w]+u21[w])*(u12[w]+u21[w]));
@@ -997,16 +997,16 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTer
                 LO index1 = dim * i + 0; //x
                 LO index2 = dim * i + 1; //y 
                 LO index3 = dim * i + 2; //z
-                // uLoc[d][w] += this->solution_[index] * phi->at(w).at(i);
-                u11[w] += this->solution_[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
-                u12[w] += this->solution_[index1] * dPhiTrans[w][i][1]; // because we are in 3D , 0 and 1, 2 
-                u13[w] += this->solution_[index1] * dPhiTrans[w][i][2]; 
-                u21[w] += this->solution_[index2] * dPhiTrans[w][i][0]; // v*dphi_dx
-                u22[w] += this->solution_[index2] * dPhiTrans[w][i][1];
-                u23[w] += this->solution_[index2] * dPhiTrans[w][i][2];
-                u31[w] += this->solution_[index3] * dPhiTrans[w][i][0]; // w*dphi_dx
-                u32[w] += this->solution_[index3] * dPhiTrans[w][i][1];
-                u33[w] += this->solution_[index3] * dPhiTrans[w][i][2];
+                // uLoc[d][w] += (*this->solution_)[index] * phi->at(w).at(i);
+                u11[w] += (*this->solution_)[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
+                u12[w] += (*this->solution_)[index1] * dPhiTrans[w][i][1]; // because we are in 3D , 0 and 1, 2 
+                u13[w] += (*this->solution_)[index1] * dPhiTrans[w][i][2]; 
+                u21[w] += (*this->solution_)[index2] * dPhiTrans[w][i][0]; // v*dphi_dx
+                u22[w] += (*this->solution_)[index2] * dPhiTrans[w][i][1];
+                u23[w] += (*this->solution_)[index2] * dPhiTrans[w][i][2];
+                u31[w] += (*this->solution_)[index3] * dPhiTrans[w][i][0]; // w*dphi_dx
+                u32[w] += (*this->solution_)[index3] * dPhiTrans[w][i][1];
+                u33[w] += (*this->solution_)[index3] * dPhiTrans[w][i][2];
                 
             }
             gammaDot->at(w) = sqrt(2.0*u11[w]*u11[w]+ 2.0*u22[w]*u22[w] + 2.0*u33[w]*u33[w] +  (u12[w]+u21[w])*(u12[w]+u21[w])   + (u13[w]+u31[w])*(u13[w]+u31[w]) + (u23[w]+u32[w])*(u23[w]+u32[w]) );
@@ -1120,8 +1120,8 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleRHS(){
     }
 
 
-	this->rhsVec_ = vec_dbl_Type(this->dofsElement_,0);
-	// Multiplying ANB_ * solution // System Matrix times solution
+	this->rhsVec_.reset( new vec_dbl_Type ( this->dofsElement_,0.) );
+	// Multiplying ANB_ * solution // ANB Matrix without nonlinear part.
 	int s=0,t=0;
 	for(int i=0 ; i< this->ANB_->size();i++){
 		if (i >= this->dofsElementVelocity_)
@@ -1129,11 +1129,9 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleRHS(){
 		for(int j=0; j < this->ANB_->size(); j++){
 			if(j >= this->dofsElementVelocity_)
 				t=1;
-			this->rhsVec_[i] += (*this->ANB_)[i][j]*this->solution_[j]*this->coeff_[s][t];
-			//cout <<"Solution["<<j <<"]" << this->solution_[i] << endl;
+			(*this->rhsVec_)[i] += (*this->ANB_)[i][j]*(*this->solution_)[j]*this->coeff_[s][t];
 		}
 		t=0;
-		//cout <<"RHS["<<i <<"]" << this->rhsVec_[i] << endl;
 	}
 }
 
@@ -1219,11 +1217,11 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeShearRate(  vec3D_d
             { // loop unrolling
                 LO index1 = dim * i + 0; // x
                 LO index2 = dim * i + 1; // y 
-                // uLoc[d][w] += this->solution_[index] * phi->at(w).at(i);
-                u11[w] += this->solution_[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
-                u12[w] += this->solution_[index1] * dPhiTrans[w][i][1]; // because we are in 2D , 0 and 1 
-                u21[w] += this->solution_[index2] * dPhiTrans[w][i][0];
-                u22[w] += this->solution_[index2] * dPhiTrans[w][i][1];
+                // uLoc[d][w] += (*this->solution_)[index] * phi->at(w).at(i);
+                u11[w] += (*this->solution_)[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
+                u12[w] += (*this->solution_)[index1] * dPhiTrans[w][i][1]; // because we are in 2D , 0 and 1 
+                u21[w] += (*this->solution_)[index2] * dPhiTrans[w][i][0];
+                u22[w] += (*this->solution_)[index2] * dPhiTrans[w][i][1];
                 
             }
             gammaDot->at(w) = sqrt(2.0*u11[w]*u11[w]+ 2.0*u22[w]*u22[w] + (u12[w]+u21[w])*(u12[w]+u21[w]));
@@ -1263,16 +1261,16 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeShearRate(  vec3D_d
                 LO index1 = dim * i + 0; //x
                 LO index2 = dim * i + 1; //y 
                 LO index3 = dim * i + 2; //z
-               // uLoc[d][w] += this->solution_[index] * phi->at(w).at(i);
-                u11[w] += this->solution_[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
-                u12[w] += this->solution_[index1] * dPhiTrans[w][i][1]; // because we are in 3D , 0 and 1, 2 
-                u13[w] += this->solution_[index1] * dPhiTrans[w][i][2]; 
-                u21[w] += this->solution_[index2] * dPhiTrans[w][i][0]; // v*dphi_dx
-                u22[w] += this->solution_[index2] * dPhiTrans[w][i][1];
-                u23[w] += this->solution_[index2] * dPhiTrans[w][i][2];
-                u31[w] += this->solution_[index3] * dPhiTrans[w][i][0]; // w*dphi_dx
-                u32[w] += this->solution_[index3] * dPhiTrans[w][i][1];
-                u33[w] += this->solution_[index3] * dPhiTrans[w][i][2];
+               // uLoc[d][w] += (*this->solution_)[index] * phi->at(w).at(i);
+                u11[w] += (*this->solution_)[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
+                u12[w] += (*this->solution_)[index1] * dPhiTrans[w][i][1]; // because we are in 3D , 0 and 1, 2 
+                u13[w] += (*this->solution_)[index1] * dPhiTrans[w][i][2]; 
+                u21[w] += (*this->solution_)[index2] * dPhiTrans[w][i][0]; // v*dphi_dx
+                u22[w] += (*this->solution_)[index2] * dPhiTrans[w][i][1];
+                u23[w] += (*this->solution_)[index2] * dPhiTrans[w][i][2];
+                u31[w] += (*this->solution_)[index3] * dPhiTrans[w][i][0]; // w*dphi_dx
+                u32[w] += (*this->solution_)[index3] * dPhiTrans[w][i][1];
+                u33[w] += (*this->solution_)[index3] * dPhiTrans[w][i][2];
                 
             }
             gammaDot->at(w) = sqrt(2.0*u11[w]*u11[w]+ 2.0*u22[w]*u22[w] + 2.0*u33[w]*u33[w] +  (u12[w]+u21[w])*(u12[w]+u21[w])   + (u13[w]+u31[w])*(u13[w]+u31[w]) + (u23[w]+u32[w])*(u23[w]+u32[w]) );

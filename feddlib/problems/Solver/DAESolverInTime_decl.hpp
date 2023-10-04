@@ -9,6 +9,8 @@
 #include "feddlib/problems/specific/SCI.hpp"
 
 
+
+
 #include "NonLinearSolver.hpp"
 #include "TimeSteppingTools.hpp"
 
@@ -88,6 +90,8 @@ public:
     void setupTimeStepping();
 
     void advanceInTime();
+
+    void advanceWithLoadStepping();
 
     void advanceInTimeLinear();
 

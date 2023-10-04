@@ -44,6 +44,12 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 	*/
 	virtual void assembleRHS();
 
+	  /*!
+		\brief Assemble the element Jacobian matrix.
+		@param[in] block ID i
+	*/
+	virtual void assembleJacobianBlock(LO i) {};
+
 		/*!
 	 \brief Compute the viscosity for an element depending on the knwon velocity solution.
 	*/

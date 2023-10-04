@@ -2,6 +2,7 @@ TRIBITS_REPOSITORY_DEFINE_TPLS(
     MPI             "${${PROJECT_NAME}_TRIBITS_DIR}/core/std_tpls/"     PT
     pybind11        "cmake/TPLs/"                                       ST
     Trilinos        "cmake/TPLs/"                                       PT
+    AceGENInterface "cmake/TPLs/FindTPLAceGENInterface.cmake"           PT
 )
 
 # NOTES:

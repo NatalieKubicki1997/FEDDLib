@@ -10,7 +10,6 @@
 #include <Xpetra_DefaultPlatform.hpp>
 #include "feddlib/problems/Solver/DAESolverInTime.hpp"
 
-
 /*!
  main of unsteadyLinearDiffusion problem
 
@@ -47,12 +46,20 @@ void oneFunc(double* x, double* res, double* parameters){
 }
 
 void zeroFunc(double* x, double* res, double* parameters){
+    res[0] = 0.;
+}
+
+
+void inflowChem(double* x, double* res, double t, const double* parameters)
+{
     res[0] = 1.;
+    
+    return;
 }
 
 void reactionFunc(double* x, double* res, double* parameters){
 	
-    double m = 10.;	
+    double m = 0.;	
     res[0] = m * x[0];
 
 }
@@ -112,6 +119,7 @@ int main(int argc, char *argv[]) {
 
         // Mesh
         int dim = parameterListProblem->sublist("Parameter").get("Dimension",2);
+        int level = parameterListProblem->sublist("Parameter").get("Refinement Level",2);
         int m = parameterListProblem->sublist("Parameter").get("H/h",5);
         std::string FEType = parameterListProblem->sublist("Parameter").get("Discretization","P1");
         std::string meshType = parameterListProblem->sublist("Parameter").get("Mesh Type","structured");
@@ -146,20 +154,7 @@ int main(int argc, char *argv[]) {
         
         partitionerP1.readAndPartition();
 
-        /*Teuchos::RCP<Domain<SC,LO,GO,NO> > domainRefined;
-		domainP1->initMeshRef(domainP1);
-			
-		domainRefined.reset( new Domain<SC,LO,GO,NO>( comm, dim ) );
-
-		for(int i=0; i< domainP1->getElementsC()->numberElements() ; i++)
-			domainP1->getElementsC()->getElement(i).tagForRefinement();
-
-
-		domainRefined->refineMesh(domainP1Array,0,true ,"keepRegularity"); // always use the P1 domain, P2 Domain has has lost its' edge (höhö)
-
-		domainP1 = domainRefined;*/
-	
-        if (FEType=="P2") {
+	if (FEType=="P2") {
             domainP2.reset( new Domain<SC,LO,GO,NO>( comm, dim ));
             domainP2->buildP2ofP1Domain( domainP1 );
             domain = domainP2;
@@ -173,25 +168,43 @@ int main(int argc, char *argv[]) {
         // ####################
         Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory(new BCBuilder<SC,LO,GO,NO>( ));
         
-        bcFactory->addBC(threeBC, 1, 0, domain, "Dirichlet", 1);
-        bcFactory->addBC(zeroBC, 4, 0, domain, "Dirichlet", 1);
-        bcFactory->addBC(zeroBC, 2, 0, domain, "Dirichlet", 1);
+        if(dim==3){
+       // bcFactory->addBC(threeBC, 1, 0, domain, "Dirichlet", 1);
+      // bcFactory->addBC(zeroBC, 4, 0, domain, "Dirichlet", 1);
+      //  bcFactory->addBC(zeroBC, 2, 0, domain, "Dirichlet", 1);
         //bcFactory->addBC(zeroBC, 3, 0, domain, "Dirichlet", 1);
-        
-        
+		bcFactory->addBC(inflowChem, 0, 0, domain, "Dirichlet", 1); // inflow of Chem
+		bcFactory->addBC(inflowChem, 1, 0, domain, "Dirichlet", 1); // inflow of Chem
+		bcFactory->addBC(inflowChem, 7, 0, domain, "Dirichlet", 1);            		
+		//bcFactory->addBC(zeroDirichlet, 8, 1, domainChem, "Dirichlet", 1);
+		bcFactory->addBC(inflowChem, 9, 0, domain, "Dirichlet", 1);
+		/*bcFactory->addBC(zeroDirichlet, 2, 1, domainChem, "Dirichlet", 1);
+		bcFactory->addBC(zeroDirichlet, 3, 1, domainChem, "Dirichlet", 1);            
+		bcFactory->addBC(zeroDirichlet, 4, 1, domainChem, "Dirichlet", 1);            
+		bcFactory->addBC(zeroDirichlet, 5, 1, domainChem, "Dirichlet", 1);            
+		// bcFactory->addBC(zeroDirichlet, 6, 1, domainChem, "Dirichlet", 1);            
+		*/
+		}
+		else if(dim==2){
+		bcFactory->addBC(inflowChem, 2, 0, domain, "Dirichlet", 1); // inflow of Chem
+		  		
+		
+		}
+	
         
 
-	    vec2D_dbl_Type diffusionTensor(dim,vec_dbl_Type(3));
-		for(int i=0; i<dim; i++){
-			diffusionTensor[0][0] =1;
-		    diffusionTensor[1][1] =1;
-			if(i>0){
-				diffusionTensor[i][i-1] = 0;
-				diffusionTensor[i-1][i] = 0;
-			}
-			else
-				diffusionTensor[i][i+1] = 0;				
-		}
+	    vec2D_dbl_Type diffusionTensor(dim,vec_dbl_Type(dim));
+        double D0 = parameterListAll->sublist("Parameter").get("D0",1.);
+        for(int i=0; i<dim; i++){
+            diffusionTensor[i][i] =D0;
+            if(i>0){
+                diffusionTensor[i][i-1] = 0;
+                diffusionTensor[i-1][i] = 0;
+            }
+            else
+                diffusionTensor[i][i+1] = 0;				
+        }
+ 
         DiffusionReaction<SC,LO,GO,NO> diffusionReaction(domain,FEType,parameterListAll, diffusionTensor,reactionFunc);
         {
        

@@ -9,7 +9,9 @@
         <ParameterList name="Preconditioner Types">
             <ParameterList name="FROSch">
                 <Parameter name="FROSch Preconditioner Type" type="string" value="TwoLevelBlockPreconditioner"/>
-                <Parameter name="Recycling" type="string" value="standard"/>
+
+                <Parameter name="Recycling" type="bool" value="false"/>
+
                 <Parameter name="DofsPerNode1" type="int" value="1"/>
                 <Parameter name="DofOrdering1" type="string" value="NodeWise"/>
                 <Parameter name="Overlap" type="int" value="1"/>
@@ -116,9 +118,13 @@
                 
                 <ParameterList name="GDSWCoarseOperator">
                     
+
+                    <Parameter name="Set Phi to PList" type="bool" value="true"/>
+
+
                     <Parameter name="Store Phi" type="bool" value="false"/>
                     <Parameter name="Compute Extensions" type="bool" value="false"/>
-                    
+
                     <Parameter name="Write phi and problem" type="bool" value="false"/>
                     <Parameter name="Write coarse matrix" type="bool" value="false"/>
 

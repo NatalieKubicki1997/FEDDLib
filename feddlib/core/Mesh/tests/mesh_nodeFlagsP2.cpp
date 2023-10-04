@@ -14,9 +14,7 @@
  Mesh Element Flags test
 
  @brief  Mesh Element Flags test
- @author Christian Hochmuth
  @version 1.0
- @copyright CH
  */
 
 
@@ -27,7 +25,7 @@ typedef unsigned UN;
 typedef double SC;
 typedef int LO;
 typedef default_go GO;
-typedef KokkosClassic::DefaultNode::DefaultNodeType NO;
+typedef Tpetra::KokkosClassic::DefaultNode::DefaultNodeType NO;
 using namespace FEDD;
 int main(int argc, char *argv[]) {
 
@@ -51,13 +49,14 @@ int main(int argc, char *argv[]) {
     Teuchos::CommandLineProcessor myCLP;
     string ulib_str = "Tpetra"; //this does nothing atm
     myCLP.setOption("ulib",&ulib_str,"Underlying lib");
-    string filename = "meshNodeTestP23D.mesh";
+    string filename = "meshNodeTestP23D_2.mesh";
     myCLP.setOption("file",&filename,"Mesh filename");
     int dim = 3;
     myCLP.setOption("dim",&dim,"Dimension");
     string delimiter = " ";
     myCLP.setOption("delimiter",&delimiter,"Delimiter in mesh-file");
-
+	int volumeID = 99;
+    myCLP.setOption("volumeID",&volumeID,"Volume ID");
     myCLP.recogniseAllOptions(true);
     myCLP.throwExceptions(false);
     Teuchos::CommandLineProcessor::EParseCommandLineReturn parseReturn = myCLP.parse(argc,argv);
@@ -70,7 +69,6 @@ int main(int argc, char *argv[]) {
     std::string FEType="P2";
     int numProcsCoarseSolve = 0;
     bool boolExportMesh = true;
-    int volumeID = 10;
 
     DomainPtr_Type domainP1;
     DomainPtr_Type domain;
@@ -86,7 +84,7 @@ int main(int argc, char *argv[]) {
 
     MeshPartitioner<SC,LO,GO,NO> partitionerP1 ( domainP1Array, pListPartitioner, "P1", dim );
     
-    partitionerP1.readAndPartition();
+    partitionerP1.readAndPartition(volumeID);
 
     domain.reset( new Domain_Type( comm, dim ) );
     domain->buildP2ofP1Domain( domainP1 );

@@ -50,9 +50,9 @@ SET(problems_specific_HEADERS
     specific/FSI_decl.hpp
     specific/FSI_def.hpp
     specific/FSI.hpp
-    specific/SCI_decl.hpp
-    specific/SCI_def.hpp
-    specific/SCI.hpp
+    #specific/SCI_decl.hpp
+    #specific/SCI_def.hpp
+    #specific/SCI.hpp
 CACHE INTERNAL "")
 
 SET(problems_specific_SOURCES
@@ -70,10 +70,10 @@ SET(problems_specific_SOURCES
     specific/NonLinElasticity.cpp
     specific/NonLinElasAssFE.cpp
     specific/NonLinTPM.cpp
-	specific/Stokes.cpp
+    specific/Stokes.cpp
     specific/TPM.cpp
     specific/FSI.cpp
-    specific/SCI.cpp
+    #specific/SCI.cpp
 CACHE INTERNAL "")
 
 

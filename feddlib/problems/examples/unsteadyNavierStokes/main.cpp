@@ -36,6 +36,14 @@ void zeroDirichlet2D(double* x, double* res, double t, const double* parameters)
     return;
 }
 
+void couette2D(double* x, double* res, double t, const double* parameters){
+
+    res[0] = 1.*parameters[0];
+    res[1] = 0.;
+
+    return;
+}
+
 void zeroDirichlet3D(double* x, double* res, double t, const double* parameters){
 
     res[0] = 0.;
@@ -241,6 +249,25 @@ int main(int argc, char *argv[]) {
                     domainPressure->buildMesh( 1,"Square", dim, feTypeP, n, m, numProcsCoarseSolve);
                     domainVelocity->buildMesh( 1,"Square", dim, feTypeV, n, m, numProcsCoarseSolve);
                 }
+                if (!meshType.compare("structured_bfs")) {
+                            TEUCHOS_TEST_FOR_EXCEPTION( size%minNumberSubdomains != 0 , std::logic_error, "Wrong number of processors for structured BFS mesh.");
+                            if (dim == 2) {
+                                n = (int) (std::pow( size/minNumberSubdomains ,1/2.) + 100*Teuchos::ScalarTraits<double>::eps()); // 1/H
+                                std::vector<double> x(2);
+                                x[0]=-1.0;    x[1]=-1.0;
+                                domainPressure.reset(new Domain<SC,LO,GO,NO>( x, length+1., 2., comm ) );
+                                domainVelocity.reset(new Domain<SC,LO,GO,NO>( x, length+1., 2., comm ) );
+                            }
+                            else if (dim == 3){
+                                n = (int) (std::pow( size/minNumberSubdomains ,1/3.) + 100*Teuchos::ScalarTraits<double>::eps()); // 1/H
+                                std::vector<double> x(3);
+                                x[0]=-1.0;    x[1]=0.0;    x[2]=-1.0;
+                                domainPressure.reset(new Domain<SC,LO,GO,NO>( x, length+1., 1., 2., comm));
+                                domainVelocity.reset(new Domain<SC,LO,GO,NO>( x, length+1., 1., 2., comm));
+                            }
+                            domainPressure->buildMesh( 2,"BFS", dim, feTypeP, n, m, numProcsCoarseSolve);
+                            domainVelocity->buildMesh( 2,"BFS", dim, feTypeV, n, m, numProcsCoarseSolve);
+                }
                 else if (!meshType.compare("unstructured")) {
                     domainPressure.reset( new Domain<SC,LO,GO,NO>( comm, dim ) );
                     domainVelocity.reset( new Domain<SC,LO,GO,NO>( comm, dim ) );
@@ -362,7 +389,7 @@ int main(int argc, char *argv[]) {
             // ####################
             Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory( new BCBuilder<SC,LO,GO,NO>( ) );
 
-            if (!bcType.compare("parabolic"))
+            if (!bcType.compare("parabolic") || !bcType.compare("Couette"))
                 parameter_vec.push_back(1.);//height of inflow region
             else if(!bcType.compare("parabolic_benchmark_sin") || !bcType.compare("parabolic_benchmark") || !bcType.compare("partialCFD"))
                 parameter_vec.push_back(.41);//height of inflow region
@@ -418,8 +445,15 @@ int main(int argc, char *argv[]) {
                 bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet_Z", dim);
                 bcFactory->addBC(zeroDirichlet3D, 5, 0, domainVelocity, "Dirichlet", dim);
 
-//                bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
 
+            }
+            else if (!bcType.compare("Couette")){
+              bcFactory->addBC(couette2D, 1, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+              bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim); // wall
+              //bcFactory->addBC(inflow3DRichter, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
+              //bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet_Z", dim);
+              //bcFactory->addBC(zeroDirichlet3D, 5, 0, domainVelocity, "Dirichlet", dim);
+            
             }
             
             int timeDisc = parameterListProblem->sublist("Timestepping Parameter").get("Butcher table",0);
