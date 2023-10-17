@@ -296,11 +296,6 @@ void NavierStokesAssFE<SC,LO,GO,NO>::reAssemble(std::string type) const {
     
 }
 
-/*template<class SC,class LO,class GO,class NO>
-void NavierStokesAssFE<SC,LO,GO,NO>::setVis(MultiVectorConstPtr_Type vis ) const
-{
-   visco_output_=const_cast vis;
-}*/
 
 
 
@@ -343,12 +338,13 @@ void NavierStokesAssFE<SC,LO,GO,NO>::calculateNonLinResidualVec(std::string type
 template<class SC,class LO,class GO,class NO>
 void NavierStokesAssFE<SC,LO,GO,NO>::computeViscosity_Solution() {
     
+
     MultiVectorConstPtr_Type u = this->solution_->getBlock(0); // solution_ is initialized in problem_def.hpp so the most general class
     u_rep_->importFromVector(u, true); // this is the current velocity solution at the nodes - distributed at the processors with repeated values
    
     MultiVectorConstPtr_Type p = this->solution_->getBlock(1);
     p_rep_->importFromVector(p, true);  // this is the current pressure solution at the nodes - distributed at the processors with repeated values
-   
+    
   
     viscosity_element_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getElementMap() ) );
     this->feFactory_->updateViscosityFE_CM(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->parameterList_);        

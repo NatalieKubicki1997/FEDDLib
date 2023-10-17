@@ -1132,7 +1132,7 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	problemDisk->push_back(pres);
 
 	if(assemblyFEElements_.size()== 0){
-        if(params->sublist("Parameter").get("Newtonian",true) == false)
+        if(params->sublist("Material").get("Newtonian",true) == false)
         {
 	 	    initAssembleFEElements("NavierStokesNonNewtonian",problemDisk,elements, params,pointsRep,domainVec_.at(FElocVel)->getElementMap()); // In cas of non Newtonian Fluid
             if(params->sublist("Material").get("Additional NeumannBoundaryIntegral",false) == true) // Only if we have stress-divergence formulation and want to include boundary integral at outlet

@@ -465,6 +465,7 @@ int main(int argc, char *argv[])
                 std::string nlSolverType = parameterListProblem->sublist("General").get("Linearization", "FixedPoint");
                 NonLinearSolver<SC, LO, GO, NO> nlSolverAssFE(nlSolverType);
                 nlSolverAssFE.solve(navierStokesAssFE); // jumps into NonLinearSolver_def.hpp
+
                 MAIN_TIMER_STOP(NavierStokesAssFE);
                 comm->barrier();
             }
@@ -482,6 +483,7 @@ int main(int argc, char *argv[])
                 Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaViscsoity(new ExporterParaView<SC, LO, GO, NO>());
                 DomainPtr_Type domV = domainVelocity;
                 // int nmbElementsGlob = domV->getMesh()->getNumElementsGlobal();
+
 
                 /*Viskosität berechnen auf Basis der berechnet Geschwindigkeitslösung*/
                 navierStokesAssFE.computeViscosity_Solution();

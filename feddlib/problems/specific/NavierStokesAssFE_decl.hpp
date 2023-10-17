@@ -101,7 +101,7 @@ public:
     
     virtual void computeValuesOfInterestAndExport() {};
 
-    // because we do not derive any further classes from NavierStokesAssFE I would not add virtual 
+    // Because we do not derive any further classes from NavierStokesAssFE I would not add virtual 
     void computeViscosity_Solution();
     void getViscosity_Solution();
 
