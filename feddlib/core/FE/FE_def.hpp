@@ -1398,15 +1398,11 @@ void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Ty
             // ################# END ####################
 
 
-
-             
-
+            // Determinant
             // We also need the determinant for the integral transformation later in 2D we consider the length change of the element
              det_L = std::sqrt( std::pow( (pointsRep->at(feSub.getNode(1)).at(0)- pointsRep->at(feSub.getNode(0)).at(0)) , 2.0) + std::pow( pointsRep->at(feSub.getNode(1)).at(1)- pointsRep->at(feSub.getNode(0)).at(1), 2.0) );
              assemblyFEElements_[T]->surfaceElement_MappingChangeInArea=det_L;
 
- 
-             
              // Compute Quadrature Values and Weights On Physical Surface Element
              QuadPts_Physical= Helper::getQuadratureValuesOnSurface(dim, FETypeVelocity, QuadW, nodeList_surfaceElement, pointsRep);
              assemblyFEElements_[T]->surfaceElement_QuadraturePointsPhysicalSpace.reset(new vec2D_dbl_Type(QuadPts_Physical.size(),vec_dbl_Type(dim,0.0)));

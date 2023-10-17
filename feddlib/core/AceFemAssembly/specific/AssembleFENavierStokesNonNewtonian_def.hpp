@@ -84,10 +84,10 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
     // Nonlinear advection term \rho (u \cdot \nabla) u 
     // As this class is derived from NavierStokes class we can call already implemented function
     //*************** ADVECTION************************
-	/*this->assemblyAdvection(elementMatrixNC);
+	this->assemblyAdvection(elementMatrixNC);
 	elementMatrixNC->scale(this->density_);
 	this->ANB_->add( (*elementMatrixNC),((*this->ANB_)));
-    */
+    
     // For a non-newtonian fluid we add additional element matrix and fill it with specific contribution
     // Remember that this term is based on the stress-divergence formulation of the momentum equation
     // \nabla \dot \tau with \tau=\eta(\gammaDot)(\nabla u + (\nabla u)^T)
@@ -103,8 +103,8 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
     if(this->linearization_ != "FixedPoint"){
 
 	    this->assemblyStressDev(elementMatrixW);     // stress tensor
-        //this->assemblyAdvectionInU(elementMatrixWC); // convection
-	    //elementMatrixWC->scale(this->density_);
+        this->assemblyAdvectionInU(elementMatrixWC); // convection
+	    elementMatrixWC->scale(this->density_);
         
         this->jacobian_->add((*elementMatrixW),(*this->jacobian_)); 
         this->jacobian_->add((*elementMatrixWC),(*this->jacobian_));  // int add(SmallMatrix<T> &bMat, SmallMatrix<T> &cMat); //this+B=C elementMatrix + constantMatrix_;
@@ -123,6 +123,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
       this->assemblyNeumannBoundaryTerm(elementMatrixNB);
       this->ANB_->add( (*elementMatrixNB),((*this->ANB_)));
 
+      // Newton converges also if unabled and also in same steps so we can also comment that out
       // If linearization is not FixdPoint (so NOX or Newton) we add the derivative to the Jacobian matrix. Otherwise the FixedPoint formulation becomes the jacobian.
       if(this->linearization_ != "FixedPoint")
       {
@@ -130,7 +131,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
 	    this->assemblyNeumannBoundaryTermDev(elementMatrixNBW); //
         this->jacobian_->add((*elementMatrixNBW),(*this->jacobian_));  
       }
-
+      
     }
 
 }
@@ -1107,10 +1108,10 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleRHS(){
 	this->ANB_->add( (*elementMatrixN),(*this->ANB_));
 
     // Nonlinear convection term *******************************
-    /*this->assemblyAdvection(elementMatrixNC);
+    this->assemblyAdvection(elementMatrixNC);
 	elementMatrixNC->scale(this->density_);
 	this->ANB_->add( (*elementMatrixNC),(*this->ANB_));
-    */
+    
     // If boundary element - nonlinear boundar term *******************************
     if (this->surfaceElement == true)
     {
@@ -1318,7 +1319,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeLocalViscosity()
     applyBTinv( dPhiAtCM, dPhiTransAtCM, Binv );    // we need transformation because of velocity gradient in shear rate equation
 
     vec_dbl_ptr_Type gammaDoti(new vec_dbl_Type( dPhiAtCM->size(),0.0)); // Only one value because size is one
-    computeShearRate(dPhiTransAtCM, gammaDoti, dim); // updates gammaDot using velcoity solution 
+    computeShearRate(dPhiTransAtCM, gammaDoti, dim); // updates gammaDot using velocity solution 
     this->materialModel->evaluateFunction(this->params_,  gammaDoti->at(0), this->solutionViscosity_.at(0));
     
 

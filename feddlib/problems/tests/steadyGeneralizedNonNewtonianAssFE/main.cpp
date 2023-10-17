@@ -489,7 +489,9 @@ int main(int argc, char *argv[])
                 navierStokesAssFE.computeViscosity_Solution();
                 navierStokesAssFE.getViscosity_Solution();
        
-                //**************** Write out viscosity ****************** so we need something from type multivector so this is not working because we can not access navierStokesAssFE.feFactory_->visco_output_->getBlock(0)
+                //**************** Write out viscosity ****************** 
+                //so we need something from type multivector so this is not working because we can not access
+                // navierStokesAssFE.feFactory_->visco_output_->getBlock(0)
                 Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionViscosityAssFE = navierStokesAssFE.viscosity_element_;
                 exParaViscsoity->setup("viscosity", domV->getMesh(), "P0");
                 exParaViscsoity->addVariable(exportSolutionViscosityAssFE, "viscosityAssFE", "Scalar", 1, domV->getElementMap());

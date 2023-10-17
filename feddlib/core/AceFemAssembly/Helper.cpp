@@ -1109,7 +1109,7 @@ vec2D_dbl_Type Helper::getQuadratureValuesOnSurface(int dim, std::string FEType,
 			QuadW[1] = 4.;
 			QuadW[2] = 1.;
             */ // This lead to not so good results mac
-             // Variables for computing gaussian-legendre-quadrature points on physical element edge
+             // Variables for computing Gaussian-legendre-quadrature points on physical element edge
              // For Degree 3! We need the quadrature points for intervall [0,1] and then we compute the
              // corresponding quadrature points for the physical element such that if we map back on 
              // the UNIT reference element we get the correct quadrature points BUT We still have to check if we are not on
