@@ -170,6 +170,7 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
 	this->system_->addBlock(B,1,0);
 	this->system_->addBlock(C,1,1);
 
+    //std::cout << "-- Debug Assembly constant matrices Navier-Stokes ... " << std::flush;
 
     // jumps inside FE_def.hpp in assemblyNavierStokes so in the general FE class
     // our AssembleMode is "Jacobian"

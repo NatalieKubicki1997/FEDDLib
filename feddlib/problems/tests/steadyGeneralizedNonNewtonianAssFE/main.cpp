@@ -20,7 +20,7 @@
 #include <Xpetra_DefaultPlatform.hpp>
 
 /*!
- Main of steady-state Creeping flow problem with Non-Newtonian stress tensor assumption
+ Main of steady-state Generalized Newtonian fluid flow problem with Non-Newtonian stress tensor assumption
  where we use e.g. Carreau Yasuda or Power law
 
  @brief steady-state Non-Newtonian creeping Flow main
@@ -133,17 +133,18 @@ void zeroDirichlet3D(double *x, double *res, double t, const double *parameters)
     return;
 }
 
-// For a 2D-Poiseulle-Flow of a Power-Law fluid with eta=K*gamma^(n-1) an analytical solution for the velocity field
-// can be derived depending on K, n, H and the pressure gradient dp/dx
-// So a simple test case for the generalized-Newtonian fluid solver is a 2D-Poiseuille Flow, prescribing the analytical velocity profile u(y) and 
-// checking if correct pressure gradient is recovered
+/*For a 2D-Poiseulle-Flow of a Power-Law fluid with eta=K*gamma^(n-1) an analytical solution for the velocity field
+  can be derived depending on K, n, H and the pressure gradient dp/dx
+  So a simple test case for the generalized-Newtonian fluid solver is a 2D-Poiseuille Flow, prescribing the analytical velocity profile u(y) and 
+  checking if correct pressure gradient is recovered
+*/ 
 void inflowPowerLaw2D(double *x, double *res, double t, const double *parameters)
 {
 
     double K = parameters[0]; // 0.0035;
     double n = parameters[1]; // 1.0; // For n=1.0 we have parabolic inflow profile (Newtonian case)
-    double H = parameters[2];
-    double dp = parameters[3];
+    double H = parameters[2]; // Height of Channel
+    double dp = parameters[3]; // dp/dx constant pressure gradient along channel
 
     // This corresponds to the analytical solution of a Poiseuille like flow for a Power-Law fluid
     res[0] = (n / (n + 1.0)) * pow(dp / (K), 1.0 / n) * (pow(H / (2.0), (n + 1.0) / n) - pow(abs((H / 2.0) - x[1]), (n + 1.0) / n));
@@ -152,6 +153,7 @@ void inflowPowerLaw2D(double *x, double *res, double t, const double *parameters
     return;
 }
 
+// Same as above but for inflow in y-direction
 void inflowPowerLaw2D_y(double *x, double *res, double t, const double *parameters)
 {
 
@@ -174,7 +176,6 @@ void inflowParabolicAverageVelocity2D(double *x, double *res, double t, const do
     double rho = 1050.0;
     double Re=1.0;
     double averageVelocity = (mu / (rho * H)) * Re;
-
     res[0] = 4 * (2 * averageVelocity) * ((x[1] - H) * H - pow(x[1] - H, 2)) / (H * H);
     res[1] = 0.;
 
@@ -394,7 +395,7 @@ int main(int argc, char *argv[])
 
             if (dim == 2)
             {
-                //** COUETTE FLOW Height Inflow
+                //*********** COUETTE FLOW  ***********
                 /*
                     // So for Couette Flow we have a moving upper plate and rigid lower plate
                         bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim); // wall
@@ -405,11 +406,9 @@ int main(int argc, char *argv[])
                     }
                  */
 
-                //** POISEUILLE FLOW - Rectangle Grid //**//**//**//**//**//**//**//**//**//**//**
-                // ROTATED GRID
+                //************* POISEUILLE FLOW  *************
                 bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                 // wall
                 bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);  // wall
-                                                                                                           // bcFactory->addBC(inflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet onex
                 bcFactory->addBC(inflowPowerLaw2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // original bc Inlet onex
 
                 // bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet onex
@@ -418,7 +417,7 @@ int main(int argc, char *argv[])
                 // bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
                 //bcFactory->addBC(zeroDirichlet, 3,  1, domainPressure, "Dirichlet", 1); //Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
 
-                //** Flow over step **************************************************************************/*
+                //********** BACKWARD FACING STEP FLOW *************************
                 /*
                 bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
                 bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
@@ -563,6 +562,8 @@ int main(int argc, char *argv[])
 
             //*********************************************************************************************************
             //*********************************************************************************************************
+            //*********************************************************************************************************
+            //*********************************************************************************************************
             //*********************  POST-PROCESSING - COMPARISON BETWEEN NON-NEWTONIAN POWER-LAW FLOW FOR n=1 with NAVIER STOKES SOLVER ***********************************
             if ((parameterListProblem->sublist("Material").get("compareNavierStokes", false)) == true && (parameterListProblem->sublist("Material").get("PowerLaw index n", 1.) == 1.) && (parameterListProblem->sublist("Material").get("ShearThinningModel", "") == "Power-Law"))
             {
@@ -697,8 +698,8 @@ int main(int argc, char *argv[])
                 */
             }
 
-
-
+            //*********************************************************************************************************
+            //*********************************************************************************************************
             //*********************************************************************************************************
             //*********************************************************************************************************
             //*********************  POST-PROCESSING - COMPARISON WITH OTHER MODEL FOR VISCOSITY

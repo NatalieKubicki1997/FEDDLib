@@ -1133,11 +1133,15 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 
 	if(assemblyFEElements_.size()== 0){
         if(params->sublist("Parameter").get("Newtonian",true) == false)
+        {
 	 	    initAssembleFEElements("NavierStokesNonNewtonian",problemDisk,elements, params,pointsRep,domainVec_.at(FElocVel)->getElementMap()); // In cas of non Newtonian Fluid
             if(params->sublist("Material").get("Additional NeumannBoundaryIntegral",false) == true) // Only if we have stress-divergence formulation and want to include boundary integral at outlet
                 setBoundaryFlagAssembleFEEElements(dim, elements,params, pointsRep, FETypeVelocity);
+        }
         else
+        {
         	initAssembleFEElements("NavierStokes",problemDisk,elements, params,pointsRep,domainVec_.at(FElocVel)->getElementMap());
+        }
     }
 	else if(assemblyFEElements_.size() != elements->numberElements())
 	     TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error, "Number Elements not the same as number assembleFE elements." );
