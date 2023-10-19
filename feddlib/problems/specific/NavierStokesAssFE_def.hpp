@@ -254,21 +254,15 @@ void NavierStokesAssFE<SC,LO,GO,NO>::reAssemble(std::string type) const {
     
     MatrixPtr_Type ANW = Teuchos::rcp(new Matrix_Type( this->getDomain(0)->getMapVecFieldUnique(), this->getDomain(0)->getDimension() * this->getDomain(0)->getApproxEntriesPerRow() ) );
 
-    MultiVectorConstPtr_Type u = this->solution_->getBlock(0); // solution_ is initialized in problem_def.hpp so the most general class
-    u_rep_->importFromVector(u, true); // this is the current velocity solution at the nodes
-   
+    MultiVectorConstPtr_Type u = this->solution_->getBlock(0);
+    u_rep_->importFromVector(u, true);
+
     MultiVectorConstPtr_Type p = this->solution_->getBlock(1);
     p_rep_->importFromVector(p, true);  // this is the current pressure solution at the nodes
    
 
    if (type=="Rhs") {
 
-        // For the nonlinear solver we update here our contributions
-        MultiVectorConstPtr_Type u = this->solution_->getBlock(0);
-        u_rep_->importFromVector(u, true);
-        MultiVectorConstPtr_Type p = this->solution_->getBlock(1);
-        p_rep_->importFromVector(p, true);  
-       
    		this->system_->addBlock(ANW,0,0);
 
         // jumps into FE_def.hpp because feFactory is an object of FE class
@@ -305,6 +299,17 @@ void NavierStokesAssFE<SC,LO,GO,NO>::calculateNonLinResidualVec(std::string type
 	//this->reAssemble("FixedPoint");
     this->reAssemble("Rhs"); // inside this file line 288 reAssemble
 
+    // We need to additionally add the residual component for the stabilization block, as it is not part of the AssembleFE routines and calculated externally here.
+    if(this->getDomain(0)->getFEType() == "P1"){
+
+        MultiVectorPtr_Type residualPressureTmp = Teuchos::rcp(new MultiVector_Type( this->getDomain(1)->getMapUnique() ));
+
+         this->system_->getBlock(1,1)->apply( *(this->solution_->getBlock(1)), *residualPressureTmp);
+           
+        this->residualVec_->getBlockNonConst(1)->update(1.,*residualPressureTmp,1.);
+
+
+    }
     // We need to account for different parameters of time discretizations here
     // This is ok for bdf with 1.0 scaling of the system. Would be wrong for Crank-Nicolson - might be ok now for CN
 
@@ -710,7 +715,7 @@ Teuchos::RCP<Thyra::PreconditionerBase<SC> > NavierStokesAssFE<SC,LO,GO,NO>::cre
         stokesTekoPrecUsed_ = false;
     }
     else{
-        this->setupPreconditioner( type ); //initializePreconditioner( type )
+        this->setupPreconditioner( type );
     }
 
     Teuchos::RCP<const Thyra::PreconditionerBase<SC> > thyraPrec =  this->getPreconditionerConst()->getThyraPrecConst();
