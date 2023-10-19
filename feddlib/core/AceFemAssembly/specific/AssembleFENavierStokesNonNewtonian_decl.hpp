@@ -136,6 +136,9 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 
 	void computeShearRate(vec3D_dbl_Type dPhiTrans, vec_dbl_ptr_Type& gammaDot, int dim);
 
+	virtual void set_LinearizationToNewton();
+	// bool* switchToNewton_; maybe it is better to proivde a pointer to the entry of problem.getParameterList()->sublist("General").get("SwitchToNewton",true); 
+
     DifferentiableFuncClassPtr_Type materialModel;
 
 	

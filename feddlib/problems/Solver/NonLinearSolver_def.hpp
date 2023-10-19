@@ -16,13 +16,21 @@ namespace FEDD {
 
 template<class SC,class LO,class GO,class NO>
 NonLinearSolver<SC,LO,GO,NO>::NonLinearSolver():
-type_("")
+type_(""),
+switch_solver(false)
 {}
 
 
 template<class SC,class LO,class GO,class NO>
 NonLinearSolver<SC,LO,GO,NO>::NonLinearSolver(string type):
-type_(type)
+type_(type),
+switch_solver(false)
+{}
+
+template<class SC,class LO,class GO,class NO>
+NonLinearSolver<SC,LO,GO,NO>::NonLinearSolver(string type, bool switch_newton):
+type_(type), 
+switch_solver(switch_newton)
 {}
 
 template<class SC,class LO,class GO,class NO>
@@ -33,16 +41,19 @@ NonLinearSolver<SC,LO,GO,NO>::~NonLinearSolver(){
 template<class SC,class LO,class GO,class NO>
 void NonLinearSolver<SC,LO,GO,NO>::solve(NonLinearProblem_Type &problem){
 
-    if (!type_.compare("FixedPoint")) {
+    if ( (!type_.compare("FixedPoint")) && switch_solver==false) {
         solveFixedPoint(problem);
     }
-    else if(!type_.compare("Newton")){
+    else if(!type_.compare("Newton") && switch_solver==false){
         solveNewton(problem);
     }
-    else if(!type_.compare("NOX")){
+    else if(!type_.compare("NOX")    && switch_solver==false){
 #ifdef FEDD_HAVE_NOX
         solveNOX(problem);
 #endif
+    }
+    else if (!type_.compare("FixedPoint") && switch_solver==true ) { // jump into switch condition
+        solveFixedPoint_SwitchNewton(problem);
     }
 
 }
@@ -270,6 +281,7 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNOX(TimeProblem_Type &problem, vec_dbl_p
 }
 #endif
 
+// This is nonlinear solver called for FixedPoint linearization for steady Problems
 template<class SC,class LO,class GO,class NO>
 void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(NonLinearProblem_Type &problem){
 
@@ -289,10 +301,10 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(NonLinearProblem_Type &proble
     double criterionValue = 1.;
     std::string criterion = problem.getParameterList()->sublist("Parameter").get("Criterion","Residual");
 
-    // here is now our nonlinear Iteration loop to solve the nonlinear problem iteratively
+    // Here is now our nonlinear Iteration loop to solve the nonlinear problem iteratively
     while ( nlIts < maxNonLinIts ) {
 
-        problem.calculateNonLinResidualVec("reverse");
+        problem.calculateNonLinResidualVec("reverse"); // Here we use updated solution to compute new jacobian/ rhs
 
         problem.setBoundariesSystem();
         
@@ -330,6 +342,83 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(NonLinearProblem_Type &proble
     }
     
 }
+
+
+
+
+
+// This is nonlinear solver called for FixedPoint linearization for steady Problems
+template<class SC,class LO,class GO,class NO>
+void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint_SwitchNewton(NonLinearProblem_Type &problem){
+
+    bool verbose = problem.getVerbose();
+    TEUCHOS_TEST_FOR_EXCEPTION(problem.getRhs()->getNumVectors()!=1,std::logic_error,"We need to change the code for numVectors>1.");
+    // -------
+    // fix point iteration
+    // -------
+    double	gmresIts = 0.;
+    double residual0 = 1.;
+    double residual = 1.;
+    
+    double tol = problem.getParameterList()->sublist("Parameter").get("relNonLinTol",1.0e-6);
+    int maxNonLinIts = problem.getParameterList()->sublist("Parameter").get("MaxNonLinIts",10);
+    int nlIts=0;
+    double linearization_ResidualTolerance_SwitchToNewton_ = problem.getParameterList()->sublist("General").get("Linearization_ResidualTolerance_SwitchToNewton",1.0e-1);  // 
+
+    //std::string 	type_;
+    double criterionValue = 1.;
+    std::string criterion = problem.getParameterList()->sublist("Parameter").get("Criterion","Residual");
+    std::string linearization_;
+    // Here is now our nonlinear Iteration loop to solve the nonlinear problem iteratively
+    while ( nlIts < maxNonLinIts ) {
+
+        if(criterionValue < linearization_ResidualTolerance_SwitchToNewton_) // So if our residual is smaller than our defined switch residual we set our linearization method to Newton
+        {
+            this->type_="Newton"; //now we will switch to Newton
+            problem.getParameterList()->sublist("General").set("SwitchToNewton",true);        
+            problem.getParameterList()->sublist("General").set("Linearization","Newton");  
+            //linearization_ = problem.getParameterList()->sublist("General").get("Linearization","FixedPoint"); // Information to assemble Jacobian accordingly
+        }
+        problem.calculateNonLinResidualVec("reverse"); // Here we use updated solution to compute new jacobian/ rhs
+
+        problem.setBoundariesSystem();
+        
+        if (criterion=="Residual")
+            residual = problem.calculateResidualNorm();
+        
+        if (nlIts==0)
+            residual0 = residual;
+    
+        if (criterion=="Residual"){
+            criterionValue = residual/residual0;
+            if (verbose)
+                cout << "###" << type_ <<":" << nlIts << "  relative nonlinear residual : " << criterionValue << endl;
+            if ( criterionValue < tol )
+                break;
+        }
+
+
+        gmresIts += problem.solveAndUpdate( criterion, criterionValue );
+        nlIts++;
+        if(criterion=="Update"){
+            if (verbose)
+                cout << "###" << type_ <<":" << nlIts << "  residual of update : " << criterionValue << endl;
+            if ( criterionValue < tol )
+                break;
+        }
+        // ####### end FPI #######
+    }
+
+    gmresIts/=nlIts;
+    if (verbose)
+        cout << "### Total FPI : " << nlIts << "  with average gmres its : " << gmresIts << endl;
+    if ( problem.getParameterList()->sublist("Parameter").get("Cancel MaxNonLinIts",false) ) {
+        TEUCHOS_TEST_FOR_EXCEPTION( nlIts == maxNonLinIts ,std::runtime_error,"Maximum nonlinear Iterations reached. Problem might have converged in the last step. Still we cancel here.");
+    }
+    
+}
+
+
 
 template<class SC,class LO,class GO,class NO>
 void NonLinearSolver<SC,LO,GO,NO>::solveNewton( NonLinearProblem_Type &problem ){
@@ -392,6 +481,7 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNewton( NonLinearProblem_Type &problem )
     }
 }
 
+// This is nonlinear solver called for FixedPoint linearization for unsteady Problems
 template<class SC,class LO,class GO,class NO>
 void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(TimeProblem_Type &problem, double time){
 

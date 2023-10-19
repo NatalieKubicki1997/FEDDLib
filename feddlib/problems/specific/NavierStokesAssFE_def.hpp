@@ -263,7 +263,7 @@ void NavierStokesAssFE<SC,LO,GO,NO>::reAssemble(std::string type) const {
 
    if (type=="Rhs") {
 
-        // das ist hier doch mit code oben redundant???
+        // For the nonlinear solver we update here our contributions
         MultiVectorConstPtr_Type u = this->solution_->getBlock(0);
         u_rep_->importFromVector(u, true);
         MultiVectorConstPtr_Type p = this->solution_->getBlock(1);

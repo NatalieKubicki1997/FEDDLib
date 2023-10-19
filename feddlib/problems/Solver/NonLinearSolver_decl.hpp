@@ -37,6 +37,8 @@ public:
     NonLinearSolver();
     
     NonLinearSolver(std::string type);
+
+    NonLinearSolver(std::string type, bool switch_newton); // constructor for switch case so if we want to switch from FixedPoint to Newton linearization
     
     ~NonLinearSolver();
     
@@ -54,6 +56,8 @@ private:
 #endif
     void solveFixedPoint(NonLinearProblem_Type& problem);
 
+    void solveFixedPoint_SwitchNewton(NonLinearProblem_Type& problem);
+
     void solveNewton(NonLinearProblem_Type& problem);
     
     void solveFixedPoint(TimeProblem_Type& problem, double time);
@@ -63,6 +67,7 @@ private:
     void solveExtrapolation(TimeProblem_Type& problem, double time);
     
     std::string 	type_;
+    bool switch_solver;
 
 	int nonLinearIts_ =0;
 

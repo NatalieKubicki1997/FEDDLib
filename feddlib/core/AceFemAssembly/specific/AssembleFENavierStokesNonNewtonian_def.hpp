@@ -37,11 +37,21 @@ AssembleFENavierStokes<SC,LO,GO,NO>(flag, nodesRefConfig, params,tuple)
 	}
 	else
     		TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "No specific implementation for your material model request. Valid are:Carreau-Yasuda, Power-Law, Dimless-Carreau");
+
+
+    // @TODO es wäre doch viel besser ein Pointer auf den Eintrag zu setzen der sich dann verändert??
+    // switchToNewton_ = this->params_->sublist("General").getPtr<bool*>("SwitchToNewton");
+    //this->params_->sublist("General").getPtr<bool*>("SwitchToNewton");
+    // switchToNewton_ = *(this->params_->sublist("General").getEntryRCP("SwitchToNewton"));
 }
 
 
 
-
+template <class SC, class LO, class GO, class NO>
+void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::set_LinearizationToNewton() {
+    //this->switchToNewton_=true;
+    this->linearization_ = "Newton";
+}
 
 
 template <class SC, class LO, class GO, class NO>
@@ -99,6 +109,14 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
     this->jacobian_.reset(new SmallMatrix_Type( this->dofsElementVelocity_+this->numNodesPressure_));
 	this->jacobian_->add((*this->ANB_),(*this->jacobian_));
 
+
+    // For improved convergence we could also specific in parametersProblem that
+    // linearization is first FixedPoint and after some iteration steps Newton is recovered
+    // Therefore check here if linearization before is FixedPoint and a switch happend -> than set for each element linearization to Newton
+    //if( (this->linearization_=="FixedPoint") && (problem.getParameterList()->sublist("General").get("SwitchToNewton",false)==true) )
+    // So we do not jump inside if our linearization is not FixedPoint or if it is but the switch case was not set
+    
+
     // If linearization is not FixdPoint (so NOX or Newton) we add the derivative to the Jacobian matrix. Otherwise the FixedPoint formulation becomes the jacobian.
     if(this->linearization_ != "FixedPoint"){
 
@@ -110,7 +128,8 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
         this->jacobian_->add((*elementMatrixWC),(*this->jacobian_));  // int add(SmallMatrix<T> &bMat, SmallMatrix<T> &cMat); //this+B=C elementMatrix + constantMatrix_;
     }
 	
-    //**************** BOUNDARY TERM *******************************+
+    //**************** BOUNDARY TERM *******************************
+    // Only reasonable for unstructured Mesh elements (triangles)
     // Because we have stress-divergence form of Navier-Stokes equations in the non-newtonian case
     // we have to add a extra boundary term to get the same outflow boundary condition as in the conventional formulation with
     // the laplacian operator in the equations due to the fact that in the stress-divergence formulation the
@@ -122,7 +141,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
       SmallMatrixPtr_Type elementMatrixNB =Teuchos::rcp( new SmallMatrix_Type( this->dofsElementVelocity_+this->numNodesPressure_));
       this->assemblyNeumannBoundaryTerm(elementMatrixNB);
       this->ANB_->add( (*elementMatrixNB),((*this->ANB_)));
-
+ 
       // Newton converges also if unabled and also in same steps so we can also comment that out
       // If linearization is not FixdPoint (so NOX or Newton) we add the derivative to the Jacobian matrix. Otherwise the FixedPoint formulation becomes the jacobian.
       if(this->linearization_ != "FixedPoint")
@@ -132,6 +151,9 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
         this->jacobian_->add((*elementMatrixNBW),(*this->jacobian_));  
       }
       
+   
+   
+   
     }
 
 }
@@ -694,10 +716,10 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTer
                         {
                             this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
 
-                            v11 = v11 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * this->surfaceElement_OutwardNormal[0] * (*phi)[w][i]); // xx contribution: 
-                            v12 = v12 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * this->surfaceElement_OutwardNormal[1] * (*phi)[w][i]); // xy contribution:  
-                            v21 = v21 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * this->surfaceElement_OutwardNormal[0] * (*phi)[w][i]); // yx contribution:  
-                            v22 = v22 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * this->surfaceElement_OutwardNormal[1] * (*phi)[w][i]); // yy contribution:                     
+                            v11 = v11 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * this->surfaceElement_OutwardNormal[0] * (*phi)[w][i]); // xx contribution: 
+                            v12 = v12 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * this->surfaceElement_OutwardNormal[1] * (*phi)[w][i]); // xy contribution:  
+                            v21 = v21 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * this->surfaceElement_OutwardNormal[0] * (*phi)[w][i]); // yx contribution:  
+                            v22 = v22 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * this->surfaceElement_OutwardNormal[1] * (*phi)[w][i]); // yy contribution:                     
                   
                         } // End loop over quadrature points
 
@@ -736,18 +758,18 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTer
                         {
                             this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
 
-                            v11 = v11 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * this->surfaceElement_OutwardNormal[0] * (*phi)[w][i]); // xx contribution: 
-                            v12 = v12 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * this->surfaceElement_OutwardNormal[1] * (*phi)[w][i]); // xy contribution: 
-                            v13 = v13 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * this->surfaceElement_OutwardNormal[2] * (*phi)[w][i]); // xz contribution:  
+                            v11 = v11 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * this->surfaceElement_OutwardNormal[0] * (*phi)[w][i]); // xx contribution: 
+                            v12 = v12 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * this->surfaceElement_OutwardNormal[1] * (*phi)[w][i]); // xy contribution: 
+                            v13 = v13 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * this->surfaceElement_OutwardNormal[2] * (*phi)[w][i]); // xz contribution:  
                              
                             
-                            v21 = v21 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * this->surfaceElement_OutwardNormal[0] * (*phi)[w][i]); // yx contribution:  
-                            v22 = v22 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * this->surfaceElement_OutwardNormal[1] * (*phi)[w][i]); // yy contribution:  
-                            v23 = v23 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * this->surfaceElement_OutwardNormal[2] * (*phi)[w][i]); // yz contribution:                     
+                            v21 = v21 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * this->surfaceElement_OutwardNormal[0] * (*phi)[w][i]); // yx contribution:  
+                            v22 = v22 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * this->surfaceElement_OutwardNormal[1] * (*phi)[w][i]); // yy contribution:  
+                            v23 = v23 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][1] * this->surfaceElement_OutwardNormal[2] * (*phi)[w][i]); // yz contribution:                     
                                      
-                            v31 = v31 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][2] * this->surfaceElement_OutwardNormal[0] * (*phi)[w][i]); // zx contribution:  
-                            v32 = v32 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][2] * this->surfaceElement_OutwardNormal[1] * (*phi)[w][i]); // zy contribution:  
-                            v33 = v33 + -1*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][2] * this->surfaceElement_OutwardNormal[2] * (*phi)[w][i]); // zz contribution:  
+                            v31 = v31 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][2] * this->surfaceElement_OutwardNormal[0] * (*phi)[w][i]); // zx contribution:  
+                            v32 = v32 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][2] * this->surfaceElement_OutwardNormal[1] * (*phi)[w][i]); // zy contribution:  
+                            v33 = v33 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][2] * this->surfaceElement_OutwardNormal[2] * (*phi)[w][i]); // zz contribution:  
 
                   
 
@@ -839,7 +861,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTer
             }
         }    
     }
-      // SO NOW WE HAVE TO CATCH THE CASE THAT IF WE PROJECTED ONTO THE DIAGONAL LINE WE HAVE TO MULTIPLY BY THE LENGTH SO SQRT(2)
+    // SO NOW WE HAVE TO CATCH THE CASE THAT IF WE PROJECTED ONTO THE DIAGONAL LINE WE HAVE TO MULTIPLY BY THE LENGTH SO SQRT(2)
     // HOW TO CHECK IF WE ARE ON THE DIAGONAL LINE? We check if the x and y component of a quafrature point a nonzero
     if (  QuadPts->at(0).at(0) != 0. && QuadPts->at(0).at(1) != 0.) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
     {

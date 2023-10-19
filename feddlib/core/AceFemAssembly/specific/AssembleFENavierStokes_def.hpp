@@ -50,8 +50,14 @@ AssembleFE<SC,LO,GO,NO>(flag, nodesRefConfig, params,tuple)
 	coeff[0][0]=1.; coeff[0][1] = 1.; coeff[1][0] = 1.; coeff[1][1] = 1.; // we keep it constant like this for now. For BDF time disc. okay.
 	coeff_ = coeff;
 
+
     linearization_ = this->params_->sublist("General").get("Linearization","FixedPoint"); // Information to assemble Jacobian accordingly
+
+
 }
+
+
+
 
 template <class SC, class LO, class GO, class NO>
 void AssembleFENavierStokes<SC,LO,GO,NO>::setCoeff(SmallMatrix_Type coeff) {
@@ -112,6 +118,7 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assembleJacobian() {
     }
 }
 
+
 template <class SC, class LO, class GO, class NO> // never jumps inside
 void AssembleFENavierStokes<SC,LO,GO,NO>::assembleFixedPoint() {
 
@@ -145,6 +152,7 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assembleFixedPoint() {
 	ANB_->add( (*elementMatrixN),(*ANB_));
 
 }
+
 
 
 template <class SC, class LO, class GO, class NO>

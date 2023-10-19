@@ -134,6 +134,17 @@ void Problem<SC,LO,GO,NO>::initializeProblem(int nmbVectors){
             
 }
 
+
+template<class SC,class LO,class GO,class NO>
+void Problem<SC,LO,GO,NO>::initializeProblem_fromStartSolution(int nmbVectors){
+    
+    this->system_.reset(new BlockMatrix_Type(1));
+    this->initializeVectors_fromStartSolution( nmbVectors );    
+            
+}
+
+
+
 template<class SC,class LO,class GO,class NO>
 void Problem<SC,LO,GO,NO>::addRhsFunction(RhsFunc_Type func){
     this->rhsFuncVec_.push_back(func);
@@ -452,6 +463,49 @@ Meine size ist also 2
         }
     }
 }
+
+
+/* HIER KOMMT REIN WAS ICH ÄNDERN MUSS UM STARTLÖSUNG EINZULESEN */
+template<class SC,class LO,class GO,class NO>
+void Problem<SC,LO,GO,NO>::initializeVectors_fromStartSolution(int nmbVectors){
+
+        UN size = domainPtr_vec_.size();
+        solution_.reset(new BlockMultiVector_Type(size));
+        rhs_.reset(new BlockMultiVector_Type(size));
+        sourceTerm_.reset(new BlockMultiVector_Type(size));
+        rhsFuncVec_.resize(size);
+
+/* Also mein BlockMultivector besteht im einfachen Fall von NS aus dem Geschwindigkeitsvektor v
+und dem Druck p, das heisst ich habe zwei Blöcke mit getBlock(0) greife ich auf den Geschwindigkeits-Block zu
+und mit getBlock(1) auf den Druck p  
+Meine size ist also 2
+*/
+
+    for (UN i=0; i<size; i++) {
+        // Für die geschwindigkeit v habe ich in der Regel 2-3 Dimension, daher ist es kein skalar sondern ein Vekotr 
+        if ( dofsPerNode_vec_[i] > 1 ){
+            MapConstPtr_Type map = domainPtr_vec_[i]->getMapVecFieldUnique(); // daher brauche ich hier die .. VEC funktion
+            MultiVectorPtr_Type solutionPart = Teuchos::rcp( new MultiVector_Type( map ) );
+            solution_->addBlock( solutionPart, i );
+            MultiVectorPtr_Type rhsPart = Teuchos::rcp( new MultiVector_Type( map ) );
+            rhs_->addBlock(rhsPart,i);
+            MultiVectorPtr_Type sourceTermPart = Teuchos::rcp( new MultiVector_Type( map ) );
+            sourceTerm_->addBlock(sourceTermPart,i);
+        }
+        else{
+            MapConstPtr_Type map = domainPtr_vec_[i]->getMapUnique();
+            MultiVectorPtr_Type solutionPart = Teuchos::rcp( new MultiVector_Type( map ) );
+            solution_->addBlock( solutionPart, i );
+            MultiVectorPtr_Type rhsPart = Teuchos::rcp( new MultiVector_Type( map ) );
+            rhs_->addBlock(rhsPart,i);
+            MultiVectorPtr_Type sourceTermPart = Teuchos::rcp( new MultiVector_Type( map ) );
+            sourceTerm_->addBlock(sourceTermPart,i);
+        }
+    }
+}
+
+
+
     template <class SC, class LO, class GO, class NO>
     typename Problem<SC, LO, GO, NO>::BlockMultiVectorPtr_Type Problem<SC, LO, GO, NO>::getRhs()
     {

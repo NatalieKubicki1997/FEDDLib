@@ -99,6 +99,8 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
 		            vec3D_dbl_Type& dPhiOut,
 		            SmallMatrix<SC>& Binv);
 
+	
+
 	//tuple_disk_vec_ptr_Type returnTuple(); /// @todo return tuple in case or check tuple
 
     /// @todo Why do we need dofs1_ and dofs2_ in the abstract class? I think, we should think about a general framework for this
@@ -130,7 +132,8 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
 
 	string linearization_;
 
-   private:
+
+	private:
 
 	
  };

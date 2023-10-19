@@ -151,6 +151,12 @@ public:
     
     void initializeVectors(int nmbVectors=1);
 
+    // For nonlinear problems converges can be improved/ ensured if
+    // start solution differs from 0 initial values everywhere
+    void initializeProblem_fromStartSolution(int nmbVectors=1);
+
+    void initializeVectors_fromStartSolution(int nmbVectors=1);
+
     BlockMultiVectorPtr_Type getRhs();
 
     BlockMultiVectorPtr_Type getRhs() const;

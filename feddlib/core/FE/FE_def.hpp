@@ -1155,9 +1155,15 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	resVecRep->addBlock(resVec_u,0);
 	resVecRep->addBlock(resVec_p,1);
 
+    bool switch_Newton = params->sublist("General").get("SwitchToNewton",false); 
 
+    // Das ist die Hauptassemblierungsschleife, wo über alle Elemente gegangen wird und die Elementmatrizen aufgestellt werden
 	for (UN T=0; T<assemblyFEElements_.size(); T++) {
-		vec_dbl_Type solution(0);
+		
+        //Check if we should switch to Newton // maybe it would be smart to set a global variabel
+        if (switch_Newton==true) assemblyFEElements_[T]->set_LinearizationToNewton();    
+    
+        vec_dbl_Type solution(0);
 
 		solution_u = getSolution(elements->getElement(T).getVectorNodeList(), u_rep,dofsVelocity);
 		solution_p = getSolution(elementsPres->getElement(T).getVectorNodeList(), p_rep,dofsPressure);
@@ -1277,6 +1283,8 @@ void FE<SC,LO,GO,NO>::updateViscosityFE_CM(int dim,
     // visco_output->getBlock(0)->getLocalLength(); this would give us the number of elements on each processor! SO NOT THE total number of elements
    
     // go over all elements to compute viscosity 
+    // Also ich teile meine Elemente (14 insgesamt) auf die (2) Prozessoren auf und jeder erhält demnach 7
+    // sodass wenn ich mir T ausgeben lasse: 0 0 1 1 2 2 ... 7 7
 	for (UN T=0; T<assemblyFEElements_.size(); T++) {
        
 		vec_dbl_Type solution(0);
@@ -1294,9 +1302,6 @@ void FE<SC,LO,GO,NO>::updateViscosityFE_CM(int dim,
         Teuchos::ArrayRCP<SC>  resArray_block = visco_output->getBlockNonConst(0)->getDataNonConst(0);
         resArray_block[T] = solution_viscosity[0]; // although it is a vector it only has one entry because we compute the value in the center of the element
           
-        // Also ich teile meine Elemente (14 insgesamt) auf die (2) Prozessoren auf und jeder erhält demnach 7
-        // sodass wenn ich mir T ausgeben lasse: 0 0 1 1 2 2 ... 7 7
-
 	} // end loop over all elements
     this->visco_output_= visco_output;
 
@@ -1455,7 +1460,7 @@ void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Ty
             // else do nothing because than it is already oriented in the outward direction
             assemblyFEElements_[T]->surfaceElement_OutwardNormal[0]=n_normalized[0];
             assemblyFEElements_[T]->surfaceElement_OutwardNormal[1]=n_normalized[1];
-            assemblyFEElements_[T]->surfaceElement_OutwardNormal[1]=n_normalized[3];
+            assemblyFEElements_[T]->surfaceElement_OutwardNormal[2]=n_normalized[2];
             // ################# END ####################
 
 

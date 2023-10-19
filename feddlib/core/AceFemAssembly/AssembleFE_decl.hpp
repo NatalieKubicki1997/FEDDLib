@@ -107,6 +107,13 @@ namespace FEDD {
         */
         vec_dbl_Type getViscositySolution() {return solutionViscosity_;};
 
+        /*
+        In case we want to switch from FixedPoint to Newton method during computation
+        */
+        virtual void set_LinearizationToNewton() {};
+
+
+
         /*!
          \brief Get the currently assembled element Jacobian matrix
          \return the element Jacobian matrix
