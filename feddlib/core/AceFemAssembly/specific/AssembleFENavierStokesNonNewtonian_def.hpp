@@ -41,7 +41,7 @@ AssembleFENavierStokes<SC,LO,GO,NO>(flag, nodesRefConfig, params,tuple)
 
     // @TODO es wäre doch viel besser ein Pointer auf den Eintrag zu setzen der sich dann verändert??
     // switchToNewton_ = this->params_->sublist("General").getPtr<bool*>("SwitchToNewton");
-    //this->params_->sublist("General").getPtr<bool*>("SwitchToNewton");
+    // this->params_->sublist("General").getPtr<bool*>("SwitchToNewton");
     // switchToNewton_ = *(this->params_->sublist("General").getEntryRCP("SwitchToNewton"));
 }
 
@@ -110,13 +110,6 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
 	this->jacobian_->add((*this->ANB_),(*this->jacobian_));
 
 
-    // For improved convergence we could also specific in parametersProblem that
-    // linearization is first FixedPoint and after some iteration steps Newton is recovered
-    // Therefore check here if linearization before is FixedPoint and a switch happend -> than set for each element linearization to Newton
-    //if( (this->linearization_=="FixedPoint") && (problem.getParameterList()->sublist("General").get("SwitchToNewton",false)==true) )
-    // So we do not jump inside if our linearization is not FixedPoint or if it is but the switch case was not set
-    
-
     // If linearization is not FixdPoint (so NOX or Newton) we add the derivative to the Jacobian matrix. Otherwise the FixedPoint formulation becomes the jacobian.
     if(this->linearization_ != "FixedPoint"){
 
@@ -146,9 +139,9 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assembleJacobian()
       // If linearization is not FixdPoint (so NOX or Newton) we add the derivative to the Jacobian matrix. Otherwise the FixedPoint formulation becomes the jacobian.
       if(this->linearization_ != "FixedPoint")
       {
-        SmallMatrixPtr_Type elementMatrixNBW =Teuchos::rcp( new SmallMatrix_Type( this->dofsElementVelocity_+this->numNodesPressure_));
-	    this->assemblyNeumannBoundaryTermDev(elementMatrixNBW); //
-        this->jacobian_->add((*elementMatrixNBW),(*this->jacobian_));  
+       SmallMatrixPtr_Type elementMatrixNBW =Teuchos::rcp( new SmallMatrix_Type( this->dofsElementVelocity_+this->numNodesPressure_));
+	   this->assemblyNeumannBoundaryTermDev(elementMatrixNBW); //
+       this->jacobian_->add((*elementMatrixNBW),(*this->jacobian_));  
       }
       
    
