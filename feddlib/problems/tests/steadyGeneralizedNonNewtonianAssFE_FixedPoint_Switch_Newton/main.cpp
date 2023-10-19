@@ -61,7 +61,7 @@ void zeroDirichlet2D_onlyY(double *x, double *res, double t, const double *param
 void couette2D(double *x, double *res, double t, const double *parameters)
 {
 
-    res[0] = parameters[0];
+    res[0] = parameters[4];
     res[1] = 0.;
 
     return;
@@ -325,6 +325,8 @@ int main(int argc, char *argv[])
         string meshDelimiter = parameterListProblem->sublist("Parameter").get("Mesh Delimiter", " ");
         int m = parameterListProblem->sublist("Parameter").get("H/h", 5);
         string linearization = parameterListProblem->sublist("General").get("Linearization", "FixedPoint");
+
+        bool linearization_SwitchToNewton_ = parameterListProblem->sublist("General").get("Linearization_SwitchToNewton",false);
         string precMethod = parameterListProblem->sublist("General").get("Preconditioner Method", "Monolithic");
         int mixedFPIts = parameterListProblem->sublist("General").get("MixedFPIts", 1);
         int n;
@@ -389,7 +391,7 @@ int main(int argc, char *argv[])
             // So parameter[0] is K, [1] is n
             parameter_vec.push_back(parameterListProblem->sublist("Parameter").get("Height Inflow", 1.));
             parameter_vec.push_back(parameterListProblem->sublist("Parameter").get("Constant Pressure Gradient", 1.));
-            parameter_vec.push_back(parameterListProblem->sublist("Parameter").get("Max Velocity", 1.));
+            parameter_vec.push_back(parameterListProblem->sublist("Parameter").get("MaxVelocity", 1.));
 
             Teuchos::RCP<BCBuilder<SC, LO, GO, NO>> bcFactory(new BCBuilder<SC, LO, GO, NO>());
 
@@ -409,7 +411,7 @@ int main(int argc, char *argv[])
                 //************* POISEUILLE FLOW  *************
                 bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                 // wall
                 bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);  // wall
-                bcFactory->addBC(inflowPowerLaw2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // original bc Inlet onex
+                bcFactory->addBC(couette2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // original bc Inlet onex
 
                 // bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet onex
 
@@ -463,7 +465,7 @@ int main(int argc, char *argv[])
                 navierStokesAssFE.setBoundariesRHS();
 
                 std::string nlSolverType = parameterListProblem->sublist("General").get("Linearization", "FixedPoint");
-                NonLinearSolver<SC, LO, GO, NO> nlSolverAssFE(nlSolverType);
+                NonLinearSolver<SC, LO, GO, NO> nlSolverAssFE(nlSolverType, linearization_SwitchToNewton_);
                 nlSolverAssFE.solve(navierStokesAssFE); // jumps into NonLinearSolver_def.hpp
 
                 MAIN_TIMER_STOP(NavierStokesAssFE);
