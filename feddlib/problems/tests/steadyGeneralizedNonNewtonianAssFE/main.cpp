@@ -153,7 +153,7 @@ void inflowPowerLaw2D(double *x, double *res, double t, const double *parameters
     return;
 }
 
-// Same as above but for inflow in y-direction
+//  Same as above but for inflow in y-direction
 void inflowPowerLaw2D_y(double *x, double *res, double t, const double *parameters)
 {
 
@@ -215,10 +215,11 @@ void inflowParabolic3D(double *x, double *res, double t, const double *parameter
     return;
 }
 
-void inflowParabolic3D_Old(double *x, double *res, double t, const double *parameters)
+void inflowParabolic3D_structured(double *x, double *res, double t, const double *parameters)
 {
+    // Dependent of height and max velocity!
     double H = parameters[2];
-    res[0] = 16 * parameters[0] * x[1] * (H - x[1]) * x[2] * (H - x[2]) / (H * H * H * H);
+    res[0] = 16 * parameters[4] * x[1] * (H - x[1]) * x[2] * (H - x[2]) / (H * H * H * H);
     res[1] = 0.;
     res[2] = 0.;
 
@@ -292,7 +293,7 @@ int main(int argc, char *argv[])
     string xmlTekoPrecFile = "parametersTeko.xml";
     myCLP.setOption("tekoprecfile", &xmlTekoPrecFile, ".xml file with Inputparameters.");
 
-    double length = 4.;
+    double length = 2.; // This a constant which has to be set for strcutured grids
     myCLP.setOption("length", &length, "length of domain.");
 
     myCLP.recogniseAllOptions(true);
@@ -356,32 +357,53 @@ int main(int argc, char *argv[])
             minNumberSubdomains = (int)2 * length + 1;
         }
 
-        int numProcsCoarseSolve = parameterListProblem->sublist("General").get("Mpi Ranks Coarse", 0);
+        int numProcsCoarseSolve = parameterListProblem->sublist("General").get("Mpi Ranks Coarse",0);
         int size = comm->getSize() - numProcsCoarseSolve;
 
-        // Inside we construct the mesh so define connectivities etc.
         {
             DomainPtr_Type domainPressure;
             DomainPtr_Type domainVelocity;
+                              
+           if (!meshType.compare("structured_bfs")) {
+                TEUCHOS_TEST_FOR_EXCEPTION( size%minNumberSubdomains != 0 , std::logic_error, "Wrong number of processors for structured BFS mesh.");
+                if (dim == 2) {
+                    n = (int) (std::pow( size/minNumberSubdomains ,1/2.) + 100*Teuchos::ScalarTraits<double>::eps()); // 1/H
+                    std::vector<double> x(2);
+                    x[0]=-1.0;    x[1]=-1.0;
+                    domainPressure.reset(new Domain<SC,LO,GO,NO>( x, length+1., 2., comm ) );
+                    domainVelocity.reset(new Domain<SC,LO,GO,NO>( x, length+1., 2., comm ) );
+                }
+                else if (dim == 3){
+                    n = (int) (std::pow( size/minNumberSubdomains ,1/3.) + 100*Teuchos::ScalarTraits<double>::eps()); // 1/H
+                    std::vector<double> x(3);
+                    x[0]=-1.0;    x[1]=0.0;    x[2]=-1.0;
+                    domainPressure.reset(new Domain<SC,LO,GO,NO>( x, length+1., 1., 2., comm));
+                    domainVelocity.reset(new Domain<SC,LO,GO,NO>( x, length+1., 1., 2., comm));
+                }
+                domainPressure->buildMesh( 2,"BFS", dim, discPressure, n, m, numProcsCoarseSolve);
+                domainVelocity->buildMesh( 2,"BFS", dim, discVelocity, n, m, numProcsCoarseSolve);
+            }
+	        else if (!meshType.compare("unstructured")) {
+	        
+	            domainPressure.reset( new Domain<SC,LO,GO,NO>( comm, dim ) );
+	            domainVelocity.reset( new Domain<SC,LO,GO,NO>( comm, dim ) );
+	            
+	            MeshPartitioner_Type::DomainPtrArray_Type domainP1Array(1);
+	            domainP1Array[0] = domainPressure;
+	            
+	            ParameterListPtr_Type pListPartitioner = sublist( parameterListProblem, "Mesh Partitioner" );
+	            MeshPartitioner<SC,LO,GO,NO> partitionerP1 ( domainP1Array, pListPartitioner, "P1", dim );
+	            
+	            partitionerP1.readAndPartition();
 
-            domainPressure.reset(new Domain<SC, LO, GO, NO>(comm, dim));
-            domainVelocity.reset(new Domain<SC, LO, GO, NO>(comm, dim));
-
-            MeshPartitioner_Type::DomainPtrArray_Type domainP1Array(1);
-            domainP1Array[0] = domainPressure;
-
-            ParameterListPtr_Type pListPartitioner = sublist(parameterListProblem, "Mesh Partitioner");
-            MeshPartitioner<SC, LO, GO, NO> partitionerP1(domainP1Array, pListPartitioner, "P1", dim);
-
-            partitionerP1.readAndPartition();
-
-            if (discVelocity == "P2")
-                domainVelocity->buildP2ofP1Domain(domainPressure); // jumps
-            else
-                domainVelocity = domainPressure;
+	            if (discVelocity=="P2")
+	                domainVelocity->buildP2ofP1Domain( domainPressure );
+	            else
+	                domainVelocity = domainPressure;
+	        }
+        
 
             //          **********************  BOUNDARY CONDITIONS ***********************************
-            std::string bcType = parameterListProblem->sublist("Parameter").get("BC Type", "parabolic");
             // We can here differentiate between different problem cases and boundary conditions
 
             /***** For boundary condition read parameter values */
@@ -394,11 +416,22 @@ int main(int argc, char *argv[])
             parameter_vec.push_back(parameterListProblem->sublist("Parameter").get("MaxVelocity", 1.));
 
             Teuchos::RCP<BCBuilder<SC, LO, GO, NO>> bcFactory(new BCBuilder<SC, LO, GO, NO>());
+            std::string bcType = parameterListProblem->sublist("Parameter").get("BC Type","parabolic");
 
-            if (dim == 2)
-            {
-                //*********** COUETTE FLOW  ***********
-                /*
+
+             if ( !bcType.compare("parabolic") && dim==3 ) {//flag of obstacle
+                    bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);
+                    bcFactory->addBC(inflowParabolic3D_structured, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
+//                        bcFactory->addBC(dummyFunc, 3, 0, domainVelocity, "Neumann", dim);
+//                        bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
+                    bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);    
+                }
+                else
+                {
+                  if (dim == 2)
+                  {
+                  //*********** COUETTE FLOW  ***********
+                  /*
                     // So for Couette Flow we have a moving upper plate and rigid lower plate
                         bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim); // wall
                         bcFactory->addBC(couette2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
@@ -406,40 +439,40 @@ int main(int argc, char *argv[])
                         bcFactory->addBC(zeroDirichlet2D, 3, 1, domainPressure, "Dirichlet", 1); // outflow
                         bcFactory->addBC(zeroDirichlet2D, 4, 1, domainPressure, "Dirichlet", 1); // inflow
                     }
-                 */
+                    */
 
-                //************* POISEUILLE FLOW  *************
-                bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                 // wall
-                bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);  // wall
-                bcFactory->addBC(couette2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // original bc Inlet onex
+                    //************* POISEUILLE FLOW  *************
+                    bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                 // wall
+                    bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);  // wall
+                    bcFactory->addBC(couette2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // original bc Inlet onex
 
-                // bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet onex
+                    // bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet onex
 
-                // For test 1x1, 2x2, 4x4 because else inflow is unsymmetric
-                // bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
-                //bcFactory->addBC(zeroDirichlet, 3,  1, domainPressure, "Dirichlet", 1); //Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
+                    // For test 1x1, 2x2, 4x4 because else inflow is unsymmetric
+                    // bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
+                    //bcFactory->addBC(zeroDirichlet, 3,  1, domainPressure, "Dirichlet", 1); //Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
 
-                //********** BACKWARD FACING STEP FLOW *************************
-                /*
-                bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
-                bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
-                bcFactory->addBC(zeroDirichlet2D, 3, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
-                bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
-                bcFactory->addBC(inflowParabolicAverageVelocity2D, 5, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet
-                */
-                // bcFactory->addBC(zeroDirichlet, , 1, domainPressure, "Dirichlet", 1); //Outflow
-                //  Ich muss irgendwo ein Druck Punkt festlegen bestimmt!!
-            }
-            else if (dim == 3)
-            {
-                bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);                  // upper
-                bcFactory->addBC(zeroDirichlet3D, 2, 0, domainVelocity, "Dirichlet", dim);                  // lower
-                bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim);                  // sides
-                bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);                  // sides
-                bcFactory->addBC(inflowParabolic3D, 6, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
-                bcFactory->addBC(zeroDirichlet, 5, 1, domainPressure, "Dirichlet", 1);                      // Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
-                // bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim); // lower
-                /*
+                   //********** BACKWARD FACING STEP FLOW *************************
+                   /*
+                   bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
+                   bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+                   bcFactory->addBC(zeroDirichlet2D, 3, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+                   bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+                   bcFactory->addBC(inflowParabolicAverageVelocity2D, 5, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet
+                   */
+                   // bcFactory->addBC(zeroDirichlet, , 1, domainPressure, "Dirichlet", 1); //Outflow
+                   //  Ich muss irgendwo ein Druck Punkt festlegen bestimmt!!
+                  }
+                 else if (dim == 3)
+                 {
+                  bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);                  // upper
+                  bcFactory->addBC(zeroDirichlet3D, 2, 0, domainVelocity, "Dirichlet", dim);                  // lower
+                  bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim);                  // sides
+                  bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);                  // sides
+                  bcFactory->addBC(inflowParabolic3D, 6, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
+                  bcFactory->addBC(zeroDirichlet, 5, 1, domainPressure, "Dirichlet", 1);                      // Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
+                  // bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim); // lower
+                  /*
                                 // If Pseudo-2D
                                 bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim); // upper
                                 bcFactory->addBC(zeroDirichlet3D, 2, 0, domainVelocity, "Dirichlet", dim); // lower
@@ -448,8 +481,9 @@ int main(int argc, char *argv[])
                                 bcFactory->addBC(inflowParabolic3D, 6, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
                                 bcFactory->addBC(zeroDirichlet, 5,  1, domainPressure, "Dirichlet", 1); //Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
                                // bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim); // lower
-                */
-            }
+                  */
+                 }
+               }
             //** Stenosis 2D **********************************************************************/*
 
 

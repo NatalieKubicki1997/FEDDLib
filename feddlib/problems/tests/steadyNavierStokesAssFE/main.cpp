@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
     string xmlTekoPrecFile = "parametersTeko.xml";
     myCLP.setOption("tekoprecfile",&xmlTekoPrecFile,".xml file with Inputparameters.");
 
-    double length = 4.;
+    double length = 1.;
     myCLP.setOption("length",&length,"length of domain.");
 
     myCLP.recogniseAllOptions(true);

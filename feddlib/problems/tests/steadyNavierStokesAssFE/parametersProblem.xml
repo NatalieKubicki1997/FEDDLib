@@ -6,7 +6,7 @@
         <Parameter name="Mesh Type" type="string" value="unstructured"/> <!--structured, unstructured -->
         <Parameter name="BC Type" type="string" value="partialCFD"/><!-- parabolic, parabolic_benchmark, partialCFD-->
         <Parameter name="Mesh Delimiter" type="string" value=" "/>
-		<Parameter name="H/h" type="int" value="1.0"/>
+		<Parameter name="H/h" type="int" value="2.0"/>
         <Parameter name="Symmetric gradient" type="bool" value="false"/>
         <Parameter name="Viscosity" type="double" value="1.0e-2"/> <!-- kinematic Viscosity-->
         <Parameter name="Density" type="double" value="1000"/>

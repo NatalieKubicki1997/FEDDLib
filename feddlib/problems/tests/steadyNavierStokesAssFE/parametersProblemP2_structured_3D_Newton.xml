@@ -7,7 +7,7 @@
         <Parameter name="BC Type" type="string" value="parabolic"/><!-- parabolic, parabolic_benchmark, partialCFD-->
         <Parameter name="Mesh Name" type="string" value="dfg_fsi_fluid_h004.mesh"/><!--dfg_fsi_fluid_h002.mesh, richter_3d_fluid_h0035.mesh -->
         <Parameter name="Mesh Delimiter" type="string" value=" "/>
-        <Parameter name="H/h" type="int" value="2"/>
+        <Parameter name="H/h" type="int" value="2.0"/>
         <Parameter name="Symmetric gradient" type="bool" value="false"/>
         <Parameter name="Viscosity" type="double" value="1.0e-2"/>
         <Parameter name="Density" type="double" value="1.0e-0"/>
