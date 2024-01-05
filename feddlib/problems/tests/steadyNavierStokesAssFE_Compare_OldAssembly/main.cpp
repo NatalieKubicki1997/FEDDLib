@@ -339,8 +339,7 @@ int main(int argc, char *argv[]) {
 			exPara->save(0.0);
 			// ---------------------
 			// Old Assembly Rouine
-        // Comment out as on Fritz cluster it requires to much memory
-        /*
+        
         
           	NavierStokes<SC,LO,GO,NO> navierStokes( domainVelocity, discVelocity, domainPressure, discPressure, parameterListAll );
 
@@ -360,7 +359,7 @@ int main(int argc, char *argv[]) {
 
             }
             
-        */
+
            	// ---------------------
 			// New Assembly Routine
        // /*
@@ -388,28 +387,164 @@ int main(int argc, char *argv[]) {
 				MAIN_TIMER_STOP(NavierStokesAssFE);	
                 comm->barrier();
             }
+ //*/
 			Teuchos::TimeMonitor::report(cout,"Main");	
        
 			Teuchos::RCP<ExporterParaView<SC,LO,GO,NO> > exParaVelocity(new ExporterParaView<SC,LO,GO,NO>());
             Teuchos::RCP<ExporterParaView<SC,LO,GO,NO> > exParaPressure(new ExporterParaView<SC,LO,GO,NO>());
 
+            Teuchos::RCP<const MultiVector<SC,LO,GO,NO> > exportSolutionV = navierStokes.getSolution()->getBlock(0);
+            Teuchos::RCP<const MultiVector<SC,LO,GO,NO> > exportSolutionP = navierStokes.getSolution()->getBlock(1);
+///*
             Teuchos::RCP<const MultiVector<SC,LO,GO,NO> > exportSolutionVAssFE = navierStokesAssFE.getSolution()->getBlock(0);
             Teuchos::RCP<const MultiVector<SC,LO,GO,NO> > exportSolutionPAssFE = navierStokesAssFE.getSolution()->getBlock(1);
 
 
+
+
+			// Calculating the error per node
+			Teuchos::RCP<MultiVector<SC,LO,GO,NO> > errorValues = Teuchos::rcp(new MultiVector<SC,LO,GO,NO>( navierStokes.getSolution()->getBlock(0)->getMap() ) ); 
+			//this = alpha*A + beta*B + gamma*this
+			errorValues->update( 1., exportSolutionV, -1. ,exportSolutionVAssFE, 0.);
+
+			// Taking abs norm
+			Teuchos::RCP<const MultiVector<SC,LO,GO,NO> > errorValuesAbs = errorValues;
+
+			errorValues->abs(errorValuesAbs);
+
+ 			Teuchos::Array<SC> norm(1); 
+    		errorValues->normInf(norm);//const Teuchos::ArrayView<typename Teuchos::ScalarTraits<SC>::magnitudeType> &norms);
+			double res = norm[0];
+			if(comm->getRank() ==0)
+				cout << " Inf Norm of Error of Solutions " << res << endl;
+			double twoNormError = res;
+
+			navierStokes.getSolution()->norm2(norm);
+			res = norm[0];
+			if(comm->getRank() ==0)
+				cout << " 2 rel. Norm of solution navier stokes " << twoNormError/res << endl;
+            double relativeError=twoNormError/res;
+
+			navierStokesAssFE.getSolution()->norm2(norm);
+			res = norm[0];
+			if(comm->getRank() ==0)
+				cout << " 2 rel. Norm of solutions navier stokes assemFE " << twoNormError/res << endl;
+
+			MatrixPtr_Type Sum2= Teuchos::rcp(new Matrix_Type( domainVelocity->getMapVecFieldUnique(), domainVelocity->getDimension() * domainVelocity->getApproxEntriesPerRow() )  );
+			navierStokes.getSystem()->getBlock(0,0)->addMatrix(1, Sum2, 1);
+			navierStokesAssFE.getSystem()->getBlock(0,0)->addMatrix(-1, Sum2, 1);
+
+			Teuchos::ArrayView<const GO> indices;
+			Teuchos::ArrayView<const SC> values;
+			res=0.;
+			for (UN i=0; i < domainVelocity->getMapUnique()->getMaxLocalIndex()+1 ; i++) {
+				for(int d=0; d< dim ; d++){
+					GO row = dim*domainVelocity->getMapUnique()->getGlobalElement( i )+d;
+					Sum2->getGlobalRowView(row, indices,values);
+					
+					for(int j=0; j< values.size() ; j++){
+						if(fabs(values[j])>res)
+							res = fabs(values[j]);			
+					}	
+				}	
+			}
+			res = fabs(res);
+			reduceAll<int, double> (*comm, REDUCE_MAX, res, outArg (res));
+           
+			if(comm->getRank() == 0)
+				cout << " Inf Norm of Difference between Block A: " << res << endl;
+
+            if(discVelocity=="P1"){
+            MatrixPtr_Type Sum3= Teuchos::rcp(new Matrix_Type( domainPressure->getMapUnique(), domainPressure->getDimension() * domainPressure->getApproxEntriesPerRow() )  );
+			navierStokes.getSystem()->getBlock(1,1)->addMatrix(1, Sum3, 1);
+			navierStokesAssFE.getSystem()->getBlock(1,1)->addMatrix(-1, Sum3, 1);
+			
+			res=0.;
+			for (UN i=0; i < domainPressure->getMapUnique()->getMaxLocalIndex()+1 ; i++) {
+				
+                GO row = domainPressure->getMapUnique()->getGlobalElement( i );
+                Sum3->getGlobalRowView(row, indices,values);
+                
+                for(int j=0; j< values.size() ; j++){
+                    if(fabs(values[j])>res)
+                        res = fabs(values[j]);			
+                }	
+            
+			}
+			res = fabs(res);
+			reduceAll<int, double> (*comm, REDUCE_MAX, res, outArg (res));
+           
+			if(comm->getRank() == 0)
+				cout << " Inf Norm of Difference between Block C: " << res << endl;
+            }
+			MatrixPtr_Type Sum1= Teuchos::rcp(new Matrix_Type( domainPressure->getMapUnique(), domainVelocity->getDimension() * domainVelocity->getApproxEntriesPerRow() )  );
+			navierStokes.getSystem()->getBlock(1,0)->addMatrix(1, Sum1, 1);
+			navierStokesAssFE.getSystem()->getBlock(1,0)->addMatrix(-1, Sum1, 1);
+
+			res=0.;
+			for (UN i=0; i < domainPressure->getMapUnique()->getMaxLocalIndex()+1 ; i++) {
+				GO row = domainPressure->getMapUnique()->getGlobalElement( i );
+				Sum1->getGlobalRowView(row, indices,values);
+				
+				for(int j=0; j< values.size() ; j++){
+					res += fabs(values[j]);			
+				}	
+			}	
+			
+			res = fabs(res);
+			reduceAll<int, double> (*comm, REDUCE_SUM, res, outArg (res));
+		
+			if(comm->getRank() == 0)
+				cout << " Norm of Difference between Block B: " << res << endl;
+
+            MatrixPtr_Type Sum4= Teuchos::rcp(new Matrix_Type( domainVelocity->getMapVecFieldUnique(), domainVelocity->getDimension() * domainVelocity->getApproxEntriesPerRow() )  );
+			navierStokes.getSystem()->getBlock(0,1)->addMatrix(1, Sum4, 1);
+			navierStokesAssFE.getSystem()->getBlock(0,1)->addMatrix(-1, Sum4, 1);
+
+			res=0.;
+			for (UN i=0; i < domainVelocity->getMapUnique()->getMaxLocalIndex()+1 ; i++) {
+				for(int d=0; d< dim ; d++){
+					GO row = dim*domainVelocity->getMapUnique()->getGlobalElement( i )+d;
+					Sum4->getGlobalRowView(row, indices,values);
+				
+                    for(int j=0; j< values.size() ; j++){
+                        res += fabs(values[j]);			
+                    }	
+                }
+			}	
+			
+			res = fabs(res);
+			reduceAll<int, double> (*comm, REDUCE_SUM, res, outArg (res));
+		
+			if(comm->getRank() == 0)
+				cout << " Norm of Difference between Block BT: " << res << endl;
+		  			
+//*/
             DomainPtr_Type dom = domainVelocity;
 
             exParaVelocity->setup("velocity", dom->getMesh(), dom->getFEType());
                                 
-            UN dofsPerNode = dim;       
+            UN dofsPerNode = dim;
+            exParaVelocity->addVariable(exportSolutionV, "u", "Vector", dofsPerNode, dom->getMapUnique());
+///*       
             exParaVelocity->addVariable(exportSolutionVAssFE, "uAssFE", "Vector", dofsPerNode, dom->getMapUnique());
+            exParaVelocity->addVariable(errorValuesAbs, "u-uAssFE", "Vector", dofsPerNode, dom->getMapUnique());
+//*/
             dom = domainPressure;
             exParaPressure->setup("pressure", dom->getMesh(), dom->getFEType());
+
+            exParaPressure->addVariable(exportSolutionP, "p", "Scalar", 1, dom->getMapUnique());
+ //*/
             exParaPressure->addVariable(exportSolutionPAssFE, "pAssFE", "Scalar", 1, dom->getMapUnique());
 
 
             exParaVelocity->save(0.0);
             exParaPressure->save(0.0); 
+
+
+           TEUCHOS_TEST_FOR_EXCEPTION( relativeError > 1e-12 , std::logic_error, "Relative Error between calculated solutions is too great. Exceeded 1e-12. ");
+
+			
             
         }
     }
