@@ -1,13 +1,13 @@
-#ifndef DIFFERENTIABLEFUNCCLASS_DEF_hpp
-#define DIFFERENTIABLEFUNCCLASS_DEF_hpp
+#ifndef TRAINEDMLMODELCLASS_DEF_hpp
+#define TRAINEDMLMODELCLASS_DEF_hpp
 
-#include "DifferentiableFuncClass_decl.hpp"
+#include "TrainedMLModelClass_decl.hpp"
 
 namespace FEDD {
 
 
 template <class SC, class LO, class GO, class NO>
-DifferentiableFuncClass<SC,LO,GO,NO>::DifferentiableFuncClass(ParameterListPtr_Type params):InputToOutputMappingClass<SC,LO,GO,NO>(params)
+TrainedMLModelClassClass<SC,LO,GO,NO>::TrainedMLModelClassClass(ParameterListPtr_Type params):InputToOutputMappingClass<SC,LO,GO,NO>(params)
 {
 
 	params_=params;

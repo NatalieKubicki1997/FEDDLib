@@ -77,7 +77,7 @@ void CarreauYasuda<SC,LO,GO,NO>::setParams(ParameterListPtr_Type params){
 
 
 template <class SC, class LO, class GO, class NO>
-void CarreauYasuda<SC,LO,GO,NO>::echoParams(){
+void CarreauYasuda<SC,LO,GO,NO>::echoInformationMapping(){
             std::cout << "************************************************************ "  <<std::endl;
             std::cout << "-- Chosen material model ..." << this->shearThinningModel_ << " --- "  <<std::endl;
             std::cout << "-- Specified material parameters:" <<std::endl;

@@ -1,5 +1,5 @@
-#ifndef DIFFERENTIABLEFUNCCLASS_DECL_hpp
-#define DIFFERENTIABLEFUNCCLASS_DECL_hpp
+#ifndef TRAINEDMLMODELCLASS_DECL_hpp
+#define TRAINEDMLMODELCLASS_DECL_hpp
 
 
 #include "feddlib/core/FEDDCore.hpp"
@@ -28,7 +28,7 @@ namespace FEDD {
     from the file and making them available.
     */
     template <class SC = default_sc, class LO = default_lo, class GO = default_go, class NO = default_no>
-    class DifferentiableFuncClass : public InputToOutputMappingClass<SC,LO,GO,NO> {
+    class TrainedMLModelClass : public InputToOutputMappingClass<SC,LO,GO,NO> {
     public:
 
         typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
@@ -58,31 +58,7 @@ namespace FEDD {
 
         // Additional pure virtual functions
         /*!
-         \brief Implements a functional description for evaluating res in dependence of given dependent variables and specified parameters
-                Here we overload the functional evaluation because we often can have the case that we have simple one dimensional function -
-                but remember that MANY functional evaluations can be costly so maybe it is computationally more performant to give one array as
-                an input and one array as an output
-         @param[in] params Parameterlist as read from the xml file (maybe redundant)
-         @param[in] x Independent variable
-         @param[in,out] res Dependent variable
-        */
-        virtual void evaluateFunction(ParameterListPtr_Type params, double x, double &res) = 0;
 
-        /*!
-         \brief Computes value of derivative of defined function in evaluateFunction
-         @param[in] params Parameterlist as read from the xml file (maybe redundant)
-         @param[in] x Independent variable
-         @param[in,out] res Dependent variable
-        */
-        virtual void evaluateDerivative(ParameterListPtr_Type params, double x, double &res) = 0;
-
-        /*!
-         \brief Computes value of derivative of defined function in evaluateFunction
-         @param[in] params Parameterlist as read from the xml file (maybe redundant)
-         @param[in] x Independent variable
-         @param[in,out] res Dependent variable
-        */
-        virtual void evaluateDerivative(ParameterListPtr_Type params, MultiVectorConstPtr_Type x, MultiVectorPtr_Type &res) = 0;
 
 
     protected:
@@ -91,7 +67,7 @@ namespace FEDD {
          \brief Constructor
          @param[in] params Parameterlist for current problem
         */
-        DifferentiableFuncClass(ParameterListPtr_Type parameters);
+        TrainedMLModelClass(ParameterListPtr_Type parameters);
 
 
         ParameterListPtr_Type params_;

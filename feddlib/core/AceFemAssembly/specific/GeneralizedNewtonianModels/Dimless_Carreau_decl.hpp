@@ -48,17 +48,48 @@ template <class SC = default_sc, class LO = default_lo, class GO = default_go, c
 class Dimless_Carreau : public DifferentiableFuncClass<SC,LO,GO,NO> {
   public:
 
-   /* typedef Matrix<SC,LO,GO,NO> Matrix_Type;
-    typedef Teuchos::RCP<Matrix_Type> MatrixPtr_Type;
 
-	typedef SmallMatrix<SC> SmallMatrix_Type;
-    typedef Teuchos::RCP<SmallMatrix_Type> SmallMatrixPtr_Type;
+        typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
+        typedef Teuchos::RCP<MultiVector_Type> MultiVectorPtr_Type;
+        typedef Teuchos::RCP<const MultiVector_Type> MultiVectorConstPtr_Type;
 
-	typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
-    typedef Teuchos::RCP<MultiVector_Type> MultiVectorPtr_Type;
-*/
 
 	typedef DifferentiableFuncClass<SC,LO,GO,NO> DifferentiableFuncClass_Type;
+
+
+        // Inherited Function from base abstract class 
+        /*!
+         \brief Implement a mapping description for evaluating output in dependence of given input and specified parameters
+         @param[in] params Parameterlist as read from the xml file (maybe redundant)
+         @param[in] x Independent variable
+         @param[in,out] res Dependent variable
+        */
+        virtual void evaluateFunction(ParameterListPtr_Type params, MultiVectorConstPtr_Type input, MultiVectorPtr_Type &output) override { TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Not yet implemented."); };
+       
+        /*!
+         \brief Each constitutive model includes different material parameters which will be specified in parametersProblem.xml
+                This function should set the specififc needed parameters for each model to the defined values.
+        @param[in] ParameterList as read from the xml file (maybe redundant)
+        */
+        virtual void setParams(ParameterListPtr_Type params) override;
+
+        /*!
+        \brief Print parameter values used in model at runtime
+        */
+        virtual void echoInformationMapping() override;
+
+
+   // Define functions abstract class DifferntiableFuncClass
+
+       // Define functions from base abstract class InputOutputMapping
+
+            /*!
+         \brief Computes value of derivative of defined function in evaluateFunction
+         @param[in] params Parameterlist as read from the xml file (maybe redundant)
+         @param[in] x Independent variable
+         @param[in,out] res Dependent variable
+        */
+       virtual void evaluateDerivative(ParameterListPtr_Type params, MultiVectorConstPtr_Type x, MultiVectorPtr_Type &res) override { TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Not yet implemented."); };
 
 
     /*!
@@ -67,7 +98,7 @@ class Dimless_Carreau : public DifferentiableFuncClass<SC,LO,GO,NO> {
          @param[in] shearRate scalar value of computed shear rate
          @param[in,out] viscosity value of viscosity
         */
-        virtual void evaluateFunction(ParameterListPtr_Type params, double shearRate, double &viscosity);
+         virtual void evaluateFunction(ParameterListPtr_Type params, double shearRate, double &viscosity) override;
 
   /*!
          \brief For Newton method and NOX we need additional term in Jacobian considering Gateaux-derivative of our functional formulation.
@@ -77,18 +108,12 @@ class Dimless_Carreau : public DifferentiableFuncClass<SC,LO,GO,NO> {
          @param[in] shearRate scalar value of computed shear rate
          @param[in,out] res scalar value of \frac{\partial \eta}{\partial \Dot{\gamma}} *  \frac{\partial  \Dot{\gamma}}{\partial \Pi}
         */
-      virtual void evaluateDerivative(ParameterListPtr_Type params, double shearRate, double &res);
+      virtual void evaluateDerivative(ParameterListPtr_Type params, double shearRate, double &res) override;
 
 
-        /*!
-         \brief Each constitutive model includes different material parameters which will be specified in parametersProblem.xml
-                This function should set the specififc needed parameters for each model to the defined values.
-        @param[in] ParameterList as read from the xml file (maybe redundant)
-        */
-        virtual void setParams(ParameterListPtr_Type params);
-      
 
         
+        // New Added Functions
         /*!
          \brief Get the current viscosity value
          \return the scalar value of viscosity
@@ -98,10 +123,6 @@ class Dimless_Carreau : public DifferentiableFuncClass<SC,LO,GO,NO> {
         //string getShearThinningModel() {return shearThinningModel_;};
         
 
-      /*!
-        \brief Print parameter values used in model at runtime
-        */
-        virtual void echoParams();
 
 
    // protected:
