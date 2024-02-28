@@ -5,9 +5,15 @@ SET(AceFemAssemblySpecific_HEADERS
 	AceFemAssembly/specific/AssembleFENavierStokes_decl.hpp
 	AceFemAssembly/specific/AssembleFENavierStokes_def.hpp
 	AceFemAssembly/specific/AssembleFENavierStokes.hpp
+	AceFemAssembly/specific/AssembleFEStokes_decl.hpp
+	AceFemAssembly/specific/AssembleFEStokes_def.hpp
+	AceFemAssembly/specific/AssembleFEStokes.hpp
 	AceFemAssembly/specific/AssembleFENavierStokesNonNewtonian_decl.hpp
 	AceFemAssembly/specific/AssembleFENavierStokesNonNewtonian_def.hpp
 	AceFemAssembly/specific/AssembleFENavierStokesNonNewtonian.hpp
+	AceFemAssembly/specific/AssembleFEStokesNonNewtonian_decl.hpp
+	AceFemAssembly/specific/AssembleFEStokesNonNewtonian_def.hpp
+	AceFemAssembly/specific/AssembleFEStokesNonNewtonian.hpp
 	AceFemAssembly/specific/AssembleFEAceLinElas_decl.hpp
 	AceFemAssembly/specific/AssembleFEAceLinElas_def.hpp
 	AceFemAssembly/specific/AssembleFEAceLinElas.hpp
@@ -28,7 +34,9 @@ CACHE INTERNAL "")
 SET(AceFemAssemblySpecific_SOURCES
 	AceFemAssembly/specific/AssembleFEAceLaplace.cpp
 	AceFemAssembly/specific/AssembleFENavierStokes.cpp
+	AceFemAssembly/specific/AssembleFEStokes.cpp
 	AceFemAssembly/specific/AssembleFENavierStokesNonNewtonian.cpp
+	AceFemAssembly/specific/AssembleFEStokesNonNewtonian.cpp
 	AceFemAssembly/specific/AssembleFEAceLinElas.cpp
 	AceFemAssembly/specific/AssembleFEAceNonLinElas.cpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda.cpp

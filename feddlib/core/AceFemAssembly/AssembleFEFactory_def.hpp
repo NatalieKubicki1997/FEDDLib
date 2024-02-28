@@ -28,8 +28,16 @@ typename AssembleFEFactory<SC,LO,GO,NO>::AssembleFEPtr_Type AssembleFEFactory<SC
 		Teuchos::RCP<AssembleFENavierStokes<SC,LO,GO,NO>> assembleFESpecific(new AssembleFENavierStokes<SC,LO,GO,NO>(flag,nodesRefConfig, params,tuple) );
 		assembleFE = assembleFESpecific;
 	}
+    else if(problemType == "Stokes"){
+		Teuchos::RCP<AssembleFEStokes<SC,LO,GO,NO>> assembleFESpecific(new AssembleFEStokes<SC,LO,GO,NO>(flag,nodesRefConfig, params,tuple) );
+		assembleFE = assembleFESpecific;
+	}
 	else if(problemType == "NavierStokesNonNewtonian"){ // we initialize it with nodesRefConfig
 		Teuchos::RCP<AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>> assembleFESpecific(new AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>(flag,nodesRefConfig, params,tuple) );
+		assembleFE = assembleFESpecific;
+	}
+	else if(problemType == "StokesNonNewtonian"){ // we initialize it with nodesRefConfig
+		Teuchos::RCP<AssembleFEStokesNonNewtonian<SC,LO,GO,NO>> assembleFESpecific(new AssembleFEStokesNonNewtonian<SC,LO,GO,NO>(flag,nodesRefConfig, params,tuple) );
 		assembleFE = assembleFESpecific;
 	}
 	else if(problemType == "LinearElasticity"){

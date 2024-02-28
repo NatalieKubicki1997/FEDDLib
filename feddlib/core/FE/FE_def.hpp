@@ -1132,13 +1132,27 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	if(assemblyFEElements_.size()== 0){
         if(params->sublist("Material").get("Newtonian",true) == false)
         {
+            if(params->sublist("Parameter").get("Stokes",false) == false)
+            {
 	 	    initAssembleFEElements("NavierStokesNonNewtonian",problemDisk,elements, params,pointsRep,domainVec_.at(FElocVel)->getElementMap()); // In cas of non Newtonian Fluid
+            }
+            else // if Stokes is true than we neglect convection term
+            {
+	 	    initAssembleFEElements("StokesNonNewtonian",problemDisk,elements, params,pointsRep,domainVec_.at(FElocVel)->getElementMap()); // In cas of non Newtonian Fluid
+            }
             if(params->sublist("Material").get("Additional NeumannBoundaryIntegral",false) == true) // Only if we have stress-divergence formulation and want to include boundary integral at outlet
                 setBoundaryFlagAssembleFEEElements(dim, elements,params, pointsRep, FETypeVelocity);
         }
         else
         {
+            if(params->sublist("Parameter").get("Stokes",false) == false)
+            {
         	initAssembleFEElements("NavierStokes",problemDisk,elements, params,pointsRep,domainVec_.at(FElocVel)->getElementMap());
+            }
+            else
+            {
+        	initAssembleFEElements("Stokes",problemDisk,elements, params,pointsRep,domainVec_.at(FElocVel)->getElementMap());
+            }
         }
     }
 	else if(assemblyFEElements_.size() != elements->numberElements())

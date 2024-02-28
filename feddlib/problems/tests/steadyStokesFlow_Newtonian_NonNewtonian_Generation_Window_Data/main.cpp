@@ -20,8 +20,10 @@
 #include <Xpetra_DefaultPlatform.hpp>
 
 /*!
- Main of steady-state Generalized Newtonian fluid flow problem with Non-Newtonian stress tensor assumption
- where we use e.g. Carreau Yasuda or Power law
+With these file we want to generate the training data for our toy problem where we want to train a machine learning based approach to learn from simplified macroscopic 
+simulations using a newtonian model to predict the corresponding non-newtonian viscosity 
+We want to learn this in terms of smaller windows 
+Run Newtonian and Non-Newtonian simulation under the same condition
 
  @brief steady-state Non-Newtonian creeping Flow main
  @author Natalie Kubicki
@@ -217,7 +219,6 @@ void inflowParabolic3D(double *x, double *res, double t, const double *parameter
 
 void inflowParabolic3D_structured(double *x, double *res, double t, const double *parameters)
 {
-    // Here Inlet lies in y-z plane and corners are (0,0) - (0,1) - (1,1) - (1,0)
     // Dependent of height and max velocity!
     double H = parameters[2];
     res[0] = 16 * parameters[4] * x[1] * (H - x[1]) * x[2] * (H - x[2]) / (H * H * H * H);
@@ -272,7 +273,7 @@ int main(int argc, char *argv[])
     if (verbose)
     {
         cout << "###############################################################" << endl;
-        cout << "##################### Steady Non-Newtonian Flow of Generalized Newtonian Fluid ####################" << endl;
+        cout << "##################### Steady Newtonian and  Generalized Newtonian Stokes Flow  ####################" << endl;
         cout << "###############################################################" << endl;
     }
 
@@ -283,7 +284,7 @@ int main(int argc, char *argv[])
     myCLP.setOption("problemfile", &xmlProblemFile, ".xml file with Inputparameters.");
 
     // So this we are reading in only if we want to compare with Newtonian solver
-    string xmlProblemFile2 = "parametersProblem_Model2.xml";
+    string xmlProblemFile2 = "parametersProblem_Newtonian.xml";
     myCLP.setOption("problemfile2", &xmlProblemFile2, ".xml file with Inputparameters.");
 
     string xmlPrecFile = "parametersPrec.xml";
@@ -445,7 +446,7 @@ int main(int argc, char *argv[])
                     //************* POISEUILLE FLOW  *************
                     bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                 // wall
                     bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);  // wall
-                    bcFactory->addBC(couette2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // original bc Inlet onex
+                    bcFactory->addBC(inflowParabolic2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // original bc Inlet onex
 
                     // bcFactory->addBC(onex, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); //original bc Inlet onex
 
@@ -466,35 +467,24 @@ int main(int argc, char *argv[])
                   }
                  else if (dim == 3)
                  {
-                  
-                  /*bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);                  // upper
+                  bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);                  // upper
                   bcFactory->addBC(zeroDirichlet3D, 2, 0, domainVelocity, "Dirichlet", dim);                  // lower
                   bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim);                  // sides
                   bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);                  // sides
                   bcFactory->addBC(inflowParabolic3D, 6, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
                   bcFactory->addBC(zeroDirichlet, 5, 1, domainPressure, "Dirichlet", 1);                      // Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
                   // bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim); // lower
-                  */
-                 bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);                  // walls
-                 bcFactory->addBC(constx3D, 3, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
 
-
-                  /*
-                   
-                                // If Pseudo-2D
-                                bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim); // upper
-                                bcFactory->addBC(zeroDirichlet3D, 2, 0, domainVelocity, "Dirichlet", dim); // lower
-                                bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim); // sides
-                                bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim); // sides
-                                bcFactory->addBC(inflowParabolic3D, 6, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
-                                bcFactory->addBC(zeroDirichlet, 5,  1, domainPressure, "Dirichlet", 1); //Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
-                               // bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim); // lower
-                  */
                  }
                }
             //** Stenosis 2D **********************************************************************/*
 
-
+                if (verbose)
+                {
+                    cout << "###############################################################" << endl;
+                    cout << "##################### Start Stokes Non Newtonian Solver ####################" << endl;
+                    cout << "###############################################################" << endl;
+                }
             //          **********************  CALL SOLVER ***********************************
             NavierStokesAssFE<SC, LO, GO, NO> navierStokesAssFE(domainVelocity, discVelocity, domainPressure, discPressure, parameterListAll);
 
@@ -516,6 +506,30 @@ int main(int argc, char *argv[])
 
             //          **********************  POST-PROCESSING ***********************************
             Teuchos::TimeMonitor::report(cout, "Main");
+
+
+            //****************************************************************************************
+            //****************************************************************************************
+            //          **********************  POST-PROCESSING - WRITE OUT VELOCITY AND PRESSURE ***********************************
+            Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaVelocity(new ExporterParaView<SC, LO, GO, NO>());
+            Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaPressure(new ExporterParaView<SC, LO, GO, NO>());
+
+            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionVAssFE = navierStokesAssFE.getSolution()->getBlock(0);
+            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionPAssFE = navierStokesAssFE.getSolution()->getBlock(1);
+
+            DomainPtr_Type dom = domainVelocity;
+            exParaVelocity->setup("velocity", dom->getMesh(), dom->getFEType());
+            UN dofsPerNode = dim;
+            exParaVelocity->addVariable(exportSolutionVAssFE, "uAssFE", "Vector", dofsPerNode, dom->getMapUnique());
+
+            dom = domainPressure;
+            exParaPressure->setup("pressure", dom->getMesh(), dom->getFEType());
+            exParaPressure->addVariable(exportSolutionPAssFE, "pAssFE", "Scalar", 1, dom->getMapUnique());
+
+             exParaVelocity->save(0.0);
+             exParaPressure->save(0.0);
+
+
 
             //****************************************************************************************
             //****************************************************************************************
@@ -540,85 +554,25 @@ int main(int argc, char *argv[])
                 exParaViscsoity->setup("viscosity", domV->getMesh(), "P0");
                 exParaViscsoity->addVariable(exportSolutionViscosityAssFE, "viscosityAssFE", "Scalar", 1, domV->getElementMap());
                 exParaViscsoity->save(0.0);
+
+    
             }
-
-            //****************************************************************************************
-            //****************************************************************************************
-            //          **********************  POST-PROCESSING - WRITE OUT VELOCITY AND PRESSURE ***********************************
-            Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaVelocity(new ExporterParaView<SC, LO, GO, NO>());
-            Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaPressure(new ExporterParaView<SC, LO, GO, NO>());
-
-            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionVAssFE = navierStokesAssFE.getSolution()->getBlock(0);
-            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionPAssFE = navierStokesAssFE.getSolution()->getBlock(1);
-
-            DomainPtr_Type dom = domainVelocity;
-            exParaVelocity->setup("velocity", dom->getMesh(), dom->getFEType());
-            UN dofsPerNode = dim;
-            exParaVelocity->addVariable(exportSolutionVAssFE, "uAssFE", "Vector", dofsPerNode, dom->getMapUnique());
-
-            dom = domainPressure;
-            exParaPressure->setup("pressure", dom->getMesh(), dom->getFEType());
-            exParaPressure->addVariable(exportSolutionPAssFE, "pAssFE", "Scalar", 1, dom->getMapUnique());
 
             exParaVelocity->save(0.0);
             exParaPressure->save(0.0);
 
 
-            //*************************** FLAGS *************************************
-            // Leas Code to obtain Flags in Paraview
-            Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaF(new ExporterParaView<SC, LO, GO, NO>());
-            Teuchos::RCP<MultiVector<SC, LO, GO, NO>> exportSolution(new MultiVector<SC, LO, GO, NO>(domainVelocity->getMapUnique()));
-            vec_int_ptr_Type BCFlags = domainVelocity->getBCFlagUnique();
-            Teuchos::ArrayRCP<SC> entries = exportSolution->getDataNonConst(0);
-            for (int i = 0; i < entries.size(); i++)
-            {
-                entries[i] = BCFlags->at(i);
-            }
-            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionConst = exportSolution;
-            exParaF->setup("Flags", domainVelocity->getMesh(), domainVelocity->getFEType());
-            exParaF->addVariable(exportSolutionConst, "Flags", "Scalar", 1, domainVelocity->getMapUnique(), domainVelocity->getMapUniqueP2());
-            exParaF->save(0.0);
-
-            //****************************************************************************************
-            //****************************************************************************************
-            //**********************  POST-PROCESSING - POSSIBILITY TO SCALE VELOCITY BY EG. MAX VELOCITY ***********************************
-            /*bool scaled = false;
-            if (scaled == true)
-            {
-                double H = 0.001;
-                double mu = 0.00345;
-                double rho = 1050.0;
-                double Re = 1.0;
-                double averageVelocity = (mu / (rho * H)) * Re;
-
-                Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaVelocityScaled(new ExporterParaView<SC, LO, GO, NO>());
-                Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionVAssScaledFE = navierStokesAssFE.getSolution()->getBlock(0);
-
-                dom = domainVelocity;
-
-                Teuchos::RCP<MultiVector<SC, LO, GO, NO>> velocityScaled = Teuchos::rcp(new MultiVector<SC, LO, GO, NO>(navierStokesAssFE.getSolution()->getBlock(0)->getMap()));
-
-                exParaVelocityScaled->setup("velocityScaled", dom->getMesh(), dom->getFEType());
-                velocityScaled->update(1. / (2 * averageVelocity), exportSolutionVAssFE, 0., exportSolutionVAssFE, 0.);
-
-                Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> velocityScaledC = velocityScaled;
-                exParaVelocityScaled->addVariable(velocityScaledC, "velocityScaled", "Vector", dofsPerNode, dom->getMapUnique());
-
-                exParaVelocityScaled->save(0.0);
-            }
-            */
 
             //*********************************************************************************************************
             //*********************************************************************************************************
             //*********************************************************************************************************
             //*********************************************************************************************************
-            //*********************  POST-PROCESSING - COMPARISON BETWEEN NON-NEWTONIAN POWER-LAW FLOW FOR n=1 with NAVIER STOKES SOLVER ***********************************
-            if ((parameterListProblem->sublist("Material").get("compareNavierStokes", false)) == true && (parameterListProblem->sublist("Material").get("PowerLaw index n", 1.) == 1.) && (parameterListProblem->sublist("Material").get("ShearThinningModel", "") == "Power-Law"))
-            {
+            //*********************  NETWONIAN STOKES SOLVER ***********************************
+
                 if (verbose)
                 {
                     cout << "###############################################################" << endl;
-                    cout << "##################### Start Navier-Stokes Newtonian Solver ####################" << endl;
+                    cout << "##################### Start Stokes Newtonian Solver ####################" << endl;
                     cout << "###############################################################" << endl;
                 }
 
@@ -642,272 +596,19 @@ int main(int argc, char *argv[])
                 Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionVAssFEModel2 = navierStokesAssFEModel2.getSolution()->getBlock(0);
                 Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionPAssFEModel2 = navierStokesAssFEModel2.getSolution()->getBlock(1);
                 dom = domainVelocity;
-                exParaVelocityModel2->setup("velocity_Newtonian_and_error", dom->getMesh(), dom->getFEType());
+                exParaVelocityModel2->setup("velocity_Newtonian", dom->getMesh(), dom->getFEType());
                 exParaVelocityModel2->addVariable(exportSolutionVAssFEModel2, "uAssFE_newtonian", "Vector", dofsPerNode, dom->getMapUnique());
 
                 dom = domainPressure;
-                exParaPressureModel2->setup("pressure_Newtonian_and_error", dom->getMesh(), dom->getFEType());
+                exParaPressureModel2->setup("pressure_Newtonian", dom->getMesh(), dom->getFEType());
                 exParaPressureModel2->addVariable(exportSolutionPAssFEModel2, "pAssFE_newtonian", "Scalar", 1, dom->getMapUnique());
 
-                // Compute error between Navier-Stokes Solver and Power-Law Solver (only reasonable if n=1 in Power-Law!)
-                // Calculating the error per node
-                Teuchos::RCP<MultiVector<SC, LO, GO, NO>> errorValues = Teuchos::rcp(new MultiVector<SC, LO, GO, NO>(navierStokesAssFE.getSolution()->getBlock(0)->getMap()));
-                // this = alpha*A + beta*B + gamma*this
-                errorValues->update(1., exportSolutionVAssFE, -1., exportSolutionVAssFEModel2, 0.);
-                // Taking abs norm
-                Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> errorValuesAbsV = errorValues;
-                errorValues->abs(errorValuesAbsV);
-                dom = domainVelocity;
-                exParaVelocityModel2->addVariable(errorValuesAbsV, "u_pl_u_n", "Vector", dofsPerNode, dom->getMapUnique());
-
-                // Calculating the error per node
-                Teuchos::RCP<MultiVector<SC, LO, GO, NO>> errorValuesP = Teuchos::rcp(new MultiVector<SC, LO, GO, NO>(navierStokesAssFE.getSolution()->getBlock(1)->getMap()));
-                // this = alpha*A + beta*B + gamma*this
-                errorValuesP->update(1., exportSolutionPAssFE, -1., exportSolutionPAssFEModel2, 0.);
-
-                // Taking abs norm
-                Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> errorValuesAbsP = errorValuesP;
-
-                errorValuesP->abs(errorValuesAbsP);
-                dom = domainPressure;
-                exParaPressureModel2->addVariable(errorValuesAbsP, "p_pl_p_n", "Scalar", 1, dom->getMapUnique());
-
                 exParaVelocityModel2->save(0.0);
                 exParaPressureModel2->save(0.0);
 
-                // Error comparison
-                Teuchos::Array<SC> norm(1);
-                errorValues->norm2(norm); // const Teuchos::ArrayView<typename Teuchos::ScalarTraits<SC>::magnitudeType> &norms);
-                double res = norm[0];
-                if (comm->getRank() == 0)
-                    cout << " Inf Norm of Error of Solutions:" << res << endl;
-                double twoNormError = res;
 
-                navierStokesAssFE.getSolution()->norm2(norm);
-                res = norm[0];
-                if (comm->getRank() == 0)
-                    cout << " 2 rel. Norm of solutions n=1 power law:" << twoNormError / res << endl;
-                navierStokesAssFEModel2.getSolution()->norm2(norm);
-                res = norm[0];
-                if (comm->getRank() == 0)
-                    cout << " 2 rel. Norm of solutions navier stokes assemFE:" << twoNormError / res << endl;
+            
 
-                // Get Block A
-                MatrixPtr_Type Sum2 = Teuchos::rcp(new Matrix_Type(domainVelocity->getMapVecFieldUnique(), domainVelocity->getDimension() * domainVelocity->getApproxEntriesPerRow()));
-                navierStokesAssFEModel2.getSystem()->getBlock(0, 0)->addMatrix(1, Sum2, 1);
-                navierStokesAssFE.getSystem()->getBlock(0, 0)->addMatrix(-1, Sum2, 1);
-                Teuchos::ArrayView<const GO> indices;
-                Teuchos::ArrayView<const SC> values;
-                res = 0.;
-                for (UN i = 0; i < domainVelocity->getMapUnique()->getMaxLocalIndex() + 1; i++)
-                {
-                    for (int d = 0; d < dim; d++)
-                    {
-                        GO row = dim * domainVelocity->getMapUnique()->getGlobalElement(i) + d;
-                        Sum2->getGlobalRowView(row, indices, values);
-
-                        for (int j = 0; j < values.size(); j++)
-                        {
-                            if (fabs(values[j]) > res)
-                                res = fabs(values[j]);
-                        }
-                    }
-                }
-                res = fabs(res);
-                reduceAll<int, double>(*comm, REDUCE_MAX, res, outArg(res));
-                if (comm->getRank() == 0)
-                    cout << "Inf Norm of Difference between Block A: " << res << endl;
-
-                // Get Block B
-                MatrixPtr_Type Sum1 = Teuchos::rcp(new Matrix_Type(domainPressure->getMapUnique(), domainVelocity->getDimension() * domainVelocity->getApproxEntriesPerRow()));
-                navierStokesAssFEModel2.getSystem()->getBlock(1, 0)->addMatrix(1, Sum1, 1);
-                navierStokesAssFE.getSystem()->getBlock(1, 0)->addMatrix(-1, Sum1, 1);
-                res = 0.;
-                for (UN i = 0; i < domainPressure->getMapUnique()->getMaxLocalIndex() + 1; i++)
-                {
-                    GO row = domainPressure->getMapUnique()->getGlobalElement(i);
-                    Sum1->getGlobalRowView(row, indices, values);
-                    for (int j = 0; j < values.size(); j++)
-                    {
-                        res += fabs(values[j]);
-                    }
-                }
-                res = fabs(res);
-                reduceAll<int, double>(*comm, REDUCE_SUM, res, outArg(res));
-                if (comm->getRank() == 0)
-                    cout << " Norm of Difference between Block B: " << res << endl;
-                /*
-                if(comm->getRank() == 0)
-                    cout << " Print A matrix ns solver: " << res << endl;
-                navierStokesAssFEModel2.getSystem()->getBlock(0,0)->print(Teuchos::VERB_EXTREME);
-                 if(comm->getRank() == 0)
-                    cout << " Print A matrix pl solver: " << res << endl;
-                navierStokesAssFE.getSystem()->getBlock(0,0)->print(Teuchos::VERB_EXTREME);
-                */
-            }
-
-            //*********************************************************************************************************
-            //*********************************************************************************************************
-            //*********************************************************************************************************
-            //*********************************************************************************************************
-            //*********************  POST-PROCESSING - COMPARISON WITH OTHER MODEL FOR VISCOSITY
-            if ((parameterListProblem->sublist("Material").get("compareOtherViscosityModel", false)) == true)
-            {
-                if (verbose)
-                {
-                    cout << "###############################################################" << endl;
-                    cout << "##################### Start Non-Newtonian Solver Comparison with Other Generalized Newtonian Model ####################" << endl;
-                    cout << "###############################################################" << endl;
-                }
-
-                NavierStokesAssFE<SC, LO, GO, NO> navierStokesAssFEModel2(domainVelocity, discVelocity, domainPressure, discPressure, parameterListAll2);
-                {
-                    MAIN_TIMER_START(NavierStokesAssFE, " AssFE:   Assemble System and solve");
-                    navierStokesAssFEModel2.addBoundaries(bcFactory);
-                    navierStokesAssFEModel2.initializeProblem();
-                    navierStokesAssFEModel2.assemble();
-                    navierStokesAssFEModel2.setBoundariesRHS();
-                    std::string nlSolverType = parameterListProblem->sublist("General").get("Linearization", "FixedPoint");
-                    NonLinearSolver<SC, LO, GO, NO> nlSolverAssFE(nlSolverType);
-                    nlSolverAssFE.solve(navierStokesAssFEModel2); // jumps into NonLinearSolver_def.hpp
-                    MAIN_TIMER_STOP(NavierStokesAssFE);
-                    comm->barrier();
-                }
-
-                // **********************  POST-PROCESSING NS Solver comparison ***********************************
-                Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaVelocityModel2(new ExporterParaView<SC, LO, GO, NO>());
-                Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaPressureModel2(new ExporterParaView<SC, LO, GO, NO>());
-                Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionVAssFEModel2 = navierStokesAssFEModel2.getSolution()->getBlock(0);
-                Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionPAssFEModel2 = navierStokesAssFEModel2.getSolution()->getBlock(1);
-                dom = domainVelocity;
-                exParaVelocityModel2->setup("velocity_Model2_and_error", dom->getMesh(), dom->getFEType());
-                exParaVelocityModel2->addVariable(exportSolutionVAssFEModel2, "uAssFE_Model2", "Vector", dofsPerNode, dom->getMapUnique());
-
-                dom = domainPressure;
-                exParaPressureModel2->setup("pressure_Model2_and_error", dom->getMesh(), dom->getFEType());
-                exParaPressureModel2->addVariable(exportSolutionPAssFEModel2, "pAssFE_Model2", "Scalar", 1, dom->getMapUnique());
-
-                // Compute difference between Non-Newtonian Solver with Model 1 and Solver with Model 2
-                // Calculating the error per node
-                Teuchos::RCP<MultiVector<SC, LO, GO, NO>> errorValues = Teuchos::rcp(new MultiVector<SC, LO, GO, NO>(navierStokesAssFE.getSolution()->getBlock(0)->getMap()));
-                // this = alpha*A + beta*B + gamma*this
-                errorValues->update(1., exportSolutionVAssFE, -1., exportSolutionVAssFEModel2, 0.);
-                // Taking abs norm
-                Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> errorValuesAbsV = errorValues;
-                errorValues->abs(errorValuesAbsV);
-                dom = domainVelocity;
-                exParaVelocityModel2->addVariable(errorValuesAbsV, "errAbs_u_m1_u_m2", "Vector", dofsPerNode, dom->getMapUnique());
-
-                // Calculating the error per node
-                Teuchos::RCP<MultiVector<SC, LO, GO, NO>> errorValuesP = Teuchos::rcp(new MultiVector<SC, LO, GO, NO>(navierStokesAssFE.getSolution()->getBlock(1)->getMap()));
-                // this = alpha*A + beta*B + gamma*this
-                errorValuesP->update(1., exportSolutionPAssFE, -1., exportSolutionPAssFEModel2, 0.);
-
-                // Taking abs norm
-                Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> errorValuesAbsP = errorValuesP;
-
-                errorValuesP->abs(errorValuesAbsP);
-                dom = domainPressure;
-                exParaPressureModel2->addVariable(errorValuesAbsP, "errAbs_p_m1_p_m2", "Scalar", 1, dom->getMapUnique());
-
-                exParaVelocityModel2->save(0.0);
-                exParaPressureModel2->save(0.0);
-
-                if ((parameterListProblem->sublist("Material").get("Newtonian", true) == false) && (parameterListProblem->sublist("Material").get("WriteOutViscosity", false)) == true)
-                {
-
-                    navierStokesAssFE.computeViscosity_Solution();
-                    navierStokesAssFE.getViscosity_Solution();
-                    Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionViscosityAssFE = navierStokesAssFE.viscosity_element_;
-
-                    // int nmbElementsGlob = domV->getMesh()->getNumElementsGlobal();
-
-                    Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaViscsoityModel2(new ExporterParaView<SC, LO, GO, NO>());
-                    DomainPtr_Type domV = domainVelocity;
-                    // Viskosität berechnen auf Basis der berechnet Geschwindigkeitslösung
-                    navierStokesAssFEModel2.computeViscosity_Solution();
-                    navierStokesAssFEModel2.getViscosity_Solution();
-                    // Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionViscosityAssFE = navierStokesAssFE.viscosity_element_;
-
-                    //**************** Write out viscosity ****************** so we need something from type multivector so this is not working because we can not access navierStokesAssFE.feFactory_->visco_output_->getBlock(0)
-                    Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionViscosityAssFEModel2 = navierStokesAssFEModel2.viscosity_element_;
-                    exParaViscsoityModel2->setup("viscosity_Model2_and_error", domV->getMesh(), "P0");
-                    exParaViscsoityModel2->addVariable(exportSolutionViscosityAssFEModel2, "viscosityAssFEModel2", "Scalar", 1, domV->getElementMap());
-                    
-                    // Compute also absolute error field between viscosity fields
-                    Teuchos::RCP<MultiVector<SC, LO, GO, NO>> errorValuesViscosity = Teuchos::rcp(new MultiVector<SC, LO, GO, NO>(exportSolutionViscosityAssFEModel2));
-                    // Teuchos::RCP<MultiVector<SC, LO, GO, NO>> errorValuesViscosity  = navierStokesAssFEModel2.viscosity_element_;
-                    errorValuesViscosity->update(1., exportSolutionViscosityAssFE, -1., exportSolutionViscosityAssFEModel2, 0.);
-                    // Taking abs norm
-                    Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> errorValuesAbsViscosity = errorValuesViscosity;
-                    errorValuesViscosity->abs(errorValuesAbsViscosity);
-                                 //dom = domainVelocity;
-                    exParaViscsoityModel2->addVariable(errorValuesAbsViscosity, "errAbs_eta_m1_eta_m2",  "Scalar", 1,  domV->getElementMap());
-                    exParaViscsoityModel2->save(0.0);
-                }
-
-                // Error comparison
-                Teuchos::Array<SC> norm(1);
-                errorValues->norm2(norm); // const Teuchos::ArrayView<typename Teuchos::ScalarTraits<SC>::magnitudeType> &norms);
-                double res = norm[0];
-                if (comm->getRank() == 0)
-                    cout << " Inf Norm of Error of Solutions:" << res << endl;
-                double twoNormError = res;
-
-                navierStokesAssFE.getSolution()->norm2(norm);
-                res = norm[0];
-                if (comm->getRank() == 0)
-                    cout << " 2 rel. Norm of solutions model 1:" << twoNormError / res << endl;
-                navierStokesAssFEModel2.getSolution()->norm2(norm);
-                res = norm[0];
-                if (comm->getRank() == 0)
-                    cout << " 2 rel. Norm of solutions model 2:" << twoNormError / res << endl;
-
-                // Get Block A
-                MatrixPtr_Type Sum2 = Teuchos::rcp(new Matrix_Type(domainVelocity->getMapVecFieldUnique(), domainVelocity->getDimension() * domainVelocity->getApproxEntriesPerRow()));
-                navierStokesAssFEModel2.getSystem()->getBlock(0, 0)->addMatrix(1, Sum2, 1);
-                navierStokesAssFE.getSystem()->getBlock(0, 0)->addMatrix(-1, Sum2, 1);
-                Teuchos::ArrayView<const GO> indices;
-                Teuchos::ArrayView<const SC> values;
-                res = 0.;
-                for (UN i = 0; i < domainVelocity->getMapUnique()->getMaxLocalIndex() + 1; i++)
-                {
-                    for (int d = 0; d < dim; d++)
-                    {
-                        GO row = dim * domainVelocity->getMapUnique()->getGlobalElement(i) + d;
-                        Sum2->getGlobalRowView(row, indices, values);
-
-                        for (int j = 0; j < values.size(); j++)
-                        {
-                            if (fabs(values[j]) > res)
-                                res = fabs(values[j]);
-                        }
-                    }
-                }
-                res = fabs(res);
-                reduceAll<int, double>(*comm, REDUCE_MAX, res, outArg(res));
-                if (comm->getRank() == 0)
-                    cout << "Inf Norm of Difference between Block A: " << res << endl;
-
-                // Get Block B
-                MatrixPtr_Type Sum1 = Teuchos::rcp(new Matrix_Type(domainPressure->getMapUnique(), domainVelocity->getDimension() * domainVelocity->getApproxEntriesPerRow()));
-                navierStokesAssFEModel2.getSystem()->getBlock(1, 0)->addMatrix(1, Sum1, 1);
-                navierStokesAssFE.getSystem()->getBlock(1, 0)->addMatrix(-1, Sum1, 1);
-                res = 0.;
-                for (UN i = 0; i < domainPressure->getMapUnique()->getMaxLocalIndex() + 1; i++)
-                {
-                    GO row = domainPressure->getMapUnique()->getGlobalElement(i);
-                    Sum1->getGlobalRowView(row, indices, values);
-                    for (int j = 0; j < values.size(); j++)
-                    {
-                        res += fabs(values[j]);
-                    }
-                }
-                res = fabs(res);
-                reduceAll<int, double>(*comm, REDUCE_SUM, res, outArg(res));
-                if (comm->getRank() == 0)
-                    cout << " Norm of Difference between Block B: " << res << endl;
-            }
         }
     }
     Teuchos::TimeMonitor::report(cout);

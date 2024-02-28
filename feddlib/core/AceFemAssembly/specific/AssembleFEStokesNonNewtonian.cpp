@@ -1,0 +1,9 @@
+#include "AssembleFEStokesNonNewtonian_decl.hpp"
+
+#ifdef HAVE_EXPLICIT_INSTANTIATION
+#include "AssembleFEStokesNonNewtonian_def.hpp"
+namespace FEDD {
+    template class AssembleFEStokesNonNewtonian<default_sc, default_lo, default_go, default_no>;
+}
+#endif  // HAVE_EXPLICIT_INSTANTIATION
+

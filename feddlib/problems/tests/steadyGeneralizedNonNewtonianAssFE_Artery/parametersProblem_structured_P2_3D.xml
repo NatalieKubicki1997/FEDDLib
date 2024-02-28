@@ -1,19 +1,19 @@
 <!-- Problem specific parameters like e.g. dimension, FE type -->
 <ParameterList name="Problem">
     <ParameterList name="Parameter">
-        <Parameter name="Dimension" type="int" value="2"/>
+        <Parameter name="Dimension" type="int" value="3"/>
         <Parameter name="Discretization Velocity" type="string" value="P2"/><!--P1, P2; velocity -->
         <Parameter name="Discretization Pressure" type="string" value="P1"/>
-        <Parameter name="Mesh Type" type="string" value="unstructured"/> <!--structured, unstructured -->
-        <Parameter name="BC Type" type="string"   value="partialCFD"/><!-- parabolic, parabolic_benchmark, partialCFD, parabolic_benchmark_sin-->
+        <Parameter name="Mesh Type" type="string" value="structured"/> <!--structured, unstructured -->
+        <Parameter name="BC Type" type="string"   value="parabolic"/><!-- parabolic, parabolic_benchmark, partialCFD, parabolic_benchmark_sin-->
         <Parameter name="Mesh Delimiter" type="string" value=" "/>
-        <Parameter name="Viscosity" type="double" value="0.0000035"/> <!-- kinematic Viscosity-->
+        <Parameter name="Viscosity" type="double" value="0.000035"/> <!-- kinematic Viscosity of blood-->
         <Parameter name="Density" type="double" value="1000.0"/>
         
-        <Parameter name="H/h" type="int" value="3"/>
+        <Parameter name="H/h" type="int" value="2"/>
         <Parameter name="MaxVelocity" type="double" value="1.5"/>
         <Parameter name="MeanVelocity"  type="double" value="1.0"/>
-        <Parameter name="Height Inflow"  type="double" value="0.1"/>
+        <Parameter name="Height Inflow"  type="double" value="1.0"/> <!-- For structured bfs grid height of inflow region-->
         <Parameter name="Constant Pressure Gradient" type="double" value="10.0"/>
         
         <Parameter name="relNonLinTol" type="double" value="1.0e-4"/> <!-- -4 -->
@@ -24,7 +24,7 @@
         <Parameter name="Use rel tol" type="bool" value="true"/>
         <Parameter name="Use abs tol" type="bool" value="false"/>
         <Parameter name="Use WRMS" type="bool" value="false"/>
-        
+        <Parameter name="Myeps" type="double" value="1.0e-14"/>
         <Parameter name="MaxNonLinIts" type="int" value="20"/>
         <Parameter name="Cancel MaxNonLinIts" type="bool" value="false"/>
         <Parameter name="Symmetric gradient" type="bool" value="false"/>
@@ -38,10 +38,8 @@
     <!-- Material specific parameters like e.g. Newtonian fluid, Carreau-Yasuda model and corresponding parameters -->
     <ParameterList name="Material">    
         <Parameter name="Newtonian" type="bool" value="false"/> <!-- If false than User has to set below one of the ShearThinning Models and define parameters -->
-        <Parameter name="compareNavierStokes" type="bool" value="true"/> <!-- Compare to Navier-Stokes Solver for Newtonian Fluid -->  
-
-        <Parameter name="ShearThinningModel" type="string" value="Power-Law"/> <!-- Power-Law, Carreau-Yasuda, Dimensionless Carreau-Model  -->
-        <Parameter name="WriteOutViscosity" type="bool" value="true"/> <!-- If material is non-newtonian and this variable is set true the viscosity is computed in one element in the center of mass and written out in paraview format -->  
+        <Parameter name="ShearThinningModel" type="string" value="Carreau-Yasuda"/> <!-- Power-Law, Carreau-Yasuda, Dimensionless Carreau-Model  -->
+        <Parameter name="WriteOutViscosity" type="bool" value="false"/> <!-- If material is non-newtonian and this variable is set true the viscosity is computed in one element in the center of mass and written out in paraview format -->  
         
         
         
@@ -51,16 +49,16 @@
        
         
 	<!--********************FOR CHOSEN MODEL USER HAS TO SET MATERIAL PARAMETERS BELOW**************************-->
-	     <Parameter name="Numerical_ZeroValue_ShearRate" type="double" value="1.0e-12"/> <!-- Independent of the model we have to ensure that IF the shear rate is in the denominator of an term (for example in the Gateaux-derivatives) than we should not divide by zero but instead set shear rate to a really small value -->
-    <!-- ALL VARIABLES ARE IN SI UNITS WHICH ARE WRITTEN AS COMMENT BEYOND THE PHSICAL QUANTITY -->	
+	     <Parameter name="Numerical_ZeroValue_ShearRate" type="double" value="1.0e-9"/> <!-- Independent of the model we have to ensure that IF the shear rate is in the denominator of an term (for example in the Gateaux-derivatives) than we should not divide by zero but instead set shear rate to a really small value -->
+<!-- ALL VARIABLES ARE IN SI UNITS WHICH ARE WRITTEN AS COMMENT BEYOND THE PHSICAL QUANTITY -->	
 
 
 	<!-- Power Law assumes for the viscosity eta the functional form \eta(\gamma) = K \gamma^(n-1) -->
         <!-- For n=1 we have Newtonian Fluid with constant viscosity corresponding to the value of K-->
-        <Parameter name="PowerLawParameter K" type="double" value="0.0035"/>
-        <Parameter name="PowerLaw index n" type="double" value="1.0"/> <!-- for n<1 we have shear thinning behaviour 0.61 !!! funktioniert--> 
-        <!-- In Power-Law model the viscosity could be unphysically zero or infinity for high or low shear rates therefore we have to catch these cases by defining max and min values for viscosity which we will name as Numerical_xxx value-->
-        <Parameter name="Numerical_InftyShearRateViscosity" type="double" value="0.0000000001"/>
+        <Parameter name="PowerLawParameter K" type="double" value="0.035"/>
+        <Parameter name="PowerLaw index n" type="double" value="0.6"/> <!-- for n<1 we have shear thinning behaviour 0.61 !!! funktioniert--> 
+        <!-- In Power-Law model the viscosity could be unphyisically zero or infinity for high or low shear rates therefore we have to catch these cases by defining max and min values for viscosity which we will name as Numerical_xxx value-->
+        <Parameter name="Numerical_InftyShearRateViscosity" type="double" value="0.0000001"/>
 	    <Parameter name="Numerical_ZeroShearRateViscosity" type="double" value="0.35"/> <!-- lower , higher? -->
 		
 	<!-- Carreau Yasuda assumes for the viscosity eta the functional form \eta(\gamma) = \eta_{\infty} + (\eta_0 - \eta_{\infty})*( (  1+(\lambda*\gamma)^a  )^((n-1)/a)   ) -->

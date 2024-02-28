@@ -15,8 +15,8 @@
         <Parameter name="FSI" type="bool" value="true"/>
         <Parameter name="Geometry Explicit" type="bool" value="true"/>
         
-        <Parameter name="relNonLinTol" type="double" value="1.0e-6"/>
-        <Parameter name="absNonLinTol" type="double" value="1.0e-2"/>
+        <Parameter name="relNonLinTol" type="double" value="1.0e-4"/>
+        <Parameter name="absNonLinTol" type="double" value="1.0e-4"/>
         <Parameter name="updateTol" type="double" value="1.0e-6"/>
         <Parameter name="Combo" type="string" value="AND"/>
         <Parameter name="Use update tol" type="bool" value="true"/>

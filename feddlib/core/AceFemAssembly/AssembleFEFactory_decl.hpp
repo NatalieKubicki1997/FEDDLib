@@ -10,6 +10,8 @@
 #include "feddlib/core/AceFemAssembly/specific/AssembleFEAceNonLinElas.hpp"
 #include "feddlib/core/AceFemAssembly/specific/AssembleFENavierStokes.hpp"
 #include "feddlib/core/AceFemAssembly/specific/AssembleFENavierStokesNonNewtonian.hpp"
+#include "feddlib/core/AceFemAssembly/specific/AssembleFEStokes.hpp"
+#include "feddlib/core/AceFemAssembly/specific/AssembleFEStokesNonNewtonian.hpp"
 namespace FEDD {
 
     /*!

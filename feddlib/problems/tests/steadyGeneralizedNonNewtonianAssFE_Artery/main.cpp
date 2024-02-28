@@ -22,12 +22,16 @@
 /*!
  Main of steady-state Generalized Newtonian fluid flow problem with Non-Newtonian stress tensor assumption
  where we use e.g. Carreau Yasuda or Power law
+ /*! Test case for specific artery geometrie or straight tube geometry. Inflow depends on inflow region
+	-> artery: Inflow scaled with normal vector on inflow (x,y,z) * laplaceInflow	
+
+
 
  @brief steady-state Non-Newtonian creeping Flow main
  @author Natalie Kubicki
  @version 1.0
  @copyright NK
- */
+*/ 
 
 using namespace std;
 using namespace Teuchos;
@@ -217,7 +221,6 @@ void inflowParabolic3D(double *x, double *res, double t, const double *parameter
 
 void inflowParabolic3D_structured(double *x, double *res, double t, const double *parameters)
 {
-    // Here Inlet lies in y-z plane and corners are (0,0) - (0,1) - (1,1) - (1,0)
     // Dependent of height and max velocity!
     double H = parameters[2];
     res[0] = 16 * parameters[4] * x[1] * (H - x[1]) * x[2] * (H - x[2]) / (H * H * H * H);
@@ -297,6 +300,13 @@ int main(int argc, char *argv[])
     double length = 2.; // This a constant which has to be set for strcutured grids
     myCLP.setOption("length", &length, "length of domain.");
 
+    string xmlProbL = "plistProblemLaplace.xml";
+    myCLP.setOption("probLaplace",&xmlProbL,".xml file with Inputparameters.");
+    string xmlPrecL = "plistPrecLaplace.xml";
+    myCLP.setOption("precLaplace",&xmlPrecL,".xml file with Inputparameters.");
+    string xmlSolverL = "plistSolverLaplace.xml";
+    myCLP.setOption("solverLaplace",&xmlSolverL,".xml file with Inputparameters.");
+
     myCLP.recogniseAllOptions(true);
     myCLP.throwExceptions(false);
     Teuchos::CommandLineProcessor::EParseCommandLineReturn parseReturn = myCLP.parse(argc, argv);
@@ -316,6 +326,8 @@ int main(int argc, char *argv[])
         ParameterListPtr_Type parameterListSolver = Teuchos::getParametersFromXmlFile(xmlSolverFile);
 
         ParameterListPtr_Type parameterListPrecTeko = Teuchos::getParametersFromXmlFile(xmlTekoPrecFile);
+
+        
 
         int dim = parameterListProblem->sublist("Parameter").get("Dimension", 3);
 
@@ -404,6 +416,7 @@ int main(int argc, char *argv[])
 	        }
         
 
+
             //          **********************  BOUNDARY CONDITIONS ***********************************
             // We can here differentiate between different problem cases and boundary conditions
 
@@ -415,6 +428,133 @@ int main(int argc, char *argv[])
             parameter_vec.push_back(parameterListProblem->sublist("Parameter").get("Height Inflow", 1.));
             parameter_vec.push_back(parameterListProblem->sublist("Parameter").get("Constant Pressure Gradient", 1.));
             parameter_vec.push_back(parameterListProblem->sublist("Parameter").get("MaxVelocity", 1.));
+
+                  //#############################################
+            //#############################################
+            //#### Compute parabolic inflow with laplacian
+            //#############################################
+            //#############################################
+            MultiVectorConstPtr_Type solutionLaplace;
+            {
+                Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryLaplace(new BCBuilder<SC,LO,GO,NO>( ));
+                
+                bcFactoryLaplace->addBC(zeroBC, 4, 0, domainVelocity, "Dirichlet", 1); //inflow ring
+                bcFactoryLaplace->addBC(zeroBC, 4, 0, domainVelocity, "Dirichlet", 1); //outflow ring
+                bcFactoryLaplace->addBC(zeroBC, 6, 0, domainVelocity, "Dirichlet", 1); //surface
+                
+                ParameterListPtr_Type parameterListProblemL = Teuchos::getParametersFromXmlFile(xmlProbL);
+                ParameterListPtr_Type parameterListPrecL = Teuchos::getParametersFromXmlFile(xmlPrecL);
+                ParameterListPtr_Type parameterListSolverL = Teuchos::getParametersFromXmlFile(xmlSolverL);
+
+                ParameterListPtr_Type parameterListLaplace(new Teuchos::ParameterList(*parameterListProblemL)) ;
+                parameterListLaplace->setParameters(*parameterListPrecL);
+                parameterListLaplace->setParameters(*parameterListSolverL);
+                
+                Laplace<SC,LO,GO,NO> laplace( domainVelocity, discType, parameterListLaplace, false );
+                {
+                    laplace.addRhsFunction(oneFunc);
+                    laplace.addBoundaries(bcFactoryLaplace);
+                    
+                    laplace.initializeProblem();
+                    laplace.assemble();
+                    laplace.setBoundaries();
+                    laplace.solve();
+                }
+                
+                //We need the values in the inflow area. Therefore, we use the above bcFactory and the volume flag 10 and the outlet flag 5 and set zero Dirichlet boundary values
+                bcFactoryLaplace->addBC(zeroBC, 3, 0, domainVelocity, "Dirichlet", 1);
+                bcFactoryLaplace->addBC(zeroBC, 10, 0, domainVelocity, "Dirichlet", 1);
+                bcFactoryLaplace->setRHS( laplace.getSolution(), 0./*time; does not matter here*/ );
+                solutionLaplace = laplace.getSolution()->getBlock(0);
+            
+                SC maxValue = solutionLaplace->getMax();
+                
+                parameter_vec.push_back(maxValue);
+
+                Teuchos::RCP<ExporterParaView<SC,LO,GO,NO> > exPara(new ExporterParaView<SC,LO,GO,NO>());
+                
+                exPara->setup("parabolicInflow", domainVelocity->getMesh(), discType);
+                
+//                exPara->setup(domainVelocity->getDimension(), domainVelocity->getNumElementsGlobal(), domainVelocity->getElements(), domainVelocity->getPointsUnique(), domainVelocity->getMapUnique(), domainVelocity->getMapRepeated(), discType, "parabolicInflow", 1, comm);
+
+                MultiVectorConstPtr_Type valuesConst = laplace.getSolution()->getBlock(0);
+                exPara->addVariable( valuesConst, "values", "Scalar", 1, domainVelocity->getMapUnique() );
+
+                exPara->save(0.0);
+                exPara->closeExporter();
+
+            }
+            
+            Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory( new BCBuilder<SC,LO,GO,NO>( ) );
+
+            // TODO: Vermutlich braucht man keine bcFactoryFluid und bcFactoryStructure,
+            // da die RW sowieso auf dem FSI-Problem gesetzt werden.
+
+            // Fluid-RW
+            {
+                bool zeroPressure = parameterListProblem->sublist("Parameter Fluid").get("Set Outflow Pressure to Zero",false);
+                Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryFluid( new BCBuilder<SC,LO,GO,NO>( ) );
+                               
+                //bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim); // wall
+                 string rampType = parameterListProblem->sublist("Parameter Fluid").get("Ramp type","cos");
+                if (rampType == "cos") {
+                
+                	if(geometryType == "Artery"){
+                    	bcFactory->addBC(parabolicInflow3DArtery, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow ring
+                    	//bcFactory->addBC(parabolicInflow3DArtery, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow
+                    	bcFactoryFluid->addBC(parabolicInflow3DArtery, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow ring
+                    	//bcFactoryFluid->addBC(parabolicInflow3DArtery, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow
+            
+                    }
+                    else {
+                        bcFactory->addBC(parabolicInflow3D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow ring
+                    	//bcFactory->addBC(parabolicInflow3D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow
+                    	bcFactoryFluid->addBC(parabolicInflow3D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow ring
+                    	//bcFactoryFluid->addBC(parabolicInflow3D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow
+                    
+            		}
+                    bcFactoryFluid->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim); // wall
+                  
+                }
+                else if(rampType == "linear"){
+                
+                    if(geometryType == "Artery"){
+                    	bcFactory->addBC(parabolicInflow3DLinArtery, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow 
+                    	//bcFactory->addBC(parabolicInflow3DLinArtery, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow ring
+                    	bcFactoryFluid->addBC(parabolicInflow3DLinArtery, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow
+                   		//bcFactoryFluid->addBC(parabolicInflow3DLinArtery, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow ring
+            
+                    }
+                    else {
+                        bcFactory->addBC(parabolicInflow3DLin, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow ring
+                    	//bcFactory->addBC(parabolicInflow3DLin, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow
+                    	
+                    	bcFactoryFluid->addBC(parabolicInflow3DLin, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow ring
+                    	//bcFactoryFluid->addBC(parabolicInflow3DLin, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow
+            
+            		}
+                
+
+                    bcFactoryFluid->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim); // wall
+                 }
+                
+                bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow ring                
+                bcFactoryFluid->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim); // inflow ring
+                
+                if (zeroPressure) {
+                    //bcFactory->addBC(zeroBC, 4, 1, domainFluidPressure, "Dirichlet", 1); // outflow ring
+                    bcFactory->addBC(zeroBC, 3, 1, domainFluidPressure, "Dirichlet", 1); // outflow
+                    
+                    //bcFactoryFluid->addBC(zeroBC, 4, 1, domainFluidPressure, "Dirichlet", 1); // outflow ring
+                    bcFactoryFluid->addBC(zeroBC, 3, 1, domainFluidPressure, "Dirichlet", 1); // outflow
+                }
+                
+                // Fuer die Teil-TimeProblems brauchen wir bei TimeProblems
+                // die bcFactory; vgl. z.B. Timeproblem::updateMultistepRhs()
+                fsi.problemFluid_->addBoundaries(bcFactoryFluid);
+            }
+
+              
 
             Teuchos::RCP<BCBuilder<SC, LO, GO, NO>> bcFactory(new BCBuilder<SC, LO, GO, NO>());
             std::string bcType = parameterListProblem->sublist("Parameter").get("BC Type","parabolic");
@@ -466,21 +606,22 @@ int main(int argc, char *argv[])
                   }
                  else if (dim == 3)
                  {
-                  
+                 
+                 
                   /*bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);                  // upper
                   bcFactory->addBC(zeroDirichlet3D, 2, 0, domainVelocity, "Dirichlet", dim);                  // lower
                   bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim);                  // sides
                   bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);                  // sides
                   bcFactory->addBC(inflowParabolic3D, 6, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
                   bcFactory->addBC(zeroDirichlet, 5, 1, domainPressure, "Dirichlet", 1);                      // Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
-                  // bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim); // lower
                   */
+
                  bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);                  // walls
                  bcFactory->addBC(constx3D, 3, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
 
 
+                  // bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim); // lower
                   /*
-                   
                                 // If Pseudo-2D
                                 bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim); // upper
                                 bcFactory->addBC(zeroDirichlet3D, 2, 0, domainVelocity, "Dirichlet", dim); // lower
