@@ -27,7 +27,7 @@ strain-rate produces very small number or even zero, this only happen when n <1 
 local viscosity will grow up into very huge number and then we get inaccuracy results.
 */
 template <class SC, class LO, class GO, class NO>
-void PowerLaw<SC,LO,GO,NO>::evaluateFunction(ParameterListPtr_Type params, double shearRate, double &viscosity) {
+void PowerLaw<SC,LO,GO,NO>::evaluateMapping(ParameterListPtr_Type params, double shearRate, double &viscosity) {
 	
     
     viscosity = this->powerlaw_constant_K*pow(shearRate, this->powerlaw_index_n-1.0);

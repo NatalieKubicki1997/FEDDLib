@@ -42,7 +42,7 @@ namespace FEDD {
          @param[in] x Independent variable
          @param[in,out] res Dependent variable
         */
-        virtual void evaluateFunction(ParameterListPtr_Type params, MultiVectorConstPtr_Type input, MultiVectorPtr_Type &output) override = 0;
+        virtual void evaluateMapping(ParameterListPtr_Type params, MultiVectorConstPtr_Type input, MultiVectorPtr_Type &output) override = 0;
        
         /*!
          \brief Function could include different parameters which will be specified in *.xml
@@ -66,10 +66,10 @@ namespace FEDD {
          @param[in] x Independent variable
          @param[in,out] res Dependent variable
         */
-        virtual void evaluateFunction(ParameterListPtr_Type params, double x, double &res) = 0;
+        virtual void evaluateMapping(ParameterListPtr_Type params, double x, double &res) = 0;
 
         /*!
-         \brief Computes value of derivative of defined function in evaluateFunction
+         \brief Computes value of derivative of defined function in evaluateMapping
          @param[in] params Parameterlist as read from the xml file (maybe redundant)
          @param[in] x Independent variable
          @param[in,out] res Dependent variable
@@ -77,7 +77,7 @@ namespace FEDD {
         virtual void evaluateDerivative(ParameterListPtr_Type params, double x, double &res) = 0;
 
         /*!
-         \brief Computes value of derivative of defined function in evaluateFunction
+         \brief Computes value of derivative of defined function in evaluateMapping
          @param[in] params Parameterlist as read from the xml file (maybe redundant)
          @param[in] x Independent variable
          @param[in,out] res Dependent variable

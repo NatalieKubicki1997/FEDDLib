@@ -39,7 +39,7 @@ namespace FEDD {
          @param[in] x Independent variable
          @param[in,out] res Dependent variable
         */
-        virtual void evaluateFunction(ParameterListPtr_Type params, MultiVectorConstPtr_Type input, MultiVectorPtr_Type &output) = 0;
+        virtual void evaluateMapping(ParameterListPtr_Type params, MultiVectorConstPtr_Type input, MultiVectorPtr_Type &output) = 0;
 
         /*!
          \brief Function could include different parameters which will be specified in *.xml

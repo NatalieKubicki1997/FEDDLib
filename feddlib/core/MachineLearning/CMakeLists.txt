@@ -1,16 +1,12 @@
 SET(General_HEADERS
-     /BCBuilder.hpp
-	General/BCBuilder_decl.hpp
-	General/BCBuilder_def.hpp
+    MachineLearning/TrainedMLModelClass.hpp
+	MachineLearning/TrainedMLModelClass_decl.hpp
+	MachineLearning/TrainedMLModelClass_def.hpp
 
 CACHE INTERNAL "")
 
 SET(General_SOURCES
-	General/BCBuilder.cpp
-    General/ExporterParaView.cpp
-    General/ExporterTxt.cpp
-	General/DifferentiableFuncClass.cpp
-	General/InputToOutputMappingClass.cpp
+MachineLearning/TrainedMLModelClass.cpp
 CACHE INTERNAL "")
 
 
@@ -22,6 +18,6 @@ ENDFOREACH()
 
 INSTALL(
   FILES ${LOCAL_HEADERS}
-  DESTINATION "${${PROJECT_NAME}_INSTALL_INCLUDE_DIR}/feddlib/core/General"
+  DESTINATION "${${PROJECT_NAME}_INSTALL_INCLUDE_DIR}/feddlib/core/MachineLearning"
   COMPONENT ${PACKAGE_NAME}
 )

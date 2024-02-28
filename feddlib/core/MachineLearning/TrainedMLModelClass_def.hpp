@@ -7,7 +7,7 @@ namespace FEDD {
 
 
 template <class SC, class LO, class GO, class NO>
-TrainedMLModelClassClass<SC,LO,GO,NO>::TrainedMLModelClassClass(ParameterListPtr_Type params):InputToOutputMappingClass<SC,LO,GO,NO>(params)
+TrainedMLModelClass<SC,LO,GO,NO>::TrainedMLModelClass(ParameterListPtr_Type params):InputToOutputMappingClass<SC,LO,GO,NO>(params)
 {
 
 	params_=params;

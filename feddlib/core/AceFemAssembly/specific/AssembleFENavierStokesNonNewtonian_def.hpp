@@ -222,7 +222,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
 
 
                 // viscosity function evaluated where we consider the dynamic viscosity!!
-                this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
+                this->materialModel->evaluateMapping(this->params_,  gammaDot->at(w), viscosity_atw);
 
                  v11 = v11 + viscosity_atw * weights->at(w) *(2.0*value1_i*value1_j+value2_i*value2_j);
                  v12 = v12 + viscosity_atw * weights->at(w) *(value2_i*value1_j);
@@ -287,7 +287,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyStress(SmallMatrix
                         value2_i = dPhiTrans.at(w).at(i).at(1); // so this corresponds to d\phi_i/dy
                         value3_i = dPhiTrans.at(w).at(i).at(2); // so this corresponds to d\phi_i/dz
 
-                       this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
+                       this->materialModel->evaluateMapping(this->params_,  gammaDot->at(w), viscosity_atw);
 
                     
                        // Construct entries - we go over all quadrature points and if j is updated we set v11 etc. again to zero
@@ -707,7 +707,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTer
                         // loop over basis functions quadrature points
                         for (UN w=0; w<phi->size(); w++) 
                         {
-                            this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
+                            this->materialModel->evaluateMapping(this->params_,  gammaDot->at(w), viscosity_atw);
 
                             v11 = v11 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * this->surfaceElement_OutwardNormal[0] * (*phi)[w][i]); // xx contribution: 
                             v12 = v12 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * this->surfaceElement_OutwardNormal[1] * (*phi)[w][i]); // xy contribution:  
@@ -749,7 +749,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTer
                         // loop over basis functions quadrature points
                         for (UN w=0; w<phi->size(); w++) 
                         {
-                            this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
+                            this->materialModel->evaluateMapping(this->params_,  gammaDot->at(w), viscosity_atw);
 
                             v11 = v11 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * this->surfaceElement_OutwardNormal[0] * (*phi)[w][i]); // xx contribution: 
                             v12 = v12 + -1.0*(viscosity_atw *  QuadW->at(w)* dPhiTrans[w][j][0] * this->surfaceElement_OutwardNormal[1] * (*phi)[w][i]); // xy contribution: 
@@ -1051,7 +1051,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::assemblyNeumannBoundaryTer
                         // loop over basis functions quadrature points
                         for (UN w=0; w<phi->size(); w++) 
                         {
-                            this->materialModel->evaluateFunction(this->params_,  gammaDot->at(w), viscosity_atw);
+                            this->materialModel->evaluateMapping(this->params_,  gammaDot->at(w), viscosity_atw);
 
                             v11 = v11 + (0.25*deta_dgamma_dgamma_dtau)*QuadW->at(w)*(  ( 2.0*dPhiTrans[w][j][0]*a1->at(w)+dPhiTrans[w][j][1]*b1->at(w)+dPhiTrans[w][j][2]*c1->at(w))*this->surfaceElement_OutwardNormal[0] + ( dPhiTrans[w][j][1]*a1->at(w)                                         )*this->surfaceElement_OutwardNormal[1] + ( dPhiTrans[w][j][2]*a1->at(w)  )*this->surfaceElement_OutwardNormal[2] ) * ((*phi)[w][i]); // xx contribution: 
                             v12 = v12 + (0.25*deta_dgamma_dgamma_dtau)*QuadW->at(w)*(  ( dPhiTrans[w][j][0]*b1->at(w)                                  )*this->surfaceElement_OutwardNormal[0] + ( dPhiTrans[w][j][0]*a1->at(w) + 2.0*dPhiTrans[w][j][1]*b1->at(w) + dPhiTrans[w][j][2]*c1->at(w)   )*this->surfaceElement_OutwardNormal[1] + ( dPhiTrans[w][j][2]*b1->at(w)  )*this->surfaceElement_OutwardNormal[2] ) * ((*phi)[w][i]); // xy contribution:  
@@ -1335,7 +1335,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeLocalViscosity()
 
     vec_dbl_ptr_Type gammaDoti(new vec_dbl_Type( dPhiAtCM->size(),0.0)); // Only one value because size is one
     computeShearRate(dPhiTransAtCM, gammaDoti, dim); // updates gammaDot using velocity solution 
-    this->materialModel->evaluateFunction(this->params_,  gammaDoti->at(0), this->solutionViscosity_.at(0));
+    this->materialModel->evaluateMapping(this->params_,  gammaDoti->at(0), this->solutionViscosity_.at(0));
     
 
 }

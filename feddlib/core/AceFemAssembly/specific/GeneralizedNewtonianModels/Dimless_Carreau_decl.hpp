@@ -64,7 +64,7 @@ class Dimless_Carreau : public DifferentiableFuncClass<SC,LO,GO,NO> {
          @param[in] x Independent variable
          @param[in,out] res Dependent variable
         */
-        virtual void evaluateFunction(ParameterListPtr_Type params, MultiVectorConstPtr_Type input, MultiVectorPtr_Type &output) override { TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Not yet implemented."); };
+        virtual void evaluateMapping(ParameterListPtr_Type params, MultiVectorConstPtr_Type input, MultiVectorPtr_Type &output) override { TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Not yet implemented."); };
        
         /*!
          \brief Each constitutive model includes different material parameters which will be specified in parametersProblem.xml
@@ -84,7 +84,7 @@ class Dimless_Carreau : public DifferentiableFuncClass<SC,LO,GO,NO> {
        // Define functions from base abstract class InputOutputMapping
 
             /*!
-         \brief Computes value of derivative of defined function in evaluateFunction
+         \brief Computes value of derivative of defined function in evaluateMapping
          @param[in] params Parameterlist as read from the xml file (maybe redundant)
          @param[in] x Independent variable
          @param[in,out] res Dependent variable
@@ -98,7 +98,7 @@ class Dimless_Carreau : public DifferentiableFuncClass<SC,LO,GO,NO> {
          @param[in] shearRate scalar value of computed shear rate
          @param[in,out] viscosity value of viscosity
         */
-         virtual void evaluateFunction(ParameterListPtr_Type params, double shearRate, double &viscosity) override;
+         virtual void evaluateMapping(ParameterListPtr_Type params, double shearRate, double &viscosity) override;
 
   /*!
          \brief For Newton method and NOX we need additional term in Jacobian considering Gateaux-derivative of our functional formulation.

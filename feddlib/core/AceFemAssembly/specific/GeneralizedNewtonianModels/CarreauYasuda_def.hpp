@@ -26,7 +26,7 @@ DifferentiableFuncClass<SC,LO,GO,NO>(params)
 }
 
 template <class SC, class LO, class GO, class NO>
-void CarreauYasuda<SC,LO,GO,NO>::evaluateFunction(ParameterListPtr_Type params, double shearRate, double &viscosity) {
+void CarreauYasuda<SC,LO,GO,NO>::evaluateMapping(ParameterListPtr_Type params, double shearRate, double &viscosity) {
 	
     viscosity = this->nu_infty +(this->nu_0-this->nu_infty)*(pow(1.0+pow(this->characteristicTime*shearRate,this->inflectionPoint)    , (this->fluid_index_n-1.0)/this->inflectionPoint ));
     this-> viscosity_ = viscosity;

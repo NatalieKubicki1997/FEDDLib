@@ -26,7 +26,7 @@ DifferentiableFuncClass<SC,LO,GO,NO>(params)
 }
 
 template <class SC, class LO, class GO, class NO>
-void Dimless_Carreau<SC,LO,GO,NO>::evaluateFunction(ParameterListPtr_Type params, double shearRate, double &viscosity) {
+void Dimless_Carreau<SC,LO,GO,NO>::evaluateMapping(ParameterListPtr_Type params, double shearRate, double &viscosity) {
 	
     viscosity = this->reference_viscosity*( this->nu_infty +(this->nu_0-this->nu_infty)*(pow(1.0+pow(this->characteristicTime*shearRate,2.0)    , (this->fluid_index_n-1.0)/2.0 )));
     this->viscosity_ = viscosity; // Multiply with reference viscosity to obtain actual viscosity with dimension of reference viscosity [Pa s]
