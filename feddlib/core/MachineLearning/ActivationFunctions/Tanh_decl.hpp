@@ -1,5 +1,5 @@
-#ifndef CARREAUYASUDA_DECL_hpp
-#define CARREAUYASUDA_DECL_hpp
+#ifndef TANH_DECL_hpp
+#define TANH_DECL_hpp
 
 #include "feddlib/core/General/DifferentiableFuncClass.hpp"
 //#include "feddlib/core/AceFemAssembly/Helper.hpp"
@@ -16,7 +16,7 @@ namespace FEDD {
     class AssembleFENavierStokesNonNewtonian;
 */
     /*!
-    \class CarreauYasuda
+    \class Tanh
     \brief This class is derived from the abstract class DifferentiableFuncClass and should provide functionality to evaluate the viscosity function specified by Carreau-Yasuda model (see [1])
     \tparam SC The scalar type. So far, this is always double, but having it as a template parameter would allow flexibily, e.g., for using complex instead
     \tparam LO The local ordinal type. The is the index type for local indices
@@ -24,30 +24,15 @@ namespace FEDD {
     @todo This should actually be removed since the class should operate only on element level)
     \tparam NO The Kokkos Node type. This would allow for performance portibility when using Kokkos. Currently, this is not used.
     
-    In general, there exist various constitutive equations for describing the material behaviour of blood. We will focus on generalized
-    Newtonian constitutive equations capturing the shear thinning behaviour of blood. The chosen shear thinning model, e.g. Power-Law or
-    Carreau-Yasuda etc., provides a function for updating the viscosity as the viscosity is no longer constant but instead
-    depends on the shear rate and other parameters.
-
-    In our original code we need therefore, depending on the chosen model, a update function for the viscosity (1). If we apply Newton method or NOX
-    we also have to provide a derivative of the viscosity function which also depends on the chosen model (2). Lastly, we need functions to set
-    the required parameters of the chosen model and additionally a function which prints the parameter values (3+4) 
-
-    The material parameters can provided through a Teuchos::ParameterList object which will contain 
-    all the parameters specified in the input file `ABC.xml`.
-    The structure of the input file and, hence, of the resulting parameter list can be chosen freely. The FEDDLib will take care of reading the parameters 
-    from the file and making them available.
-
-    In this class we define the Carreau-Yasuda model.
-
-    I decided to not generate another subclass which includes all viscosity models and then this class would be inherited from that because I decided it to not be that useful
-    because the only thing they would have in common until now is getViscosity
+    In general, there exist a variety of activation function - the basic idea is that they add a nonlinearity into the model in order to learn complex mappings.
+    This is the concrete implementation of the tanh activation function.
+    The activation is e.g. applied to the result of a weighted sum of inputs so we want to be able to apply a function to each entry of an input array
     */
 
     
 
 template <class SC = default_sc, class LO = default_lo, class GO = default_go, class NO = default_no>
-class CarreauYasuda : public DifferentiableFuncClass<SC,LO,GO,NO> {
+class Tanh : public DifferentiableFuncClass<SC,LO,GO,NO> {
   public:
 
         typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
@@ -65,11 +50,10 @@ class CarreauYasuda : public DifferentiableFuncClass<SC,LO,GO,NO> {
          @param[in] x Independent variable
          @param[in,out] res Dependent variable
         */
-        virtual void evaluateMapping(ParameterListPtr_Type params, MultiVectorConstPtr_Type input, MultiVectorPtr_Type &output) override { TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Not yet implemented."); };
+        virtual void evaluateMapping(ParameterListPtr_Type params, MultiVectorConstPtr_Type input, MultiVectorPtr_Type &output) override { TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Not yet implemented - HAS TO BE IMPLEMENTED."); };
        
         /*!
-         \brief Each constitutive model includes different material parameters which will be specified in parametersProblem.xml
-                This function should set the specififc needed parameters for each model to the defined values.
+         \brief This function should set the specififc needed parameters for each model to the defined values.
         @param[in] ParameterList as read from the xml file (maybe redundant)
         */
         virtual void setParams(ParameterListPtr_Type params) override;
@@ -84,18 +68,17 @@ class CarreauYasuda : public DifferentiableFuncClass<SC,LO,GO,NO> {
          @param[in] x Independent variable
          @param[in,out] res Dependent variable
         */
-       virtual void evaluateDerivative(ParameterListPtr_Type params, MultiVectorConstPtr_Type x, MultiVectorPtr_Type &res) override { TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Not yet implemented."); };
+       virtual void evaluateDerivative(ParameterListPtr_Type params, MultiVectorConstPtr_Type x, MultiVectorPtr_Type &res) override { TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Not yet implemented - HAS TO BE IMPLEMENTED."); };
 
 
-    /*!
+    /*! This two functions are not so important because we basically always want to operate on vectors but if there will occur a side we can implenent this
          \brief Update the viscosity according to a chosen shear thinning generalized newtonian constitutive equation. Viscosity depends on spatial coordinates due to its dependency on velocity gradients
          @param[in] params as read from the xml file (maybe redundant)
          @param[in] shearRate scalar value of computed shear rate
          @param[in,out] viscosity value of viscosity
         */
-         virtual void evaluateMapping(ParameterListPtr_Type params, double shearRate, double &viscosity) override;
-
-  /*!
+         virtual void evaluateMapping(ParameterListPtr_Type params, double shearRate, double &viscosity) override { TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Use instead the intern function std::tanh."); };
+    /*!
          \brief For Newton method and NOX we need additional term in Jacobian considering Gateaux-derivative of our functional formulation.
                 One part is depending on the derivative of the viscosity function and another term, i.e. $... \frac{\partial \eta}{\partial \Dot{\gamma}} *  \frac{\partial  \Dot{\gamma}}{\partial \Pi}.
                 For each constitutive model the function looks different and will be defined inside this function
@@ -103,20 +86,12 @@ class CarreauYasuda : public DifferentiableFuncClass<SC,LO,GO,NO> {
          @param[in] shearRate scalar value of computed shear rate
          @param[in,out] res scalar value of \frac{\partial \eta}{\partial \Dot{\gamma}} *  \frac{\partial  \Dot{\gamma}}{\partial \Pi}
         */
-      virtual void evaluateDerivative(ParameterListPtr_Type params, double shearRate, double &res) override;
-
+      virtual void evaluateDerivative(ParameterListPtr_Type params, double shearRate, double &res) override { TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Use instead the intern function std::tanh."); };
 
 
         
         // New Added Functions
-        /*!
-         \brief Get the current viscosity value
-         \return the scalar value of viscosity
-         */
-        double getViscosity() {return viscosity_;};
-        
-        //string getShearThinningModel() {return shearThinningModel_;};
-        
+
 
       /*!
         \brief Print parameter values used in model at runtime
@@ -128,26 +103,15 @@ class CarreauYasuda : public DifferentiableFuncClass<SC,LO,GO,NO> {
 
 	/*!
 
-	\brief Constructor for CarreauYasuda
+	\brief Constructor for Tanh
 	@param[in] parameters Parameterlist for current problem	*/
-	CarreauYasuda(ParameterListPtr_Type parameters); 
+	Tanh(ParameterListPtr_Type parameters); 
 
 
    private:
 
-	double viscosity_;
-    std::string shearThinningModel_;// for printing out which model is actually used
-    //! 
-    double characteristicTime; // corresponds to \lambda in the formulas in the literature
-    double fluid_index_n;      // corresponds to n in the formulas being the power-law index
-    double nu_0;               // is the zero shear-rate viscosity
-    double nu_infty;           // is the infnite shear-rate viscosity
-    double inflectionPoint;    // corresponds to a in the formulas in the literature
-    double shear_rate_limitZero;
 
-    
 
-  //  friend class AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>; why dit it not work?
 
 
  };

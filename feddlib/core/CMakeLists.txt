@@ -57,6 +57,10 @@ ADD_SUBDIRECTORY(MachineLearning)
 SET(HEADERS ${HEADERS} ${MachineLearning_HEADERS})
 SET(SOURCES ${SOURCES} ${MachineLearning_SOURCES})
 
+ADD_SUBDIRECTORY(MachineLearning/specific)
+SET(HEADERS ${HEADERS} ${MachineLearningSpecific_HEADERS})
+SET(SOURCES ${SOURCES} ${MachineLearningSpecific_SOURCES})
+
 
 ADD_SUBDIRECTORY(LinearAlgebra)
 SET(HEADERS ${HEADERS} ${LinearAlgebra_HEADERS})

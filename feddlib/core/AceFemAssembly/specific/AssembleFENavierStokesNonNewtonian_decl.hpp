@@ -32,6 +32,10 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 
 	typedef DifferentiableFuncClass<SC,LO,GO,NO>  DifferentiableFuncClass_Type;
 	typedef Teuchos::RCP<DifferentiableFuncClass_Type> DifferentiableFuncClassPtr_Type;
+
+
+    typedef InputToOutputMappingClass<SC,LO,GO,NO>  InputToOutputMappingClass_Type;    
+	typedef Teuchos::RCP<InputToOutputMappingClass_Type> InputToOutputMappingClassPtr_Type;
     // smart pointer inside we need a type
 
 	/*!
@@ -139,8 +143,8 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 	virtual void set_LinearizationToNewton();
 	// bool* switchToNewton_; maybe it is better to proivde a pointer to the entry of problem.getParameterList()->sublist("General").get("SwitchToNewton",true); 
 
-    DifferentiableFuncClassPtr_Type materialModel;
-
+    //DifferentiableFuncClassPtr_Type viscosityModel  ;   // Make it more general such that the viscosity material Model can be any Input to Output Mapping 
+    InputToOutputMappingClassPtr_Type viscosityModel;
 	
 	//friend class CarreauYasuda<SC,LO,GO,NO>; the other way around carrea-yasuda has to give access rights for this class
  };

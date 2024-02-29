@@ -25,6 +25,15 @@ namespace FEDD {
     all the parameters specified in the input file `ABC.xml`.
     The structure of the input file and, hence, of the resulting parameter list can be chosen freely. The FEDDLib will take care of reading the parameters 
     from the file and making them available.
+
+
+    I made this general classification of an general Input to Output mapping in order to differentiate between different complexeties of Input to Output mapping 
+    For example a really simple one is a general differentiable function - therefore we derive another abstract subclass called differentiableFuncClass.
+    We could also derive another subclass called NonDifferentiableFuncClass and for evaluating the derivatives throw a error
+    Another General Input to Output Mapping are our TrainedMlModels.
+
+
+
     */
     template <class SC = default_sc, class LO = default_lo, class GO = default_go, class NO = default_no>
     class InputToOutputMappingClass{
@@ -40,6 +49,36 @@ namespace FEDD {
          @param[in,out] res Dependent variable
         */
         virtual void evaluateMapping(ParameterListPtr_Type params, MultiVectorConstPtr_Type input, MultiVectorPtr_Type &output) = 0;
+
+
+        /*!
+         \brief Computes value of derivative of defined function in evaluateMapping
+         @param[in] params Parameterlist as read from the xml file (maybe redundant)
+         @param[in] x Independent variable
+         @param[in,out] res Dependent variable
+        */
+        virtual void evaluateDerivative(ParameterListPtr_Type params, MultiVectorConstPtr_Type x, MultiVectorPtr_Type &res) = 0;
+
+
+        // Consider also specific case where we only have ONE INPUT and ONE Output
+        /*
+        \brief Implements a functional description for evaluating res in dependence of given dependent variables and specified parameters
+                Here we overload the functional evaluation because we often can have the case that we have simple one dimensional function -
+                but remember that MANY functional evaluations can be costly so maybe it is computationally more performant to give one array as
+                an input and one array as an output
+         @param[in] params Parameterlist as read from the xml file (maybe redundant)
+         @param[in] x Independent variable
+         @param[in,out] res Dependent variable
+        */
+        virtual void evaluateMapping(ParameterListPtr_Type params, double x, double &res) = 0;
+
+        /*!
+         \brief Computes value of derivative of defined function in evaluateMapping specific 
+         @param[in] params Parameterlist as read from the xml file (maybe redundant)
+         @param[in] x Independent variable
+         @param[in,out] res Dependent variable
+        */
+        virtual void evaluateDerivative(ParameterListPtr_Type params, double x, double &res) = 0;
 
         /*!
          \brief Function could include different parameters which will be specified in *.xml
