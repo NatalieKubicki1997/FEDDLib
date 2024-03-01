@@ -1,5 +1,6 @@
 <!-- Problem specific parameters like e.g. dimension, FE type -->
 <ParameterList name="Problem">
+
     <ParameterList name="Parameter">
         <Parameter name="Dimension" type="int" value="2"/>
         <Parameter name="Discretization Velocity" type="string" value="P2"/><!--P1, P2; velocity -->
@@ -7,7 +8,7 @@
         <Parameter name="Mesh Type" type="string" value="unstructured"/> <!--structured, unstructured -->
         <Parameter name="BC Type" type="string"   value="partialCFD"/><!-- parabolic, parabolic_benchmark, partialCFD, parabolic_benchmark_sin-->
         <Parameter name="Mesh Delimiter" type="string" value=" "/>
-        <Parameter name="Viscosity" type="double" value="0.000035"/> <!-- kinematic Viscosity-->
+        <Parameter name="Viscosity" type="double" value="0.0000035"/> <!-- kinematic Viscosity-->
         <Parameter name="Density" type="double" value="1000.0"/>
         
         <Parameter name="H/h" type="int" value="3"/>
@@ -28,12 +29,22 @@
         <Parameter name="MaxNonLinIts" type="int" value="20"/>
         <Parameter name="Cancel MaxNonLinIts" type="bool" value="false"/>
         <Parameter name="Symmetric gradient" type="bool" value="false"/>
+
+
+        <Parameter name="Stokes" type="bool" value="false"/> <!-- If true we will neglect convective terms in the momentum equation -->
+
     </ParameterList>
+
+
 
     <ParameterList name="Mesh Partitioner">
         <Parameter name="Contiguous" type="bool" value="true"/>        
-	<Parameter name="Mesh 1 Name" type="string" value="rectangle_200.mesh"/>
+	    <Parameter name="Mesh 1 Name" type="string" value="rectangle_200.mesh"/>
     </ParameterList>
+
+
+
+
 
     <!-- Material specific parameters like e.g. Newtonian fluid, Carreau-Yasuda model and corresponding parameters -->
     <ParameterList name="Material">    
@@ -51,13 +62,13 @@
        
         
 	<!--********************FOR CHOSEN MODEL USER HAS TO SET MATERIAL PARAMETERS BELOW**************************-->
-	     <Parameter name="Numerical_ZeroValue_ShearRate" type="double" value="1.0e-12"/> <!-- Independent of the model we have to ensure that IF the shear rate is in the denominator of an term (for example in the Gateaux-derivatives) than we should not divide by zero but instead set shear rate to a really small value -->
+	     <Parameter name="Numerical_ZeroValue_ShearRate" type="double" value="1.0e-14"/> <!-- Independent of the model we have to ensure that IF the shear rate is in the denominator of an term (for example in the Gateaux-derivatives) than we should not divide by zero but instead set shear rate to a really small value -->
     <!-- ALL VARIABLES ARE IN SI UNITS WHICH ARE WRITTEN AS COMMENT BEYOND THE PHSICAL QUANTITY -->	
 
 
 	<!-- Power Law assumes for the viscosity eta the functional form \eta(\gamma) = K \gamma^(n-1) -->
         <!-- For n=1 we have Newtonian Fluid with constant viscosity corresponding to the value of K-->
-        <Parameter name="PowerLawParameter K" type="double" value="0.035"/>
+        <Parameter name="PowerLawParameter K" type="double" value="0.0035"/>
         <Parameter name="PowerLaw index n" type="double" value="1.0"/> <!-- for n<1 we have shear thinning behaviour 0.61 !!! funktioniert--> 
         <!-- In Power-Law model the viscosity could be unphysically zero or infinity for high or low shear rates therefore we have to catch these cases by defining max and min values for viscosity which we will name as Numerical_xxx value-->
         <Parameter name="Numerical_InftyShearRateViscosity" type="double" value="0.0000000001"/>
@@ -80,10 +91,7 @@
         <Parameter name="Reference_Viscosity" type="double" value="0.0012"/> <!--[Pa s]  -->
         <Parameter name="Carreau_FluidIndex_n" type="double" value="0.45"/> <!-- [] -->  
         <Parameter name="Dimless_CharacteristicTime_Lambda" type="double" value="-300"/> <!-- [] --> -
-        
-        
-        
-</ParameterList>
+    </ParameterList>
 
 
     <!-- Exporter for Paraview -->
@@ -107,4 +115,38 @@
         <Parameter name="Assemble Velocity Mass" type="bool" value="false"/>
         <Parameter name="Delete P1 Data" type="bool" value="false"/><!-- only for Monolithic and Newton -->
     </ParameterList>
+
+
+     <!-- If we want to exchange a mapping with a trained machine learning model we have to load it into the FEDDLib for evaluation -->
+    <ParameterList name="MLModel">
+
+        <!-- There could many different things in our code which we would like to exchange via a trained ML Model-->
+        <!-- It might introduce some overhead in the parameterProblem.xml file to have all the necassary information for each ML model but in some way the user has to specify it-->
+        <Parameter name="MLModelViscosity" type="bool" value="false"/> <!-- Set if User wants to use a trained ML Model as model for viscosity this will overwrite the above decision to use a specified Generalized-Newtonian fluid model -->
+        <Parameter name="TypeOfMLModel" type="string" value="MLP"/> <!-- MLP (Multilayerperceptron), GP (Gaussian Process)  -->
+
+
+        <!-- So now based on the decision what Type of Trained ML Model you want to use different trained matrices have to be initialized-->
+        <!-- MLP -->
+        <Parameter name="PathToMLModelInformationFile" type="string" value="InformationAboutMLModel.txt"/> <!-- Optional BUT Important in order to ensure that the mapping will be the same we should add a information file where all important details are specific e.g. are we using in each layer a activation function etc  -->
+        <!-- Maybe in future we will only have such an above file and the user do not have to specifiy any of the below entries but for now lets first do it in this way-->
+        <Parameter name="UsedActivationFunction" type="string" value="Tanh"/> <!-- Used activation function for training Tanh, ...)  -->
+        <Parameter name="PathToWeightMatrixFile" type="string" value="W.csv"/>  <!-- This csv file should include the weights of the MLP where in the rows there are the weights w_1 to w_n for one layer and the matrix has as many column  as layers-->
+        <Parameter name="PathToBiasFile" type="string" value="b.csv"/>  <!-- This csv file should include the weights of the MLP where in the rows there are the weights w_1 to w_n for one layer and the matrix has as many column  as layers-->
+
+
+
+    </ParameterList>
+
+
+
+
+
+
+
 </ParameterList>
+
+
+
+
+

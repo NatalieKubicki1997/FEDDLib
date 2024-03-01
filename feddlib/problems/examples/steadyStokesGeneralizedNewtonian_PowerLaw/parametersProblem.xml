@@ -7,7 +7,7 @@
         <Parameter name="Mesh Type" type="string" value="unstructured"/> <!--structured, unstructured -->
         <Parameter name="BC Type" type="string"   value="partialCFD"/><!-- parabolic, parabolic_benchmark, partialCFD, parabolic_benchmark_sin-->
         <Parameter name="Mesh Delimiter" type="string" value=" "/>
-        <Parameter name="Viscosity" type="double" value="0.0000035"/> <!-- kinematic Viscosity-->
+        <Parameter name="Viscosity" type="double" value="0.000035"/> <!-- kinematic Viscosity-->
         <Parameter name="Density" type="double" value="1000.0"/>
         
         <Parameter name="H/h" type="int" value="3"/>
@@ -28,6 +28,9 @@
         <Parameter name="MaxNonLinIts" type="int" value="20"/>
         <Parameter name="Cancel MaxNonLinIts" type="bool" value="false"/>
         <Parameter name="Symmetric gradient" type="bool" value="false"/>
+
+        <Parameter name="Stokes" type="bool" value="true"/> <!-- If true we will neglect convective terms in the momentum equation -->
+
     </ParameterList>
 
     <ParameterList name="Mesh Partitioner">
@@ -57,7 +60,7 @@
 
 	<!-- Power Law assumes for the viscosity eta the functional form \eta(\gamma) = K \gamma^(n-1) -->
         <!-- For n=1 we have Newtonian Fluid with constant viscosity corresponding to the value of K-->
-        <Parameter name="PowerLawParameter K" type="double" value="0.0035"/>
+        <Parameter name="PowerLawParameter K" type="double" value="0.035"/>
         <Parameter name="PowerLaw index n" type="double" value="1.0"/> <!-- for n<1 we have shear thinning behaviour 0.61 !!! funktioniert--> 
         <!-- In Power-Law model the viscosity could be unphysically zero or infinity for high or low shear rates therefore we have to catch these cases by defining max and min values for viscosity which we will name as Numerical_xxx value-->
         <Parameter name="Numerical_InftyShearRateViscosity" type="double" value="0.0000000001"/>

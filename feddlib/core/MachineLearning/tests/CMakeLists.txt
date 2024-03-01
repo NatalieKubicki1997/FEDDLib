@@ -12,3 +12,31 @@ Triutils triutils
 EpetraExt epetraext
 Thyra thyra
 )
+
+### MultiVector
+TRIBITS_ADD_EXECUTABLE(
+MatrixVectorProduct
+SOURCES MatrixVectorProduct.cpp
+)
+
+
+TRIBITS_ADD_TEST(
+MatrixVectorProduct
+NAME MatrixVectorProduct
+ARGS
+NUM_MPI_PROCS 1
+)
+
+### MultiVector
+TRIBITS_ADD_EXECUTABLE(
+ReadMatrixFromFile
+SOURCES ReadMatrixFromFile.cpp
+)
+
+
+TRIBITS_ADD_TEST(
+    ReadMatrixFromFile
+NAME ReadMatrixFromFile
+ARGS
+NUM_MPI_PROCS 1
+)

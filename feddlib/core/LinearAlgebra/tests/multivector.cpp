@@ -78,6 +78,6 @@ int main(int argc, char *argv[]) {
     mvRep->putScalar( 0. );
     mvRep->exportFromVector(mvUni);
     mvRep->print();
-    
+   
     return(EXIT_SUCCESS);
 }

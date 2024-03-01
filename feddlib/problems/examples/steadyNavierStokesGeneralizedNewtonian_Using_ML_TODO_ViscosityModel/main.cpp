@@ -21,9 +21,11 @@
 
 /*!
  Main of steady-state Generalized Newtonian fluid flow problem with Non-Newtonian stress tensor assumption
- where we use e.g. Carreau Yasuda or Power law
+ where we use for this example the Power law model of the form eta = K*gamma^(n-1)
+ In this main we also consider the convective part of the momentum euqation which is why we call it
+ Navier-Stokes NonNewtonian
 
- @brief steady-state Non-Newtonian creeping Flow main
+ @brief steady-state Non-Newtonian Flow main 
  @author Natalie Kubicki
  @version 1.0
  @copyright NK
@@ -136,7 +138,7 @@ void zeroDirichlet3D(double *x, double *res, double t, const double *parameters)
 /*For a 2D-Poiseulle-Flow of a Power-Law fluid with eta=K*gamma^(n-1) an analytical solution for the velocity field
   can be derived depending on K, n, H and the pressure gradient dp/dx
   So a simple test case for the generalized-Newtonian fluid solver is a 2D-Poiseuille Flow, prescribing the analytical velocity profile u(y) and 
-  checking if correct pressure gradient is recovered
+  checking if correct pressure gradient dp/dx is recovered 
 */ 
 void inflowPowerLaw2D(double *x, double *res, double t, const double *parameters)
 {
@@ -146,7 +148,7 @@ void inflowPowerLaw2D(double *x, double *res, double t, const double *parameters
     double H = parameters[2]; // Height of Channel
     double dp = parameters[3]; // dp/dx constant pressure gradient along channel
 
-    // This corresponds to the analytical solution of a Poiseuille like flow for a Power-Law fluid
+    //This corresponds to the analytical solution of a Poiseuille like flow for a Power-Law fluid
     res[0] = (n / (n + 1.0)) * pow(dp / (K), 1.0 / n) * (pow(H / (2.0), (n + 1.0) / n) - pow(abs((H / 2.0) - x[1]), (n + 1.0) / n));
     res[1] = 0.;
 
@@ -423,17 +425,7 @@ int main(int argc, char *argv[])
                 bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);                  // sides
                 bcFactory->addBC(inflowParabolic3D, 6, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
                 bcFactory->addBC(zeroDirichlet, 5, 1, domainPressure, "Dirichlet", 1);                      // Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
-                // bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim); // lower
-                /*
-                                // If Pseudo-2D
-                                bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim); // upper
-                                bcFactory->addBC(zeroDirichlet3D, 2, 0, domainVelocity, "Dirichlet", dim); // lower
-                                bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim); // sides
-                                bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim); // sides
-                                bcFactory->addBC(inflowParabolic3D, 6, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
-                                bcFactory->addBC(zeroDirichlet, 5,  1, domainPressure, "Dirichlet", 1); //Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
-                               // bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim); // lower
-                */
+
             }
             //** Stenosis 2D **********************************************************************/*
 
@@ -530,7 +522,8 @@ int main(int argc, char *argv[])
             //*********************  POST-PROCESSING - COMPARISON BETWEEN NON-NEWTONIAN POWER-LAW FLOW FOR n=1 with NAVIER STOKES SOLVER ***********************************
             // So basically they should give same results for n=1.0 as then Power-Law reduces to constant viscosity case
             // BUT as the Navier-Stokes equations are implemented in the conventional formulation with the laplacian operator the outlet boudary condition 
-            // and therefore the solution at the outlet will differ -> if we want to have the exactly same formulation we have to consider the addiional boundary integral 
+            // and therefore the solution at the outlet will differ -> if we want to have the exactly same formulation we have to consider the additional boundary integral
+            // but this will have an effect on the convergence 
             if ((parameterListProblem->sublist("Material").get("compareNavierStokes", false)) == true && (parameterListProblem->sublist("Material").get("PowerLaw index n", 1.) == 1.) && (parameterListProblem->sublist("Material").get("ShearThinningModel", "") == "Power-Law"))
             {
                 if (verbose)
@@ -554,7 +547,7 @@ int main(int argc, char *argv[])
                     comm->barrier();
                 }
 
-                // **********************  POST-PROCESSING NS Solver comparison ***********************************
+                // **********************  POST-PROCESSING Solver comparison ***********************************
                 Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaVelocityModel2(new ExporterParaView<SC, LO, GO, NO>());
                 Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaPressureModel2(new ExporterParaView<SC, LO, GO, NO>());
                 Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionVAssFEModel2 = navierStokesAssFEModel2.getSolution()->getBlock(0);

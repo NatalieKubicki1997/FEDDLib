@@ -93,6 +93,7 @@ int main(int argc, char *argv[]) {
 
     matrix->fillComplete( map1unique, map2unique );
     matrix->print(VERB_EXTREME);
+    matrix->print();
 
     return(EXIT_SUCCESS);
 }

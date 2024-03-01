@@ -1129,9 +1129,13 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	problemDisk->push_back(vel);
 	problemDisk->push_back(pres);
 
+    // Only called once at the start of the simulation
 	if(assemblyFEElements_.size()== 0){
-        if(params->sublist("Material").get("Newtonian",true) == false)
+        // We first check whether we consider a Newtonian fluid (constant viscosity * Laplace u)
+        // or we consider a Generalized-Newtonian fluid (non-constant viscosity * symmetric part of velocity gradient)
+        if(params->sublist("Material").get("Newtonian",true) == false)      // Generalized-Newtonian fluid
         {
+            // Then inside we will check whether we consider Stokes flow (neglect convective part u*Gradient u) or not
             if(params->sublist("Parameter").get("Stokes",false) == false)
             {
 	 	    initAssembleFEElements("NavierStokesNonNewtonian",problemDisk,elements, params,pointsRep,domainVec_.at(FElocVel)->getElementMap()); // In cas of non Newtonian Fluid
@@ -1143,8 +1147,9 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
             if(params->sublist("Material").get("Additional NeumannBoundaryIntegral",false) == true) // Only if we have stress-divergence formulation and want to include boundary integral at outlet
                 setBoundaryFlagAssembleFEEElements(dim, elements,params, pointsRep, FETypeVelocity);
         }
-        else
-        {
+        else                                                                // Newtonian fluid
+        {  
+            // Then inside we will check whether we consider Stokes flow (neglect convective part u*Gradient u) 
             if(params->sublist("Parameter").get("Stokes",false) == false)
             {
         	initAssembleFEElements("NavierStokes",problemDisk,elements, params,pointsRep,domainVec_.at(FElocVel)->getElementMap());

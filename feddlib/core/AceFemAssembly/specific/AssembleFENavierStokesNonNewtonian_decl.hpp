@@ -65,8 +65,6 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
    int dofsElementViscosity_;
    vec_dbl_Type solutionViscosity;
 
-   private:
-
 	/*!
 
 	 \brief Constructor for AssembleFEAceNavierStokes
@@ -146,6 +144,7 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
     //DifferentiableFuncClassPtr_Type viscosityModel  ;   // Make it more general such that the viscosity material Model can be any Input to Output Mapping 
     InputToOutputMappingClassPtr_Type viscosityModel;
 	
+	 private:
 	//friend class CarreauYasuda<SC,LO,GO,NO>; the other way around carrea-yasuda has to give access rights for this class
  };
 

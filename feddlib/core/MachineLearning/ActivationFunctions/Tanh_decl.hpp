@@ -4,7 +4,6 @@
 #include "feddlib/core/General/DifferentiableFuncClass.hpp"
 //#include "feddlib/core/AceFemAssembly/Helper.hpp"
 #include "feddlib/core/FEDDCore.hpp"
-#include "feddlib/core/AceFemAssembly/specific/AssembleFENavierStokesNonNewtonian.hpp"
 
 
 namespace FEDD {
