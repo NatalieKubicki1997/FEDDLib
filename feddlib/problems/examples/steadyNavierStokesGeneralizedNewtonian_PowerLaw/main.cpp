@@ -23,6 +23,11 @@
  Main of steady-state Generalized Newtonian fluid flow problem with Non-Newtonian stress tensor assumption
  where we use e.g. Carreau Yasuda or Power law
 
+***********************************************************************************************
+ Here we have to check that IF we want to compute a comparison between Navier-Stokes and 
+ Power-Law Model that K has to correspond to kinematicViscosity*density 
+ If not we are not comparing the same flow
+
  @brief steady-state Non-Newtonian creeping Flow main
  @author Natalie Kubicki
  @version 1.0
