@@ -277,6 +277,20 @@ void Matrix<SC,LO,GO,NO>::writeMM(std::string fileName) const{
     tpetraWriter.writeSparseFile(fileName, tpetraMat, "matrix", "");
 }
 
+/*static Teuchos::RCP<Xpetra::Matrix<Scalar, LocalOrdinal, GlobalOrdinal, Node> > Xpetra::IO< Scalar, int, int, EpetraNode >::Read	(	const std::string & 	fileName, Xpetra::UnderlyingLib 	lib, const RCP< const Teuchos::Comm< int >> & 	comm, bool 	binary = false  )		
+Read matrix from file in Matrix Market or binary format.
+Definition at line 1178 of file Xpetra_IO.hpp.
+*/
+template <class SC, class LO, class GO, class NO>
+void Matrix<SC,LO,GO,NO>::readMM(std::string fileName, CommConstPtr_Type & comm){
+    TEUCHOS_TEST_FOR_EXCEPTION( matrix_.is_null(), std::runtime_error,"Matrix in writeMM is null.");
+    //TEUCHOS_TEST_FOR_EXCEPTION( !(matrix_->getMap()->lib()==Xpetra::UseTpetra), std::logic_error,"Only available for Tpetra underlying lib.");
+    //matrix_ =  
+    matrix_= (*io_object).Read(fileName,  matrix_->getMap()->lib(),  comm, false) ;
+    matrix_->resumeFill();
+
+}
+
 template <class SC, class LO, class GO, class NO>
 void Matrix<SC,LO,GO,NO>::addMatrix(SC alpha, const MatrixPtr_Type &B, SC beta){
     //B = alpha*A + beta*B.

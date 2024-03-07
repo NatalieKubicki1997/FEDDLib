@@ -11,14 +11,18 @@
 #include <Xpetra_MapFactory.hpp>
 #include <Teuchos_Array.hpp>
 #include <iostream>
+#include <unistd.h>
 
 #include "feddlib/core/LinearAlgebra/Matrix.hpp"
 
 #include <Xpetra_MultiVectorFactory.hpp>
 #include <Xpetra_MatrixMatrix.hpp>
+#include <Xpetra_IO.hpp>
+
+// If you make changes to this file always remember to compile
 
 /*!
- Based on MultiVector test write here a simple test if evaluation of an trained ML Model gives same results as evaluation in Python
+ Write a simple sample script for computing a Matrix Vector product
 
  @brief  MultiLayerPerceptron Test
  @author Natalie Kubicki
@@ -79,9 +83,6 @@ int main(int argc, char *argv[]) {
     typedef Xpetra::Matrix<SC,LO,GO,NO> XpetraMatrix_Type;
     typedef RCP<XpetraMatrix_Type> XpetraMatrixPtr_Type;
 
-    typedef Matrix<SC,LO,GO,NO> Matrix_Type;
-    typedef RCP<Matrix_Type> MatrixPtr_Type;
-
     typedef Map<LO,GO,NO> Map_Type;
     typedef RCP<Map_Type> MapPtr_Type;
 
@@ -98,20 +99,31 @@ int main(int argc, char *argv[]) {
     typedef Map<LO,GO,NO> Map_Type;
     typedef RCP<Map_Type> MapPtr_Type;
 
-
-
     // We have to somehow initialize the size of the matrix/ vector we want to read - therefore user it has to be set 
 
-    GO numGlobalElements = 4;
-    myCLP.setOption("nge",&numGlobalElements,"numGlobalElements.");
+    /*
+    Simple test
+    Matrix 3x4
+    Vector 4x1
+    Result Vector 3x1
+
+    1 1 1 1        1          10
+    2 2 2 2   x    2    =     20   should be the results
+    3 3 3 3        3          30
+                   4  
+
+    */
+
+    GO numGlobalElements_vec= 4;
+    myCLP.setOption("nge",&numGlobalElements_vec,"numGlobalElements_vec.");
 
 
-    Array<GO> indicesa(numGlobalElements);
+    Array<GO> indicesa(numGlobalElements_vec);
     for (UN i=0; i<indicesa.size(); i++) {
         indicesa[i] = i; // [0 1 2 3]
     }
 
-    MapConstPtr_Type mapRepeated_In = rcp( new Map_Type(ulib_str, commWorld->getSize()*numGlobalElements, indicesa(), 0, commWorld) ); // The repeated map has size 9 if we have 3 processors and 3 global data
+    MapConstPtr_Type mapRepeated_In = rcp( new Map_Type(ulib_str, commWorld->getSize()*numGlobalElements_vec, indicesa(), 0, commWorld) ); // The repeated map has size 9 if we have 3 processors and 3 global data
     MapConstPtr_Type mapUnique_In = mapRepeated_In->buildUniqueMap();
 
     //mapRepeated_In->print(); // In der repeated Map hat jeder Prozessor alle Informationen
@@ -124,16 +136,16 @@ int main(int argc, char *argv[]) {
 
 
     MVPtrConst_Type mvUni = rcp( new MV_Type( mapUnique_In ) ); // Es wird lokal ein neuer Multivektor erzeugt auf Basis der Unique Map
-    mvUni->readMM("test.csv"); // Und jeder Prozessor liest jetzt ein Teil des Vektors ein
+    mvUni->readMM("test_vector_4x1.csv"); // Und jeder Prozessor liest jetzt ein Teil des Vektors ein
     mvUni->print();
 
 
     // Nun erzeugen wir den Vektor wo nachher die Ergebnisse rein sollen
-    Teuchos::Array<GO> indices2(numGlobalElements-1);
+    Teuchos::Array<GO> indices2(numGlobalElements_vec-1);
     for (int i=0; i<indices2.size(); i++) {
         indices2[i] = i;
     }
-    MapConstPtr_Type map2rep = rcp( new Map_Type( ulib_str, commWorld->getSize()*(numGlobalElements-1), indices2(), 0, commWorld ) );
+    MapConstPtr_Type map2rep = rcp( new Map_Type( ulib_str, commWorld->getSize()*(numGlobalElements_vec-1), indices2(), 0, commWorld ) );
     MapConstPtr_Type mapUnique_Out = map2rep->buildUniqueMap(); // Hier auch wieder auf Basis der UniqueMap
 
     std::cout << "The integer map2rep ->getNodeNumElements() is: " << map2rep->getNodeNumElements() << "for RANK " << rank<< std::endl;
@@ -153,10 +165,10 @@ int main(int argc, char *argv[]) {
     TEUCHOS_TEST_FOR_EXCEPTION(!(!ulib_str.compare("Tpetra") || !ulib_str.compare("Epetra") ) , std::runtime_error,"Unknown algebra type");
 
     // We want to construct a Matrix
-    // with numGlobalElements columns
+    // with numGlobalElements_vec columns
     // and  numGlobalElemnts -1 rows
 
-    //std::cout << "The integer map2rep->getNodeNumElements() is: " << map2rep->getNodeNumElements() << std::endl;
+
 
 
     // Uses internally: 
@@ -167,7 +179,7 @@ int main(int argc, char *argv[]) {
     // Constructor specifying the number of non-zeros for all rows.
 
 
-     MatrixPtr_Type matrix = rcp( new Matrix_Type( mapUnique_Out, numGlobalElements ) );
+     MatrixPtr_Type matrix = rcp( new Matrix_Type( mapUnique_Out, numGlobalElements_vec ) ); 
  
 
     // Je nachdem wie viele Prozessoren wir haben desto mehr Einträge werden drauf addiert

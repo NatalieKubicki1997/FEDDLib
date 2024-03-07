@@ -11,15 +11,19 @@
 #include <Xpetra_MapFactory.hpp>
 #include <Teuchos_Array.hpp>
 #include <iostream>
- 
- #include <Xpetra_IO.hpp>
+#include <unistd.h>
+#include <string>
+
 #include "feddlib/core/LinearAlgebra/Matrix.hpp"
 
 #include <Xpetra_MultiVectorFactory.hpp>
 #include <Xpetra_MatrixMatrix.hpp>
+#include <Xpetra_IO.hpp>
+// If you make changes to this file always remember to compile
 
 /*!
- Based on MultiVector test write here a simple test if evaluation of an trained ML Model gives same results as evaluation in Python
+ Write a simple sample script for computing a Matrix Vector product
+ where we read a vector from a file and we read a matrix from a file
 
  @brief  MultiLayerPerceptron Test
  @author Natalie Kubicki
@@ -49,6 +53,12 @@ int main(int argc, char *argv[]) {
     myCLP.setOption("ulib",&ulib_str,"Underlying lib");
 
     TEUCHOS_TEST_FOR_EXCEPTION(!(!ulib_str.compare("Tpetra") || !ulib_str.compare("Epetra") ) , std::runtime_error, "Unknown algebra type");
+
+        Xpetra::UnderlyingLib ulib;
+    if (ulib_str .compare("Epetra"))
+        ulib = Xpetra::UseEpetra;
+    else if (ulib_str .compare("Tpetra"))
+        ulib = Xpetra::UseTpetra;
 
     myCLP.recogniseAllOptions(true);
     myCLP.throwExceptions(false);
@@ -99,66 +109,78 @@ int main(int argc, char *argv[]) {
     typedef Map<LO,GO,NO> Map_Type;
     typedef RCP<Map_Type> MapPtr_Type;
 
+    typedef Xpetra::IO<SC,LO,GO,NO> XPetra_IO_Type;
+
+    /*
+    Simple test
+    Matrix 3x4
+    Vector 4x1
+    Result Vector 3x1
+
+    1 1 1 1        1          10
+    2 2 2 2   x    2    =     20   should be the results
+    3 3 3 3        3          30
+                   4  
+
+    */
 
 
     // We have to somehow initialize the size of the matrix/ vector we want to read - therefore user it has to be set 
+    GO numGlobalElements_vec = 4;
+    myCLP.setOption("nge",&numGlobalElements_vec,"numGlobalElements_vec.");
 
-    GO numGlobalElements = 4;
-    myCLP.setOption("nge",&numGlobalElements,"numGlobalElements.");
 
-
-    Array<GO> indicesa(numGlobalElements);
+    Array<GO> indicesa(numGlobalElements_vec);
     for (UN i=0; i<indicesa.size(); i++) {
         indicesa[i] = i; // [0 1 2 3]
     }
 
-    MapConstPtr_Type mapRepeated_In = rcp( new Map_Type(ulib_str, commWorld->getSize()*numGlobalElements, indicesa(), 0, commWorld) ); // The repeated map has size 9 if we have 3 processors and 3 global data
+    // This lines were added for a simple check what happens if we do not have fillComplete(...) in the Code and have really "random" domain map -> what we saw was that
+    // the domain map of the matrix did not match because it was constructed arbitray BUT if we add fillComplete(mapUniqueIn, ...) it works!
+    /*Teuchos::Array<GO> indicesa;
+    if(rank==0){
+       indicesa.push_back(3);
+    }
+    else{
+        indicesa.push_back(0);
+        indicesa.push_back(1);
+        indicesa.push_back(2);
+    }
+      MapConstPtr_Type mapUnique_In = rcp( new Map_Type(ulib_str, numGlobalElements_vec, indicesa(), 0, commWorld) );    
+    */
+
+   
+
+    MapConstPtr_Type mapRepeated_In = rcp( new Map_Type(ulib_str, commWorld->getSize()*numGlobalElements_vec, indicesa(), 0, commWorld) ); // The repeated map has size 9 if we have 3 processors and 3 global data
     MapConstPtr_Type mapUnique_In = mapRepeated_In->buildUniqueMap();
 
-    //mapRepeated_In->print(); // In der repeated Map hat jeder Prozessor alle Informationen
-    //mapUnique_In->print();   // In der unique Map hat ein Prozessor nur Informationen über sein globalen Stand im Vektor   
-
-    std::cout << "The integer map1rep ->getNodeNumElements() is: " << mapRepeated_In->getNodeNumElements() << std::endl;
-    std::cout << "The integer mapRepeated_In->getGlobalNumElements()  is: " << mapRepeated_In->getGlobalNumElements() << std::endl;
-    std::cout << "The integer map1unique ->getNodeNumElements() is: " << mapUnique_In->getNodeNumElements() << std::endl;
-    std::cout << "The integer mapUnique_In->getGlobalNumElements() is: " << mapUnique_In->getGlobalNumElements() << std::endl;
+    mapRepeated_In->print(); // In der repeated Map hat jeder Prozessor alle Informationen
+    mapUnique_In->print();   // In der unique Map hat ein Prozessor nur Informationen über sein globalen Stand im Vektor   
 
 
     MVPtrConst_Type mvUni = rcp( new MV_Type( mapUnique_In ) ); // Es wird lokal ein neuer Multivektor erzeugt auf Basis der Unique Map
-    mvUni->readMM("test.csv"); // Und jeder Prozessor liest jetzt ein Teil des Vektors ein
+    mvUni->readMM("test_vector_4x1.csv"); // Und jeder Prozessor liest jetzt ein Teil des Vektors ein
     mvUni->print();
 
 
     // Nun erzeugen wir den Vektor wo nachher die Ergebnisse rein sollen
-    Teuchos::Array<GO> indices2(numGlobalElements-1);
+    Teuchos::Array<GO> indices2(numGlobalElements_vec-1);
     for (int i=0; i<indices2.size(); i++) {
         indices2[i] = i;
     }
-    MapConstPtr_Type map2rep = rcp( new Map_Type( ulib_str, commWorld->getSize()*(numGlobalElements-1), indices2(), 0, commWorld ) );
+    MapConstPtr_Type map2rep = rcp( new Map_Type( ulib_str, commWorld->getSize()*(numGlobalElements_vec-1), indices2(), 0, commWorld ) );
     MapConstPtr_Type mapUnique_Out = map2rep->buildUniqueMap(); // Hier auch wieder auf Basis der UniqueMap
 
-    std::cout << "The integer map2rep ->getNodeNumElements() is: " << map2rep->getNodeNumElements() << "for RANK " << rank<< std::endl;
-    std::cout << "The integer map2rep->getGlobalNumElements()  is: " << map2rep->getGlobalNumElements() << "for RANK " << rank<< std::endl;
-    std::cout << "The integer mapUnique_Out ->getNodeNumElements() is: " << mapUnique_Out->getNodeNumElements() << "for RANK " << rank<< std::endl;
-    std::cout << "The integer map2Unique->getGlobalNumElements() is: " << mapUnique_Out->getGlobalNumElements() << std::endl;
 
     MVPtr_Type mvRes= rcp( new MV_Type(mapUnique_Out  )); // Erstellung des Ergebniss-Vektor
     mvRes->print(); 
-
-  
-    //mvRep->exportFromVector(mvUni); We do not need Rep
-    //mvRep->print();
-
 
    
     TEUCHOS_TEST_FOR_EXCEPTION(!(!ulib_str.compare("Tpetra") || !ulib_str.compare("Epetra") ) , std::runtime_error,"Unknown algebra type");
 
     // We want to construct a Matrix
-    // with numGlobalElements columns
+    // with numGlobalElements_vec columns
     // and  numGlobalElemnts -1 rows
-
-    //std::cout << "The integer map2rep->getNodeNumElements() is: " << map2rep->getNodeNumElements() << std::endl;
-
 
     // Uses internally: 
     // Build (const RCP< const Map > &rowMap, size_t maxNumEntriesPerRow)
@@ -167,35 +189,23 @@ int main(int argc, char *argv[]) {
     // Wir wollen eine 3x4 Matrix erstellen
     // Constructor specifying the number of non-zeros for all rows.
 
+     MatrixPtr_Type matrix = rcp( new Matrix_Type( mapUnique_Out, numGlobalElements_vec ) );
+     //XpetraMatrixPtr_Type matrix_ = matrix->getXpetraMatrix(); // This is constant
+     std::string filename_matrix = "test_matrx_3x4_sparse.csv"; // Change the filename as per your requirement
+     // Wir lesen allgemein eine sparse Matrix ein!
 
-     MatrixPtr_Type matrix = rcp( new Matrix_Type( mapUnique_Out, numGlobalElements ) );
- 
 
-    // Je nachdem wie viele Prozessoren wir haben desto mehr Einträge werden drauf addiert
-    for (int i=0; i<map2rep->getNodeNumElements(); i++) { // Wir iterieren hier für jeden Prozessor 3 
-        Array<SC> values( mapUnique_In->getGlobalNumElements() , 1.); // Wir wollen jetzt Werte für eine Zeile definieren das heißt in einer Spalte sind so viele Werte
-        Array<GO> indicesCol( mapUnique_In->getGlobalNumElements() , 0); // Vekotr mit 4 Indizes da insgesamt 4 Spalten
-        for (int j=0; j<indicesCol.size(); j++) {
-            indicesCol[j]  = j; // 0 1 2 3 
-        }
-        /*
-        After an empty matrix is constructed, we set new 
-        matrix values for each global row by passing an array of values 
-        and an array of global column indices to the matrix
-        */
-        // A−>insertGlobalValues ( row , colIndices , values ) ;
-         std::cout << "The map2rep->getGlobalElement(i) is: " << i << "::" << map2rep->getGlobalElement(i) << "for RANK " << rank << std::endl;
-         std::cout << "The mapUnique_Out->getGlobalElement(i) is: "<< i << "::" <<mapUnique_Out->getGlobalElement(i) << "for RANK " << rank << std::endl;
-
-        matrix->insertGlobalValues( map2rep->getGlobalElement(i), indicesCol(), values() ); // We call that 3* NumOfProcessors Time and if we insert at same location teh values will be added
-    }
+     XPetra_IO_Type ExampleIO;
+     //ExampleIO.Write(filename, *(mapUnique_In->getXpetraMap()) );
+     
+    // matrix->matrix_ is XpetraMatrixPtr_Type matrix_
+     std::string filename = "output_file.txt"; // Change the filename as per your requirement
+     matrix->readMM(filename_matrix, commWorld); //= ExampleIO.Read(filename_matrix,   ulib, commWorld, false);
     
     //Map->getGlobalNumElements()	const The number of elements in this Map.
     //Map->getLocalNumElements()	const The number of elements belonging to the calling process.
-    // Hier ist unser Problem wir addieren einfach drauf 
     // \brief Filling of Matrix based on specific domainmap (column map) and rangeMap (rowmap).
-    matrix->fillComplete( mapUnique_In , mapUnique_Out );
-    //matrix->fillComplete();
+    matrix->fillComplete( mapUnique_In , mapUnique_Out ); // 
     matrix->print(VERB_EXTREME);
                 
     std::cout << "****************************" << std::endl;

@@ -14,6 +14,12 @@
 #include <Xpetra_MatrixMatrix.hpp>
 #include <MatrixMarket_Tpetra.hpp>
 
+#include <Teuchos_GlobalMPISession.hpp>
+
+
+#include <Xpetra_IO.hpp> // Added in order to be able to read matrices from file and save them
+
+
 /*!
  Declaration of Matrix
 
@@ -43,6 +49,9 @@ public:
     typedef Teuchos::RCP<const XpetraMatrix_Type> XpetraMatrixConstPtr_Type;
     typedef const Teuchos::RCP<XpetraMatrixConstPtr_Type> XpetraMatrixConstPtrConst_Type;
 
+
+	
+
     typedef Xpetra::MultiVector<SC,LO,GO,NO> XpetraMV_Type;
     typedef Teuchos::RCP<XpetraMV_Type> XpetraMVPtr_Type;
 
@@ -66,6 +75,11 @@ public:
 
     typedef Xpetra::Export<LO,GO,NO> XpetraExport_Type;
     typedef Teuchos::RCP<XpetraExport_Type> XpetraExportPtr_Type;
+
+	typedef Xpetra::IO<SC,LO,GO,NO> XPetra_IO_Type;
+	typedef Teuchos::RCP<XPetra_IO_Type> XPetra_IOPtr_Type;
+
+
 
     Matrix();
 
@@ -195,6 +209,11 @@ public:
     void writeMM(std::string fileName="matrix.mm") const;
 
 	/*!
+		\brief Read Matrix from file.
+	*/
+    void readMM(std::string fileName="matrix.mm", CommConstPtr_Type & 	comm = nullptr) ; //not const because we want to read from an file and write into our matrix object;
+
+	/*!
 		\brief B = alpha*this + beta*B.
 	*/
     void addMatrix(SC alpha, const MatrixPtr_Type &B, SC beta);
@@ -227,6 +246,7 @@ private:
     XpetraMatrixPtr_Type matrix_;
     XpetraImportPtr_Type importer_;    
 	XpetraExportPtr_Type exporter_;
+	XPetra_IOPtr_Type io_object;
 };
 }
 
