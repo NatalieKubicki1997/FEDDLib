@@ -1,5 +1,5 @@
-#ifndef INPUTTOOUTPUTMAPPINGCLASS_DEF_hpp
-#define INPUTTOOUTPUTMAPPINGCLASS_DEF_hpp
+#ifndef InputToOutputMappingClass_DEF_hpp
+#define InputToOutputMappingClass_DEF_hpp
 
 #include "InputToOutputMappingClass_decl.hpp"
 

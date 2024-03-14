@@ -49,6 +49,21 @@ namespace FEDD
         // Init ThyraVectorSpcaes for NOX.
         this->initVectorSpaces();
     }
+    
+    template <class SC, class LO, class GO, class NO>
+    void NonLinearProblem<SC, LO, GO, NO>::initializeProblem_FromStartSolution(int nmbVectors)
+    {
+        this->system_.reset(new BlockMatrix_Type(1));
+
+        this->initializeVectors_fromStartSolution(nmbVectors);
+
+        this->initializeVectorsNonLinear_FromStartSolution(nmbVectors); // Was müssen wir damit machen??
+
+        // Init ThyraVectorSpcaes for NOX.
+        this->initVectorSpaces();
+    }
+
+    
 
     template <class SC, class LO, class GO, class NO>
     void NonLinearProblem<SC, LO, GO, NO>::initializeVectorsNonLinear(int nmbVectors)
@@ -80,6 +95,41 @@ namespace FEDD
 
         this->residualVec_->putScalar(0.);
     }
+
+    template <class SC, class LO, class GO, class NO>
+    void NonLinearProblem<SC, LO, GO, NO>::initializeVectorsNonLinear_FromStartSolution(int nmbVectors)
+    {
+
+        UN size = this->domainPtr_vec_.size();
+        this->previousSolution_.reset(new BlockMultiVector_Type(size));
+        this->residualVec_.reset(new BlockMultiVector_Type(size));
+
+        for (UN i = 0; i < size; i++)
+        {
+            if (this->dofsPerNode_vec_[i] > 1)
+            {
+                MapConstPtr_Type map = this->domainPtr_vec_[i]->getMapVecFieldUnique();
+                MultiVectorPtr_Type prevSolutionPart = Teuchos::rcp(new MultiVector_Type(map));
+                this->previousSolution_->addBlock(prevSolutionPart, i);
+                MultiVectorPtr_Type residualPart = Teuchos::rcp(new MultiVector_Type(map));
+                this->residualVec_->addBlock(residualPart, i);
+            }
+            else
+            {
+                MapConstPtr_Type map = this->domainPtr_vec_[i]->getMapUnique();
+                MultiVectorPtr_Type prevSolutionPart = Teuchos::rcp(new MultiVector_Type(map));
+                this->previousSolution_->addBlock(prevSolutionPart, i);
+                MultiVectorPtr_Type residualPart = Teuchos::rcp(new MultiVector_Type(map));
+                this->residualVec_->addBlock(residualPart, i);
+            }
+        }
+    // Now the parts are constructed lets read in our files from the start solution!
+    this->previousSolution_->getBlockNonConst(0)->readMM("initial_velocity.cvs");
+    this->previousSolution_->getBlockNonConst(1)->readMM("initial_pressure.csv");
+        this->residualVec_->putScalar(0.);
+    }
+
+
 
     template <class SC, class LO, class GO, class NO>
     void NonLinearProblem<SC, LO, GO, NO>::infoNonlinProblem()

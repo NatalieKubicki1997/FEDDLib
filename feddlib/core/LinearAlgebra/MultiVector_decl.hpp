@@ -14,6 +14,7 @@
 #include <MatrixMarket_Tpetra.hpp>
 
 
+
 /*!
  Declaration of MultiVector
 
@@ -69,6 +70,8 @@ public:
     typedef Teuchos::Comm<int> Comm_Type;
     typedef Teuchos::RCP<Comm_Type> CommPtr_Type;    
     typedef Teuchos::RCP<const Comm_Type> CommConstPtr_Type;
+
+
 
     MultiVector();
 
@@ -153,6 +156,11 @@ public:
     MultiVectorPtr_Type sumColumns() const;
     
     SC getMax() const;
+
+
+    // I need a new function where I can apply to each entry a nonlinear mapping of the entries - as argument I get an object of an mapping - Habe mich doch dafür entschieden die Funktionen des Mappings zu nutzen
+    //void applyMappingToEntries( InputToOutputMappingClassPtr_Type activation_function  );
+
     
 private:
 

@@ -47,6 +47,7 @@ namespace FEDD {
 
     As of now each surface and element node list is sorted to improve find/search operations. This influences for example the calculation of surface normals.
     
+    
     */
 template <class SC = default_sc, class LO = default_lo, class GO = default_go, class NO = default_no>
 class MeshPartitioner {

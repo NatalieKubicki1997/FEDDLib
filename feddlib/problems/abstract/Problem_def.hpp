@@ -502,6 +502,10 @@ Meine size ist also 2
             sourceTerm_->addBlock(sourceTermPart,i);
         }
     }
+    // Now the parts are constructed lets read in our files from the start solution!
+    solution_->getBlockNonConst(0)->readMM("initial_velocity.cvs");
+    solution_->getBlockNonConst(1)->readMM("initial_pressure.csv");
+
 }
 
 

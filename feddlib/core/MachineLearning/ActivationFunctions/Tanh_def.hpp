@@ -15,12 +15,17 @@ DifferentiableFuncClass<SC,LO,GO,NO>(params)
 	
 }
 
-/*template <class SC, class LO, class GO, class NO>
-void Tanh<SC,LO,GO,NO>::evaluateMapping(ParameterListPtr_Type params, double shearRate, double &viscosity) {
+template <class SC, class LO, class GO, class NO>
+void Tanh<SC,LO,GO,NO>::evaluateMapping(ParameterListPtr_Type params, MultiVectorConstPtr_Type input, MultiVectorPtr_Type &output) {
+    // We should check that the mapping of our input and output vector are the same!!
 	
-  
+    //TEUCHOS_TEST_FOR_EXCEPTION( (input->getMap()->getXpetraMap())->isSameAs( output->getMap()->getXpetraMap() ), std::logic_error,"Source maps of Importer and Multivector are not the same."); // Something like this
+    // Write here the function that reads in on each processor all values that it has
+    // Then apply to each value the tanh function
+    // Next write it back
+
 }
-*/
+
 
 
 template <class SC, class LO, class GO, class NO>

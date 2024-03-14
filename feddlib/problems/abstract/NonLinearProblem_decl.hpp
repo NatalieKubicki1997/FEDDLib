@@ -63,6 +63,9 @@ public:
     void infoNonlinProblem();
 
     void initializeProblem(int nmbVectors=1);
+
+    void initializeProblem_FromStartSolution(int nmbVectors=1);
+
     
     virtual void assemble( std::string type = "" ) const = 0;
 
@@ -83,6 +86,8 @@ public:
 //    virtual int ComputeDragLift(vec_dbl_ptr_Type &values) = 0;    
 
     void initializeVectorsNonLinear(int nmbVectors=1);
+    
+    void initializeVectorsNonLinear_FromStartSolution(int nmbVectors=1);
 
     double calculateResidualNorm() const;
 

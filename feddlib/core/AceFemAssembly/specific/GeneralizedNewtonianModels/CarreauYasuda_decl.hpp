@@ -15,6 +15,9 @@ namespace FEDD {
               class NO = default_no>
     class AssembleFENavierStokesNonNewtonian;
 */
+
+
+
     /*!
     \class CarreauYasuda
     \brief This class is derived from the abstract class DifferentiableFuncClass and should provide functionality to evaluate the viscosity function specified by Carreau-Yasuda model (see [1])

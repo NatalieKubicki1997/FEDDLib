@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
 
 
     // We have to somehow initialize the size of the matrix/ vector we want to read - therefore user it has to be set 
-    GO numGlobalElements_vec = 4;
+    GO numGlobalElements_vec = 100;
     myCLP.setOption("nge",&numGlobalElements_vec,"numGlobalElements_vec.");
 
 
@@ -165,21 +165,6 @@ int main(int argc, char *argv[]) {
         indicesa[i] = i; // [0 1 2 3]
     }
 
-    // This lines were added for a simple check what happens if we do not have fillComplete(...) in the Code and have really "random" domain map -> what we saw was that
-    // the domain map of the matrix did not match because it was constructed arbitray BUT if we add fillComplete(mapUniqueIn, ...) it works!
-    /*Teuchos::Array<GO> indicesa;
-    if(rank==0){
-       indicesa.push_back(3);
-    }
-    else{
-        indicesa.push_back(0);
-        indicesa.push_back(1);
-        indicesa.push_back(2);
-    }
-      MapConstPtr_Type mapUnique_In = rcp( new Map_Type(ulib_str, numGlobalElements_vec, indicesa(), 0, commWorld) );    
-    */
-
-   
 
     MapConstPtr_Type mapRepeated_In = rcp( new Map_Type(ulib_str, commWorld->getSize()*numGlobalElements_vec, indicesa(), 0, commWorld) ); // The repeated map has size 9 if we have 3 processors and 3 global data
     MapConstPtr_Type mapUnique_In = mapRepeated_In->buildUniqueMap();
@@ -189,79 +174,22 @@ int main(int argc, char *argv[]) {
 
 
     MVPtrConst_Type mvUni = rcp( new MV_Type( mapUnique_In ) ); // Es wird lokal ein neuer Multivektor erzeugt auf Basis der Unique Map
-    mvUni->readMM("test_vector_4x1.csv"); // Und jeder Prozessor liest jetzt ein Teil des Vektors ein
+    mvUni->readMM("test_vector_100x1.csv"); // Und jeder Prozessor liest jetzt ein Teil des Vektors ein
     mvUni->print();
 
+    mvUni->writeMM("written_test_vector_100x1.csv");
 
-    // Nun erzeugen wir den Vektor wo nachher die Ergebnisse rein sollen
+
+    // Nun erzeugen wir den Vektor wo nachher die Ergebnisse rein sollen mit der gleichen map!
     Teuchos::Array<GO> indices2(numGlobalElements_vec-1);
-    for (int i=0; i<indices2.size(); i++) {
-        indices2[i] = i;
-    }
-    MapConstPtr_Type map2rep = rcp( new Map_Type( ulib_str, commWorld->getSize()*(numGlobalElements_vec-1), indices2(), 0, commWorld ) );
-    MapConstPtr_Type mapUnique_Out = map2rep->buildUniqueMap(); // Hier auch wieder auf Basis der UniqueMap
 
 
-    MVPtr_Type mvRes= rcp( new MV_Type(mapUnique_Out  )); // Erstellung des Ergebniss-Vektor
+    MVPtr_Type mvRes= rcp( new MV_Type(mapUnique_In )); // Erstellung des Ergebniss-Vektor
     mvRes->print(); 
-
+    mvRes->readMM("written_test_vector_100x1.csv");
+    mvRes->print();
    
-    TEUCHOS_TEST_FOR_EXCEPTION(!(!ulib_str.compare("Tpetra") || !ulib_str.compare("Epetra") ) , std::runtime_error,"Unknown algebra type");
-
-    // We want to construct a Matrix
-    // with numGlobalElements_vec columns
-    // and  numGlobalElemnts -1 rows
-
-    // Uses internally: 
-    // Build (const RCP< const Map > &rowMap, size_t maxNumEntriesPerRow)
-    // Constructor specifying the max number of non-zeros per row and providing column map.
-
-    // Wir wollen eine 3x4 Matrix erstellen
-    // Constructor specifying the number of non-zeros for all rows.
-
-     MatrixPtr_Type matrix = rcp( new Matrix_Type( mapUnique_Out, numGlobalElements_vec ) );
-     //XpetraMatrixPtr_Type matrix_ = matrix->getXpetraMatrix(); // This is constant
-     std::string filename_matrix = "test_matrx_3x4_sparse.csv"; // Change the filename as per your requirement
-     // Wir lesen allgemein eine sparse Matrix ein!
-
-
-     XPetra_IO_Type ExampleIO;
-     //std::string filename = "output_file.txt"; // Change the filename as per your requirement
-     //ExampleIO.Write(filename, *(mapUnique_In->getXpetraMap()) );
-     
-    // matrix->matrix_ is XpetraMatrixPtr_Type matrix_
-     matrix->readMM(filename_matrix, commWorld); //= ExampleIO.Read(filename_matrix,   ulib, commWorld, false);
-    
-    //Map->getGlobalNumElements()	const The number of elements in this Map.
-    //Map->getLocalNumElements()	const The number of elements belonging to the calling process.
-    // \brief Filling of Matrix based on specific domainmap (column map) and rangeMap (rowmap).
-    matrix->fillComplete( mapUnique_In , mapUnique_Out ); // 
-    matrix->print(VERB_EXTREME);
-
-    std::string filename_matrix2 = "test_matrx_3x4_sparse_2.csv"; // Change the filename as per your requirement
-
-    MatrixPtr_Type matrix2 = rcp( new Matrix_Type( mapUnique_Out, numGlobalElements_vec ) );
-
-    matrix2->readMM(filename_matrix2, commWorld); //= ExampleIO.Read(filename_matrix,   ulib, commWorld, false);
-    matrix2->fillComplete( mapUnique_In , mapUnique_Out ); // 
-
-    matrix2->print(VERB_EXTREME);
-           
-    std::cout << "****************************" << std::endl;
-
-    matrix->resumeFill();
-    matrix->importFromVector( matrix2, true, "Insert","Forward" );
-    matrix->fillComplete( mapUnique_In , mapUnique_Out ); // 
-
-
-    matrix->print();
-
-    mvRes->print();
-    mvUni->print();
-
-    matrix->apply(mvUni, *mvRes,Teuchos::NO_TRANS,1.0,0.0);
-    mvRes->print();
-
+  
    
     return(EXIT_SUCCESS);
 }

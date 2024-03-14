@@ -427,4 +427,31 @@ SC MultiVector<SC,LO,GO,NO>::getMax() const{
 //}
 
 }
+
+
+
+/*
+template <class SC, class LO, class GO, class NO>
+SC MultiVector<SC,LO,GO,NO>::applyMappingToEntries( InputToOutputMappingClassPtr_Type activation_function  ){
+
+    //# Get the number of vectors and the length of each vector
+    /*num_vectors = mv.getNumVectors()
+    vector_length = mv.getGlobalLength()
+
+    //# Create a new MultiVector to store the result
+    result_mv = MultiVector(mv.getMap(), num_vectors)
+
+
+}
+*/
+
+
+
+
+
+
+
+
+
+
 #endif

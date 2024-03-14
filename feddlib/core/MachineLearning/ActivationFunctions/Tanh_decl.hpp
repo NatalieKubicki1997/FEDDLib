@@ -45,11 +45,14 @@ class Tanh : public DifferentiableFuncClass<SC,LO,GO,NO> {
         // Inherited Function from base abstract class 
         /*!
          \brief Implement a mapping description for evaluating output in dependence of given input and specified parameters
+         // So for each subsclass we can define the sense of this mapping by ourself - for an activation function the general idea of this function should be that
+         // we obtain a vector and we want to apply for each entry a nonlinear mapping and save the new multivector where
+         // y_i = Tanh (x_i)   and x_i are the single input entries and y_i are the results
          @param[in] params Parameterlist as read from the xml file (maybe redundant)
          @param[in] x Independent variable
          @param[in,out] res Dependent variable
         */
-        virtual void evaluateMapping(ParameterListPtr_Type params, MultiVectorConstPtr_Type input, MultiVectorPtr_Type &output) override { TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Not yet implemented - HAS TO BE IMPLEMENTED."); };
+        virtual void evaluateMapping(ParameterListPtr_Type params, MultiVectorConstPtr_Type input, MultiVectorPtr_Type &output) override;
        
         /*!
          \brief This function should set the specififc needed parameters for each model to the defined values.

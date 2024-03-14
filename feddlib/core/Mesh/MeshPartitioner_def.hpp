@@ -250,7 +250,10 @@ void MeshPartitioner<SC,LO,GO,NO>::readAndPartitionMesh( int meshNumber ){
     meshUnstr->readMeshEntity("line");
 
 
-    
+    /* So add this point read in an external file with parameter estimations 
+       we assume that the estimation of the parameters is done on the same! grid structure as obtained from Paraview    
+    */
+
     bool verbose ( comm_->getRank() == 0 );
     bool buildEdges = pList_->get("Build Edge List", true);
     bool buildSurfaces = pList_->get("Build Surface List", true);

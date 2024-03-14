@@ -1,5 +1,5 @@
-#ifndef INPUTTOOUTPUTMAPPINGCLASS_DECL_hpp
-#define INPUTTOOUTPUTMAPPINGCLASS_DECL_hpp
+#ifndef InputToOutputMappingClass_DECL_hpp
+#define InputToOutputMappingClass_DECL_hpp
 
 
 #include "feddlib/core/FEDDCore.hpp"

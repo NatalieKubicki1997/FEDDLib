@@ -501,7 +501,7 @@ int main(int argc, char *argv[])
             {
                 MAIN_TIMER_START(NavierStokesAssFE, " AssFE:   Assemble System and solve");
                 navierStokesAssFE.addBoundaries(bcFactory);
-                navierStokesAssFE.initializeProblem();
+                navierStokesAssFE.initializeProblem_FromStartSolution();
                 navierStokesAssFE.assemble();
 
                 navierStokesAssFE.setBoundariesRHS();
@@ -551,6 +551,8 @@ int main(int argc, char *argv[])
             Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionVAssFE = navierStokesAssFE.getSolution()->getBlock(0);
             Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionPAssFE = navierStokesAssFE.getSolution()->getBlock(1);
 
+            exportSolutionVAssFE->writeMM("initial_velocity.cvs");
+            exportSolutionPAssFE->writeMM("initial_pressure.csv");
             DomainPtr_Type dom = domainVelocity;
             exParaVelocity->setup("velocity", dom->getMesh(), dom->getFEType());
             UN dofsPerNode = dim;
