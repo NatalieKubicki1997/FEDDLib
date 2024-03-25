@@ -465,6 +465,14 @@ Meine size ist also 2
 }
 
 
+    template <class SC, class LO, class GO, class NO>
+    void Problem<SC, LO, GO, NO>::initSolutionWithVector(MultiVector_Type &mv)
+    {
+        TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "initSolutionWithVector not implemented. DO we need this?");
+
+        //    *solution_ = mv;
+    }
+
 /* HIER KOMMT REIN WAS ICH ÄNDERN MUSS UM STARTLÖSUNG EINZULESEN */
 template<class SC,class LO,class GO,class NO>
 void Problem<SC,LO,GO,NO>::initializeVectors_fromStartSolution(int nmbVectors){
@@ -503,7 +511,7 @@ Meine size ist also 2
         }
     }
     // Now the parts are constructed lets read in our files from the start solution!
-    solution_->getBlockNonConst(0)->readMM("initial_velocity.cvs");
+    solution_->getBlockNonConst(0)->readMM("initial_velocity.csv");
     solution_->getBlockNonConst(1)->readMM("initial_pressure.csv");
 
 }
@@ -637,13 +645,7 @@ Meine size ist also 2
         return false;
     }
 
-    template <class SC, class LO, class GO, class NO>
-    void Problem<SC, LO, GO, NO>::initSolutionWithVector(MultiVector_Type &mv)
-    {
-        TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "initSolutionWithVector not implemented. DO we need this?");
 
-        //    *solution_ = mv;
-    }
 
     template <class SC, class LO, class GO, class NO>
     void Problem<SC, LO, GO, NO>::initializeSolverBuilder() const

@@ -173,11 +173,11 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
     //std::cout << "-- Debug Assembly constant matrices Navier-Stokes ... " << std::flush;
 
     // Maybe we do not override the values in the first step so lets try this
-    MultiVectorConstPtr_Type u = this->solution_->getBlock(0);
+   /* MultiVectorConstPtr_Type u = this->solution_->getBlock(0);
     u_rep_->importFromVector(u, true);
     MultiVectorConstPtr_Type p = this->solution_->getBlock(1);
     p_rep_->importFromVector(p, true);  // this is the current pressure solution at the nodes
-
+*/
     // jumps inside FE_def.hpp in assemblyNavierStokes so in the general FE class
     // our AssembleMode is "Jacobian"
 	this->feFactory_->assemblyNavierStokes(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->system_,this->residualVec_,this->coeff_, this->parameterList_,false, "Jacobian", true/*call fillComplete*/);

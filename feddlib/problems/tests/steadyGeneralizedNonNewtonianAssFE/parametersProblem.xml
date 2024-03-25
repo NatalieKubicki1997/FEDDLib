@@ -104,5 +104,8 @@
         <Parameter name="Preconditioner Method" type="string" value="Monolithic"/><!-- Monolithic, Teko -->
         <Parameter name="Assemble Velocity Mass" type="bool" value="false"/>
         <Parameter name="Delete P1 Data" type="bool" value="false"/><!-- only for Monolithic and Newton -->
+
+        <Parameter name="WriteMVSolutionToCSV" type="bool" value="false"/><!-- before we can start a restart we have to first run a simulation (same grid!) -->
+        <Parameter name="StartFromRestartMVSolutionCSV" type="bool" value="false"/><!-- If we have run a simulation previously and written down the solution we can restart -->
     </ParameterList>
 </ParameterList>

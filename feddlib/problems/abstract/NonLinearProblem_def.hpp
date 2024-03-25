@@ -124,7 +124,7 @@ namespace FEDD
             }
         }
     // Now the parts are constructed lets read in our files from the start solution!
-    this->previousSolution_->getBlockNonConst(0)->readMM("initial_velocity.cvs");
+    this->previousSolution_->getBlockNonConst(0)->readMM("initial_velocity.csv");
     this->previousSolution_->getBlockNonConst(1)->readMM("initial_pressure.csv");
         this->residualVec_->putScalar(0.);
     }
@@ -194,6 +194,7 @@ namespace FEDD
         return its;
     }
 
+    // If we chose the update Criterion for the Newton method this method is called
     template <class SC, class LO, class GO, class NO>
     int NonLinearProblem<SC, LO, GO, NO>::solveAndUpdate(const std::string &criterion, double &criterionValue)
     {
@@ -211,6 +212,7 @@ namespace FEDD
 
         return its;
     }
+    
 
     template <class SC, class LO, class GO, class NO>
     typename NonLinearProblem<SC, LO, GO, NO>::BlockMultiVectorPtr_Type NonLinearProblem<SC, LO, GO, NO>::getResidualVector() const

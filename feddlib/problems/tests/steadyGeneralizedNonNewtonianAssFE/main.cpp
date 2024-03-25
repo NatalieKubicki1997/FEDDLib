@@ -322,6 +322,10 @@ int main(int argc, char *argv[])
         std::string discVelocity = parameterListProblem->sublist("Parameter").get("Discretization Velocity", "P2");
         std::string discPressure = parameterListProblem->sublist("Parameter").get("Discretization Pressure", "P1");
 
+
+        bool restart    = parameterListProblem->sublist("General").get("StartFromRestartMVSolutionCSV", false);
+        bool writeMVCSV = parameterListProblem->sublist("General").get("WriteMVSolutionToCSV", false);
+
         string meshType = parameterListProblem->sublist("Parameter").get("Mesh Type", "structured");
         string meshName = parameterListProblem->sublist("Parameter").get("Mesh Name", "circle2D_1800.mesh");
         string meshDelimiter = parameterListProblem->sublist("Parameter").get("Mesh Delimiter", " ");
@@ -501,7 +505,14 @@ int main(int argc, char *argv[])
             {
                 MAIN_TIMER_START(NavierStokesAssFE, " AssFE:   Assemble System and solve");
                 navierStokesAssFE.addBoundaries(bcFactory);
-                navierStokesAssFE.initializeProblem_FromStartSolution();
+                if (restart == false)
+                {
+                    navierStokesAssFE.initializeProblem();                    
+                }
+                else
+                {
+                    navierStokesAssFE.initializeProblem_FromStartSolution();
+                }
                 navierStokesAssFE.assemble();
 
                 navierStokesAssFE.setBoundariesRHS();
@@ -551,8 +562,15 @@ int main(int argc, char *argv[])
             Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionVAssFE = navierStokesAssFE.getSolution()->getBlock(0);
             Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionPAssFE = navierStokesAssFE.getSolution()->getBlock(1);
 
-            exportSolutionVAssFE->writeMM("initial_velocity.cvs");
+            // Write out solution
+            if (writeMVCSV == true)
+            {
+            exportSolutionVAssFE->writeMM("initial_velocity.csv");
             exportSolutionPAssFE->writeMM("initial_pressure.csv");
+            }
+
+
+
             DomainPtr_Type dom = domainVelocity;
             exParaVelocity->setup("velocity", dom->getMesh(), dom->getFEType());
             UN dofsPerNode = dim;
