@@ -57,13 +57,12 @@ class AssembleFENavierStokesNonNewtonian : public AssembleFENavierStokes<SC,LO,G
 		/*!
 	 \brief Compute the viscosity for an element depending on the knwon velocity solution.
 	*/
-	virtual void computeLocalViscosity();
+	virtual void computeLocalconstOutputField();
 
    protected:
  
    std::string shearThinningModel;
    int dofsElementViscosity_;
-   vec_dbl_Type solutionViscosity;
 
 	/*!
 

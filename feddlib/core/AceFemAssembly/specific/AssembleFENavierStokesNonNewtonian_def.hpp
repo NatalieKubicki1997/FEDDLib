@@ -18,7 +18,7 @@ AssembleFENavierStokes<SC,LO,GO,NO>(flag, nodesRefConfig, params,tuple)
 
     ////******************* If we want to save viscosity - it is also possible to compute in paraview**********************************
 	dofsElementViscosity_ = this->dofsPressure_*this->numNodesVelocity_; // So it is a scalar quantity but as it depend on the velocity it is defined at the nodes of the velocity
-	this->solutionViscosity_ = vec_dbl_Type(dofsElementViscosity_ );    ////**********************************************************************************
+	this->constOutputField_ = vec_dbl_Type(dofsElementViscosity_ );    ////**********************************************************************************
     
     // Reading through parameterlist
     shearThinningModel= params->sublist("Material").get("ShearThinningModel","");
@@ -1300,7 +1300,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeShearRate(  vec3D_d
 // So based on the previous solution we can compute viscosity in the center of mass 
 // therefore we have to compute center of mass of triangle 
 template <class SC, class LO, class GO, class NO>
-void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeLocalViscosity()
+void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeLocalconstOutputField()
 {
 	int dim = this->getDim();
 	string FEType = this->FETypeVelocity_;
@@ -1316,7 +1316,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeLocalViscosity()
     vec_dbl_Type 	    CM(dim,0.0); // center of mass - so we want to compute the viscosity value in the middle of the element
    
     // Compute center of mass **********************************************************************************
-    TEUCHOS_TEST_FOR_EXCEPTION(dim == 1,std::logic_error, "computeLocalViscosity Not implemented for dim=1");
+    TEUCHOS_TEST_FOR_EXCEPTION(dim == 1,std::logic_error, "computeLocalconstOutputField Not implemented for dim=1");
     if (dim == 2) // center of mass of reference triangle (xi-eta coordinates)
     {
      CM[0]=1.0/3.0;
@@ -1335,7 +1335,7 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeLocalViscosity()
 
     vec_dbl_ptr_Type gammaDoti(new vec_dbl_Type( dPhiAtCM->size(),0.0)); // Only one value because size is one
     computeShearRate(dPhiTransAtCM, gammaDoti, dim); // updates gammaDot using velocity solution 
-    this->viscosityModel->evaluateMapping(this->params_,  gammaDoti->at(0), this->solutionViscosity_.at(0));
+    this->viscosityModel->evaluateMapping(this->params_,  gammaDoti->at(0), this->constOutputField_.at(0));
     
 
 }

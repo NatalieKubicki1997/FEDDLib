@@ -1313,8 +1313,8 @@ void FE<SC,LO,GO,NO>::updateViscosityFE_CM(int dim,
 
 		assemblyFEElements_[T]->updateSolution(solution); // here we update the value of the solutions inside an element
  
-        assemblyFEElements_[T]->computeLocalViscosity(); //  we compute the viscosity inside an element
-        solution_viscosity = assemblyFEElements_[T]->getViscositySolution();
+        assemblyFEElements_[T]->computeLocalconstOutputField(); //  we compute the viscosity inside an element
+        solution_viscosity = assemblyFEElements_[T]->getLocalconstOutputField();
 
         Teuchos::ArrayRCP<SC>  resArray_block = visco_output->getBlockNonConst(0)->getDataNonConst(0);
         resArray_block[T] = solution_viscosity[0]; // although it is a vector it only has one entry because we compute the value in the center of the element

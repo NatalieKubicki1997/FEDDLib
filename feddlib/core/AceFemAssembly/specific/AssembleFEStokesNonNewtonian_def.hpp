@@ -19,7 +19,7 @@ AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>(flag, nodesRefConfig, params,tup
 
     ////******************* If we want to save viscosity - it is also possible to compute in paraview**********************************
 	this->dofsElementViscosity_ = this->dofsPressure_*this->numNodesVelocity_; // So it is a scalar quantity but as it depend on the velocity it is defined at the nodes of the velocity
-	this->solutionViscosity_ = vec_dbl_Type(this->dofsElementViscosity_ );    ////**********************************************************************************
+	this->constOutputField_ = vec_dbl_Type(this->dofsElementViscosity_ );    ////**********************************************************************************
     
     // Reading through parameterlist
     this->shearThinningModel= params->sublist("Material").get("ShearThinningModel","");

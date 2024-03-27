@@ -92,20 +92,18 @@ namespace FEDD {
         virtual void assembleRHS() = 0;
 
         /*!
-        	 \brief In case of non-newtonian fluids viscosity is not constant - Compute the viscosity for an element depending on the knwon velocity solution.
+        	 \brief E.g. In case of non-newtonian fluids viscosity is not constant - Compute the viscosity for an element depending on the knwon velocity solution.
         */
-	    virtual void computeLocalViscosity() {};
+	    virtual void computeLocalconstOutputField() {};
           /*!
-        	 \brief In case of non-newtonian fluids viscosity is not constant - Compute the viscosity for an element depending on the knwon velocity solution.
-        */
-	    virtual void computeLocalViscosity_AtNodes() {};
+
 
 
         /*!
          \brief In case of non-newtonian fluids viscosity is not constant 
          \return the local viscosity solution at the nodes inside an element
         */
-        vec_dbl_Type getViscositySolution() {return solutionViscosity_;};
+        vec_dbl_Type getLocalconstOutputField() {return constOutputField_;};
 
         /*
         In case we want to switch from FixedPoint to Newton method during computation
@@ -287,7 +285,7 @@ namespace FEDD {
         vec_dbl_ptr_Type solution_ ;
 
         // We added this into our AssembleClasss in order to be able to compute Viscosity in each element and save/plot it
-        vec_dbl_Type solutionViscosity_ ; 
+        vec_dbl_Type constOutputField_ ; 
 
         double timeIncrement_;
         GO globalElementID_;
