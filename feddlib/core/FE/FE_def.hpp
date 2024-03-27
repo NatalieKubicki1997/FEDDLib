@@ -1320,7 +1320,8 @@ void FE<SC,LO,GO,NO>::updateViscosityFE_CM(int dim,
         resArray_block[T] = solution_viscosity[0]; // although it is a vector it only has one entry because we compute the value in the center of the element
           
 	} // end loop over all elements
-    this->visco_output_= visco_output;
+    // We could also instead of just overwrite it add an aditional block such that we could also compute other output fields and save it in there
+    this->const_output_fields= visco_output;
 
 
 }

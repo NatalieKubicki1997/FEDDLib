@@ -282,7 +282,11 @@ namespace FEDD {
         int newtonStep_ ;
         ParameterListPtr_Type paramsMaterial_;
         ParameterListPtr_Type params_;
+
+
         vec_dbl_ptr_Type solution_ ;
+
+        // We added this into our AssembleClasss in order to be able to compute Viscosity in each element and save/plot it
         vec_dbl_Type solutionViscosity_ ; 
 
         double timeIncrement_;

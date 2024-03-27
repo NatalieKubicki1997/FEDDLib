@@ -110,10 +110,10 @@ public:
 
     mutable MatrixPtr_Type 	A_;
     vec_int_ptr_Type pressureIDsLoc;
-    MultiVectorPtr_Type u_rep_; // wofür steht rep?
+    MultiVectorPtr_Type u_rep_; // repeated velocity solution
     MultiVectorPtr_Type p_rep_;
 
-    MultiVectorPtr_Type viscosity_element_;
+    MultiVectorPtr_Type viscosity_element_; // In case of a generalized-Newtonian fluid we can compute viscosity and want to visualize it at the end of the simulation
     /* ----------------------------------------------------------------------------------------*/
 
 private:

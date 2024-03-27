@@ -432,43 +432,61 @@ int main(int argc, char *argv[])
 
 
                   if (dim == 2)
+                  {}
+                  else if (dim == 3)
                   {
-                  //*********** COUETTE FLOW  ***********
-                  /*
-                    // So for Couette Flow we have a moving upper plate and rigid lower plate
-                        bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim); // wall
-                        bcFactory->addBC(couette2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
-                    //  The flow will be induced by the moving plate so there should be no pressure gradient in this testcase
-                        bcFactory->addBC(zeroDirichlet2D, 3, 1, domainPressure, "Dirichlet", 1); // outflow
-                        bcFactory->addBC(zeroDirichlet2D, 4, 1, domainPressure, "Dirichlet", 1); // inflow
-                    }
-                    */
-
-                    //************* POISEUILLE FLOW  *************
-                    bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                 // wall
-                    bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);  // wall
-                    bcFactory->addBC(couette2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // original bc Inlet onex
-
-
-                  }
-                 else if (dim == 3)
-                 {
                  
-                 
-                  /*bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);                  // upper
-                  bcFactory->addBC(zeroDirichlet3D, 2, 0, domainVelocity, "Dirichlet", dim);                  // lower
-                  bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim);                  // sides
-                  bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);                  // sides
-                  bcFactory->addBC(inflowParabolic3D, 6, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
-                  bcFactory->addBC(zeroDirichlet, 5, 1, domainPressure, "Dirichlet", 1);                      // Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
-                  */
+                
 
-                 bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);                  // walls
-                 bcFactory->addBC(constx3D, 3, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
+                    bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);                  // walls
+                    bcFactory->addBC(constx3D, 3, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
 
-                 }
-               
-            //** Stenosis 2D **********************************************************************/*
+                   }
+
+                //**************************** Plot Subdomains without overlap ****************************************
+                // Plotte subdomain   
+                if (parameterListAll->sublist("General").get("ParaView export subdomains",false) )
+                {
+                
+                if (verbose)
+                    std::cout << "\t### Exporting fluid subdomains ###\n";
+
+                typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
+                typedef RCP<MultiVector_Type> MultiVectorPtr_Type;
+                typedef RCP<const MultiVector_Type> MultiVectorConstPtr_Type;
+                typedef BlockMultiVector<SC,LO,GO,NO> BlockMultiVector_Type;
+                typedef RCP<BlockMultiVector_Type> BlockMultiVectorPtr_Type;
+
+                {
+                    MultiVectorPtr_Type vecDecomposition = rcp(new MultiVector_Type( domainVelocity->getElementMap() ) );
+                    MultiVectorConstPtr_Type vecDecompositionConst = vecDecomposition;
+                    vecDecomposition->putScalar(comm->getRank()+1.);
+                    
+                    Teuchos::RCP<ExporterParaView<SC,LO,GO,NO> > exPara(new ExporterParaView<SC,LO,GO,NO>());
+                    
+                    exPara->setup( "subdomains_fluid", domainVelocity->getMesh(), "P0" );
+                    
+                    exPara->addVariable( vecDecompositionConst, "subdomains", "Scalar", 1, domainVelocity->getElementMap());
+                    exPara->save(0.0);
+                    exPara->closeExporter();
+                }
+                
+
+                }
+
+                            //*************************** FLAGS *************************************
+                    Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaF(new ExporterParaView<SC, LO, GO, NO>());
+                    Teuchos::RCP<MultiVector<SC, LO, GO, NO>> exportSolution(new MultiVector<SC, LO, GO, NO>(domainVelocity->getMapUnique()));
+                    vec_int_ptr_Type BCFlags = domainVelocity->getBCFlagUnique();
+                    Teuchos::ArrayRCP<SC> entries = exportSolution->getDataNonConst(0);
+            for (int i = 0; i < entries.size(); i++)
+            {
+                entries[i] = BCFlags->at(i);
+            }
+            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionConst = exportSolution;
+            exParaF->setup("Flags", domainVelocity->getMesh(), domainVelocity->getFEType());
+            exParaF->addVariable(exportSolutionConst, "Flags", "Scalar", 1, domainVelocity->getMapUnique(), domainVelocity->getMapUniqueP2());
+            exParaF->save(0.0);
 
 
             //          **********************  CALL SOLVER ***********************************
@@ -489,6 +507,11 @@ int main(int argc, char *argv[])
                 MAIN_TIMER_STOP(NavierStokesAssFE);
                 comm->barrier();
             }
+
+
+
+
+
 
             //          **********************  POST-PROCESSING ***********************************
             Teuchos::TimeMonitor::report(cout, "Main");
@@ -540,20 +563,12 @@ int main(int argc, char *argv[])
             exParaPressure->save(0.0);
 
 
-            //*************************** FLAGS *************************************
-            // Leas Code to obtain Flags in Paraview
-            Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaF(new ExporterParaView<SC, LO, GO, NO>());
-            Teuchos::RCP<MultiVector<SC, LO, GO, NO>> exportSolution(new MultiVector<SC, LO, GO, NO>(domainVelocity->getMapUnique()));
-            vec_int_ptr_Type BCFlags = domainVelocity->getBCFlagUnique();
-            Teuchos::ArrayRCP<SC> entries = exportSolution->getDataNonConst(0);
-            for (int i = 0; i < entries.size(); i++)
-            {
-                entries[i] = BCFlags->at(i);
-            }
-            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionConst = exportSolution;
-            exParaF->setup("Flags", domainVelocity->getMesh(), domainVelocity->getFEType());
-            exParaF->addVariable(exportSolutionConst, "Flags", "Scalar", 1, domainVelocity->getMapUnique(), domainVelocity->getMapUniqueP2());
-            exParaF->save(0.0);
+
+
+
+
+
+
 
             //****************************************************************************************
             //****************************************************************************************

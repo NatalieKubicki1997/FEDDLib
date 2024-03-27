@@ -360,7 +360,7 @@ void NavierStokesAssFE<SC,LO,GO,NO>::computeViscosity_Solution() {
     viscosity_element_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getElementMap() ) );
     this->feFactory_->updateViscosityFE_CM(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->parameterList_);        
   
-    Teuchos::RCP<const MultiVector<SC,LO,GO,NO>> exportSolutionViscosityAssFE = this->feFactory_->visco_output_->getBlock(0);
+    Teuchos::RCP<const MultiVector<SC,LO,GO,NO>> exportSolutionViscosityAssFE = this->feFactory_->const_output_fields->getBlock(0);
     viscosity_element_->importFromVector(exportSolutionViscosityAssFE, true);  
   
   

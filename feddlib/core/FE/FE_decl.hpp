@@ -569,6 +569,7 @@ class FE {
                                     int FELocExternal=-1);
 
 /*-----------Natalie added 29.09.2023----------*/
+// After we ran a simulation we can use this function in order to compute based on the velocity solution the viscosity estimate in each cell
     void updateViscosityFE_CM(int dim,
 								string FETypeVelocity,
 								string FETypePressure,
@@ -579,8 +580,9 @@ class FE {
 								MultiVectorPtr_Type p_rep,
 								ParameterListPtr_Type params);
                                 
-
-    BlockMultiVectorPtr_Type visco_output_;
+// In this Blockmultivector we can write output field variables which we can compute based on our velocity, pressure .. solutions
+// for visualization or postprocessing                                
+    BlockMultiVectorPtr_Type const_output_fields;
 //***
 
 
