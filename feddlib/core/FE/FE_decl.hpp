@@ -569,7 +569,7 @@ class FE {
                                     int FELocExternal=-1);
 
 /*-----------Natalie added 29.09.2023----------*/
-// After we ran a simulation we can use this function in order to compute based on the velocity solution the viscosity estimate in each cell
+// Given a velocity solution we can use this function in order to compute the viscosity estimate in each cell - CM stands for Center of Mass so we average the values at the nodes to obtain one value
     void updateViscosityFE_CM(int dim,
 								string FETypeVelocity,
 								string FETypePressure,
@@ -579,10 +579,23 @@ class FE {
 								MultiVectorPtr_Type u_rep,
 								MultiVectorPtr_Type p_rep,
 								ParameterListPtr_Type params);
+
+
+    void addConstantInputFieldToAssembledElement(int dim,
+	                                    string FETypeVelocity,
+	                                    string FETypePressure,  ElementsPtr_Type elements);
+
+    void updateInput(int dim,
+	                                    string FETypeVelocity,
+	                                    string FETypePressure,
+ 										ParameterListPtr_Type params);
+
                                 
 // In this Blockmultivector we can write output field variables which we can compute based on our velocity, pressure .. solutions
 // for visualization or postprocessing                                
     BlockMultiVectorPtr_Type const_output_fields;
+// In this Blockmultivector we can save input variables which we read from external sources and want to visualize if we have correctly read in   
+    BlockMultiVectorPtr_Type const_input_fields;
 //***
 
 

@@ -101,9 +101,10 @@ public:
     
     virtual void computeValuesOfInterestAndExport() {};
 
-    // Because we do not derive any further classes from NavierStokesAssFE I would not add virtual 
-    void computeViscosity_Solution();
-    void getViscosity_Solution();
+    ///@Natalie Because we do not derive any further classes from NavierStokesAssFE I would not add virtual 
+    void computeViscosity_Solution(); // Compute the viscosity based on the current velocity solution and save it inside viscosity_element_
+
+    void getSetInputField_Solution();
 
 //    virtual void assembleExternal( std::string type ){};
     /*####################*/
@@ -113,7 +114,9 @@ public:
     MultiVectorPtr_Type u_rep_; // repeated velocity solution
     MultiVectorPtr_Type p_rep_;
 
-    MultiVectorPtr_Type viscosity_element_; // In case of a generalized-Newtonian fluid we can compute viscosity and want to visualize it at the end of the simulation
+    MultiVectorPtr_Type viscosity_element_; //@Natalie In case of a generalized-Newtonian fluid we can compute viscosity and want to visualize it at the end of the simulation
+    MultiVectorPtr_Type input_element_field_; ///@Natalie If we read in an additional field variable we want to be able to visualize the read input
+
     /* ----------------------------------------------------------------------------------------*/
 
 private:

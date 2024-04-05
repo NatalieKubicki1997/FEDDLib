@@ -96,8 +96,7 @@
     <!-- Nonlinear Solution method (Preconditioner) as well as Parallelization specific parameters like e.g. Newton -->
     <ParameterList name="General">
         <Parameter name="Mpi Ranks Coarse" type="int" value="0"/>
-        <Parameter name="Linearization" type="string" value="FixedPoint"/> <!-- FixedPoint, Newton, NOX, FixedPoint_Newton ()-->
-        <Parameter name="Linearization_SwitchToNewton" type="bool" value="true"/> <!-- For some problems Newton might diverge therefore first compute some iteration steps with Fixed-Point and then use additional Newton contributions for faster convergence near the (hopefully) solution-->
+        <Parameter name="Linearization" type="string" value="FixedPointThenNewton"/> <!-- FixedPoint, Newton, NOX, FixedPointThenNewton"-->  <!-- For some problems Newton might diverge therefore first compute some iteration steps with Fixed-Point and then use additional Newton contributions for faster convergence near the (hopefully) solution-->
         <Parameter name="Linearization_ResidualTolerance_SwitchToNewton" type="double" value="0.1"/> <!--If siwtch is set True then we need also a condition WHEN to switch therefore set this tolerance in order to ensure that if (relative/absolute) tolerance is below this value than use Newton because then we are hopefully enough near to solution-->
         <Parameter name="SwitchToNewton" type="bool" value="false"/> <!-- DO NOT CHANGE - This will be changed internally in order to check when to switch-->
         <Parameter name="ParaViewExport" type="bool" value="true"/>

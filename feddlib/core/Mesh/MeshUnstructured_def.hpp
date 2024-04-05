@@ -197,11 +197,18 @@ void MeshUnstructured<SC,LO,GO,NO>::buildP2ofP1MeshEdge( MeshUnstrPtr_Type meshP
     
     LO numberLocalP1Nodes = meshP1->getPointsRepeated()->size();
     
+
+
+
     for (int i=0; i<elements->numberElements(); i++) {
         vec_int_Type feNodeList = elements->getElement( i ).getVectorNodeListNonConst(); // get a copy
         for (int j=0; j<newElementNodes[i].size(); j++)
             feNodeList.push_back( newElementNodes[i][j] + numberLocalP1Nodes );
         FiniteElement feP2( feNodeList );
+
+        // Before we only set the additional variable to the P1 elements - Here we set it also for the corresponding P2 Elements such that we can acces it
+        feP2.setInputValue(elements->getElement( i ).getInputValue());
+
         this->elementsC_->addElement(feP2);
     }
     

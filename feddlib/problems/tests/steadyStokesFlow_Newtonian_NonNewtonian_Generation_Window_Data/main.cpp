@@ -396,10 +396,10 @@ int main(int argc, char *argv[])
 	            ParameterListPtr_Type pListPartitioner = sublist( parameterListProblem, "Mesh Partitioner" );
 	            MeshPartitioner<SC,LO,GO,NO> partitionerP1 ( domainP1Array, pListPartitioner, "P1", dim );
 	            
-	            partitionerP1.readAndPartition();
+	            partitionerP1.readAndPartition(); // Here we will create the P1 Finite Elements
 
 	            if (discVelocity=="P2")
-	                domainVelocity->buildP2ofP1Domain( domainPressure );
+	                domainVelocity->buildP2ofP1Domain( domainPressure ); // And here we constrcut the P2 Finite Elements
 	            else
 	                domainVelocity = domainPressure;
 	        }
@@ -553,13 +553,21 @@ int main(int argc, char *argv[])
                 Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionViscosityAssFE = navierStokesAssFE.viscosity_element_;
                 exParaViscsoity->setup("viscosity", domV->getMesh(), "P0");
                 exParaViscsoity->addVariable(exportSolutionViscosityAssFE, "viscosityAssFE", "Scalar", 1, domV->getElementMap());
-                exParaViscsoity->save(0.0);
 
-    
+                Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaInput(new ExporterParaView<SC, LO, GO, NO>());
+
+                navierStokesAssFE.getSetInputField_Solution();
+                Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportInputAssFE = navierStokesAssFE.input_element_field_;
+                exParaInput->setup("input", domV->getMesh(), "P0");
+                exParaInput->addVariable(exportInputAssFE, "input", "Scalar", 1, domV->getElementMap());
+
+                
+
+                exParaViscsoity->save(0.0);
+                exParaInput->save(0.0);
+
             }
 
-            exParaVelocity->save(0.0);
-            exParaPressure->save(0.0);
 
 
 

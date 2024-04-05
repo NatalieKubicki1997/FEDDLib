@@ -109,6 +109,14 @@ class FiniteElement {
 
 	bool isMarkedEdge(){return markedEdge_;};
 
+    //@Natalie In order to Retrieve Input Value
+    double getInputValue(){return inputValue;};
+
+    void setInputValue(double value)
+    {
+     inputValue = value;
+    };
+
 private:
     
     vec_LO_Type localNodeIDs_; /*! Node IDs that define this element. */
@@ -122,6 +130,8 @@ private:
 	GO predecessorElement_ = -1;
 	LO refinementEdge_=-1;
 	vec_LO_Type markedEdges_;
+
+    double inputValue=0.0; //@Natalie Save in each element a possible InputValue which we read from an external file -> Maybe this should be in general a vector to be able to define more than one value
     
     
 public:    

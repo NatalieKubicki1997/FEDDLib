@@ -46,7 +46,8 @@ A_(),
 pressureIDsLoc(new vec_int_Type(2)),
 u_rep_(),
 p_rep_(), //member initializer lists
-viscosity_element_() // Added here also viscosity field 
+viscosity_element_(), // Added here also viscosity field 
+input_element_field_()
 {
 
     this->nonLinearTolerance_ = this->parameterList_->sublist("Parameter").get("relNonLinTol",1.0e-6);
@@ -172,12 +173,7 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
 
     //std::cout << "-- Debug Assembly constant matrices Navier-Stokes ... " << std::flush;
 
-    // Maybe we do not override the values in the first step so lets try this
-   /* MultiVectorConstPtr_Type u = this->solution_->getBlock(0);
-    u_rep_->importFromVector(u, true);
-    MultiVectorConstPtr_Type p = this->solution_->getBlock(1);
-    p_rep_->importFromVector(p, true);  // this is the current pressure solution at the nodes
-*/
+
     // jumps inside FE_def.hpp in assemblyNavierStokes so in the general FE class
     // our AssembleMode is "Jacobian"
 	this->feFactory_->assemblyNavierStokes(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->system_,this->residualVec_,this->coeff_, this->parameterList_,false, "Jacobian", true/*call fillComplete*/);
@@ -345,7 +341,7 @@ void NavierStokesAssFE<SC,LO,GO,NO>::calculateNonLinResidualVec(std::string type
 }
 
 
-// We use therefore the current solution
+// @Natalie We use therefore the current solution
 template<class SC,class LO,class GO,class NO>
 void NavierStokesAssFE<SC,LO,GO,NO>::computeViscosity_Solution() {
     
@@ -356,7 +352,8 @@ void NavierStokesAssFE<SC,LO,GO,NO>::computeViscosity_Solution() {
     MultiVectorConstPtr_Type p = this->solution_->getBlock(1);
     p_rep_->importFromVector(p, true);  // this is the current pressure solution at the nodes - distributed at the processors with repeated values
     
-  
+    // We reset here the viscosity so at this moment this makes only sense to call at the end of a simulation to visualize viscosity field
+    // @ToDo Add possibility for transient case to save viscosity solution in each time step
     viscosity_element_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getElementMap() ) );
     this->feFactory_->updateViscosityFE_CM(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->parameterList_);        
   
@@ -367,11 +364,35 @@ void NavierStokesAssFE<SC,LO,GO,NO>::computeViscosity_Solution() {
 
 }
 
-template<class SC,class LO,class GO,class NO>
-void NavierStokesAssFE<SC,LO,GO,NO>::getViscosity_Solution() {
 
+
+
+template<class SC,class LO,class GO,class NO>
+void NavierStokesAssFE<SC,LO,GO,NO>::getSetInputField_Solution() {
+    MultiVectorConstPtr_Type u = this->solution_->getBlock(0); // solution_ is initialized in problem_def.hpp so the most general class
+    u_rep_->importFromVector(u, true); // this is the current velocity solution at the nodes - distributed at the processors with repeated values
+   
+    MultiVectorConstPtr_Type p = this->solution_->getBlock(1);
+    p_rep_->importFromVector(p, true);  // this is the current pressure solution at the nodes - distributed at the processors with repeated values
+    
+  
+input_element_field_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getElementMap() ) );
+this->feFactory_->updateInput(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), this->parameterList_);        
+
+//Teuchos::RCP<const MultiVector<SC,LO,GO,NO>> exportSolutionViscosityAssFE = this->feFactory_->ConstInputField_;
+Teuchos::RCP<const MultiVector<SC,LO,GO,NO>> exportImportedInputField = this->feFactory_->const_input_fields->getBlock(0);;
+
+input_element_field_->importFromVector(exportImportedInputField , true); 
 
 }
+
+
+
+
+
+
+
+
 
 
 

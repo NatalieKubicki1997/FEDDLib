@@ -15,6 +15,12 @@
 #include "parmetis.h"
 #endif
 
+
+
+// @Natalie added this in order to construct serial communicator
+#include <Xpetra_DefaultPlatform.hpp>
+
+
 /*!
  Defintion of MeshPartitioner
  
@@ -65,6 +71,12 @@ public:
     typedef EdgeElements EdgeElements_Type;
     typedef Teuchos::RCP<EdgeElements_Type> EdgeElementsPtr_Type;
 
+    typedef Teuchos::RCP<const Teuchos::Comm<int>> CommPtr ; // Added in order to construct serial communicator
+
+
+    typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
+    typedef Teuchos::RCP<MultiVector_Type> MultiVectorPtr_Type;
+    typedef Teuchos::RCP<const MultiVector_Type> MultiVectorConstPtr_Type;
     typedef std::vector<idx_t> vec_idx_Type; //Metis
     
     MeshPartitioner();
@@ -151,6 +163,8 @@ private:
     std::string feType_;
     std::vector< tuple_intint_Type > rankRanges_;
     int dim_;
+
+    CommPtr SerialComm_ = Teuchos::createSerialComm<LO>(); // We need here a serial communicator in order to compute on each processor the global variable estimate on the mesh (see function Read_Element_Variable_From_CSV_on_Current_mesh)
     };
 }
 

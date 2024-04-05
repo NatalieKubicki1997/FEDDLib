@@ -1106,6 +1106,11 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 
 	MapConstPtr_Type mapPres = domainVec_.at(FElocPres)->getMapRepeated();
 
+    // Lets say we want to add a solution defined in each element???
+    //UN FElocEle = checkFE(dim,"P0"); // Checks for different domains which belongs to a certain fetype
+ 	//ElementsPtr_Type elementsEle = domainVec_.at(FElocEle)->getElementsC();
+   
+
 	vec_dbl_Type solution(0);
 	vec_dbl_Type solution_u;
 	vec_dbl_Type solution_p;
@@ -1146,6 +1151,7 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
             }
             if(params->sublist("Material").get("Additional NeumannBoundaryIntegral",false) == true) // Only if we have stress-divergence formulation and want to include boundary integral at outlet
                 setBoundaryFlagAssembleFEEElements(dim, elements,params, pointsRep, FETypeVelocity);
+                
         }
         else                                                                // Newtonian fluid
         {  
@@ -1159,6 +1165,8 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
         	initAssembleFEElements("Stokes",problemDisk,elements, params,pointsRep,domainVec_.at(FElocVel)->getElementMap());
             }
         }
+        addConstantInputFieldToAssembledElement(dim, FETypeVelocity, FETypePressure, elements);
+
     }
 	else if(assemblyFEElements_.size() != elements->numberElements())
 	     TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error, "Number Elements not the same as number assembleFE elements." );
@@ -1299,9 +1307,7 @@ void FE<SC,LO,GO,NO>::updateViscosityFE_CM(int dim,
     visco_output->addBlock(Sol_viscosity,0);
     // visco_output->getBlock(0)->getLocalLength(); this would give us the number of elements on each processor! SO NOT THE total number of elements
    
-    // go over all elements to compute viscosity 
-    // Also ich teile meine Elemente (14 insgesamt) auf die (2) Prozessoren auf und jeder erhält demnach 7
-    // sodass wenn ich mir T ausgeben lasse: 0 0 1 1 2 2 ... 7 7
+
 	for (UN T=0; T<assemblyFEElements_.size(); T++) {
        
 		vec_dbl_Type solution(0);
@@ -1325,6 +1331,82 @@ void FE<SC,LO,GO,NO>::updateViscosityFE_CM(int dim,
 
 
 }
+
+
+
+/*!
+
+ \brief Compute Viscosity inside an element at center of mass
+@param[in] dim Dimension
+@param[in] FEType FE Discretization
+*/
+// das wird aus problem/specific/NavierStokesASS aufgerufen
+
+template <class SC, class LO, class GO, class NO>
+void FE<SC,LO,GO,NO>::addConstantInputFieldToAssembledElement(int dim,
+	                                    string FETypeVelocity,
+	                                    string FETypePressure,  ElementsPtr_Type elements){
+	
+
+    UN FElocVel = checkFE(dim,FETypeVelocity); // Checks for different domains which belongs to a certain fetype
+    UN FElocPres = checkFE(dim,FETypePressure); // Checks for different domains which belongs to a certain fetype
+
+
+    // Loop over all elements
+	for (UN T=0; T<assemblyFEElements_.size(); T++) 
+    {
+        // Set for each assemblyFE Object the read Input field
+        assemblyFEElements_[T]->setConstInputField(elements->getElement(  T   ).getInputValue());
+    }
+    // Alternativly to saving in each Finite Element the value of an provided input field we could also directly read here the csv file and save it in AssemblyFEElements properties - because we can not access from an AssemblyFE Object the corresponding Finite Element ?
+
+}
+
+
+
+template <class SC, class LO, class GO, class NO>
+void FE<SC,LO,GO,NO>::updateInput(int dim,
+	                                    string FETypeVelocity,
+	                                    string FETypePressure,
+ 										ParameterListPtr_Type params){
+	
+
+    UN FElocVel = checkFE(dim,FETypeVelocity); // Checks for different domains which belongs to a certain fetype
+    UN FElocPres = checkFE(dim,FETypePressure); // Checks for different domains which belongs to a certain fetype
+
+	ElementsPtr_Type elements = domainVec_.at(FElocVel)->getElementsC();
+	ElementsPtr_Type elementsPres = domainVec_.at(FElocPres)->getElementsC();
+
+
+    double solution_input;
+
+    // We have to compute viscosity solution in each element 
+	MultiVectorPtr_Type Sol_input = Teuchos::rcp( new MultiVector_Type( domainVec_.at(FElocVel)->getElementMap(), 1 ) ); //
+    BlockMultiVectorPtr_Type input_output = Teuchos::rcp( new BlockMultiVector_Type(1) );
+    input_output->addBlock(Sol_input,0);
+   
+
+	for (UN T=0; T<assemblyFEElements_.size(); T++) {
+       
+	
+        solution_input = assemblyFEElements_[T]->getLocalconstInputField();
+
+        Teuchos::ArrayRCP<SC>  resArray_block = input_output->getBlockNonConst(0)->getDataNonConst(0);
+        resArray_block[T] = solution_input; // although it is a vector it only has one entry because we compute the value in the center of the element
+          
+	} // end loop over all elements
+    // We could also instead of just overwrite it add an aditional block such that we could also compute other output fields and save it in there
+    this->const_input_fields= input_output;
+
+
+}
+
+
+
+
+
+
+
 
 
 

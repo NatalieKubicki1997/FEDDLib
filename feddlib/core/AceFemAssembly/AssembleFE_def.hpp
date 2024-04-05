@@ -119,7 +119,15 @@ void AssembleFE<SC,LO,GO,NO>::updateSolution( vec_dbl_Type solution){
 
 };
 
+template <class SC, class LO, class GO, class NO>
+void AssembleFE<SC,LO,GO,NO>::setConstInputField( SC localInputField){
 
+	//TEUCHOS_TEST_FOR_EXCEPTION(solution_.size() != solution.size(), std::runtime_error, "Dofs of solutions is not the same");
+	this->constInputField_ = 0.0;
+
+	this->constInputField_ = localInputField;
+
+};
 
 
 template <class SC, class LO, class GO, class NO>

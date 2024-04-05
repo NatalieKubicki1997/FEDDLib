@@ -97,8 +97,6 @@ namespace FEDD {
 	    virtual void computeLocalconstOutputField() {};
           /*!
 
-
-
         /*!
          \brief In case of non-newtonian fluids viscosity is not constant 
          \return the local viscosity solution at the nodes inside an element
@@ -236,6 +234,15 @@ namespace FEDD {
         GO getGlobalElementID(){return globalElementID_;};
 
 
+        /*!
+         \brief @Natalie Set the input field to a value which were read from a csv file
+                 */
+        void setConstInputField(SC localInputField);
+
+        SC getLocalconstInputField(){return this->constInputField_;};
+
+
+        //@ToDo If normal were computed before we do not need this here
         // Here we set the needed variables for an boundary element where we set a neumann boundary integral term
         bool surfaceElement; // in order to only access surface assembly elements
         double surfaceElement_MappingChangeInArea; // 2D: change of length , 3D: change of area 
@@ -285,8 +292,12 @@ namespace FEDD {
         vec_dbl_ptr_Type solution_ ;
 
         // We added this into our AssembleClasss in order to be able to compute Viscosity in each element and save/plot it
-        vec_dbl_Type constOutputField_ ; 
+        vec_dbl_Type constOutputField_ ; // can be also a vector with values on P1/ P2 nodes 
 
+        // We add this variable in order to be able to access a precomputed variable
+        SC constInputField_;  
+        
+        
         double timeIncrement_;
         GO globalElementID_;
 

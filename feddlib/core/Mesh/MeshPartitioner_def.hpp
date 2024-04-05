@@ -3,6 +3,9 @@
 
 #include "MeshPartitioner_decl.hpp"
 
+
+
+
 /*!
  Definition of MeshPartitioner
  
@@ -225,7 +228,8 @@ void MeshPartitioner<SC,LO,GO,NO>::determineRanksFromNumberRanks( vec_int_Type& 
     
 }
 
-/// Reading and partioning of the mesh. Input File is .mesh. Reading is serial and at some point the mesh entities are distributed along the processors.
+/// Reading and partioning of the mesh. Input File is .mesh. Reading is serial 
+//  and at some point the mesh entities are distributed along the processors.
 
 template <class SC, class LO, class GO, class NO>
 void MeshPartitioner<SC,LO,GO,NO>::readAndPartitionMesh( int meshNumber ){
@@ -248,11 +252,6 @@ void MeshPartitioner<SC,LO,GO,NO>::readAndPartitionMesh( int meshNumber ){
     meshUnstr->readMeshEntity("surface");
     // Reading line segments 
     meshUnstr->readMeshEntity("line");
-
-
-    /* So add this point read in an external file with parameter estimations 
-       we assume that the estimation of the parameters is done on the same! grid structure as obtained from Paraview    
-    */
 
     bool verbose ( comm_->getRank() == 0 );
     bool buildEdges = pList_->get("Build Edge List", true);
@@ -279,6 +278,7 @@ void MeshPartitioner<SC,LO,GO,NO>::readAndPartitionMesh( int meshNumber ){
     options[METIS_OPTION_NITER] = 50; // default is 10
     options[METIS_OPTION_CCORDER] = 1;
     idx_t ne = meshUnstr->getNumElementsGlobal(); // Global number of elements
+    std::cout << "ne:" << ne << std::endl;
     idx_t nn = meshUnstr->getNumGlobalNodes();	// Global number of nodes
     idx_t ned = meshUnstr->getEdgeElements()->numberElements(); // Global number of edges
 
@@ -419,13 +419,39 @@ void MeshPartitioner<SC,LO,GO,NO>::readAndPartitionMesh( int meshNumber ){
 	// Resetting elements to add the corresponding local IDs instead of global ones
     meshUnstr->elementsC_.reset(new Elements ( FEType, dim ) );
     {
-        Teuchos::ArrayView<GO> elementsGlobalMapping =  Teuchos::arrayViewFromVector( locepart );
+        Teuchos::ArrayView<GO> elementsGlobalMapping =  Teuchos::arrayViewFromVector( locepart ); // In locepart the global Element IDs per Processor are stored e.g. Rank 0 [ 1 3 5 6 ...] Rank 1 [0 2 4 7 ...]
         // elementsGlobalMapping -> elements per Processor
 
         meshUnstr->elementMap_.reset(new Map<LO,GO,NO>( underlyingLib, (GO) -1, elementsGlobalMapping, 0, this->comm_) );
+        // This map is noncontigous based on the elementsGlobalMapping List 
+
         
+
+        // We want to add a functionality to read in values from a external file where for each element parameters were computed 
+        
+
+
+          Teuchos::Array<GO> indicesa(ne); // For createing map increasing indices from 0 to global number of elements
+          for (UN i=0; i<indicesa.size(); i++) 
+          {
+             indicesa[i] = i; // [0 1 2 3 ....]
+          }
+
+         // As working with /MultiVectorConstPtr_Type ConstInputField_ = Teuchos::rcp( new MultiVector_Type( meshUnstr->elementMap_, 1 ) );  did not work correctly because 
+         // the map was either not used or wrongly used because the Multivector was just distributed after the read in two locally consequentive parts and therefore the global IDs and local values did not match
+         // We use this alternative method to just create on each processor locally a multivector with all values and then acces the correct global value
+         MapConstPtr_Type mapSerial_Read = Teuchos::rcp( new Map<LO,GO,NO>(underlyingLib, ne, indicesa(), 0, SerialComm_) ); // Construct Map
+
+         MultiVectorConstPtr_Type ConstInputField_ = Teuchos::rcp( new MultiVector_Type( mapSerial_Read, 1 ) ); 
+         //ConstInputField_->readMM("viscosity.csv");
+         Teuchos::ArrayRCP<SC>  resArray_localInput = (ConstInputField_->getDataNonConst(0)) ; // Consider only first column - If you would want to read directly more parameter estimations one should change this here to read also the other columns @todo
+
+
         {
             int localSurfaceCounter = 0;
+                          std::cout << "resArray_localInput.size(): "  << ":: " << resArray_localInput.size() << " for RANK " << this->comm_->getRank() << std::endl;
+
+              std::cout << "locepart.size(): "  << ":: " << locepart.size() << " for RANK " << this->comm_->getRank() << std::endl;
             for (int i=0; i<locepart.size(); i++) {
                 std::vector<int> tmpElement;
                 for (int j=eptr[locepart.at(i)]; j<eptr[locepart.at(i)+1]; j++) {
@@ -440,10 +466,14 @@ void MeshPartitioner<SC,LO,GO,NO>::readAndPartitionMesh( int meshNumber ){
                     FiniteElement feGlobalIDs = elementsGlobal->getElement( locepart.at(i) );
                     if (feGlobalIDs.subElementsInitialized()){
                         ElementsPtr_Type subEl = feGlobalIDs.getSubElements();
-                        subEl->globalToLocalIDs( mapRepeated );
+                        subEl->globalToLocalIDs( mapRepeated ); 
                         fe.setSubElements( subEl );
                     }
                 }
+
+                int global_ID= meshUnstr->elementMap_->getGlobalElement(i);
+                fe.setInputValue(resArray_localInput[locepart.at(i)]); // Because we saved on each processor the whole global array we can just acces the correct related global ID 
+
                 meshUnstr->elementsC_->addElement( fe );
             }
         }

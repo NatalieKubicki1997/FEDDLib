@@ -19,6 +19,11 @@
 #include <Xpetra_MultiVectorFactory.hpp>
 #include <Xpetra_MatrixMatrix.hpp>
 #include <Xpetra_IO.hpp>
+
+#include "Tpetra_SerialPlatform.hpp"
+#include "Tpetra_SerialComm.hpp"
+
+
 // If you make changes to this file always remember to compile
 
 /*!
@@ -188,8 +193,12 @@ int main(int argc, char *argv[]) {
     mvRes->print(); 
     mvRes->readMM("written_test_vector_100x1.csv");
     mvRes->print();
-   
-  
-   
+    int i=9;
+    std::cout << "Object: " << i << ":: " << *(mvRes->getDataNonConst(0)) << " for RANK " << rank << std::endl;
+
+    Teuchos::ArrayRCP<SC>  resArray_block1 = (mvRes->getDataNonConst(0)) ;
+    std::cout << resArray_block1[0] << std::endl;
+    std::cout << resArray_block1[9] << std::endl;
+
     return(EXIT_SUCCESS);
 }

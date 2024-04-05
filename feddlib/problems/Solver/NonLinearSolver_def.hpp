@@ -16,22 +16,15 @@ namespace FEDD {
 
 template<class SC,class LO,class GO,class NO>
 NonLinearSolver<SC,LO,GO,NO>::NonLinearSolver():
-type_(""),
-switch_solver(false)
+type_("")
 {}
 
 
 template<class SC,class LO,class GO,class NO>
 NonLinearSolver<SC,LO,GO,NO>::NonLinearSolver(string type):
-type_(type),
-switch_solver(false)
+type_(type)
 {}
 
-template<class SC,class LO,class GO,class NO>
-NonLinearSolver<SC,LO,GO,NO>::NonLinearSolver(string type, bool switch_newton):
-type_(type), 
-switch_solver(switch_newton)
-{}
 
 template<class SC,class LO,class GO,class NO>
 NonLinearSolver<SC,LO,GO,NO>::~NonLinearSolver(){
@@ -41,18 +34,18 @@ NonLinearSolver<SC,LO,GO,NO>::~NonLinearSolver(){
 template<class SC,class LO,class GO,class NO>
 void NonLinearSolver<SC,LO,GO,NO>::solve(NonLinearProblem_Type &problem){
 
-    if ( (!type_.compare("FixedPoint")) && switch_solver==false) {
+    if ( (!type_.compare("FixedPoint"))) {
         solveFixedPoint(problem);
     }
-    else if(!type_.compare("Newton") && switch_solver==false){
+    else if(!type_.compare("Newton")){
         solveNewton(problem);
     }
-    else if(!type_.compare("NOX")    && switch_solver==false){
+    else if(!type_.compare("NOX")){
 #ifdef FEDD_HAVE_NOX
         solveNOX(problem);
 #endif
     }
-    else if (!type_.compare("FixedPoint") && switch_solver==true ) { // jump into switch condition
+    else if (!type_.compare("FixedPointThenNewton")) { // jump into switch condition
         solveFixedPoint_SwitchNewton(problem);
     }
 
@@ -364,7 +357,7 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint_SwitchNewton(NonLinearProblem
     int maxNonLinIts = problem.getParameterList()->sublist("Parameter").get("MaxNonLinIts",10);
     int nlIts=0;
     double linearization_ResidualTolerance_SwitchToNewton_ = problem.getParameterList()->sublist("General").get("Linearization_ResidualTolerance_SwitchToNewton",1.0e-1);  // 
-
+    problem.getParameterList()->sublist("General").set("Linearization","FixedPoint"); // We will start with FixedPoint therefore first set linearizarion to FixedPoint    
     //std::string 	type_;
     double criterionValue = 1.;
     std::string criterion = problem.getParameterList()->sublist("Parameter").get("Criterion","Residual");

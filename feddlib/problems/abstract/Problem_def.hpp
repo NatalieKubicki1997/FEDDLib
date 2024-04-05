@@ -140,7 +140,6 @@ void Problem<SC,LO,GO,NO>::initializeProblem_fromStartSolution(int nmbVectors){
     
     this->system_.reset(new BlockMatrix_Type(1));
     this->initializeVectors_fromStartSolution( nmbVectors );    
-            
 }
 
 

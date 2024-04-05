@@ -67,7 +67,6 @@ private:
     void solveExtrapolation(TimeProblem_Type& problem, double time);
     
     std::string 	type_;
-    bool switch_solver;
 
 	int nonLinearIts_ =0;
 
