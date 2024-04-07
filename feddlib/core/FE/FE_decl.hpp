@@ -597,7 +597,8 @@ class FE {
 // In this Blockmultivector we can save input variables which we read from external sources and want to visualize if we have correctly read in   
     BlockMultiVectorPtr_Type const_input_fields;
 //***
-
+// Change for all assembleFEElements the linearization to Newton
+void  change_Linearization(string linearization);
 
 
 

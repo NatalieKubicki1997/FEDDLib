@@ -34,7 +34,10 @@ NonLinearSolver<SC,LO,GO,NO>::~NonLinearSolver(){
 template<class SC,class LO,class GO,class NO>
 void NonLinearSolver<SC,LO,GO,NO>::solve(NonLinearProblem_Type &problem){
 
-    if ( (!type_.compare("FixedPoint"))) {
+    this->SwitchFromFixedPointToNewton_ = problem.getParameterList()->sublist("General").get("SwitchFromFixedPointToNewton",false);  // 
+
+
+    if ( (!type_.compare("FixedPoint")) &&  SwitchFromFixedPointToNewton_==false ) {
         solveFixedPoint(problem);
     }
     else if(!type_.compare("Newton")){
@@ -45,9 +48,14 @@ void NonLinearSolver<SC,LO,GO,NO>::solve(NonLinearProblem_Type &problem){
         solveNOX(problem);
 #endif
     }
-    else if (!type_.compare("FixedPointThenNewton")) { // jump into switch condition
-        solveFixedPoint_SwitchNewton(problem);
+    else if((!type_.compare("FixedPoint")) &&  SwitchFromFixedPointToNewton_==true )
+    {
+        solveFixedPoint(problem); // We first use FixedPointMethod until we reach defined Threshold to switch 
+        problem.getParameterList()->sublist("General").set("Linearization","Newton");
+        problem.change_AssFELinearization(problem.getParameterList()->sublist("General").get("Linearization","Newton"));                   // Then we have to change inside each assembleFEElement the linearization from FixedPoint to Newton and use Newton solve
+        solveNewton(problem);     // Then we finish the computation until our desired residual with Newton
     }
+
 
 }
 
@@ -281,19 +289,26 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(NonLinearProblem_Type &proble
     bool verbose = problem.getVerbose();
     TEUCHOS_TEST_FOR_EXCEPTION(problem.getRhs()->getNumVectors()!=1,std::logic_error,"We need to change the code for numVectors>1.");
     // -------
-    // fix point iteration
+    // Fix Point Iteration
     // -------
-    double	gmresIts = 0.;
-    double residual0 = 1.;
     double residual = 1.;
     
     double tol = problem.getParameterList()->sublist("Parameter").get("relNonLinTol",1.0e-6);
     int maxNonLinIts = problem.getParameterList()->sublist("Parameter").get("MaxNonLinIts",10);
-    int nlIts=0;
 
     double criterionValue = 1.;
     std::string criterion = problem.getParameterList()->sublist("Parameter").get("Criterion","Residual");
 
+    double gmres_avg=0.0;
+
+    //@ Natalie we want to have here the option to switch after we have reached a certain residual number with FixedPoint method to Newton 
+    /*
+        Therefore we have to first use FixedPointSolve until certain ResidualTolerance
+    */
+    if (this->SwitchFromFixedPointToNewton_==true)
+    {  
+      tol = problem.getParameterList()->sublist("General").get("Linearization_Tolerance_SwitchToNewton",1.0e-1);  // 
+    }
     // Here is now our nonlinear Iteration loop to solve the nonlinear problem iteratively
     while ( nlIts < maxNonLinIts ) {
 
@@ -305,10 +320,10 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(NonLinearProblem_Type &proble
             residual = problem.calculateResidualNorm();
         
         if (nlIts==0)
-            residual0 = residual;
+            this->residual0_= residual;
     
         if (criterion=="Residual"){
-            criterionValue = residual/residual0;
+            criterionValue = residual/residual0_;
             if (verbose)
                 cout << "### Fixed Point iteration : " << nlIts << "  relative nonlinear residual : " << criterionValue << endl;
             if ( criterionValue < tol )
@@ -327,9 +342,10 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(NonLinearProblem_Type &proble
         // ####### end FPI #######
     }
 
-    gmresIts/=nlIts;
+    gmres_avg=gmresIts; // Because else if we switch to Newton we change the result
+    gmres_avg/=nlIts;
     if (verbose)
-        cout << "### Total FPI : " << nlIts << "  with average gmres its : " << gmresIts << endl;
+        cout << "### Total FPI : " << nlIts << "  with average gmres its : " << gmres_avg << endl;
     if ( problem.getParameterList()->sublist("Parameter").get("Cancel MaxNonLinIts",false) ) {
         TEUCHOS_TEST_FOR_EXCEPTION( nlIts == maxNonLinIts ,std::runtime_error,"Maximum nonlinear Iterations reached. Problem might have converged in the last step. Still we cancel here.");
     }
@@ -337,79 +353,6 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(NonLinearProblem_Type &proble
 }
 
 
-
-
-
-// This is nonlinear solver called for FixedPoint linearization for steady Problems
-template<class SC,class LO,class GO,class NO>
-void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint_SwitchNewton(NonLinearProblem_Type &problem){
-
-    bool verbose = problem.getVerbose();
-    TEUCHOS_TEST_FOR_EXCEPTION(problem.getRhs()->getNumVectors()!=1,std::logic_error,"We need to change the code for numVectors>1.");
-    // -------
-    // fix point iteration
-    // -------
-    double	gmresIts = 0.;
-    double residual0 = 1.;
-    double residual = 1.;
-    
-    double tol = problem.getParameterList()->sublist("Parameter").get("relNonLinTol",1.0e-6);
-    int maxNonLinIts = problem.getParameterList()->sublist("Parameter").get("MaxNonLinIts",10);
-    int nlIts=0;
-    double linearization_ResidualTolerance_SwitchToNewton_ = problem.getParameterList()->sublist("General").get("Linearization_ResidualTolerance_SwitchToNewton",1.0e-1);  // 
-    problem.getParameterList()->sublist("General").set("Linearization","FixedPoint"); // We will start with FixedPoint therefore first set linearizarion to FixedPoint    
-    //std::string 	type_;
-    double criterionValue = 1.;
-    std::string criterion = problem.getParameterList()->sublist("Parameter").get("Criterion","Residual");
-    std::string linearization_;
-    // Here is now our nonlinear Iteration loop to solve the nonlinear problem iteratively
-    while ( nlIts < maxNonLinIts ) {
-
-        if(criterionValue < linearization_ResidualTolerance_SwitchToNewton_) // So if our residual is smaller than our defined switch residual we set our linearization method to Newton
-        {
-            this->type_="Newton"; //now we will switch to Newton
-            problem.getParameterList()->sublist("General").set("SwitchToNewton",true);        
-            problem.getParameterList()->sublist("General").set("Linearization","Newton");  
-            //linearization_ = problem.getParameterList()->sublist("General").get("Linearization","FixedPoint"); // Information to assemble Jacobian accordingly
-        }
-        problem.calculateNonLinResidualVec("reverse"); // Here we use updated solution to compute new jacobian/ rhs
-
-        problem.setBoundariesSystem();
-        
-        if (criterion=="Residual")
-            residual = problem.calculateResidualNorm();
-        
-        if (nlIts==0)
-            residual0 = residual;
-    
-        if (criterion=="Residual"){
-            criterionValue = residual/residual0;
-            if (verbose)
-                cout << "###" << type_ <<":" << nlIts << "  relative nonlinear residual : " << criterionValue << endl;
-            if ( criterionValue < tol )
-                break;
-        }
-
-
-        gmresIts += problem.solveAndUpdate( criterion, criterionValue );
-        nlIts++;
-        if(criterion=="Update"){
-            if (verbose)
-                cout << "###" << type_ <<":" << nlIts << "  residual of update : " << criterionValue << endl;
-            if ( criterionValue < tol )
-                break;
-        }
-        // ####### end FPI #######
-    }
-
-    gmresIts/=nlIts;
-    if (verbose)
-        cout << "### Total FPI : " << nlIts << "  with average gmres its : " << gmresIts << endl;
-    if ( problem.getParameterList()->sublist("Parameter").get("Cancel MaxNonLinIts",false) ) {
-        TEUCHOS_TEST_FOR_EXCEPTION( nlIts == maxNonLinIts ,std::runtime_error,"Maximum nonlinear Iterations reached. Problem might have converged in the last step. Still we cancel here.");
-    }
-    
-}
 
 
 
@@ -422,11 +365,8 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNewton( NonLinearProblem_Type &problem )
     // -------
     // Newton
     // -------
-    double	gmresIts = 0.;
-    double residual0 = 1.;
     double residual = 1.;
     double tol = problem.getParameterList()->sublist("Parameter").get("relNonLinTol",1.0e-6);
-    int nlIts=0;
     int maxNonLinIts = problem.getParameterList()->sublist("Parameter").get("MaxNonLinIts",10);
     double criterionValue = 1.;
     std::string criterion = problem.getParameterList()->sublist("Parameter").get("Criterion","Residual");
@@ -444,10 +384,10 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNewton( NonLinearProblem_Type &problem )
         problem.setBoundariesSystem();
 
         if (nlIts==0)
-            residual0 = residual;
+            this->residual0_= residual;
         
         if (criterion=="Residual"){
-            criterionValue = residual/residual0;
+            criterionValue = residual/residual0_;
             if (verbose)
                 cout << "### Newton iteration : " << nlIts << "  relative nonlinear residual : " << criterionValue << endl;
             if ( criterionValue < tol )
@@ -485,11 +425,10 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(TimeProblem_Type &problem, do
     // -------
     // fix point iteration
     // -------
-    double	gmresIts = 0.;
-    double residual0 = 1.;
+    gmresIts = 0.;
     double residual = 1.;
     double tol = problem.getParameterList()->sublist("Parameter").get("relNonLinTol",1.0e-6);
-    int nlIts=0;
+    this->nlIts=0;
     int maxNonLinIts = problem.getParameterList()->sublist("Parameter").get("MaxNonLinIts",10);
     double criterionValue = 1.;
     std::string criterion = problem.getParameterList()->sublist("Parameter").get("Criterion","Residual");
@@ -502,7 +441,7 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(TimeProblem_Type &problem, do
             residual = problem.calculateResidualNorm();
 
         if (nlIts==0)
-            residual0 = residual;
+            this->residual0_= residual;
                     
         // Linearization of system matrix is done in calculateNonLinResidualVec
         // Now we need to combine it with the mass matrix
@@ -511,7 +450,7 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(TimeProblem_Type &problem, do
         problem.setBoundariesSystem();
         
         if (criterion=="Residual"){
-            criterionValue = residual/residual0;
+            criterionValue = residual/residual0_;
             if (verbose)
                 cout << "### Fixed Point iteration : " << nlIts << "  relative nonlinear residual : " << criterionValue << endl;
             if ( criterionValue < tol )
@@ -552,11 +491,10 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNewton(TimeProblem_Type &problem, double
     // -------
     // Newton iteration
     // -------
-    double	gmresIts = 0.;
-    double residual0 = 1.;
+    gmresIts = 0.;
     double residual = 1.;
     double tol = problem.getParameterList()->sublist("Parameter").get("relNonLinTol",1.0e-6);
-    int nlIts=0;
+    this->nlIts=0;
     int maxNonLinIts = problem.getParameterList()->sublist("Parameter").get("MaxNonLinIts",10);
     double criterionValue = 1.;
     std::string criterion = problem.getParameterList()->sublist("Parameter").get("Criterion","Residual");
@@ -571,10 +509,10 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNewton(TimeProblem_Type &problem, double
             residual = problem.calculateResidualNorm();
         
         if (nlIts==0)
-            residual0 = residual;
+            this->residual0_= residual;
         
         if (criterion=="Residual"){
-            criterionValue = residual/residual0;
+            criterionValue = residual/residual0_;
 //            exporterTxt->exportData( criterionValue );
             if (verbose)
                 cout << "### Newton iteration : " << nlIts << "  relative nonlinear residual : " << criterionValue << endl;

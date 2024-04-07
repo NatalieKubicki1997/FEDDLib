@@ -56,8 +56,6 @@ private:
 #endif
     void solveFixedPoint(NonLinearProblem_Type& problem);
 
-    void solveFixedPoint_SwitchNewton(NonLinearProblem_Type& problem);
-
     void solveNewton(NonLinearProblem_Type& problem);
     
     void solveFixedPoint(TimeProblem_Type& problem, double time);
@@ -69,7 +67,10 @@ private:
     std::string 	type_;
 
 	int nonLinearIts_ =0;
-
+    bool SwitchFromFixedPointToNewton_ = false;
+    double residual0_ = 1.0; //@Natalie Inserted this here because as we construct a Object a value can be already fixed
+    int nlIts=0;             //@Natalie Inserted this here because as we construct a Object a value can be already fixed
+    double	gmresIts = 0.;   //@Natalie Inserted this here because as we construct a Object a value can be already fixed
 
 };
 }

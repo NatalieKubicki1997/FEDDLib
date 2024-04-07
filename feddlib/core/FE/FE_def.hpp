@@ -1180,13 +1180,11 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	resVecRep->addBlock(resVec_u,0);
 	resVecRep->addBlock(resVec_p,1);
 
-    bool switch_Newton = params->sublist("General").get("SwitchToNewton",false); 
 
     // Das ist die Hauptassemblierungsschleife, wo über alle Elemente gegangen wird und die Elementmatrizen aufgestellt werden
 	for (UN T=0; T<assemblyFEElements_.size(); T++) {
 		
-        //Check if we should switch to Newton // maybe it would be smart to set a global variabel
-        if (switch_Newton==true) assemblyFEElements_[T]->set_LinearizationToNewton();    
+       
     
         vec_dbl_Type solution(0);
 
@@ -1265,7 +1263,18 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 
 }
 
+/*
+Short method to loop over all assembleFESpecific elements and set the defined linearization to Newton
+*/
+template <class SC, class LO, class GO, class NO>
+void FE<SC,LO,GO,NO>::change_Linearization(string linearization)
+{
 
+    for (UN T=0; T<assemblyFEElements_.size(); T++) // For each assembledElement Change Discretization
+    {	
+        assemblyFEElements_[T]->change_Linearization(linearization);
+    }
+}
 
 /*!
 

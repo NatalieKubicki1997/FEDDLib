@@ -51,7 +51,7 @@ AssembleFE<SC,LO,GO,NO>(flag, nodesRefConfig, params,tuple)
 	coeff_ = coeff;
 
 
-    linearization_ = this->params_->sublist("General").get("Linearization","FixedPoint"); // Information to assemble Jacobian accordingly
+    this->linearization_ = this->params_->sublist("General").get("Linearization","FixedPoint"); // Information to assemble Jacobian accordingly
 
 
 }
@@ -103,7 +103,7 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assembleJacobian() {
     assemblyAdvection(elementMatrixN);
 	elementMatrixN->scale(density_);
 	ANB_->add( (*elementMatrixN),(*ANB_));
-    if(linearization_ != "FixedPoint"){
+    if(this->linearization_ != "FixedPoint"){
 	    assemblyAdvectionInU(elementMatrixW);
 	    elementMatrixW->scale(density_);
     }
@@ -113,7 +113,7 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::assembleJacobian() {
 
 	this->jacobian_->add((*ANB_),(*this->jacobian_));
     // If the linearization is Newtons Method we need to add W-Matrix
-    if(linearization_ != "FixedPoint"){
+    if(this->linearization_ != "FixedPoint"){
     	this->jacobian_->add((*elementMatrixW),(*this->jacobian_));  // int add(SmallMatrix<T> &bMat, SmallMatrix<T> &cMat); //this+B=C elementMatrix + constantMatrix_;
     }
 }

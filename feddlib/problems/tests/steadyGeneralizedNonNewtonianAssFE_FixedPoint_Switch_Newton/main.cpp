@@ -457,6 +457,8 @@ int main(int argc, char *argv[])
 
             {
                 MAIN_TIMER_START(NavierStokesAssFE, " AssFE:   Assemble System and solve");
+
+              
                 navierStokesAssFE.addBoundaries(bcFactory);
                 navierStokesAssFE.initializeProblem();
                 navierStokesAssFE.assemble();

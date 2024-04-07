@@ -104,11 +104,9 @@ namespace FEDD {
         vec_dbl_Type getLocalconstOutputField() {return constOutputField_;};
 
         /*
-        In case we want to switch from FixedPoint to Newton method during computation
+        In case we want to switch e.g. from FixedPoint to Newton method during computation
         */
-        virtual void set_LinearizationToNewton() {};
-
-
+        void change_Linearization(string linearization) {this->linearization_ = linearization;};
 
         /*!
          \brief Get the currently assembled element Jacobian matrix
@@ -300,6 +298,9 @@ namespace FEDD {
         
         double timeIncrement_;
         GO globalElementID_;
+
+
+	    string linearization_; // We save in here which linearization we use e.g. FixedPoint or Newton
 
         friend class AssembleFEFactory<SC,LO,GO,NO>;
     };

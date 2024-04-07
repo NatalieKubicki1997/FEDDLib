@@ -47,11 +47,7 @@ AssembleFENavierStokes<SC,LO,GO,NO>(flag, nodesRefConfig, params,tuple)
 
 
 
-template <class SC, class LO, class GO, class NO>
-void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::set_LinearizationToNewton() {
-    //this->switchToNewton_=true;
-    this->linearization_ = "Newton";
-}
+
 
 
 template <class SC, class LO, class GO, class NO>

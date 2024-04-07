@@ -707,5 +707,12 @@ Meine size ist also 2
         return result;
     }
 
+    template <class SC, class LO, class GO, class NO>
+    void Problem<SC, LO, GO, NO>::change_AssFELinearization(string linearization)
+    {
+      this->feFactory_->change_Linearization(linearization);
+    }
+    
+
 }
 #endif
