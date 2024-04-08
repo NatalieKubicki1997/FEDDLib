@@ -418,7 +418,7 @@ int main(int argc, char *argv[])
                 //bcFactory->addBC(couette2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // Analytical solution Power-Law 2D Poiseuille flow based on parameters and pressure gradient
                 // Couette 2D gives us constant inflow velocity specified by Max Velocity entry
                 // bcFactory->addBC(zeroDirichlet, , 1, domainPressure, "Dirichlet", 1); //Outflow
-                //  Ich muss irgendwo ein Druck Punkt festlegen bestimmt!!
+                // Ich muss irgendwo ein Druck Punkt festlegen bestimmt!!
             }
             else if (dim == 3)
             {
@@ -427,18 +427,7 @@ int main(int argc, char *argv[])
                 bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim);                  // sides
                 bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);                  // sides
                 bcFactory->addBC(inflowParabolic3D, 6, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
-                bcFactory->addBC(zeroDirichlet, 5, 1, domainPressure, "Dirichlet", 1);                      // Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
-                // bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim); // lower
-                /*
-                                // If Pseudo-2D
-                                bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim); // upper
-                                bcFactory->addBC(zeroDirichlet3D, 2, 0, domainVelocity, "Dirichlet", dim); // lower
-                                bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim); // sides
-                                bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim); // sides
-                                bcFactory->addBC(inflowParabolic3D, 6, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inlet
-                                bcFactory->addBC(zeroDirichlet, 5,  1, domainPressure, "Dirichlet", 1); //Outflow - Try Neumann but then we have to set a pressure point anywhere else that why // After we added the proper code line in NavierStokesAssFE we can set this for P2-P1 element
-                               // bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet", dim); // lower
-                */
+
             }
             //** Stenosis 2D **********************************************************************/*
 
@@ -455,7 +444,7 @@ int main(int argc, char *argv[])
                 navierStokesAssFE.setBoundariesRHS();
 
                 std::string nlSolverType = parameterListProblem->sublist("General").get("Linearization", "FixedPoint");
-                NonLinearSolver<SC, LO, GO, NO> nlSolverAssFE(nlSolverType, linearization_SwitchToNewton_);
+                NonLinearSolver<SC, LO, GO, NO> nlSolverAssFE(nlSolverType);
                 nlSolverAssFE.solve(navierStokesAssFE); // jumps into NonLinearSolver_def.hpp
 
                 MAIN_TIMER_STOP(NavierStokesAssFE);
@@ -479,7 +468,6 @@ int main(int argc, char *argv[])
 
                 /*Viskosität berechnen auf Basis der berechnet Geschwindigkeitslösung*/
                 navierStokesAssFE.computeViscosity_Solution();
-                navierStokesAssFE.getViscosity_Solution();
        
                 //**************** Write out viscosity ****************** 
                 //so we need something from type multivector so this is not working because we can not access

@@ -10,7 +10,8 @@ template <class SC, class LO, class GO, class NO>
 AssembleFE<SC,LO,GO,NO>::AssembleFE(int flag, vec2D_dbl_Type nodesRefConfig, ParameterListPtr_Type params,tuple_disk_vec_ptr_Type tuple):
 rhsVec_(0),
 jacobian_(0),
-solution_(0)
+solution_(0), 
+FE_Object(0)
 {
 	flag_=flag;
 	nodesRefConfig_ = nodesRefConfig;

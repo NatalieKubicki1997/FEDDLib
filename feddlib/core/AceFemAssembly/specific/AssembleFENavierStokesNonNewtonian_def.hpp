@@ -1293,8 +1293,14 @@ void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeShearRate(  vec3D_d
 
 
 
-// So based on the previous solution we can compute viscosity in the center of mass 
-// therefore we have to compute center of mass of triangle 
+/* Based on the current solution (velocity, pressure etc.) we want to be able to compute postprocessing fields 
+like here the velocity inside an element. 
+@ToDo: Talk about Lea how it is implemented so if we have the final solution at the nodes
+Ich hätte erwartet, dass ich in einem Element auf den Nodes die gesamte jetztige richtige! Lösungen vorgegeben habe und daher
+einfach dazu verwenden kann in einem Element einen gemittelten Wert zu berechnen
+
+
+*/
 template <class SC, class LO, class GO, class NO>
 void AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>::computeLocalconstOutputField()
 {

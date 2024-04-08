@@ -6,6 +6,8 @@
 #include "feddlib/core/LinearAlgebra/Matrix.hpp"
 #include "feddlib/core/AceFemAssembly/Helper.hpp"
 
+#include "feddlib/core/FE/FiniteElement.hpp"
+
 namespace FEDD {
 
    template <class SC = default_sc,
@@ -65,6 +67,7 @@ namespace FEDD {
         typedef SmallMatrix<SC> SmallMatrix_Type;
         typedef Teuchos::RCP<SmallMatrix_Type> SmallMatrixPtr_Type;
 
+        typedef Teuchos::RCP<FiniteElement> FE_ptr_Type;
 	    // Teuchos:: Array anstatt vec_dbl_Type
 
         typedef AssembleFE<SC,LO,GO,NO> AssembleFE_Type;
@@ -231,7 +234,7 @@ namespace FEDD {
 
         GO getGlobalElementID(){return globalElementID_;};
 
-
+        void setFiniteElement(FiniteElement& FE_Object){ this->FE_Object =  Teuchos::rcpFromRef<FiniteElement>(FE_Object);}; //pass by reference because we do not want to copy the object
         /*!
          \brief @Natalie Set the input field to a value which were read from a csv file
                  */
@@ -240,6 +243,9 @@ namespace FEDD {
         SC getLocalconstInputField(){return this->constInputField_;};
 
 
+        /* In order to prevent that we just copy the attributes from the Finite Element object
+        to an AssembledFE element object each AssembledFE element object should obtain a the pointer to the corresponding FInite element
+        */  
         //@ToDo If normal were computed before we do not need this here
         // Here we set the needed variables for an boundary element where we set a neumann boundary integral term
         bool surfaceElement; // in order to only access surface assembly elements
@@ -247,7 +253,9 @@ namespace FEDD {
         vec2D_dbl_ptr_Type surfaceElement_QuadraturePointsPhysicalSpace; // 2D: quadrature points on line, 3D: quadrature points in plane, have to be mapped on reference element with mapping
         vec_dbl_ptr_Type surfaceElement_QuadratureWeightsPhysicalSpace;
         vec_dbl_Type surfaceElement_OutwardNormal; // 2D: two dimensional vector , 3D: three dimensional vector in outward direction from line/plane
-       
+        
+        FE_ptr_Type FE_Object; // Constant pointer to the corresponding FiniteElement 
+
     protected:
 
         /*!
@@ -301,6 +309,7 @@ namespace FEDD {
 
 
 	    string linearization_; // We save in here which linearization we use e.g. FixedPoint or Newton
+
 
         friend class AssembleFEFactory<SC,LO,GO,NO>;
     };

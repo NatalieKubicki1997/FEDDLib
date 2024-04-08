@@ -20,8 +20,6 @@
 #include <Xpetra_MatrixMatrix.hpp>
 #include <Xpetra_IO.hpp>
 
-#include "Tpetra_SerialPlatform.hpp"
-#include "Tpetra_SerialComm.hpp"
 
 
 // If you make changes to this file always remember to compile

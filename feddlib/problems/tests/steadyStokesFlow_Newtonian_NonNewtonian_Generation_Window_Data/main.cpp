@@ -497,7 +497,7 @@ int main(int argc, char *argv[])
                 navierStokesAssFE.setBoundariesRHS();
 
                 std::string nlSolverType = parameterListProblem->sublist("General").get("Linearization", "FixedPoint");
-                NonLinearSolver<SC, LO, GO, NO> nlSolverAssFE(nlSolverType, linearization_SwitchToNewton_);
+                NonLinearSolver<SC, LO, GO, NO> nlSolverAssFE(nlSolverType);
                 nlSolverAssFE.solve(navierStokesAssFE); // jumps into NonLinearSolver_def.hpp
 
                 MAIN_TIMER_STOP(NavierStokesAssFE);
@@ -545,7 +545,6 @@ int main(int argc, char *argv[])
 
                 /*Viskosität berechnen auf Basis der berechnet Geschwindigkeitslösung*/
                 navierStokesAssFE.computeViscosity_Solution();
-                navierStokesAssFE.getViscosity_Solution();
        
                 //**************** Write out viscosity ****************** 
                 //so we need something from type multivector so this is not working because we can not access

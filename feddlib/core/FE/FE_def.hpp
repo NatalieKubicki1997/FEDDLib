@@ -1269,12 +1269,12 @@ Short method to loop over all assembleFESpecific elements and set the defined li
 template <class SC, class LO, class GO, class NO>
 void FE<SC,LO,GO,NO>::change_Linearization(string linearization)
 {
-
-    for (UN T=0; T<assemblyFEElements_.size(); T++) // For each assembledElement Change Discretization
+    for (UN T=0; T<assemblyFEElements_.size(); T++) // For each assembledFEElement change Linearization
     {	
         assemblyFEElements_[T]->change_Linearization(linearization);
     }
 }
+
 
 /*!
 
@@ -1286,6 +1286,7 @@ void FE<SC,LO,GO,NO>::change_Linearization(string linearization)
 @param[in] parameter lists
 */
 // das wird aus problem/specific/NavierStokesASS aufgerufen
+// We have to consider that if we comput
 
 template <class SC, class LO, class GO, class NO>
 void FE<SC,LO,GO,NO>::updateViscosityFE_CM(int dim,
@@ -1454,7 +1455,7 @@ void FE<SC,LO,GO,NO>::setBoundaryFlagAssembleFEEElements(int dim, ElementsPtr_Ty
     }
     else
     {
-      TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error   ,"setBoundaryFlagAssembleFEEElements not implemented for FE_Types different than P1 or P2");
+      TEUCHOS_TEST_FOR_EXCEPTION(true, logic_error   ,"setBoundaryFlagAssembleFEEElements not implemented for FE_Types different than P1 or P2");
     }
     vec_dbl_Type QuadW(Num_weights);
     vec2D_dbl_Type QuadPts_Physical(QuadW.size(), vec_dbl_Type(dim));
@@ -1699,6 +1700,9 @@ void FE<SC,LO,GO,NO>::initAssembleFEElements(string elementType,tuple_disk_vec_p
 		AssembleFEPtr_Type assemblyFE = assembleFEFactory.build(elementType,elements->getElement(T).getFlag(),nodes, params,problemDisk);
 
         assemblyFE->setGlobalElementID(elementMap->getGlobalElement(T));
+
+        // We want to assign to each assembleFE Element the corresponding element 
+        assemblyFE->setFiniteElement(elements->getElement(T));
 
 		assemblyFEElements_.push_back(assemblyFE);
 
