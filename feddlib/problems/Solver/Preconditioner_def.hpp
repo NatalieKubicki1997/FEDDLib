@@ -240,6 +240,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditioner( std::string type )
 #endif
 }
 
+// Build Preconditioner Monolithic. This applies to any kind of system, either 1x1 or nxn.
 template <class SC,class LO,class GO,class NO>
 void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
 {
@@ -261,9 +262,12 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
     else if(!timeProblem_.is_null())
         parameterList = timeProblem_->getParameterList();
 
+    // Preconditioner Type has to be FROSch. 
     std::string precType = parameterList->sublist("ThyraPreconditioner").get("Preconditioner Type", "FROSch");
 
+    // We define the repeated node map. Repeated node map is necessary to add nodeList
     bool useRepeatedMaps = parameterList->get( "Use repeated maps", true );
+    // We define node list to use for RGDSW Option 2.2 or Rotations in coarse space
     bool useNodeLists = parameterList->get( "Use node lists", true );
     ParameterListPtr_Type pListThyraPrec = sublist( parameterList, "ThyraPreconditioner" );
     ParameterListPtr_Type plFrosch = sublist( sublist( pListThyraPrec, "Preconditioner Types" ), "FROSch");
@@ -447,7 +451,8 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
             if ( thyraPrec_.is_null() ){
                 thyraPrec_ = precFactory_->createPrec();
            	}     
-           
+            
+            // We initialize Prec here with thyraMatrix, in case of preconditioner we could also initialize with Projection matrix?
             Thyra::initializePrec<SC>(*precFactory_, thyraMatrix, thyraPrec_.ptr()); // (precfactory, fwdOp, prec) Problem: PreconditionerBase<SC>* thyraPrec_
             precondtionerIsBuilt_ = true;
             
