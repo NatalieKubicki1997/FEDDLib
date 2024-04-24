@@ -98,7 +98,7 @@
     <!-- Nonlinear Solution method (Preconditioner) as well as Parallelization specific parameters like e.g. Newton -->
     <ParameterList name="General">
         <Parameter name="Mpi Ranks Coarse" type="int" value="0"/>
-        <Parameter name="Linearization" type="string" value="Newton"/> <!-- FixedPoint, Newton, NOX-->
+        <Parameter name="Linearization" type="string" value="FixedPoint"/> <!-- FixedPoint, Newton, NOX-->
         <Parameter name="ParaViewExport" type="bool" value="true"/>
         <Parameter name="ParaViewCoarse" type="bool" value="false"/>
         <Parameter name="ParaViewCoarseSum" type="bool" value="false"/>

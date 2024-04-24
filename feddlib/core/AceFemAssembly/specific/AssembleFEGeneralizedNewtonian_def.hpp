@@ -690,7 +690,7 @@ namespace FEDD
         vec2D_dbl_Type QuadPtsPhy;
         vec_dbl_Type normalVector;
         
-        this->buildTransformation(B);        // In order to map from global coordinates to reference surface
+        this->buildTransformation(B);   // In order to map from global coordinates to reference surface
         detB = B.computeInverse(Binv); // The function computeInverse returns a double value corrsponding to determinant of B
         absDetB = std::fabs(detB);     // absolute value of B
 
@@ -698,7 +698,7 @@ namespace FEDD
         for (int surface=0; surface< this->FE_Object->numSubElements(); surface++) 
         {
             FiniteElement feSub = subEl->getElement( surface  );
-            if(feSub.getNeumannBC_element() == true )
+            if(feSub.getNeumannBC_element() == true ) //So here we only consider the subelements which we set a flag that we want to add a Neumann boundary condition - @ToDo: If we have different flags and not only 1 we have to check for different flags
             {
 
                         normalVector= feSub.getSurfaceNormal();
@@ -711,7 +711,6 @@ namespace FEDD
         }    
     
         vec2D_dbl_Type QuadPtsMapped(QuadWeights.size(), vec_dbl_Type(dim)); // now initialize the container with mapped quadrature coordinates
-
         // Now we have to compute the weights and the quadrature points for our line integral (2D), surface integral (3D)
         // where we want to evaluate our dPhi, phi
         // So we are now mapping back the quadrature points from the physical edge element to the reference element
@@ -731,11 +730,11 @@ namespace FEDD
 
         // Now we have successfully mapped the global quadrature points onto one of the reference faces (2D line / 3D surface)
         // But we still have to consider the case that if the global surface was mapped onto the diagonal line/ diagonal surface we
-        // have to scale the weights and quadrature points by the factor area change so in 2D it is just the length so sqrt(2) and in 3D it is the value of the area which is 0.866025403784439
+        // have to scale the weights and quadrature points by the factor area change so in 2D it is just the length so sqrt(2) [0 sqrt(2)] and in 3D it should be the area which is 0.866025403784439
         
-        // SO NOW WE HAVE TO CATCH THE CASE THAT IF WE PROJECTED ONTO THE DIAGONAL LINE WE HAVE TO MULTIPLY BY THE LENGTH SO SQRT(2)
-        // HOW TO CHECK IF WE ARE ON THE DIAGONAL LINE? We check if the x and y component of a quafrature point a nonzero
-        // Can we just multiply?
+        // Check if a quadrature point lies on the diagonal line
+        // We consider the point to be on the diagonal if both its x and y components are nonzero
+        // https://www.math.ntnu.no/emner/TMA4130/2021h/lectures/CompositeQuadrature.pdf
         if (dim==2)
         {
             if (  (std::fabs( QuadPtsMapped[0][0] - 0.0) >  std::numeric_limits<double>::epsilon()  )   &&  ( (QuadPtsMapped[0][1]  - 0.0) >  std::numeric_limits<double>::epsilon()    ) ) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
@@ -750,7 +749,7 @@ namespace FEDD
                 }
             }
         }
-        else if (dim==3)
+        else if (dim==3) // This has to be checked again if we really just multiply the surface are of the triangle?
         {
             if (  (std::fabs( QuadPtsMapped[0][0] - 0.0) >  std::numeric_limits<double>::epsilon()  )   &&  ( (QuadPtsMapped[0][1]  - 0.0) >  std::numeric_limits<double>::epsilon()    ) &&  ( (QuadPtsMapped[0][2]  - 0.0) >  std::numeric_limits<double>::epsilon()    ) ) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
             {

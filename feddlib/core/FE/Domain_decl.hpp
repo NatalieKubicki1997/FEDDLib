@@ -566,6 +566,8 @@ public:
 
    /// @brief If an element is an outer boundary surface element we want to be in some cases able to add specific Neumann/ Robin Boundary conditions and therefore we have to add element contribution for this respective boundary element
    //         With this function we set needed quadrature points/weights / mapping factor / in order to have everything ready for computation
+   // @param[in] flag Define in main on which boundary we want to add an additional special neumann boundary condition
+   // @param[in] degree For the quadrature rule choose a degree and the weight number will be set accordingly
    void setSurfaceQuadratureWP( int flag , int degree);
    /* ----------------------------------------------------------------------------------------*/
 

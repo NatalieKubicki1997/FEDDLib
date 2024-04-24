@@ -143,12 +143,12 @@ private:
 	LO refinementEdge_=-1;
 	vec_LO_Type markedEdges_;
 
-    // Defined variables for boundary variables
+    // Defined variables for boundary elements
     vec_dbl_Type surfaceNormal;                          // As we do not have dim here as variable we cannot initialize the vector 
-    bool neumannBC_element = false;                      // Check if the element is an surface element where we want to add an additional contribution
+    bool neumannBC_element = false;                      // Check if the element is an surface element where we want to add an additional contribution - only for boundary elements where we want to add surface integral
     vec_dbl_Type neumannBC_QuadratureWeightsRef;         // These are the Quadrature weights in terms of quadrature points defined in reference coordinate system so here [0 1]
-    vec2D_dbl_Type neumannBC__QuadraturePointsPhy;       // 2D: quadrature points on line, 3D: quadrature points in plane, have to be mapped on reference element with mapping
-    double elScaling = 0.0;     // 2D: change of length , 3D: change of area - Surface Element scaling
+    vec2D_dbl_Type neumannBC__QuadraturePointsPhy;       // 2D: quadrature points on line, 3D: quadrature points in plane, have to be mapped on reference element with mapping in specificAssemblyClasses
+    double elScaling = 0.0;                              // 2D: change of length , 3D: change of area - Surface Element scaling
     
     
 public:    

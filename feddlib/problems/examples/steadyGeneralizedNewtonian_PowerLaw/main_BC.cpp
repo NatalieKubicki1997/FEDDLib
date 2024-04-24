@@ -353,6 +353,7 @@ int main(int argc, char *argv[])
             domainPressure->setSurfaceNormalsForFE();
 
             // See domain_def.hpp for detailed explanation but idea is to introduce an additional integral over a surface element
+            // First input is flag , second is degree 
             domainVelocity->setSurfaceQuadratureWP( 3 , 3);
             //          **********************  BOUNDARY CONDITIONS ***********************************
             std::string bcType = parameterListProblem->sublist("Parameter").get("BC Type", "parabolic");
