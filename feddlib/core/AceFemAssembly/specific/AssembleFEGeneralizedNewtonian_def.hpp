@@ -132,8 +132,23 @@ namespace FEDD
          natural boundary condition is different
          We have to check whether it is an element which has edges (2D) / surfaces (3D) corresponding to an Outflow Neumann boundary
          Then we have to compute contribution
-         @ToDo Add if element normal computation is integrated
-        */
+         !! Side fact: If we have convection dominant flow the effects get less important there are more important for shear flows so Stokes flow
+         */ 
+        if (this->FE_Object->getNeumannBC_element() == true) // Our corresponding FE Elements corresponds to element on the outer boundary where we want to assign a special outflow boundary condition
+        {
+            SmallMatrixPtr_Type elementMatrixNB = Teuchos::rcp(new SmallMatrix_Type(this->dofsElementVelocity_ + this->numNodesPressure_));
+            this->assemblyOutflowNeumannBoundaryTerm(elementMatrixNB);
+            this->ANB_->add((*elementMatrixNB), ((*this->ANB_)));
+
+            // Newton converges also if unabled and also in same steps so we can also comment that out
+            // If linearization is not FixdPoint (so NOX or Newton) we add the derivative to the Jacobian matrix. Otherwise the FixedPoint formulation becomes the jacobian.
+            /*if (this->linearization_ != "FixedPoint")
+            {
+                SmallMatrixPtr_Type elementMatrixNBW = Teuchos::rcp(new SmallMatrix_Type(this->dofsElementVelocity_ + this->numNodesPressure_));
+                this->assemblyOutflowNeumannBoundaryTermDev(elementMatrixNBW); //
+                this->jacobian_->add((*elementMatrixNBW), (*this->jacobian_));
+            }*/
+        }
     }
 
 
@@ -170,6 +185,14 @@ namespace FEDD
         //*************** STRESS TENSOR************************
         this->assemblyStress(elementMatrixN);
         this->ANB_->add((*elementMatrixN), ((*this->ANB_)));
+
+        if (this->FE_Object->getNeumannBC_element() == true) // Our corresponding FE Elements corresponds to element on the outer boundary where we want to assign a special outflow boundary condition
+        {
+            SmallMatrixPtr_Type elementMatrixNB = Teuchos::rcp(new SmallMatrix_Type(this->dofsElementVelocity_ + this->numNodesPressure_));
+            this->assemblyOutflowNeumannBoundaryTerm(elementMatrixNB);
+            this->ANB_->add((*elementMatrixNB), ((*this->ANB_)));
+
+        }
 
 }
 
@@ -640,8 +663,247 @@ namespace FEDD
         } // end if dim = 3
     }
 
+
+    // Boundary integral over Neumann boundary resulting from the fact that we want our outflow boundary conditions
+    // as in the case for reduced stress tensor - therefore we have to subtract the boundary integral
+    // - int_NeumannBoundary ( \nabla u)^T n \cdot w dNeumannBoundary
+    template <class SC, class LO, class GO, class NO>
+    void AssembleFEGeneralizedNewtonian<SC, LO, GO, NO>::assemblyOutflowNeumannBoundaryTerm(SmallMatrixPtr_Type &elementMatrix) //, dblVecPtr normalVector)
+    {
+
+        int dim = this->getDim();
+        int numNodes = this->numNodesVelocity_;
+        string FEType = this->FETypeVelocity_;
+        int dofs = this->dofsVelocity_; //
+
+        vec3D_dbl_ptr_Type dPhi; // derivative of basisfunction
+        vec2D_dbl_ptr_Type phi;  // basisfunction
+
+        // Compute phi and derivative of phi at quadrature points
+        SC detB;
+        SC absDetB;
+        SmallMatrix<SC> B(dim);
+        SmallMatrix<SC> Binv(dim);
+
+        double elscaling=0.0;
+        vec_dbl_Type QuadWeights;         // These are the Quadrature weights in terms of quadrature points defined in reference coordinate system so here [0 1]
+        vec2D_dbl_Type QuadPtsPhy;
+        vec_dbl_Type normalVector;
+        
+        this->buildTransformation(B);        // In order to map from global coordinates to reference surface
+        detB = B.computeInverse(Binv); // The function computeInverse returns a double value corrsponding to determinant of B
+        absDetB = std::fabs(detB);     // absolute value of B
+
+        ElementsPtr_Type subEl = this->FE_Object->getSubElements(); // might be null
+        for (int surface=0; surface< this->FE_Object->numSubElements(); surface++) 
+        {
+            FiniteElement feSub = subEl->getElement( surface  );
+            if(feSub.getNeumannBC_element() == true )
+            {
+
+                        normalVector= feSub.getSurfaceNormal();
+                        QuadWeights=  feSub.getQuadratureWeightsRef();
+                        QuadPtsPhy    =  feSub.getQuadraturePointsPhy();
+                        elscaling  =  feSub.getElement_Scaling();
+
+
+            }                   
+        }    
     
-    //ToDo: Using new functionalty integrate again assembly of Neumann boundary term
+        vec2D_dbl_Type QuadPtsMapped(QuadWeights.size(), vec_dbl_Type(dim)); // now initialize the container with mapped quadrature coordinates
+
+        // Now we have to compute the weights and the quadrature points for our line integral (2D), surface integral (3D)
+        // where we want to evaluate our dPhi, phi
+        // So we are now mapping back the quadrature points from the physical edge element to the reference element
+        // via the inverse mapping xi = Binv(x-tau) where tau is p0
+        // tau = [this->nodesRefConfig_.at(0).at(0) ;  this->nodesRefConfig_.at(0).at(1)]
+
+        for (int l = 0; l < QuadPtsPhy.size(); l++)
+        {
+            for (int p = 0; p < dim; p++)
+            {
+                for (int q = 0; q < dim; q++)
+                {
+                    QuadPtsMapped[l][p]  += Binv[p][q] * ( QuadPtsPhy[l][q] - this->nodesRefConfig_.at(0).at(q));
+                }
+            }
+        }
+
+        // Now we have successfully mapped the global quadrature points onto one of the reference faces (2D line / 3D surface)
+        // But we still have to consider the case that if the global surface was mapped onto the diagonal line/ diagonal surface we
+        // have to scale the weights and quadrature points by the factor area change so in 2D it is just the length so sqrt(2) and in 3D it is the value of the area which is 0.866025403784439
+        
+        // SO NOW WE HAVE TO CATCH THE CASE THAT IF WE PROJECTED ONTO THE DIAGONAL LINE WE HAVE TO MULTIPLY BY THE LENGTH SO SQRT(2)
+        // HOW TO CHECK IF WE ARE ON THE DIAGONAL LINE? We check if the x and y component of a quafrature point a nonzero
+        // Can we just multiply?
+        if (dim==2)
+        {
+            if (  (std::fabs( QuadPtsMapped[0][0] - 0.0) >  std::numeric_limits<double>::epsilon()  )   &&  ( (QuadPtsMapped[0][1]  - 0.0) >  std::numeric_limits<double>::epsilon()    ) ) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
+            {
+                for (int l = 0; l < QuadPtsPhy.size(); l++)
+                {
+                QuadWeights[l] = std::sqrt(2.0) * QuadWeights[l];
+                    for (int q = 0; q < dim; q++)
+                    {
+                    QuadPtsMapped[l][q] = std::sqrt(2.0) * QuadPtsMapped[l][q];
+                    }
+                }
+            }
+        }
+        else if (dim==3)
+        {
+            if (  (std::fabs( QuadPtsMapped[0][0] - 0.0) >  std::numeric_limits<double>::epsilon()  )   &&  ( (QuadPtsMapped[0][1]  - 0.0) >  std::numeric_limits<double>::epsilon()    ) &&  ( (QuadPtsMapped[0][2]  - 0.0) >  std::numeric_limits<double>::epsilon()    ) ) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
+            {
+                for (int l = 0; l < QuadPtsPhy.size(); l++)
+                {
+                QuadWeights[l] = 0.866025403784439 * QuadWeights[l];
+                    for (int q = 0; q < dim; q++)
+                    {
+                    QuadPtsMapped[l][q] = 0.866025403784439 * QuadPtsMapped[l][q];
+                    }
+                }
+            }
+        }
+        
+
+        Helper::getPhi(phi, QuadWeights, QuadPtsMapped, dim, FEType); // This should be zero for the basisfunction not laying on the line/ surface
+        Helper::getDPhi(dPhi, QuadWeights, QuadPtsMapped, dim, FEType);
+
+
+        // dPhiTrans are the transorfmed basisfunctions, so B^(-T) * \grad_phi bzw. \grad_phi^T * B^(-1) Corresponds to \hat{grad_phi}.
+        vec3D_dbl_Type dPhiTrans(dPhi->size(), vec2D_dbl_Type(dPhi->at(0).size(), vec_dbl_Type(dim, 0.)));
+        Helper::applyBTinv(dPhi, dPhiTrans, Binv); // so dPhiTrans corresponds now to our basisfunction in natural coordinates
+
+        // Compute shear rate gammaDot, which is a vector because it is evaluated at a gaussian quadrature point for that compute velocity gradient
+        vec_dbl_ptr_Type gammaDot(new vec_dbl_Type(QuadWeights.size(), 0.0)); // gammaDot->at(j) j=0...weights
+        computeShearRate(dPhiTrans, gammaDot, dim);                      // updates gammaDot using velocity solution
+        double viscosity_atw = 0.;
+
+        TEUCHOS_TEST_FOR_EXCEPTION(dim == 1, std::logic_error, "AssemblyNeumannBoundaryTerm Not implemented for dim=1");
+        // 2D
+        if (dim == 2)
+        {
+            double v11, v12, v21, v22; // helper values for entries
+
+            // loop over basis functions
+            for (UN i = 0; i < phi->at(0).size(); i++)
+            {
+                for (UN j = 0; j < numNodes; j++)
+                {
+                    // Reset values
+                    v11 = 0.0;
+                    v12 = 0.0;
+                    v21 = 0.0;
+                    v22 = 0.0;
+
+                    // loop over basis functions quadrature points
+                    for (UN w = 0; w < phi->size(); w++)
+                    {
+                        this->viscosityModel->evaluateMapping(this->params_, gammaDot->at(w), viscosity_atw);
+
+                        v11 = v11 + -1.0 * (viscosity_atw * QuadWeights[w] * dPhiTrans[w][j][0] * normalVector[0]  * (*phi)[w][i]); // xx contribution:
+                        v12 = v12 + -1.0 * (viscosity_atw * QuadWeights[w] * dPhiTrans[w][j][0] * normalVector[1]  * (*phi)[w][i]); // xy contribution:
+                        v21 = v21 + -1.0 * (viscosity_atw * QuadWeights[w] * dPhiTrans[w][j][1] * normalVector[0]  * (*phi)[w][i]); // yx contribution:
+                        v22 = v22 + -1.0 * (viscosity_atw * QuadWeights[w] * dPhiTrans[w][j][1]  * normalVector[1]  * (*phi)[w][i]); // yy contribution:
+
+                    } // End loop over quadrature points
+
+                    // multiply determinant from transformation
+                    v11 *=elscaling;
+                    v12 *=elscaling;
+                    v21 *=elscaling;
+                    v22 *=elscaling;
+
+                    // Put values on the right position in element matrix - d=2 because we are in two dimensional case
+                    // [v11  v12 ]
+                    // [v21  v22 ]
+                    (*elementMatrix)[i * dofs][j * dofs] = v11;     // d=0, first dimension
+                    (*elementMatrix)[i * dofs][j * dofs + 1] = v12; //
+                    (*elementMatrix)[i * dofs + 1][j * dofs] = v21;
+                    (*elementMatrix)[i * dofs + 1][j * dofs + 1] = v22; // d=1, second dimension
+
+                } // End loop over j nodes
+
+            } // End loop over i nodes
+        }     // End dim==2
+        else if (dim == 3)
+        {
+            double v11, v12, v13, v21, v22, v23, v31, v32, v33; // helper values for entries
+                                                                // loop over basis functions
+            for (UN i = 0; i < phi->at(0).size(); i++)
+            {
+                for (UN j = 0; j < numNodes; j++)
+                {
+                    // Reset values
+                    v11 = 0.0;
+                    v12 = 0.0;
+                    v13 = 0.0;
+                    v21 = 0.0;
+                    v22 = 0.0;
+                    v23 = 0.0;
+                    v31 = 0.0;
+                    v32 = 0.0;
+                    v33 = 0.0;
+
+                    // loop over basis functions quadrature points
+                    for (UN w = 0; w < phi->size(); w++)
+                    {
+                        this->viscosityModel->evaluateMapping(this->params_, gammaDot->at(w), viscosity_atw);
+
+                        v11 = v11 + -1.0 * (viscosity_atw * QuadWeights[w] * dPhiTrans[w][j][0] *normalVector[0] * (*phi)[w][i]); // xx contribution:
+                        v12 = v12 + -1.0 * (viscosity_atw * QuadWeights[w] * dPhiTrans[w][j][0] *normalVector[1] * (*phi)[w][i]); // xy contribution:
+                        v13 = v13 + -1.0 * (viscosity_atw * QuadWeights[w] * dPhiTrans[w][j][0] *normalVector[2] * (*phi)[w][i]); // xz contribution:
+
+                        v21 = v21 + -1.0 * (viscosity_atw * QuadWeights[w] * dPhiTrans[w][j][1] * normalVector[0] * (*phi)[w][i]); // yx contribution:
+                        v22 = v22 + -1.0 * (viscosity_atw * QuadWeights[w]* dPhiTrans[w][j][1] * normalVector[1] * (*phi)[w][i]); // yy contribution:
+                        v23 = v23 + -1.0 * (viscosity_atw * QuadWeights[w] * dPhiTrans[w][j][1] *normalVector[2] * (*phi)[w][i]); // yz contribution:
+
+                        v31 = v31 + -1.0 * (viscosity_atw * QuadWeights[w] * dPhiTrans[w][j][2] * normalVector[0]* (*phi)[w][i]); // zx contribution:
+                        v32 = v32 + -1.0 * (viscosity_atw * QuadWeights[w] * dPhiTrans[w][j][2] * normalVector[1] * (*phi)[w][i]); // zy contribution:
+                        v33 = v33 + -1.0 * (viscosity_atw * QuadWeights[w] * dPhiTrans[w][j][2] * normalVector[2] * (*phi)[w][i]); // zz contribution:
+
+                    } // End loop over quadrature points
+
+                    // multiply determinant from transformation
+                    v11 *=elscaling;
+                    v12 *=elscaling;
+                    v13 *=elscaling;
+                    v21 *=elscaling;
+                    v22 *=elscaling;
+                    v23 *=elscaling;
+                    v31 *=elscaling;
+                    v32 *=elscaling;
+                    v33 *=elscaling;
+
+                    // Put values on the right position in element matrix - d=2 because we are in two dimensional case
+                    // [v11  v12  v13]
+                    // [v21  v22  v23]
+                    // [v31  v32  v33]
+                    (*elementMatrix)[i * dofs][j * dofs] = v11; // d=0, first dimension
+                    (*elementMatrix)[i * dofs][j * dofs + 1] = v12;
+                    (*elementMatrix)[i * dofs][j * dofs + 2] = v13;
+                    (*elementMatrix)[i * dofs + 1][j * dofs] = v21;
+                    (*elementMatrix)[i * dofs + 1][j * dofs + 1] = v22; // d=1, second dimension
+                    (*elementMatrix)[i * dofs + 1][j * dofs + 2] = v23; // d=1, second dimension
+                    (*elementMatrix)[i * dofs + 2][j * dofs] = v31;
+                    (*elementMatrix)[i * dofs + 2][j * dofs + 1] = v32; // d=2, third dimension
+                    (*elementMatrix)[i * dofs + 2][j * dofs + 2] = v33; // d=2, third dimension
+
+                } // End loop over j nodes
+
+            } // End loop over i nodes
+        }     // end if 3d
+
+    } // Function End loop
+
+
+
+
+
+
+
+
+    
 
     // "Fixpunkt"- Matrix without jacobian for calculating Ax
     // Here update please to unlinearized System Matrix accordingly.
@@ -664,14 +926,13 @@ namespace FEDD
         elementMatrixNC->scale(this->density_);
         this->ANB_->add((*elementMatrixNC), (*this->ANB_));
 
-        // @ToDo If underlying element is an outflow boundary element - will be added when func nonlinear boundar term *******************************
-        /*if (this->surfaceElement == true)
+        // If boundary element - nonlinear boundar term *******************************
+        if (this->FE_Object->getNeumannBC_element() == true) // Our corresponding FE Elements corresponds to element on the outer boundary where we want to assign a special outflow boundary condition
         {
             SmallMatrixPtr_Type elementMatrixNB = Teuchos::rcp(new SmallMatrix_Type(this->dofsElementVelocity_ + this->numNodesPressure_));
-            this->assemblyNeumannBoundaryTerm(elementMatrixNB);
+            this->assemblyOutflowNeumannBoundaryTerm(elementMatrixNB);
             this->ANB_->add((*elementMatrixNB), ((*this->ANB_)));
         }
-        */
 
         this->rhsVec_.reset(new vec_dbl_Type(this->dofsElement_, 0.));
         // Multiplying ANB_ * solution // ANB Matrix without nonlinear part.

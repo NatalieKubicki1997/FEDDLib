@@ -53,6 +53,8 @@ public:
     
     typedef typename Mesh_Type::Elements_Type Elements_Type;
     typedef typename Mesh_Type::ElementsPtr_Type ElementsPtr_Type;
+
+    typedef Teuchos::RCP<FiniteElement> FE_ptr_Type;
             
     typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
     typedef Teuchos::RCP<MultiVector_Type> MultiVectorPtr_Type;
@@ -558,6 +560,13 @@ public:
    /// @param name export suffix to identify flags
    void exportElementOrientation(string name = "default");
 
+   //Add here an additional function which sets for each FiniteElement its normal to the computed value !CAUTION preProcessMesh has to be called first if not normal calculation does not always compute the outward normal
+   /// @brief Save in each Finite Element the surface normal as variable in order to use it in AssemblySpecific classes. 
+   void setSurfaceNormalsForFE();
+
+   /// @brief If an element is an outer boundary surface element we want to be in some cases able to add specific Neumann/ Robin Boundary conditions and therefore we have to add element contribution for this respective boundary element
+   //         With this function we set needed quadrature points/weights / mapping factor / in order to have everything ready for computation
+   void setSurfaceQuadratureWP( int flag , int degree);
    /* ----------------------------------------------------------------------------------------*/
 
    private:

@@ -341,7 +341,6 @@ int main(int argc, char *argv[])
                 domainVelocity = domainPressure;
 
 
-
 			domainVelocity->exportNodeFlags();
 			domainPressure->preProcessMesh(true,true); // Preprocessing pressure mesh
 			domainVelocity->preProcessMesh(true,true); // Preprocessing velocity mesh
@@ -349,8 +348,12 @@ int main(int argc, char *argv[])
    			domainVelocity->exportSurfaceNormals("domain"); // exporting to check if correct
     		domainVelocity->exportElementOrientation("domain"); // exporting to check if correct
 
+            // Here we set the Surface Normal Function and save them in the FiniteElement Objects
             domainVelocity->setSurfaceNormalsForFE();
             domainPressure->setSurfaceNormalsForFE();
+
+            // See domain_def.hpp for detailed explanation but idea is to introduce an additional integral over a surface element
+            domainVelocity->setSurfaceQuadratureWP( 3 , 3);
             //          **********************  BOUNDARY CONDITIONS ***********************************
             std::string bcType = parameterListProblem->sublist("Parameter").get("BC Type", "parabolic");
             // We can here differentiate between different problem cases and boundary conditions

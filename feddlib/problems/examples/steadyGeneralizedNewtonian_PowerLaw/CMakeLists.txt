@@ -30,3 +30,24 @@ TRIBITS_COPY_FILES_TO_BINARY_DIR(mesh_steadyGeneralizedNonNewtonianAssFE_PowerLa
 
 
 
+
+TRIBITS_ADD_EXECUTABLE(
+	steadyGeneralizedNonNewtonianAssFE_withBoundaryIntegral 
+	SOURCES main_BC.cpp
+)
+
+TRIBITS_ADD_TEST(
+	steadyGeneralizedNonNewtonianAssFE_withBoundaryIntegral  
+	NAME steadyGeneralizedNonNewtonianAssFE_withBoundaryIntegral  
+	ARGS
+#--precfile=parametersPrecMumps.xml
+	NUM_MPI_PROCS 4
+)
+
+TRIBITS_COPY_FILES_TO_BINARY_DIR(data_steadyCreepingMotionNonNewtonianAssFE_withBoundaryIntegral  
+	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+	SOURCE_FILES parametersPrec.xml rectangle_200.mesh parametersProblem.xml parametersSolver.xml parametersTeko.xml
+	DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
+	DEST_FILES parametersPrec.xml rectangle_200.mesh  parametersProblem.xml parametersSolver.xml parametersTeko.xml
+	EXEDEPS steadyGeneralizedNonNewtonianAssFE_withBoundaryIntegral  
+)

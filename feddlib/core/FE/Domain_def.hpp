@@ -1142,6 +1142,127 @@ void Domain<SC, LO, GO, NO>::exportElementFlags(string name)
         exPara->closeExporter();
 
 }   
+
+
+
+template <class SC, class LO, class GO, class NO>
+void Domain<SC, LO, GO, NO>::setSurfaceNormalsForFE()
+{
+        ElementsPtr_Type elementsC = this->getElementsC(); // Unique flags at points
+
+        // We iterate over all elements and compute the surface normals and save the surface normals as values inside the
+        // subelements of the corresponding finite element. This way we ensure that only subelement at the boundary hold normals
+        // vectors such that we can save memory (because we first do not need to compute normals for all edges/ faces)
+        // C++: FE_ptr_Type In order to override the surface normal of the original element we should not allocate new FE objetcs but use the pointers
+         
+        for (UN T=0; T<elementsC->numberElements(); T++) {
+             FE_ptr_Type fe = Teuchos::rcpFromRef<FiniteElement>(elementsC->getElement( T ));
+            ElementsPtr_Type subEl = fe->getSubElements(); // might be null
+            for (int surface=0; surface<fe->numSubElements(); surface++) {
+                FE_ptr_Type feSub =  Teuchos::rcpFromRef<FiniteElement>(subEl->getElement( surface  ));
+                vec_int_Type nodeListElement = fe->getVectorNodeList();
+                if(subEl->getDimension() == dim_-1 ){
+                    vec_int_Type nodeList = feSub->getVectorNodeListNonConst();
+                    
+                    vec_dbl_Type v_E(dim_,1.);
+                    double norm_v_E=1.;
+
+                    Helper::computeSurfaceNormal(this->dim_,this->getPointsRepeated(),nodeList,v_E,norm_v_E);
+                    for(int k=0; k < dim_; k++) 
+                    {
+                    v_E[k] =v_E[k]*(1./norm_v_E);
+                    }
+                    feSub->setSurfaceNormal(  v_E );
+                                   
+                }
+            }
+        }
+
+}  
+
+
+// If we want to compute a line integral/ surface integral for a quantity defined on the line/ surface but the quantity depends on gradient information then it will not
+// suffice to only consider basis function on this line/ surface. It is because the gradient of the basis functions are non-zero on the other edges/ faces in the triangle/ tetrahedor
+// So for the line/ surface integral we have to consider the whole element but compute the quadrature points on respective line / surface  
+/*
+
+|\
+| \
+x  0
+|   \      <------ If QuadraturePoints (here x-x) are mapped onte one of the orthogonal lines - we can just use the reference quadrature weights and mapped quadrature points
+|    \     <------ If QuadraturePoints (her o-o)  are mapped onto the diagonal line - we have to scale the weights and the points by a factor of the length of the line sqrt(2) because we assumed in the first hand the reference line to be [0 1]
+x     0
+|      \
+__________
+
+
+The same problem occurs if we consider faces projected from the three-dimensional tetrahedor to two-dimensional triangle - there if we project the quadrature points onto the "diagonal" face of the tetrahedor we have to scale the weights and the points by 
+a factor which corresponds to the surface are 
+
+So what in our code be beneficial is to precompute on the respective outer boundary elements the quadrature points in physical space and the mapping change in area (determinant)
+such that in our AssemblySpecific classes we just have to check if we should add to AssembleFE Element an additional boundary integral contribution and then we would just have to map the quadrature points
+defined in the physical space onto the reference element -> Check then if we projected onto the diagonal line if yes scale it (and quadrature weight) with sqrt(2) -> Then we would have correct coordinates of quadrature points in reference element
+We could then as usually compute our basisfunction phi and their derivative 
+
+We have to do this whole procedure because we do not know which edge/ face on the physical boundary will be transformed onto which side of the reference element. So the easiest way to ensure that our quadrature points
+are defined on the correct edge/ face in the reference element is by defining them in the global coordinates
+
+CAUTION!: We will assume the case that one element has only ONE corresponding outer surface laying on a Neumann boundary condition surface. Because in general we could for corner elements have the case that one element has one surface element corresponding to one neumann boundary
+and another surface element corresponding to another neumann boundary condition but lets keep it here first simple
+*/
+
+
+
+// We will call this function for velocity domain 
+template <class SC, class LO, class GO, class NO>
+void Domain<SC, LO, GO, NO>::setSurfaceQuadratureWP( int flag , int degree)
+{
+        ElementsPtr_Type elementsC = this->getElementsC(); // Unique flags at points
+
+        SC elScaling;
+        SmallMatrix<SC> B(this->dim_);
+        vec_dbl_Type b(this->dim_);
+        vec_dbl_Type QuadW_Ref(degree-1); // So for degree 3 it should be 2
+        vec2D_dbl_Type QuadPts_Physical(QuadW_Ref.size(), vec_dbl_Type(this->dim_));
+        for (UN T=0; T<elementsC->numberElements(); T++) {
+            FE_ptr_Type fe = Teuchos::rcpFromRef<FiniteElement>(elementsC->getElement( T ));
+            ElementsPtr_Type subEl = fe->getSubElements(); // might be null
+            for (int surface=0; surface<fe->numSubElements(); surface++) {
+                FE_ptr_Type feSub = Teuchos::rcpFromRef<FiniteElement>(subEl->getElement( surface  ));
+                vec_int_Type nodeListElement = feSub->getVectorNodeList();
+                if (flag  == feSub->getFlag()) // check if our surface element corresponds to our neumann boundary where we want to add the additional contribution 
+                {
+                    
+                    if(subEl->getDimension() == this->dim_-1 )
+                    {
+
+                        feSub->setNeumannBC_element(  true ); // We set that this element corresponds to an edge/ face where an additional element contribution will be added in the specificAssemblyClasses
+                        fe->setNeumannBC_element(true); // Set also the corresponding element to true and not only the subelement
+                        Helper::buildTransformationSurface( nodeListElement, this->getPointsRepeated(), B, b, this->FEType_); // For 2D this should correspond to det_L = std::sqrt( std::pow( (this->getPointsRepeated()->at(feSub.getNode(1)).at(0)- this->getPointsRepeated()->at(feSub.getNode(0)).at(0)) , 2.0) + std::pow( this->getPointsRepeated()->at(feSub.getNode(1)).at(1)- this->getPointsRepeated()->at(feSub.getNode(0)).at(1), 2.0) );
+       
+                        elScaling = B.computeScaling( ); // Compute the change in area needed in specific Assembly classes
+                        feSub->setElement_Scaling( elScaling ); 
+
+                         // Compute Quadrature Values On Physical Surface Element but define directly the corresponding quadrature weights but already defined on reference surface
+                        Helper::getQuadraturePntsOnSurfaceInPhysicalSpace(this->dim_, this->FEType_ ,   QuadW_Ref, QuadPts_Physical, nodeListElement, this->getPointsRepeated());
+                        feSub->setQuadratureWeightsRef(   QuadW_Ref ); // As we will later map back the Quadrature Values into our reference domain we can here save the corrsponding Quadrature Weights in the Reference domain (2D --> Line [0 1] , 3D ---> Triangle with corners [0,0],[0,1],[1,0)]
+                        feSub->setQuadraturePointsPhy(  QuadPts_Physical );  // These correspond to our Quadrature Points defined in physical coordinate system - in a specific Assembly class they will be mapped to the correspinding dim-1 surface where integration is performed
+
+
+
+
+                    }                   
+                }    
+            }
+        }
+
+}  
+
+
+
+
+
+
     
 }
 #endif

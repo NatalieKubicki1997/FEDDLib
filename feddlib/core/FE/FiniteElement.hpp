@@ -107,6 +107,28 @@ class FiniteElement {
 
 	bool isMarkedEdge(){return markedEdge_;};
 
+    // Computed in Domain_def.hpp -> Save in each (Sub) Finite Element the outward normal if the Finite Element is laying on the outer boundary
+    void setSurfaceNormal(vec_dbl_Type  computedNormal){ this->surfaceNormal =  computedNormal; };
+
+    // Return the vector saved for the surface Normal of the edge/ face
+    vec_dbl_Type getSurfaceNormal()
+        { if (this->surfaceNormal.size() == 0){ TEUCHOS_TEST_FOR_EXCEPTION(true,std::runtime_error,"SurfaceNormal is not initialized")};
+        return this->surfaceNormal;};
+
+    // Getter and setter functions for a surface element
+    void setNeumannBC_element(bool flag){ this->neumannBC_element = flag ; };   
+    bool getNeumannBC_element(){ return this->neumannBC_element; };   
+    void setElement_Scaling(double elscaling){ this->elScaling = elscaling ; };   
+    double getElement_Scaling(){ return this->elScaling ; };   
+    void setQuadratureWeightsRef(vec_dbl_Type weights){this->neumannBC_QuadratureWeightsRef = weights;};
+    void setQuadraturePointsPhy(vec2D_dbl_Type qpoints){this->neumannBC__QuadraturePointsPhy = qpoints; };
+    vec_dbl_Type getQuadratureWeightsRef()
+        { if (this->neumannBC_QuadratureWeightsRef.size() == 0){ TEUCHOS_TEST_FOR_EXCEPTION(true,std::runtime_error,"neumannBC_QuadratureWeightsRef is not initialized")};
+        return this->neumannBC_QuadratureWeightsRef;};
+    vec2D_dbl_Type getQuadraturePointsPhy()
+        { if (this->neumannBC__QuadraturePointsPhy.size() == 0){ TEUCHOS_TEST_FOR_EXCEPTION(true,std::runtime_error,"neumannBC__QuadraturePointsPhy is not initialized")};
+        return this->neumannBC__QuadraturePointsPhy;};
+    
 private:
     
     vec_LO_Type localNodeIDs_; /*! Node IDs that define this element. */
@@ -120,6 +142,13 @@ private:
 	GO predecessorElement_ = -1;
 	LO refinementEdge_=-1;
 	vec_LO_Type markedEdges_;
+
+    // Defined variables for boundary variables
+    vec_dbl_Type surfaceNormal;                          // As we do not have dim here as variable we cannot initialize the vector 
+    bool neumannBC_element = false;                      // Check if the element is an surface element where we want to add an additional contribution
+    vec_dbl_Type neumannBC_QuadratureWeightsRef;         // These are the Quadrature weights in terms of quadrature points defined in reference coordinate system so here [0 1]
+    vec2D_dbl_Type neumannBC__QuadraturePointsPhy;       // 2D: quadrature points on line, 3D: quadrature points in plane, have to be mapped on reference element with mapping
+    double elScaling = 0.0;     // 2D: change of length , 3D: change of area - Surface Element scaling
     
     
 public:    
