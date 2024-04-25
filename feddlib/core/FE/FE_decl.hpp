@@ -443,7 +443,13 @@ class FE {
     /// @param dim Dimension
     /// @param FEType FEType
     /// @param a Resultin matrix with one column
-    void assemblyPressureMeanValue(int dim, std::string FEType, MatrixPtr_Type a, MatrixPtr_Type aT);
+    void assemblyPressureMeanValue(int dim, std::string FEType, MultiVectorPtr_Type a);
+
+    /// @brief Assembling Pressure Integral to determine pressure mean value
+    /// @param dim Dimension
+    /// @param FEType FEType
+    /// @param a Resultin matrix with one column
+    void assemblyProjectionMatrix(int dim, std::string FEType, MatrixPtr_Type P);
 
     void assemblyRHS(int dim,
                      std::string FEType,

@@ -272,19 +272,23 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
     ParameterListPtr_Type pListThyraPrec = sublist( parameterList, "ThyraPreconditioner" );
     ParameterListPtr_Type plFrosch = sublist( sublist( pListThyraPrec, "Preconditioner Types" ), "FROSch");
     
+    // thyraMatrix is the system matrix in Thyra format to initialize preconditioner with
     ThyraLinOpConstPtr_Type thyraMatrix;
     if (!problem_.is_null())
         thyraMatrix = problem_->getSystem()->getThyraLinOp();
     else if(!timeProblem_.is_null())
         thyraMatrix = timeProblem_->getSystemCombined()->getThyraLinOp();
 
+    // For more than 1 block we need to add all maps of different blocks
     UN numberOfBlocks = parameterList->get("Number of blocks",1);
     Teuchos::ArrayRCP<Teuchos::RCP<Xpetra::Map<LO,GO,NO> > > repeatedMaps(numberOfBlocks);
 
+    // Type defs
     typedef Xpetra::MultiVector<SC,LO,GO,NO> XMultiVector;
     typedef Teuchos::RCP<XMultiVector> XMultiVectorPtr;
     typedef Teuchos::ArrayRCP<XMultiVectorPtr> XMultiVectorPtrVecPtr;
     
+    // If we dont use nodeListVec we define a empty default
     XMultiVectorPtrVecPtr nodeListVec( numberOfBlocks );
     if (!useNodeLists)
         nodeListVec = Teuchos::null;
@@ -382,6 +386,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
             else if(!timeProblem_.is_null())
                 dim = timeProblem_->getDomain(0)->getDimension();
 
+            // Various things including nodeListVec and repeated maps are passed through the parameterlistPrec. In FROSchFactory they are extracted again
             pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").set("Dimension", dim);
             pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").set("Repeated Map Vector",repeatedMaps);
             pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").set("Coordinates List Vector",nodeListVec);
@@ -389,6 +394,14 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
             pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").set("DofsPerNode Vector",dofsPerNodeVector);
             pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").set( "Mpi Ranks Coarse",parameterList->sublist("General").get("Mpi Ranks Coarse",0) );
 
+
+            // We could simply add 'a' of projection to the parameterlist. There it will be extracted in the Overlapping Operator and used to project the pressure.
+            // As it is extracted in the Overlapping Operator we need to pass it to the sublist. Also we have an additional parameter <Parameter name="Use Pressure Correction" type="bool" value="true"/> in the <ParameterList name="AlgebraicOverlappingOperator"> sublist to trigger the read in FROSch.
+           if(!pressureProjection_.is_null()){
+                pressureProjection_->merge();
+                //pressureProjection_->getMergedVector()->print();
+                pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Projection",pressureProjection_->getMergedVector()->getXpetraMultiVectorNonConst());
+           }
             /*  We need to set the ranges of local problems and the coarse problem here.
                 When using an unstructured decomposition of, e.g., FSI, with 2 domains, which might be on a different set of ranks, we need to set the following parameters for FROSch here. Similarly we need to set a coarse rank problem range. For now, we use extra coarse ranks only for structured decompositions
              */
@@ -452,7 +465,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
                 thyraPrec_ = precFactory_->createPrec();
            	}     
             
-            // We initialize Prec here with thyraMatrix, in case of preconditioner we could also initialize with Projection matrix?
+            // We initialize Prec here with thyraMatrix
             Thyra::initializePrec<SC>(*precFactory_, thyraMatrix, thyraPrec_.ptr()); // (precfactory, fwdOp, prec) Problem: PreconditionerBase<SC>* thyraPrec_
             precondtionerIsBuilt_ = true;
             
@@ -983,6 +996,11 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerFaCSI( std::string type )
 template <class SC,class LO,class GO,class NO>
 void Preconditioner<SC,LO,GO,NO>::setPressureMassMatrix(MatrixPtr_Type massMatrix) const{
     pressureMassMatrix_ = massMatrix;
+}
+
+template <class SC,class LO,class GO,class NO>
+void Preconditioner<SC,LO,GO,NO>::setPressureProjection(BlockMultiVectorPtr_Type pressureProjection) const{
+    pressureProjection_ = pressureProjection;
 }
 
 template <class SC,class LO,class GO,class NO>

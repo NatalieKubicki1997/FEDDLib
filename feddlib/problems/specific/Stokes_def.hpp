@@ -32,7 +32,7 @@ Problem<SC,LO,GO,NO>(parameterList, domainVelocity->getComm())
     this->addVariable( domainPressure , FETypePressure , "p" , 1);
     
     //This will probably not be necessary but we keep it for now
-    if(this->parameterList_->sublist("Parameter").get("Use Pressure Correction",true) && !this->getFEType(0).compare("P2") && !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Monolithic")){ // We only correct pressure in P2 Case
+   /*if(this->parameterList_->sublist("Parameter").get("Use Pressure Correction",true) && !this->getFEType(0).compare("P2") && !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Monolithic")){ // We only correct pressure in P2 Case
         
         Teuchos::RCP<Domain<SC,LO,GO,NO> > domainLambda( new Domain<SC,LO,GO,NO>( this->getDomain(0)->getComm(), this->dim_ ) );
         
@@ -47,7 +47,7 @@ Problem<SC,LO,GO,NO>(parameterList, domainVelocity->getComm())
 
         this->addVariable( domainLambda , FETypePressure , "lambda" , 1);
 
-    }
+    }*/
     this->dim_ = this->getDomain(0)->getDimension();
 }
 
@@ -108,30 +108,25 @@ void Stokes<SC,LO,GO,NO>::assemble( std::string type ) const{
     
     this->system_.reset(new BlockMatrix_Type(2));
     
-    //This will probably not be necessary but we keep it for now
+    // In case of a monolithic preconditioner and a P2-P1 discretization we have the option to correct the pressure to have mean value = 0. This way, generally, we can improve scalabilty and results. 
     if(this->parameterList_->sublist("Parameter").get("Use Pressure Correction",false) && !this->getFEType(0).compare("P2") && !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Monolithic")){ // We only correct pressure in P2 Case
-        //this->system_.reset(new BlockMatrix_Type(3));
-        
-        MatrixPtr_Type a(new Matrix_Type( this->getDomain(1)->getMapUnique(), 1 ) );
+        // Projection vector a: \int p dx, for pressure component and 0 for velocity.
+        BlockMultiVectorPtr_Type projection(new BlockMultiVector_Type (2));
 
-        MatrixPtr_Type aT(new Matrix_Type( this->getDomain(2)->getMapUnique(), this->getDomain(1)->getMapUnique()->getMaxAllGlobalIndex()+1 ) );
+        MultiVectorPtr_Type P(new MultiVector_Type( this->getDomain(1)->getMapUnique(), 1 ) );
 
-        this->feFactory_->assemblyPressureMeanValue( this->dim_,"P1",a,aT) ;
+        this->feFactory_->assemblyPressureMeanValue( this->dim_,"P1",P) ;
 
-        vec_GO_Type globalIDs(0);
-		if(this->getDomain(0)->getComm()->getRank() ==0 ){
-            for(int i=0; i< this->getDomain(1)->getMapUnique()->getMaxAllGlobalIndex()+1 ; i++)
-			    globalIDs.push_back(i);
-        }
-        Teuchos::ArrayView<GO> globalEdgesInterfaceArray = Teuchos::arrayViewFromVector( globalIDs);
+        MultiVectorPtr_Type vel0(new MultiVector_Type( this->getDomain(0)->getMapVecFieldUnique(), 1 ) );
+        vel0->putScalar(0.);
 
-		MapPtr_Type mapNode = Teuchos::rcp( new Map_Type( this->getDomain(1)->getMapUnique()->getUnderlyingLib(), Teuchos::OrdinalTraits<GO>::invalid(), globalEdgesInterfaceArray, 0, this->getDomain(0)->getComm()) );
+        // Adding components to projection vector 
+        projection->addBlock(vel0,0);
+        projection->addBlock(P,1);
 
-        aT->fillComplete(mapNode,this->getDomain(2)->getMapUnique());
-        //aT->print();
+        // Setting projection vector in preconditioner to lates pass to paramterlist in FROSch
+        this->getPreconditionerConst()->setPressureProjection( projection );         
 
-        this->system_->addBlock( a, 1, 2 );    
-        this->system_->addBlock( aT, 2, 1 );    
     }
     this->system_->addBlock( A, 0, 0 );
     this->system_->addBlock( BT, 0, 1 );

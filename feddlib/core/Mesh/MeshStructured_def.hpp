@@ -3127,27 +3127,27 @@ void MeshStructured<SC,LO,GO,NO>::setStructuredMeshFlags(int flagsOption,string 
                         this->bcFlagRep_->at(5) = 1;
                     }
                     break;
-                case 5: //Square 
+                case 5: // LDC Square
                     for (int i=0; i<this->pointsUni_->size(); i++) {
                         if (this->pointsUni_->at(i).at(0) > (coorRec[0] - tol) && this->pointsUni_->at(i).at(1) < (coorRec[1] + tol) ) {
-                            this->bcFlagUni_->at(i) = 1;
+                            this->bcFlagUni_->at(i) = 1; // bottom
                         }
                         if (this->pointsUni_->at(i).at(0) > (coorRec[0] - tol) && this->pointsUni_->at(i).at(1) > (coorRec[1] + height - tol) ) {
-                            this->bcFlagUni_->at(i) = 2;
+                            this->bcFlagUni_->at(i) = 2; // top
                         }
                         if (this->pointsUni_->at(i).at(0) > (coorRec[0]+length - tol) && this->pointsUni_->at(i).at(1) > (coorRec[1] + tol) && this->pointsUni_->at(i).at(1) < (coorRec[1] + height - tol)) {
-                            this->bcFlagUni_->at(i) = 1; //outflow
+                            this->bcFlagUni_->at(i) = 1; // right
                         }
                         if (this->pointsUni_->at(i).at(0) < (coorRec[0] +tol)) {
-                            this->bcFlagUni_->at(i) = 1; //inflow
+                            this->bcFlagUni_->at(i) = 1; //Left
                         }
                         if (this->pointsUni_->at(i).at(0) < (coorRec[0] +tol) && this->pointsUni_->at(i).at(1) < (coorRec[1] +tol)) {
-                            this->bcFlagUni_->at(i) = 3; //inflow
+                            this->bcFlagUni_->at(i) = 3; // (0,0) point of ldc
                         }
                     }
                     for (int i=0; i<this->pointsRep_->size(); i++) {
                         if (this->pointsRep_->at(i).at(0) > (coorRec[0] - tol) && this->pointsRep_->at(i).at(1) < (coorRec[1] + tol) ) {
-                            this->bcFlagRep_->at(i) = 1;
+                            this->bcFlagRep_->at(i) = 1; // bottom 
                         }
                         if (this->pointsRep_->at(i).at(0) > (coorRec[0] - tol) && this->pointsRep_->at(i).at(1) > (coorRec[1] + height - tol) ) {
                             this->bcFlagRep_->at(i) = 2;
