@@ -429,7 +429,7 @@ void Domain<SC,LO,GO,NO>::preProcessMesh(bool correctSurfaceNormals, bool correc
     if(correctElementOrientation)
         mesh_->correctElementOrientation();
 
-
+    if (correctSurfaceNormals &&  correctElementOrientation ){ this->setPreProcessedMesh(true);};
 }
 
 
@@ -1148,6 +1148,7 @@ void Domain<SC, LO, GO, NO>::exportElementFlags(string name)
 template <class SC, class LO, class GO, class NO>
 void Domain<SC, LO, GO, NO>::setSurfaceNormalsForFE()
 {
+        if (this->getPreProcessedMesh()==false){ TEUCHOS_TEST_FOR_EXCEPTION(true,std::runtime_error,"In order to ensure correct normal orientation preProcessMesh() has to be called first");}; 
         ElementsPtr_Type elementsC = this->getElementsC(); // Unique flags at points
 
         // We iterate over all elements and compute the surface normals and save the surface normals as values inside the
@@ -1207,23 +1208,22 @@ We could then as usually compute our basisfunction phi and their derivative
 We have to do this whole procedure because we do not know which edge/ face on the physical boundary will be transformed onto which side of the reference element. So the easiest way to ensure that our quadrature points
 are defined on the correct edge/ face in the reference element is by defining them in the global coordinates
 
-CAUTION!: We will assume the case that one element has only ONE corresponding outer surface laying on a Neumann boundary condition surface. Because in general we could for corner elements have the case that one element has one surface element corresponding to one neumann boundary
-and another surface element corresponding to another neumann boundary condition but lets keep it here first simple
 */
 
 
 
 // We will call this function for velocity domain 
 template <class SC, class LO, class GO, class NO>
-void Domain<SC, LO, GO, NO>::setSurfaceQuadratureWP( int flag , int degree)
+void Domain<SC, LO, GO, NO>::setSurfaceQuadraturePointsWeights( int flag , int degree)
 {
+        
         ElementsPtr_Type elementsC = this->getElementsC(); // Unique flags at points
 
         SC elScaling;
         SmallMatrix<SC> B(this->dim_);
         vec_dbl_Type b(this->dim_);
         vec_dbl_Type QuadW_Ref(degree-1); // So for degree 3 it should be 2
-        vec2D_dbl_Type QuadPts_Physical(QuadW_Ref.size(), vec_dbl_Type(this->dim_));
+        vec2D_dbl_Type QuadPts_Global(QuadW_Ref.size(), vec_dbl_Type(this->dim_));
         for (UN T=0; T<elementsC->numberElements(); T++) {
             FE_ptr_Type fe = Teuchos::rcpFromRef<FiniteElement>(elementsC->getElement( T ));
             ElementsPtr_Type subEl = fe->getSubElements(); // might be null
@@ -1236,17 +1236,17 @@ void Domain<SC, LO, GO, NO>::setSurfaceQuadratureWP( int flag , int degree)
                     if(subEl->getDimension() == this->dim_-1 )
                     {
 
-                        feSub->setNeumannBC_element(  true ); // We set that this element corresponds to an edge/ face where an additional element contribution will be added in the specificAssemblyClasses
-                        fe->setNeumannBC_element(true); // Set also the corresponding element to true and not only the subelement
-                        Helper::buildTransformationSurface( nodeListElement, this->getPointsRepeated(), B, b, this->FEType_); // For 2D this should correspond to det_L = std::sqrt( std::pow( (this->getPointsRepeated()->at(feSub.getNode(1)).at(0)- this->getPointsRepeated()->at(feSub.getNode(0)).at(0)) , 2.0) + std::pow( this->getPointsRepeated()->at(feSub.getNode(1)).at(1)- this->getPointsRepeated()->at(feSub.getNode(0)).at(1), 2.0) );
+                        feSub->setNeumannBCElement(true);    // We set that this element corresponds to an edge/ face where an additional element contribution will be added in the specificAssemblyClasses
+                        fe->setNeumannBCElement(true);       // Set also the corresponding element to true and not only the subelement such that we can check in the loop of AssembleFE Elements if we have to add the additional surface integral
+                        Helper::buildTransformationSurface( nodeListElement, this->getPointsRepeated(), B, b, this->FEType_); // For 2D this corresponds to det_L = std::sqrt( std::pow( (this->getPointsRepeated()->at(feSub.getNode(1)).at(0)- this->getPointsRepeated()->at(feSub.getNode(0)).at(0)) , 2.0) + std::pow( this->getPointsRepeated()->at(feSub.getNode(1)).at(1)- this->getPointsRepeated()->at(feSub.getNode(0)).at(1), 2.0) );
        
                         elScaling = B.computeScaling( ); // Compute the change in area needed in specific Assembly classes
-                        feSub->setElement_Scaling( elScaling ); 
+                        feSub->setElementScaling( elScaling ); 
 
                          // Compute Quadrature Values On Physical Surface Element but define directly the corresponding quadrature weights but already defined on reference surface
-                        Helper::getQuadraturePntsOnSurfaceInPhysicalSpace(this->dim_, this->FEType_ ,   QuadW_Ref, QuadPts_Physical, nodeListElement, this->getPointsRepeated());
-                        feSub->setQuadratureWeightsRef(   QuadW_Ref ); // As we will later map back the Quadrature Values into our reference domain we can here save the corrsponding Quadrature Weights in the Reference domain (2D --> Line [0 1] , 3D ---> Triangle with corners [0,0],[0,1],[1,0)]
-                        feSub->setQuadraturePointsPhy(  QuadPts_Physical );  // These correspond to our Quadrature Points defined in physical coordinate system - in a specific Assembly class they will be mapped to the correspinding dim-1 surface where integration is performed
+                        Helper::getQuadraturePointsOnSurfaceInGlobalSpace(this->dim_, this->FEType_ ,   QuadW_Ref, QuadPts_Global, nodeListElement, this->getPointsRepeated());
+                        feSub->setQuadratureWeightsReference(   QuadW_Ref ); // As we will later map back the Quadrature Values into our reference domain we can here save the corrsponding Quadrature Weights in the Reference domain (2D --> Line [0 1] , 3D ---> Triangle with corners [0,0],[0,1],[1,0)]
+                        feSub->setQuadraturePointsGlobal(  QuadPts_Global );  // These correspond to our Quadrature Points defined in physical coordinate system - in a specific Assembly class they will be mapped to the correspinding dim-1 surface where integration is performed
 
 
 

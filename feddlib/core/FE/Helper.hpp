@@ -40,7 +40,7 @@ public:
     //  @param QuadP Vector of quadrature coordinate vectors
     /// @param surfaceIDs Ids of local surface points
     /// @param pointsRep List of all repeated nodes
-    static void getQuadraturePntsOnSurfaceInPhysicalSpace(int dim, 	
+    static void getQuadraturePointsOnSurfaceInGlobalSpace(int dim, 	
     										std::string FEType, 
     										vec_dbl_Type &QuadW,
                                             vec2D_dbl_Type &QuadP,  

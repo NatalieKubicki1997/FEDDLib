@@ -1743,7 +1743,7 @@ int Helper::getDPhiAtCM(vec3D_dbl_ptr_Type &DPhi,
 
 /*!
 
-\brief Returns neccesary quadrature Values. Is distinguishes between needing Element or Surface information. 
+\brief Returns neccesary quadrature Values in global coordinate system 
 
 @param[in] dim Dimension for which the quadrature points are needed.
 @param[in] FEType Finite element type for which the quadrature points are needed.
@@ -1756,9 +1756,10 @@ int Helper::getDPhiAtCM(vec3D_dbl_ptr_Type &DPhi,
 @param[out] QuadW Quadrature weights
 
 \brief Keep in mind that elementwise quadPoints are defined on reference element whereas surface quadPoints at hand are defined on the input surface, which is typically not the reference Element. 
-
+We also set here the quadrature weights but as we already now that they will be mapped back to a reference line or a reference triangle we will save here 
+already the quadrature weights defined on reference element
 */
-    void Helper::getQuadraturePntsOnSurfaceInPhysicalSpace(int dim, 	
+    void Helper::getQuadraturePointsOnSurfaceInGlobalSpace(int dim, 	
     										std::string FEType, 
     										vec_dbl_Type &QuadW,
                                             vec2D_dbl_Type &QuadPts,  

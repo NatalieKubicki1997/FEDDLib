@@ -568,7 +568,11 @@ public:
    //         With this function we set needed quadrature points/weights / mapping factor / in order to have everything ready for computation
    // @param[in] flag Define in main on which boundary we want to add an additional special neumann boundary condition
    // @param[in] degree For the quadrature rule choose a degree and the weight number will be set accordingly
-   void setSurfaceQuadratureWP( int flag , int degree);
+   void setSurfaceQuadraturePointsWeights( int flag , int degree);
+
+
+   void setPreProcessedMesh(bool value){this->preProcessedMesh_ = value;}; // Setter - Is called if preProcessMesh is called
+   bool getPreProcessedMesh(){return this->preProcessedMesh_;};            // Getter of variable 
    /* ----------------------------------------------------------------------------------------*/
 
    private:
@@ -610,6 +614,7 @@ public:
    std::string meshType_;
    int numProcsCoarseSolve_;
    int flagsOption_;
+   bool preProcessedMesh_ = false; // We need a variable to check whether the mesh was preprocessed such that outward normal computation will be correct
 
     };
    

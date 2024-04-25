@@ -224,7 +224,7 @@ namespace FEDD {
         /*! \brief Assigne a assembledFE Object a corresponding FE object such that we access its geometric information, i.e. surface normals
          Then we do not have to compute geometric informations again
         */
-        void setFiniteElement(FiniteElement& FE_Object){ this->FE_Object =  Teuchos::rcpFromRef<FiniteElement>(FE_Object);}; //pass by reference because we do not want to copy the object
+        void setFiniteElement(FiniteElement& FE_Object){ this->FEObject_ =  Teuchos::rcpFromRef<FiniteElement>(FE_Object);}; //pass by reference because we do not want to copy the object
 
 
     protected:
@@ -268,13 +268,9 @@ namespace FEDD {
         GO globalElementID_;
 
 
-        // This can be any postprocessing output field defined inside an element using converged solution
-        vec_dbl_Type constOutputField_ ; // can be a vector with values on P1/ P2 nodes or just averaged element value
+        vec_dbl_Type constOutputField_ ; //  Postprocessing output field defined inside an element using converged solution - can be a vector with values on P1/ P2 nodes or just averaged element value
 
-
-        // Each AssemblyFEElement should be assigned the corresponding FiniteElement such that we access
-        // geometric attributes like its surface Normal - Be aware that we will set 
-        FE_ptr_Type FE_Object; // Pointer to the corresponding FiniteElement - if its properties change, e.g. its surface normals, we access the updated value
+        FE_ptr_Type FEObject_; // Pointer to the corresponding FiniteElement - if its properties change, e.g. its surface normals, we access the updated value
 
 
         friend class AssembleFEFactory<SC,LO,GO,NO>;
