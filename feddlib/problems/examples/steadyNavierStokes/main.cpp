@@ -75,6 +75,26 @@ void zeroDirichlet3D(double* x, double* res, double t, const double* parameters)
     return;
 }
 
+
+// For Lid Driven Cavity Test
+void ldcFunc2D(double* x, double* res, double t, const double* parameters){
+    
+    res[0] = 1.;
+    res[1] = 0.;
+    
+    return;
+}
+
+// For Lid Driven Cavity Test
+void ldcFunc3D(double* x, double* res, double t, const double* parameters){
+    
+    res[0] = 1.;
+    res[1] = 0.;
+    res[2] = 0.;
+
+    return;
+}
+
 void inflowParabolic2D(double* x, double* res, double t, const double* parameters){
 
     double H = parameters[1];
@@ -242,6 +262,26 @@ int main(int argc, char *argv[]) {
                         domainPressure->buildMesh( 1,"Square", dim, discPressure, n, m, numProcsCoarseSolve);
                         domainVelocity->buildMesh( 1,"Square", dim, discVelocity, n, m, numProcsCoarseSolve);
                     }
+                    if (!meshType.compare("structured_ldc")) {
+                    // Structured Mesh for Lid-Driven Cavity Test
+                    TEUCHOS_TEST_FOR_EXCEPTION( size%minNumberSubdomains != 0 , std::logic_error, "Wrong number of processors for structured mesh.");
+                    if (dim == 2) {
+                        n = (int) (std::pow( size/minNumberSubdomains ,1/2.) + 100*Teuchos::ScalarTraits<double>::eps()); // 1/H
+                        std::vector<double> x(2);
+                        x[0]=0.0;    x[1]=0.0;
+                        domainPressure.reset(new Domain<SC,LO,GO,NO>( x, 1., 1., comm ) );
+                        domainVelocity.reset(new Domain<SC,LO,GO,NO>( x, 1., 1., comm ) );
+                    }
+                    else if (dim == 3){
+                        n = (int) (std::pow( size/minNumberSubdomains, 1/3.) + 100*Teuchos::ScalarTraits<double>::eps()); // 1/H
+                        std::vector<double> x(3);
+                        x[0]=0.0;    x[1]=0.0;	x[2]=0.0;
+                        domainPressure.reset(new Domain<SC,LO,GO,NO>( x, 1., 1., 1., comm));
+                        domainVelocity.reset(new Domain<SC,LO,GO,NO>( x, 1., 1., 1., comm));
+                    }
+                    domainPressure->buildMesh( 5,"Square", dim, discPressure, n, m, numProcsCoarseSolve);
+                    domainVelocity->buildMesh( 5,"Square", dim, discVelocity, n, m, numProcsCoarseSolve);
+                }
                     if (!meshType.compare("structured_bfs")) {
                         TEUCHOS_TEST_FOR_EXCEPTION( size%minNumberSubdomains != 0 , std::logic_error, "Wrong number of processors for structured BFS mesh.");
                         if (dim == 2) {
@@ -292,9 +332,11 @@ int main(int argc, char *argv[]) {
                     parameter_vec.push_back(.41);//height of inflow region
                 else if(!bcType.compare("Richter3D"))
                     parameter_vec.push_back(.4);
+                 else if(!bcType.compare("LDC")) // Lid Driven Cavity Test
+                    parameter_vec.push_back(0.);//Dummy
                 else
                     TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Select a valid boundary condition.");
-
+         
 
                 if ( !bcType.compare("parabolic") || !bcType.compare("parabolic_benchmark") ) {//flag of obstacle
                     if (dim==2){
@@ -325,6 +367,18 @@ int main(int argc, char *argv[]) {
                     bcFactory->addBC(inflow3DRichter, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
                     bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet_Z", dim);
                     bcFactory->addBC(zeroDirichlet3D, 5, 0, domainVelocity, "Dirichlet", dim);
+                }
+
+                if (!bcType.compare("LDC")) {
+                    if (dim==2){
+                        bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);
+                        bcFactory->addBC(ldcFunc2D, 2, 0, domainVelocity, "Dirichlet", dim);
+                    }
+                    else if (dim==3){
+                        bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);
+                        bcFactory->addBC(ldcFunc3D, 2, 0, domainVelocity, "Dirichlet", dim);
+
+                    }
                 }
                 
                 NavierStokes<SC,LO,GO,NO> navierStokes( domainVelocity, discVelocity, domainPressure, discPressure, parameterListAll );
