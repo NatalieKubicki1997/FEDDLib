@@ -1818,8 +1818,9 @@ already the quadrature weights defined on reference element
 		double y2 = points->at(surfaceIDs.at(2)).at(1);
 		double z2 = points->at(surfaceIDs.at(2)).at(2);
 
+        double a, b, P1, P2, lambda_a, lambda_b;
+
 		if(FEType == "P1"){
-			// In my case: As nabla phi is a constant function, quad points don't really matter in that case ...
 			QuadPts[0][0] =   1/3.;
 			QuadPts[0][1] =   1/3.;
 			QuadPts[0][2] =   1/3.;
@@ -1827,19 +1828,68 @@ already the quadrature weights defined on reference element
 			QuadW[0] = 1.;
 		}
 		else if(FEType == "P2"){
-			QuadPts[0][0] =  (x0+x1)/2.;
-			QuadPts[0][1] =  (y0+y1)/2.;
-			QuadPts[0][2] =  (z0+z1)/2.;
-			QuadPts[1][0] =  (x0+x2)/2.;
-			QuadPts[1][1] =  (y0+y2)/2.;
-			QuadPts[1][2] =  (z0+z2)/2.;
-			QuadPts[2][0] =  (x1+x2)/2.;
-			QuadPts[2][1] =  (y1+y2)/2.;
-			QuadPts[2][2] =  (z1+z2)/2.;
 
-			QuadW[0] = 1/3.;
-			QuadW[1] = 1/3.;
-			QuadW[2] = 1/3.;
+                // So in order to map the Gaussian integration points at the correct location inside the 
+                // global element we have to consider barycentric coordinates
+                // https://en.wikipedia.org/wiki/Barycentric_coordinate_system#:~:text=Barycentric%20coordinates%20on%20triangles,-Learn%20more&text=In%20the%20context%20of%20a,of%20the%20reference%20triangle%20ABC.
+                // So if (\lambda_1, \lambda_2, \lambda_3 ) the barycentric coordinates of the points computed using the reference element (0,0)-(0,1)-(1,0
+                // Then we can just use the formulas
+                // x_global = \lambda_1 * P1_x + \lambda_2*P2_x* (1-\lambda_1-\lambda_2)*P3_x where the x_i are the global vertices x-coordinates
+                // same formula for y_global and z_global using y and z component of the vertices
+                // Then if we do the mapping we will correctly map back the quadrature points to the positions 
+
+                // Barycentric coordinates for (1/3, 1/3) -> (1/3, 1/3, 1/3)
+                // Barycentric coordinates for (a   , a)  -> (1-2*a , a , a   )
+                // Barycentric coordinates for (1-2*a, a) -> (a, 1-2*a , a)
+                // Barycentric coordinates for (a, 1-2*a) -> (a, a, 1-2*a)
+                // Barycentric coordinates for  (b, b)    -> (1-2*b, b, b)
+                // Barycentric coordinates for  (1-2*b, b)    -> (b, 1-2*b, b)
+                // Barycentric coordinates for  (b, 1-2*b)    -> (b, b, 1-2*b)
+
+ 
+                a = 0.470142064105115;
+                b = 0.101286507323456;
+                lambda_a = 1-2.*a;
+                lambda_b = 1-2.*b;
+                P1 = 0.066197076394253;
+                P2 = 0.062969590272413;
+
+                QuadPts[0][0]  	 = 1/3.*x0+1/3.*x1+1/3.*x2;
+                QuadPts[0][1]    = 1/3.*y0+1/3.*y1+1/3.*y2;
+                QuadPts[0][2]    = 1/3.*z0+1/3.*z1+1/3.*z2;
+
+                QuadPts[1][0]	= lambda_a*x0 + a*x1 + a* x2;
+                QuadPts[1][1] 	= lambda_a*y0 + a*y1 + a* y2;
+                QuadPts[1][2] 	= lambda_a*z0 + a*z1 + a* z2;
+
+                QuadPts[2][0]	= a*x0 + lambda_a*x1 + a* x2;
+                QuadPts[2][1] 	= a*y0 + lambda_a*y1 + a* y2;
+                QuadPts[2][2] 	= a*z0 + lambda_a*z1 + a* z2;
+
+                QuadPts[3][0] 	= a*x0 + a*x1 + x2*lambda_a;
+                QuadPts[3][1] 	= a*y0 + a*y1 + y2*lambda_a;
+                QuadPts[3][2] 	= a*z0 + a*z1 + z2*lambda_a;
+
+                QuadPts[4][0] 	= lambda_b*x0 + b*x1 + b* x2;
+                QuadPts[4][1] 	= lambda_b*y0 + b*y1 + b* y2;
+                QuadPts[4][2] 	= lambda_b*z0 + b*z1 + b* z2;
+
+                QuadPts[5][0] 	= lambda_b*x1 + b*x0 + b* x2;
+                QuadPts[5][1] 	= lambda_b*y1 + b*y0 + b* y2;
+                QuadPts[5][2] 	= lambda_b*z1 + b*z0 + b* z2;
+
+                QuadPts[6][0] 	= lambda_b*x2 + b*x0 + b* x1;
+                QuadPts[6][1] 	= lambda_b*y2 + b*y0 + b* y1;
+                QuadPts[6][2] 	= lambda_b*z2 + b*z0 + b* z1;
+
+                QuadW[0]			= 9/80.;
+                QuadW[1]           = P1;
+                QuadW[2]            = P1;
+                QuadW[3] 			= P1;
+                QuadW[4]            = P2;
+                QuadW[5]           = P2;
+                QuadW[6]            = P2;
+
 		}
 	}
 

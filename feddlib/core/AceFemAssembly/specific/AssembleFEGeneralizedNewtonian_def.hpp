@@ -731,38 +731,31 @@ namespace FEDD
 
         // Now we have successfully mapped the global quadrature points onto one of the reference faces (2D line / 3D surface)
         // But we still have to consider the case that if the global surface was mapped onto the diagonal line/ diagonal surface we
-        // have to scale the weights and quadrature points by the factor area change so in 2D it is just the length so sqrt(2) [0 sqrt(2)] and in 3D it should be the area which is 0.866025403784439
+        // have to scale the weights (not the quadrature points because they were mapped on the right relative locations through the transformation) by the factor area change so in 2D it is just the length so sqrt(2) [0 sqrt(2)] and in 3D it should be the area which is 0.866025403784439
         
         // Check if a quadrature point lies on the diagonal line
         // We consider the point to be on the diagonal if both its x and y components are nonzero
         // https://www.math.ntnu.no/emner/TMA4130/2021h/lectures/CompositeQuadrature.pdf
         double lengthReferenceElementDiagonalLine = std::sqrt(2.0) ;
+        double eps = 1e-12; // std::numeric_limits<double>::epsilon() is too small
         double areaReferenceElementDiagonalFace =  0.866025403784439;
         if (dim==2)
         {
-            if (  (std::fabs( QuadPointsMappedReference[0][0] - 0.0) >  std::numeric_limits<double>::epsilon()  )   &&  ( (QuadPointsMappedReference[0][1]  - 0.0) >  std::numeric_limits<double>::epsilon()    ) ) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
+            if (  (std::fabs( QuadPointsMappedReference[0][0] - 0.0) >  eps  )   &&  ( (QuadPointsMappedReference[0][1]  - 0.0) >  eps   ) ) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
             {
                 for (int l = 0; l < QuadPointsGlobal.size(); l++)
                 {
-                QuadWeightsReference[l] =  lengthReferenceElementDiagonalLine * QuadWeightsReference[l];
-                    for (int q = 0; q < dim; q++)
-                    {
-                    QuadPointsMappedReference[l][q] =  lengthReferenceElementDiagonalLine* QuadPointsMappedReference[l][q];
-                    }
+                QuadWeightsReference[l] =  lengthReferenceElementDiagonalLine * QuadWeightsReference[l]; // We have to only scale the weights as quadrature points are already mapped onto correct relative position on the diagonaö
                 }
             }
         }
-        else if (dim==3) // @ToDo Check if we really just multiply the surface are of the triangle?
+        else if (dim==3) // Quadrature Points are already mapped onto the correct positions inside the 2D surface
         {
-            if (  (std::fabs( QuadPointsMappedReference[0][0] - 0.0) >  std::numeric_limits<double>::epsilon()  )   &&  ( (QuadPointsMappedReference[0][1]  - 0.0) >  std::numeric_limits<double>::epsilon()    ) &&  ( (QuadPointsMappedReference[0][2]  - 0.0) >  std::numeric_limits<double>::epsilon()    ) ) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
+            if (  (std::fabs( QuadPointsMappedReference[0][0] - 0.0) > eps  )   &&  ( (QuadPointsMappedReference[0][1]  - 0.0) >  eps   ) &&  ( (QuadPointsMappedReference[0][2]  - 0.0) >  eps   ) ) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
             {
                 for (int l = 0; l < QuadPointsGlobal.size(); l++)
                 {
                 QuadWeightsReference[l] = areaReferenceElementDiagonalFace  * QuadWeightsReference[l];
-                    for (int q = 0; q < dim; q++)
-                    {
-                    QuadPointsMappedReference[l][q] = areaReferenceElementDiagonalFace  * QuadPointsMappedReference[l][q];
-                    }
                 }
             }
         }
