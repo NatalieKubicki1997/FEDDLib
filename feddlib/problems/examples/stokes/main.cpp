@@ -335,6 +335,8 @@ int main(int argc, char *argv[]) {
             if (!bcType.compare("LDC")) {
                 if (dim==2){
                     bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);
+                    //bcFactory->addBC(zeroDirichlet2D, 3, 0, domainVelocity, "Dirichlet", dim);
+                    //bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1);
                     bcFactory->addBC(ldcFunc2D, 2, 0, domainVelocity, "Dirichlet", dim);
                 }
                 else if (dim==3){
@@ -396,6 +398,7 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+
     Teuchos::TimeMonitor::report(cout);
 
     return(EXIT_SUCCESS);

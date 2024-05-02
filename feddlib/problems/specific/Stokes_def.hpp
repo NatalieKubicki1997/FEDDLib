@@ -109,7 +109,8 @@ void Stokes<SC,LO,GO,NO>::assemble( std::string type ) const{
     this->system_.reset(new BlockMatrix_Type(2));
     
     // In case of a monolithic preconditioner and a P2-P1 discretization we have the option to correct the pressure to have mean value = 0. This way, generally, we can improve scalabilty and results. 
-    if(this->parameterList_->sublist("Parameter").get("Use Pressure Correction",false) && !this->getFEType(0).compare("P2") && !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Monolithic")){ // We only correct pressure in P2 Case
+    // The real correction is then done via projection in the Overlapping Operator of FROSch,here we only assemble a as \int p dx . a is assembled as a column vector but in the Dissertation of C. Hochmuth defined as row.
+    if(this->parameterList_->sublist("Parameter").get("Use Pressure Correction",false) && !this->getFEType(0).compare("P2") && !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Monolithic")){ 
         // Projection vector a: \int p dx, for pressure component and 0 for velocity.
         BlockMultiVectorPtr_Type projection(new BlockMultiVector_Type (2));
 
@@ -124,8 +125,11 @@ void Stokes<SC,LO,GO,NO>::assemble( std::string type ) const{
         projection->addBlock(vel0,0);
         projection->addBlock(P,1);
 
-        // Setting projection vector in preconditioner to lates pass to paramterlist in FROSch
-        this->getPreconditionerConst()->setPressureProjection( projection );         
+        // Setting projection vector in preconditioner to later pass to paramterlist in FROSch
+        this->getPreconditionerConst()->setPressureProjection( projection );    
+
+        if (this->verbose_)
+            std::cout << "\n 'Use pressure correction' was set to 'true'. This requieres a version of Trilinos of that includes pressure correction in the FROSch_OverlappingOperator!!" << std::endl;  
 
     }
     this->system_->addBlock( A, 0, 0 );
@@ -151,10 +155,10 @@ void Stokes<SC,LO,GO,NO>::assemble( std::string type ) const{
             //
             this->getPreconditionerConst()->setVelocityMassMatrix( Mvelocity );
             if (this->verbose_)
-                std::cout << "\nVelocity mass matrix for LSC block preconditioner is assembled." << std::endl;
+                std::cout << "\nVelocity mass matrix for LSC block preconditioner is assembled and used for the preconditioner." << std::endl;
         } else {
             if (this->verbose_)
-                std::cout << "\nVelocity mass matrix for LSC block preconditioner not assembled." << std::endl;
+                std::cout << "\nVelocity mass matrix for LSC block preconditioner not assembled and thus approximated/replaced with matrix F (fluid)." << std::endl;
         }
     }
 #endif

@@ -369,9 +369,12 @@ void MeshStructured<SC,LO,GO,NO>::buildMesh2D(std::string FEType,
         for (int s=0; s < M+1; s++) {
             for (int r=0; r < M+1; r++) {
                 (*this->pointsRep_)[counter][0] = r*h + offset_x * H;
-                if ((*this->pointsRep_)[counter][0]<100*ScalarTraits<SC>::eps() && (*this->pointsRep_)[counter][0]>-100*ScalarTraits<SC>::eps()) { (*this->pointsRep_)[counter][0]=0.0;}
+                if ((*this->pointsRep_)[counter][0]<100*ScalarTraits<SC>::eps() && (*this->pointsRep_)[counter][0]>-100*ScalarTraits<SC>::eps()) {
+                     (*this->pointsRep_)[counter][0]=0.0;}
                 (*this->pointsRep_)[counter][1] = s*h + offset_y * H;
-                if ((*this->pointsRep_)[counter][1]<100*ScalarTraits<SC>::eps() && (*this->pointsRep_)[counter][1]>-100*ScalarTraits<SC>::eps()) {(*this->pointsRep_)[counter][1]=0.0;}
+                if ((*this->pointsRep_)[counter][1]<100*ScalarTraits<SC>::eps() && (*this->pointsRep_)[counter][1]>-100*ScalarTraits<SC>::eps()) {
+                    (*this->pointsRep_)[counter][1]=0.0;}
+
                 pointsRepGlobMapping[counter] = r + s*nmbPoints_oneDir + offset_x*(M) + offset_y*(nmbPoints_oneDir)*M;
                 if ((*this->pointsRep_)[counter][0] > (coorRec[0]+length-100*ScalarTraits<SC>::eps()) 	|| (*this->pointsRep_)[counter][0] < (coorRec[0]+100*ScalarTraits<SC>::eps()) ||
                     (*this->pointsRep_)[counter][1] > (coorRec[1]+height-100*ScalarTraits<SC>::eps()) 	|| (*this->pointsRep_)[counter][1] < (coorRec[1]+100*ScalarTraits<SC>::eps())) {

@@ -281,7 +281,7 @@ int main(int argc, char *argv[]) {
                     }
                     domainPressure->buildMesh( 5,"Square", dim, discPressure, n, m, numProcsCoarseSolve);
                     domainVelocity->buildMesh( 5,"Square", dim, discVelocity, n, m, numProcsCoarseSolve);
-                }
+                    }
                     if (!meshType.compare("structured_bfs")) {
                         TEUCHOS_TEST_FOR_EXCEPTION( size%minNumberSubdomains != 0 , std::logic_error, "Wrong number of processors for structured BFS mesh.");
                         if (dim == 2) {
