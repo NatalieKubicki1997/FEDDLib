@@ -30,9 +30,9 @@ Problem<SC,LO,GO,NO>(parameterList, domainVelocity->getComm())
 
     this->addVariable( domainVelocity , FETypeVelocity , "u" , domainVelocity->getDimension());
     this->addVariable( domainPressure , FETypePressure , "p" , 1);
-    /*
-    This will probably not be necessary but we keep it for now
-    if(this->parameterList_->sublist("Parameter").get("Use Pressure Correction",true) && !this->getFEType(0).compare("P2") && !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Monolithic")){ // We only correct pressure in P2 Case
+    
+    //This will probably not be necessary but we keep it for now
+   /*if(this->parameterList_->sublist("Parameter").get("Use Pressure Correction",true) && !this->getFEType(0).compare("P2") && !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Monolithic")){ // We only correct pressure in P2 Case
         
         Teuchos::RCP<Domain<SC,LO,GO,NO> > domainLambda( new Domain<SC,LO,GO,NO>( this->getDomain(0)->getComm(), this->dim_ ) );
         
@@ -107,32 +107,31 @@ void Stokes<SC,LO,GO,NO>::assemble( std::string type ) const{
     BT->fillComplete( pressureMap, this->getDomain(0)->getMapVecFieldUnique() );
     
     this->system_.reset(new BlockMatrix_Type(2));
-    /*
-    This will probably not be necessary but we keep it for now
-    if(this->parameterList_->sublist("Parameter").get("Use Pressure Correction",false) && !this->getFEType(0).compare("P2") && !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Monolithic")){ // We only correct pressure in P2 Case
-        //this->system_.reset(new BlockMatrix_Type(3));
-        
-        MatrixPtr_Type a(new Matrix_Type( this->getDomain(1)->getMapUnique(), 1 ) );
+    
+    // In case of a monolithic preconditioner and a P2-P1 discretization we have the option to correct the pressure to have mean value = 0. This way, generally, we can improve scalabilty and results. 
+    // The real correction is then done via projection in the Overlapping Operator of FROSch,here we only assemble a as \int p dx . a is assembled as a column vector but in the Dissertation of C. Hochmuth defined as row.
+    if(this->parameterList_->sublist("Parameter").get("Use Pressure Correction",false) && !this->getFEType(0).compare("P2") && !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Monolithic")){ 
+        // Projection vector a: \int p dx, for pressure component and 0 for velocity.
+        BlockMultiVectorPtr_Type projection(new BlockMultiVector_Type (2));
 
-        MatrixPtr_Type aT(new Matrix_Type( this->getDomain(2)->getMapUnique(), this->getDomain(1)->getMapUnique()->getMaxAllGlobalIndex()+1 ) );
+        MultiVectorPtr_Type P(new MultiVector_Type( this->getDomain(1)->getMapUnique(), 1 ) );
 
-        this->feFactory_->assemblyPressureMeanValue( this->dim_,"P1",a,aT) ;
+        this->feFactory_->assemblyPressureMeanValue( this->dim_,"P1",P) ;
 
-        vec_GO_Type globalIDs(0);
-		if(this->getDomain(0)->getComm()->getRank() ==0 ){
-            for(int i=0; i< this->getDomain(1)->getMapUnique()->getMaxAllGlobalIndex()+1 ; i++)
-			    globalIDs.push_back(i);
-        }
-        Teuchos::ArrayView<GO> globalEdgesInterfaceArray = Teuchos::arrayViewFromVector( globalIDs);
+        MultiVectorPtr_Type vel0(new MultiVector_Type( this->getDomain(0)->getMapVecFieldUnique(), 1 ) );
+        vel0->putScalar(0.);
 
-		MapPtr_Type mapNode = Teuchos::rcp( new Map_Type( this->getDomain(1)->getMapUnique()->getUnderlyingLib(), Teuchos::OrdinalTraits<GO>::invalid(), globalEdgesInterfaceArray, 0, this->getDomain(0)->getComm()) );
+        // Adding components to projection vector 
+        projection->addBlock(vel0,0);
+        projection->addBlock(P,1);
 
-        aT->fillComplete(mapNode,this->getDomain(2)->getMapUnique());
-        //aT->print();
+        // Setting projection vector in preconditioner to later pass to paramterlist in FROSch
+        this->getPreconditionerConst()->setPressureProjection( projection );    
 
-        //this->system_->addBlock( a, 1, 2 );    
-        //this->system_->addBlock( aT, 2, 1 );    
-    }*/
+        if (this->verbose_)
+            std::cout << "\n 'Use pressure correction' was set to 'true'. This requieres a version of Trilinos of that includes pressure correction in the FROSch_OverlappingOperator!!" << std::endl;  
+
+    }
     this->system_->addBlock( A, 0, 0 );
     this->system_->addBlock( BT, 0, 1 );
     this->system_->addBlock( B, 1, 0 );
@@ -156,10 +155,10 @@ void Stokes<SC,LO,GO,NO>::assemble( std::string type ) const{
             //
             this->getPreconditionerConst()->setVelocityMassMatrix( Mvelocity );
             if (this->verbose_)
-                std::cout << "\nVelocity mass matrix for LSC block preconditioner is assembled." << std::endl;
+                std::cout << "\nVelocity mass matrix for LSC block preconditioner is assembled and used for the preconditioner." << std::endl;
         } else {
             if (this->verbose_)
-                std::cout << "\nVelocity mass matrix for LSC block preconditioner not assembled." << std::endl;
+                std::cout << "\nVelocity mass matrix for LSC block preconditioner not assembled and thus approximated/replaced with matrix F (fluid)." << std::endl;
         }
     }
 #endif

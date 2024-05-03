@@ -112,6 +112,7 @@ int LinearSolver<SC,LO,GO,NO>::solveMonolithic(Problem_Type* problem, BlockMulti
     ThyraLinOpConstPtr_Type thyraMatrix = problem->getSystem()->getThyraLinOp();
     if ( iterativeSolve ) {
         ThyraPrecPtr_Type thyraPrec = problem->getPreconditioner()->getThyraPrec();
+    
         Thyra::initializePreconditionedOp<SC>(*lowsFactory, thyraMatrix, thyraPrec.getConst(), solver.ptr());
     }
     else{

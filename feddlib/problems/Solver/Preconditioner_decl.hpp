@@ -124,6 +124,8 @@ public:
 
     void setPressureMassMatrix(MatrixPtr_Type massMatrix) const;
 
+    void setPressureProjection(BlockMultiVectorPtr_Type pressureProjection) const;
+
     void setFaCSIBCFactory( BCConstPtr_Type bcFactory ){ faCSIBCFactory_ = bcFactory; };
 
     bool hasFaCSIBCFactory(){ return !faCSIBCFactory_.is_null(); };
@@ -162,6 +164,7 @@ private:
     MinPrecProblemPtr_Type probVelocity_;
     MinPrecProblemPtr_Type probSchur_;
     mutable MatrixPtr_Type pressureMassMatrix_;
+    mutable BlockMultiVectorPtr_Type pressureProjection_;
 
     ParameterListPtr_Type pListPhiExport_;
 #define PRECONDITIONER_TIMER

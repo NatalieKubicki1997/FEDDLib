@@ -16,10 +16,15 @@ public:
     typedef typename Problem_Type::Map_Type Map_Type;
 
     typedef typename Problem_Type::BlockMatrix_Type BlockMatrix_Type;
-    
+    typedef typename Problem_Type::BlockMatrixPtr_Type BlockMatrixPtr_Type;
+
     typedef typename Problem_Type::MultiVector_Type MultiVector_Type;
     typedef typename Problem_Type::MultiVectorPtr_Type MultiVectorPtr_Type;
-    
+    typedef typename Problem_Type::MultiVectorConstPtr_Type MultiVectorConstPtr_Type;
+
+    typedef typename Problem_Type::BlockMultiVector_Type BlockMultiVector_Type;
+    typedef typename Problem_Type::BlockMultiVectorPtr_Type BlockMultiVectorPtr_Type;
+
     typedef typename Problem_Type::DomainConstPtr_Type DomainConstPtr_Type;
     typedef typename Problem_Type::CommConstPtr_Type CommConstPtr_Type;
     
