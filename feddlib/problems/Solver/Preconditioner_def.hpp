@@ -403,6 +403,13 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
                 pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Projection",pressureProjection_->getMergedVector()->getXpetraMultiVectorNonConst());
                 // In case of pressure correction we set the parameter in the paramterlist to true
                 pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Use Pressure Correction", true);
+
+                if(parameterList->sublist("Parameter").get("Use Local Pressure Correction",false))
+                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Use Local Pressure Correction", true);
+
+                if(parameterList->sublist("Parameter").get("Use Global Pressure Correction",false))
+                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Use Global Pressure Correction", true);
+
            }
             /*  We need to set the ranges of local problems and the coarse problem here.
                 When using an unstructured decomposition of, e.g., FSI, with 2 domains, which might be on a different set of ranks, we need to set the following parameters for FROSch here. Similarly we need to set a coarse rank problem range. For now, we use extra coarse ranks only for structured decompositions
