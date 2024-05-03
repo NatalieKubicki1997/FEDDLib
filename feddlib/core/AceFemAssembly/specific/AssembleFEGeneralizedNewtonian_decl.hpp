@@ -122,7 +122,7 @@ namespace FEDD
 		 \brief Assembly function for directional derivative contribution  neumann boundary term
 		@param[in] &elementMatrix
 		*/
-		void assemblyOutflowNeumannBoundaryTermDev(SmallMatrixPtr_Type &elementMatrix){TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Will be added when normal evaluation on the finite element is finished");};
+		void assemblyOutflowNeumannBoundaryTermDev(SmallMatrixPtr_Type &elementMatrix);
 
 		/*!
 		\brief Computation of shear rate using the current velocity solution at the nodes and the derivative of the shape function

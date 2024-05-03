@@ -143,12 +143,12 @@ namespace FEDD
 
             // Newton converges also if unabled and also in same steps so we can also comment that out
             // If linearization is not FixdPoint (so NOX or Newton) we add the derivative to the Jacobian matrix. Otherwise the FixedPoint formulation becomes the jacobian.
-            /*if (this->linearization_ != "FixedPoint")
+            if (this->linearization_ != "FixedPoint")
             {
                 SmallMatrixPtr_Type elementMatrixNBW = Teuchos::rcp(new SmallMatrix_Type(this->dofsElementVelocity_ + this->numNodesPressure_));
                 this->assemblyOutflowNeumannBoundaryTermDev(elementMatrixNBW); //
                 this->jacobian_->add((*elementMatrixNBW), (*this->jacobian_));
-            }*/
+            }
         }
     }
 
@@ -893,6 +893,340 @@ namespace FEDD
     } // Function End loop
 
 
+
+
+
+    // Boundary integral over Neumann boundary resulting from the fact that we want our outflow boundary conditions
+    // as in the case for reduced stress tensor - therefore we have to subtract the boundary integral
+    // int_NeumannBoundary ( \nabla u)^T n \cdot w dNeumannBoundary
+
+    template <class SC, class LO, class GO, class NO>
+    void AssembleFEGeneralizedNewtonian<SC, LO, GO, NO>::assemblyOutflowNeumannBoundaryTermDev(SmallMatrixPtr_Type &elementMatrix) //, dblVecPtr normalVector)
+    {
+
+       int dim = this->getDim();
+        int numNodes = this->numNodesVelocity_;
+        string FEType = this->FETypeVelocity_;
+        int dofs = this->dofsVelocity_; //
+
+        vec3D_dbl_ptr_Type dPhi; // derivative of basisfunction
+        vec2D_dbl_ptr_Type phi;  // basisfunction
+
+        // Compute phi and derivative of phi at quadrature points
+        SC detB;
+        SC absDetB;
+        SmallMatrix<SC> B(dim);
+        SmallMatrix<SC> Binv(dim);
+
+        double elscaling=0.0;
+        vec_dbl_Type QuadWeightsReference;         // These are the Quadrature weights in terms of quadrature points defined in reference coordinate system so here [0 1]
+        vec2D_dbl_Type QuadPointsGlobal;
+        vec_dbl_Type normalVector;
+        
+        this->buildTransformation(B);   // In order to map from global coordinates to reference surface
+        detB = B.computeInverse(Binv);  // The function computeInverse returns a double value corrsponding to determinant of B
+        absDetB = std::fabs(detB);      // absolute value of B
+
+        ElementsPtr_Type subEl = this->FEObject_->getSubElements(); // shouldn't be here null because we already checked that we have an underlying boundary element
+        for (int surface=0; surface< this->FEObject_->numSubElements(); surface++) 
+        {
+            FiniteElement feSub = subEl->getElement( surface  );
+            if(feSub.getNeumannBCElement() == true ) //So here we only consider the subelements which we set a flag that we want to add a Neumann boundary condition
+            {
+
+                        normalVector= feSub.getSurfaceNormal();
+                        QuadWeightsReference=  feSub.getQuadratureWeightsReference();
+                        QuadPointsGlobal    =  feSub.getQuadraturePointsGlobal();
+                        elscaling  =  feSub.getElementScaling();
+
+
+            }                   
+        }    
+    
+        vec2D_dbl_Type QuadPointsMappedReference(QuadWeightsReference.size(), vec_dbl_Type(dim)); // now initialize the container with mapped quadrature coordinates
+        // Now we have to compute the weights and the quadrature points for our line integral (2D), surface integral (3D)
+        // where we want to evaluate our dPhi, phi
+        // So we are now mapping back the quadrature points from the physical edge element to the reference element
+        // via the inverse mapping xi = Binv(x-tau) where tau is p0
+        // tau = [this->nodesRefConfig_.at(0).at(0) ;  this->nodesRefConfig_.at(0).at(1)]
+
+        for (int l = 0; l < QuadPointsGlobal.size(); l++)
+        {
+            for (int p = 0; p < dim; p++)
+            {
+                for (int q = 0; q < dim; q++)
+                {
+                    QuadPointsMappedReference[l][p]  += Binv[p][q] * ( QuadPointsGlobal[l][q] - this->nodesRefConfig_.at(0).at(q));
+                }
+            }
+        }
+
+        // Now we have successfully mapped the global quadrature points onto one of the reference faces (2D line / 3D surface)
+        // But we still have to consider the case that if the global surface was mapped onto the diagonal line/ diagonal surface we
+        // have to scale the weights (not the quadrature points because they were mapped on the right relative locations through the transformation) by the factor area change so in 2D it is just the length so sqrt(2) [0 sqrt(2)] and in 3D it should be the area which is 0.866025403784439
+        // Check if a quadrature point lies on the diagonal line
+        // We consider the point to be on the diagonal if both its x and y components are nonzero
+        // https://www.math.ntnu.no/emner/TMA4130/2021h/lectures/CompositeQuadrature.pdf
+        // !?! If I do not scale the weights I get better results ...
+
+        /*double lengthReferenceElementDiagonalLine = std::sqrt(2.0) ;
+        double eps = 1e-12; // std::numeric_limits<double>::epsilon() is too small
+        double areaReferenceElementDiagonalFace =  1.0; // 0.866025403784439;
+        if (dim==2)
+        {
+            if (  (std::fabs( QuadPointsMappedReference[0][0] - 0.0) >  eps  )   &&  ( (QuadPointsMappedReference[0][1]  - 0.0) >  eps   ) ) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
+            {
+                for (int l = 0; l < QuadPointsGlobal.size(); l++)
+                {
+                QuadWeightsReference[l] =  lengthReferenceElementDiagonalLine * QuadWeightsReference[l]; // We have to only scale the weights as quadrature points are already mapped onto correct relative position on the diagonaö
+                }
+            }
+        }
+        else if (dim==3) // Quadrature Points are already mapped onto the correct positions inside the 2D surface
+        {
+            if (  (std::fabs( QuadPointsMappedReference[0][0] - 0.0) > eps  )   &&  ( (QuadPointsMappedReference[0][1]  - 0.0) >  eps   ) &&  ( (QuadPointsMappedReference[0][2]  - 0.0) >  eps   ) ) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
+            {
+                for (int l = 0; l < QuadPointsGlobal.size(); l++)
+                {
+                QuadWeightsReference[l] = areaReferenceElementDiagonalFace  * QuadWeightsReference[l];
+                }
+            }
+        }
+        */
+
+        Helper::getPhi(phi, QuadWeightsReference, QuadPointsMappedReference, dim, FEType); // This should be zero for the basisfunction not laying on the line/ surface
+        Helper::getDPhi(dPhi, QuadWeightsReference, QuadPointsMappedReference, dim, FEType);
+
+
+        // dPhiTrans are the transorfmed basisfunctions, so B^(-T) * \grad_phi bzw. \grad_phi^T * B^(-1) Corresponds to \hat{grad_phi}.
+        vec3D_dbl_Type dPhiTrans(dPhi->size(), vec2D_dbl_Type(dPhi->at(0).size(), vec_dbl_Type(dim, 0.)));
+        Helper::applyBTinv(dPhi, dPhiTrans, Binv); // so dPhiTrans corresponds now to our basisfunction in natural coordinates
+
+        // Compute shear rate gammaDot, which is a vector because it is evaluated at a gaussian quadrature point for that compute velocity gradient
+        vec_dbl_ptr_Type gammaDot(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // gammaDot->at(j) j=0...weights
+        computeShearRate(dPhiTrans, gammaDot, dim);                      // updates gammaDot using velocity solution
+        double viscosity_atw = 0.;
+
+        TEUCHOS_TEST_FOR_EXCEPTION(dim == 1, std::logic_error, "AssemblyNeumannBoundaryTerm Not implemented for dim=1");
+
+        if (dim == 2)
+        {
+            double v11, v12, v21, v22, deta_dgamma_dgamma_dtau;
+            deta_dgamma_dgamma_dtau = 0.;
+            //************************************
+            //************************************
+            // Due to the extra term related to the Gaetaeux-derivative there arise prefactors which depend on the velocity gradients
+            // which therefore also have to be computed here
+            vec_dbl_Type u11(dPhiTrans.size(), -1.);                         // should correspond to du/dx at each quadrature point
+            vec_dbl_Type u12(dPhiTrans.size(), -1.);                         // should correspond to du/dy at each quadrature point
+            vec_dbl_Type u21(dPhiTrans.size(), -1.);                         // should correspond to dv/dx at each quadrature point
+            vec_dbl_Type u22(dPhiTrans.size(), -1.);                         // should correspond to dv/dy at each quadrature point
+            vec_dbl_ptr_Type gammaDot(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // gammaDot->at(j) j=0...weights
+
+            vec_dbl_ptr_Type a1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor a= 2*(du/dx)^2 + (du/dy+dv/dx)*dv/dx
+            vec_dbl_ptr_Type b1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor b= (du/dy+dv/dx)*du/dx + 2*(dv/dx)*dv/dy
+            vec_dbl_ptr_Type c1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); //   prefactor c= (du/dy+dv/dx)*dv/dy + 2*(du/dx)*du/dy
+            vec_dbl_ptr_Type d1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); //   prefactor c= 2*(dv/dy)^2 + (du/dy+dv/dx)*du/dy
+            for (UN w = 0; w < dPhiTrans.size(); w++)
+            { // quads points
+                // set again to zero
+                u11[w] = 0.0;
+                u12[w] = 0.0;
+                u21[w] = 0.0;
+                u22[w] = 0.0;
+                for (UN i = 0; i < dPhiTrans[0].size(); i++)
+                {                                                              // loop unrolling
+                    LO index1 = dim * i + 0;                                   // x
+                    LO index2 = dim * i + 1;                                   // y
+                    u11[w] += (*this->solution_)[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
+                    u12[w] += (*this->solution_)[index1] * dPhiTrans[w][i][1]; // because we are in 2D , 0 and 1
+                    u21[w] += (*this->solution_)[index2] * dPhiTrans[w][i][0];
+                    u22[w] += (*this->solution_)[index2] * dPhiTrans[w][i][1];
+                }
+                gammaDot->at(w) = sqrt(2.0 * u11[w] * u11[w] + 2.0 * u22[w] * u22[w] + (u12[w] + u21[w]) * (u12[w] + u21[w]));
+
+                a1->at(w) = 2.0 * (u11[w] * u11[w]) + (u12[w] + u21[w]) * (u21[w]);
+                b1->at(w) = 2.0 * (u21[w] * u22[w]) + (u12[w] + u21[w]) * (u11[w]);
+                c1->at(w) = 2.0 * (u11[w] * u12[w]) + (u12[w] + u21[w]) * (u22[w]);
+                d1->at(w) = 2.0 * (u22[w] * u22[w]) + (u12[w] + u21[w]) * (u12[w]);
+            }
+            // loop over basis functions
+            for (UN i = 0; i < phi->at(0).size(); i++)
+            {
+                for (UN j = 0; j < numNodes; j++)
+                {
+                    // Reset values
+                    v11 = 0.0;
+                    v12 = 0.0;
+                    v21 = 0.0;
+                    v22 = 0.0;
+
+                    // loop over basis functions quadrature points
+                    for (UN w = 0; w < phi->size(); w++)
+                    {
+                        this->viscosityModel->evaluateDerivative(this->params_, gammaDot->at(w), deta_dgamma_dgamma_dtau);
+                        v11 = v11 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((2.0 * dPhiTrans[w][j][0] * a1->at(w) + dPhiTrans[w][j][1] * b1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * a1->at(w)) * normalVector[1]) * ((*phi)[w][i]); // xx contribution:
+                        v12 = v12 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * b1->at(w)) * normalVector[0] + (dPhiTrans[w][j][0] * a1->at(w) + 2.0 * dPhiTrans[w][j][1] * b1->at(w)) * normalVector[1]) * ((*phi)[w][i]); // xy contribution:
+                        v21 = v21 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((2.0 * dPhiTrans[w][j][0] * c1->at(w) + dPhiTrans[w][j][1] * d1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * c1->at(w)) * normalVector[1]) * ((*phi)[w][i]); // yx contribution:
+                        v22 = v22 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * d1->at(w)) * normalVector[0] + (dPhiTrans[w][j][0] * c1->at(w) + 2.0 * dPhiTrans[w][j][1] * d1->at(w)) * normalVector[1]) * ((*phi)[w][i]); // yy contribution:
+
+                    } // End loop over quadrature points
+
+                    // multiply determinant from transformation
+                    v11 *= elscaling;
+                    v12 *= elscaling;
+                    v21 *= elscaling;
+                    v22 *= elscaling;
+
+                    // Put values on the right position in element matrix - d=2 because we are in two dimensional case
+                    // [v11  v12 ]
+                    // [v21  v22 ]
+                    (*elementMatrix)[i * dofs][j * dofs] = v11;     // d=0, first dimension
+                    (*elementMatrix)[i * dofs][j * dofs + 1] = v12; //
+                    (*elementMatrix)[i * dofs + 1][j * dofs] = v21;
+                    (*elementMatrix)[i * dofs + 1][j * dofs + 1] = v22; // d=1, second dimension
+
+                } // End loop over j nodes
+
+            } // End loop over i nodes
+        }     // End dim==2
+        else if (dim == 3)
+        {
+            vec_dbl_Type u11(dPhiTrans.size(), -1.); // should correspond to du/dx at each quadrature point
+            vec_dbl_Type u12(dPhiTrans.size(), -1.); // should correspond to du/dy at each quadrature point
+            vec_dbl_Type u13(dPhiTrans.size(), -1.); // should correspond to du/dz at each quadrature point
+
+            vec_dbl_Type u21(dPhiTrans.size(), -1.); // should correspond to dv/dx at each quadrature point
+            vec_dbl_Type u22(dPhiTrans.size(), -1.); // should correspond to dv/dy at each quadrature point
+            vec_dbl_Type u23(dPhiTrans.size(), -1.); // should correspond to dv/dz at each quadrature point
+
+            vec_dbl_Type u31(dPhiTrans.size(), -1.); // should correspond to dw/dx at each quadrature point
+            vec_dbl_Type u32(dPhiTrans.size(), -1.); // should correspond to dw/dy at each quadrature point
+            vec_dbl_Type u33(dPhiTrans.size(), -1.); // should correspond to dw/dz at each quadrature point
+
+            vec_dbl_ptr_Type gammaDot(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // gammaDot->at(j) j=0...weights
+
+            vec_dbl_ptr_Type a1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor a= 2*(du/dx)^2 + (du/dy+dv/dx)*xv/dy +  (dw/dx+du/dz)*dw/dx
+            vec_dbl_ptr_Type b1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor b=
+            vec_dbl_ptr_Type c1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor c=
+            vec_dbl_ptr_Type d1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor d=
+            vec_dbl_ptr_Type e1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor e=
+            vec_dbl_ptr_Type f1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor e=
+            vec_dbl_ptr_Type g1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor g=
+            vec_dbl_ptr_Type h1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor g=
+            vec_dbl_ptr_Type i1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor g=
+
+            for (UN w = 0; w < dPhiTrans.size(); w++)
+            { // quads points
+
+                u11[w] = 0.0;
+                u12[w] = 0.0;
+                u13[w] = 0.0;
+                u21[w] = 0.0;
+                u22[w] = 0.0;
+                u23[w] = 0.0;
+                u31[w] = 0.0;
+                u32[w] = 0.0;
+                u33[w] = 0.0;
+
+                for (UN i = 0; i < dPhiTrans[0].size(); i++)
+                {
+                    LO index1 = dim * i + 0; // x
+                    LO index2 = dim * i + 1; // y
+                    LO index3 = dim * i + 2; // z
+                    // uLoc[d][w] += (*this->solution_)[index] * phi->at(w).at(i);
+                    u11[w] += (*this->solution_)[index1] * dPhiTrans[w][i][0]; // u*dphi_dx
+                    u12[w] += (*this->solution_)[index1] * dPhiTrans[w][i][1]; // because we are in 3D , 0 and 1, 2
+                    u13[w] += (*this->solution_)[index1] * dPhiTrans[w][i][2];
+                    u21[w] += (*this->solution_)[index2] * dPhiTrans[w][i][0]; // v*dphi_dx
+                    u22[w] += (*this->solution_)[index2] * dPhiTrans[w][i][1];
+                    u23[w] += (*this->solution_)[index2] * dPhiTrans[w][i][2];
+                    u31[w] += (*this->solution_)[index3] * dPhiTrans[w][i][0]; // w*dphi_dx
+                    u32[w] += (*this->solution_)[index3] * dPhiTrans[w][i][1];
+                    u33[w] += (*this->solution_)[index3] * dPhiTrans[w][i][2];
+                }
+                gammaDot->at(w) = sqrt(2.0 * u11[w] * u11[w] + 2.0 * u22[w] * u22[w] + 2.0 * u33[w] * u33[w] + (u12[w] + u21[w]) * (u12[w] + u21[w]) + (u13[w] + u31[w]) * (u13[w] + u31[w]) + (u23[w] + u32[w]) * (u23[w] + u32[w]));
+
+                a1->at(w) = 2.0 * (u11[w] * u11[w]) + (u12[w] + u21[w]) * (u21[w]) + (u31[w] + u13[w]) * (u31[w]);
+                b1->at(w) = 2.0 * (u21[w] * u22[w]) + (u12[w] + u21[w]) * (u11[w]) + (u32[w] + u23[w]) * (u31[w]);
+                c1->at(w) = 2.0 * (u33[w] * u31[w]) + (u13[w] + u31[w]) * (u11[w]) + (u32[w] + u23[w]) * (u21[w]);
+                d1->at(w) = 2.0 * (u11[w] * u12[w]) + (u12[w] + u21[w]) * (u22[w]) + (u31[w] + u13[w]) * (u32[w]);
+                e1->at(w) = 2.0 * (u22[w] * u22[w]) + (u12[w] + u21[w]) * (u12[w]) + (u32[w] + u23[w]) * (u32[w]);
+                f1->at(w) = 2.0 * (u33[w] * u32[w]) + (u13[w] + u31[w]) * (u12[w]) + (u32[w] + u23[w]) * (u22[w]);
+                g1->at(w) = 2.0 * (u11[w] * u13[w]) + (u12[w] + u21[w]) * (u23[w]) + (u31[w] + u13[w]) * (u33[w]);
+                h1->at(w) = 2.0 * (u22[w] * u23[w]) + (u12[w] + u21[w]) * (u13[w]) + (u32[w] + u23[w]) * (u33[w]);
+                i1->at(w) = 2.0 * (u33[w] * u33[w]) + (u13[w] + u31[w]) * (u13[w]) + (u32[w] + u23[w]) * (u23[w]);
+            }
+            double v11, v12, v13, v21, v22, v23, v31, v32, v33, deta_dgamma_dgamma_dtau; // helper values for entries
+            deta_dgamma_dgamma_dtau = 0.;
+
+            // loop over basis functions
+            for (UN i = 0; i < phi->at(0).size(); i++)
+            {
+                for (UN j = 0; j < numNodes; j++)
+                {
+                    // Reset values
+                    v11 = 0.0;
+                    v12 = 0.0;
+                    v13 = 0.0;
+                    v21 = 0.0;
+                    v22 = 0.0;
+                    v23 = 0.0;
+                    v31 = 0.0;
+                    v32 = 0.0;
+                    v33 = 0.0;
+
+                    // loop over basis functions quadrature points
+                    for (UN w = 0; w < phi->size(); w++)
+                    {
+                        this->viscosityModel->evaluateMapping(this->params_, gammaDot->at(w), viscosity_atw);
+
+                        v11 = v11 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((2.0 * dPhiTrans[w][j][0] * a1->at(w) + dPhiTrans[w][j][1] * b1->at(w) + dPhiTrans[w][j][2] * c1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * a1->at(w)) * normalVector[1] + (dPhiTrans[w][j][2] * a1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xx contribution:
+                        v12 = v12 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * b1->at(w)) * normalVector[0] + (dPhiTrans[w][j][0] * a1->at(w) + 2.0 * dPhiTrans[w][j][1] * b1->at(w) + dPhiTrans[w][j][2] * c1->at(w)) * normalVector[1] + (dPhiTrans[w][j][2] * b1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xy contribution:
+                        v13 = v13 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * c1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * c1->at(w)) * normalVector[1] + (dPhiTrans[w][j][0] * a1->at(w) + dPhiTrans[w][j][1] * b1->at(w) + 2.0 * dPhiTrans[w][j][2] * c1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xz contribution:
+
+                        v21 = v21 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((2.0 * dPhiTrans[w][j][0] * d1->at(w) + dPhiTrans[w][j][1] * e1->at(w) + dPhiTrans[w][j][2] * f1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * d1->at(w)) * normalVector[1] + (dPhiTrans[w][j][2] * d1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xx contribution:
+                        v22 = v22 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * e1->at(w)) * normalVector[0] + (dPhiTrans[w][j][0] * d1->at(w) + 2.0 * dPhiTrans[w][j][1] * e1->at(w) + dPhiTrans[w][j][2] * f1->at(w)) * normalVector[1] + (dPhiTrans[w][j][2] * e1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xy contribution:
+                        v23 = v23 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * f1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * f1->at(w)) * normalVector[1] + (dPhiTrans[w][j][0] * f1->at(w) + dPhiTrans[w][j][1] * e1->at(w) + 2.0 * dPhiTrans[w][j][2] * f1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xz contribution:
+
+                        v31 = v31 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((2.0 * dPhiTrans[w][j][0] * g1->at(w) + dPhiTrans[w][j][1] * h1->at(w) + dPhiTrans[w][j][2] * i1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * g1->at(w)) * normalVector[1] + (dPhiTrans[w][j][2] * g1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xx contribution:
+                        v32 = v32 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * h1->at(w)) * normalVector[0] + (dPhiTrans[w][j][0] * g1->at(w) + 2.0 * dPhiTrans[w][j][1] * h1->at(w) + dPhiTrans[w][j][2] * i1->at(w)) * normalVector[1] + (dPhiTrans[w][j][2] * h1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xy contribution:
+                        v33 = v33 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * i1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * i1->at(w)) * normalVector[1] + (dPhiTrans[w][j][0] * g1->at(w) + dPhiTrans[w][j][1] * h1->at(w) + 2.0 * dPhiTrans[w][j][2] * i1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xz contribution:
+
+                    } // End loop over quadrature points
+
+                    // multiply determinant from transformation
+                    v11 *= elscaling;
+                    v12 *= elscaling;
+                    v13 *= elscaling;
+                    v21 *= elscaling;
+                    v22 *= elscaling;
+                    v23 *= elscaling;
+                    v31 *= elscaling;
+                    v32 *= elscaling;
+                    v33 *= elscaling;
+
+                    // Put values on the right position in element matrix - d=2 because we are in two dimensional case
+                    // [v11  v12  v13]
+                    // [v21  v22  v23]
+                    // [v31  v32  v33]
+                    (*elementMatrix)[i * dofs][j * dofs] = v11; // d=0, first dimension
+                    (*elementMatrix)[i * dofs][j * dofs + 1] = v12;
+                    (*elementMatrix)[i * dofs][j * dofs + 2] = v13;
+                    (*elementMatrix)[i * dofs + 1][j * dofs] = v21;
+                    (*elementMatrix)[i * dofs + 1][j * dofs + 1] = v22; // d=1, second dimension
+                    (*elementMatrix)[i * dofs + 1][j * dofs + 2] = v23; // d=1, second dimension
+                    (*elementMatrix)[i * dofs + 2][j * dofs] = v31;
+                    (*elementMatrix)[i * dofs + 2][j * dofs + 1] = v32; // d=2, third dimension
+                    (*elementMatrix)[i * dofs + 2][j * dofs + 2] = v33; // d=2, third dimension
+
+                } // End loop over j nodes
+
+            } // End loop over i nodes
+        }     // end if 3d
+        // TEUCHOS_TEST_FOR_EXCEPTION(dim == 3,std::logic_error, "AssemblyNeumannBoundaryTerm Not implemented for dim=3");
+
+    } // Function End loop
 
 
 

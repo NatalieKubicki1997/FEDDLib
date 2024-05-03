@@ -304,8 +304,6 @@ int main(int argc, char *argv[])
     {
         ParameterListPtr_Type parameterListProblem = Teuchos::getParametersFromXmlFile(xmlProblemFile);
 
-        ParameterListPtr_Type parameterListProblem2 = Teuchos::getParametersFromXmlFile(xmlProblemFile2);
-
         ParameterListPtr_Type parameterListPrec = Teuchos::getParametersFromXmlFile(xmlPrecFile);
 
         ParameterListPtr_Type parameterListSolver = Teuchos::getParametersFromXmlFile(xmlSolverFile);
@@ -335,13 +333,6 @@ int main(int argc, char *argv[])
             parameterListAll->setParameters(*parameterListPrecTeko);
         parameterListAll->setParameters(*parameterListSolver);
 
-        // For comparison with Navier-Stokes solver
-        ParameterListPtr_Type parameterListAll2(new Teuchos::ParameterList(*parameterListProblem2));
-        if (!precMethod.compare("Monolithic"))
-            parameterListAll2->setParameters(*parameterListPrec);
-        else
-            parameterListAll2->setParameters(*parameterListPrecTeko);
-        parameterListAll2->setParameters(*parameterListSolver);
 
         int minNumberSubdomains;
         if (!meshType.compare("structured"))
