@@ -257,6 +257,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleDivAndStab() const{
         
         this->system_->addBlock( C, 1, 1 );
     }
+    this->system_->getBlock(0,0)->print();
     //else 
     //    C.reset(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
     //    this->feFactory_->assemblyEmptyMatrix(C);

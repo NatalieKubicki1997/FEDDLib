@@ -14,7 +14,9 @@
         <Parameter name="MaxVelocity" type="double"   value="1."/>
         <Parameter name="Use Pressure Correction" type="bool" value="true"/>    <!-- use pressure projection to correct pressure in P2-P1 case-->     		
         <Parameter name="Use Local Pressure Correction" type="bool" value="true"/>     <!-- applying it locally to first level in preconditioner -->   		
-        <Parameter name="Use Global Pressure Correction" type="bool" value="true"/>    <!-- applying in globally after apply of first level-->    		
+        <Parameter name="Use Global Pressure Correction Overlapping Operator" type="bool" value="true"/>    <!-- applying in globally after apply of first level-->    		
+        <Parameter name="Use Global Pressure Correction" type="bool" value="true"/>    <!-- applying projection globally after first and second level-->    		
+
     </ParameterList>
     <ParameterList name="Mesh Partitioner">
         

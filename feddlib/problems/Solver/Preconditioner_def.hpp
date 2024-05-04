@@ -404,11 +404,20 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
                 // In case of pressure correction we set the parameter in the paramterlist to true
                 pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Use Pressure Correction", true);
 
+                // Local correction on overlapping subdomains
                 if(parameterList->sublist("Parameter").get("Use Local Pressure Correction",false))
                     pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Use Local Pressure Correction", true);
 
-                if(parameterList->sublist("Parameter").get("Use Global Pressure Correction",false))
+                // Global correction on overlapping Subdomains
+                if(parameterList->sublist("Parameter").get("Use Global Pressure Correction Overlapping Operator",false))
                     pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Use Global Pressure Correction", true);
+
+                // Global correction after apply of first and second level
+                if(parameterList->sublist("Parameter").get("Use Global Pressure Correction",false)){
+                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").set("Use Global Pressure Correction", true);
+                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").set("Use Pressure Correction", true);
+
+                }
 
            }
             /*  We need to set the ranges of local problems and the coarse problem here.

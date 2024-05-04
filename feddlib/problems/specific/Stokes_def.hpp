@@ -131,6 +131,7 @@ void Stokes<SC,LO,GO,NO>::assemble( std::string type ) const{
         if (this->verbose_)
             std::cout << "\n 'Use pressure correction' was set to 'true'. This requieres a version of Trilinos of that includes pressure correction in the FROSch_OverlappingOperator!!" << std::endl;  
 
+
     }
     this->system_->addBlock( A, 0, 0 );
     this->system_->addBlock( BT, 0, 1 );
