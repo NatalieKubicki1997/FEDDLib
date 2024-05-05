@@ -51,7 +51,7 @@ delimiter_(" ")
 }
 
 template <class SC, class LO, class GO, class NO>
-MeshUnstructured<SC,LO,GO,NO>::MeshUnstructured(CommConstPtr_Type comm, int volumeID):
+MeshUnstructured<SC,LO,GO,NO>::MeshUnstructured(CommConstPtr_Type comm, int volumeID, string meshUnit, bool convertToSI):
 Mesh<SC,LO,GO,NO>(comm),
 meshInterface_(),
 volumeID_(volumeID),
@@ -62,6 +62,9 @@ delimiter_(" ")
 {
     edgeElements_ = Teuchos::rcp( new EdgeElements_Type() );
     surfaceEdgeElements_ = Teuchos::rcp( new Elements_Type() );
+    meshUnitRead_ = meshUnit;
+    meshUnitFinal_ = meshUnit; 
+    convertToSI_ = convertToSI;
         
 }
 
@@ -1452,6 +1455,25 @@ void MeshUnstructured<SC,LO,GO,NO>::readNodes(){
     this->bcFlagRep_.reset(new std::vector<int> (numNodes_,0));
 
     FEDD_TIMER_START(pointsTimer," : MeshReader : Set Points not partitioned");
+
+    // Converting the read nodes in unit to cm
+    double scale=1.0;
+    if(convertToSI_){
+        if(meshUnitRead_ == "mm")
+            scale = pow(10,-1);
+        else if(meshUnitRead_ == "cm")
+            scale = pow(10,0);
+        else if(meshUnitRead_ == "dm")
+            scale = pow(10,1);
+        else if(meshUnitRead_ == "m")
+            scale = pow(10,2);
+        else
+            TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error, "Meshunstr: Read Nodes() - convertToSI_ = true, but read unit unknown, please check.");
+
+        meshUnitFinal_ = "cm"; 
+        if(this->comm_->getRank() == 0)   
+            cout << " Transforming the mesh with original unit " << meshUnitRead_ << " to SI unit m." << endl;
+    }
 
     for (int i=0; i<numNodes_ ; i++) {
         for (int j=0; j<this->getDimension(); j++)

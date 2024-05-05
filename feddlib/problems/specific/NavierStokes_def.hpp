@@ -184,7 +184,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
     
 #ifdef FEDD_HAVE_TEKO
     if ( !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Teko") ) {
-        if (!this->parameterList_->sublist("General").get("Assemble Velocity Mass",false)) {
+        if (this->parameterList_->sublist("General").get("Assemble Velocity Mass",false)) {
             MatrixPtr_Type Mvelocity(new Matrix_Type( this->getDomain(0)->getMapVecFieldUnique(), this->getDomain(0)->getApproxEntriesPerRow() ) );
             //
             this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(0), "Vector", Mvelocity, true );
