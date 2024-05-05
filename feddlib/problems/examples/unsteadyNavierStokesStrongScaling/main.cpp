@@ -222,15 +222,16 @@ int main(int argc, char *argv[])
         ParameterListPtr_Type parameterListPrecFluidMono = Teuchos::getParametersFromXmlFile(xmlPrecFileFluidMono);
         ParameterListPtr_Type parameterListPrecFluidTeko = Teuchos::getParametersFromXmlFile(xmlPrecFileFluidTeko);
         
-       
+        string		precMethod = parameterListProblem->sublist("General").get("Preconditioner Method","Monolithic");
+
         ParameterListPtr_Type parameterListAll(new Teuchos::ParameterList(*parameterListProblem)) ;
-       
+        if (!precMethod.compare("Monolithic"))
+            parameterListAll->setParameters(*parameterListPrecFluidMono);
+        else
+            parameterListAll->setParameters(*parameterListPrecFluidTeko);
+
         parameterListAll->setParameters(*parameterListSolver);
 
-        
-        ParameterListPtr_Type parameterListFluidAll(new Teuchos::ParameterList(*parameterListPrecFluidMono)) ;
-        sublist(parameterListFluidAll, "Parameter")->setParameters( parameterListProblem->sublist("Parameter Fluid") );
-        parameterListFluidAll->setParameters(*parameterListPrecFluidTeko);
    
         // Fuer das Geometrieproblem, falls GE       
         int 		dim				= parameterListProblem->sublist("Parameter").get("Dimension",2);
