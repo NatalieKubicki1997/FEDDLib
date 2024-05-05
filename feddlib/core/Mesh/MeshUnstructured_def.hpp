@@ -1472,12 +1472,12 @@ void MeshUnstructured<SC,LO,GO,NO>::readNodes(){
 
         meshUnitFinal_ = "cm"; 
         if(this->comm_->getRank() == 0)   
-            cout << " Transforming the mesh with original unit " << meshUnitRead_ << " to SI unit m." << endl;
+            cout << " Transforming the mesh with original unit " << meshUnitRead_ << " to SI unit cm." << endl;
     }
 
     for (int i=0; i<numNodes_ ; i++) {
         for (int j=0; j<this->getDimension(); j++)
-            this->pointsRep_->at(i).at(j) = nodes[this->getDimension()*i+j];
+            this->pointsRep_->at(i).at(j) = scale*nodes[this->getDimension()*i+j];
         
         this->bcFlagRep_->at(i) = nodeFlags[i];
     }
