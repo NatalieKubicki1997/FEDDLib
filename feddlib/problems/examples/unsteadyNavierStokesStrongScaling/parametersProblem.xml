@@ -16,9 +16,9 @@
         <Parameter name="MaxVelocity" type="double" value="70"/> <!-- cm/s -->
         <Parameter name="MeanVelocity"  type="double" value="1.0"/>
         
-        <Parameter name="relNonLinTol" type="double" value="1.0e-4"/>
-        <Parameter name="absNonLinTol" type="double" value="1.0e-4"/>
-        <Parameter name="updateTol" type="double" value="1.0e-4"/>
+        <Parameter name="relNonLinTol" type="double" value="1.0e-8"/>
+        <Parameter name="absNonLinTol" type="double" value="1.0e-8"/>
+        <Parameter name="updateTol" type="double" value="1.0e-8"/>
         <Parameter name="Combo" type="string" value="OR"/>
         <Parameter name="Use update tol" type="bool" value="false"/>
         <Parameter name="Use rel tol" type="bool" value="true"/>
