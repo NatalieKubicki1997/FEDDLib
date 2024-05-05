@@ -438,8 +438,18 @@ int main(int argc, char *argv[]) {
                 }
             }
         }
-    }
+    
 
+        if (verbose) {
+            cout << "###############################################################" <<endl;
+            cout << "##################### Steady Navier-Stokes ####################" <<endl;
+            cout << "Discretization: \t" << discVelocity << "-" << discPressure  << endl;
+            cout << "Coarse Opertor Type: \t" << parameterListPrec->sublist("ThyraPreconditioner").sublist("Preconditioner Types").sublist("FROSch").get("CoarseOperator Type","NOTFOUND") << endl;
+            cout << "IPOU Block 1: \t \t" << parameterListPrec->sublist("ThyraPreconditioner").sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").sublist("Blocks").sublist("1").sublist("InterfacePartitionOfUnity").get("Type","NOTFOUND") << endl;
+            cout << "IPOU Block 2: \t \t" << parameterListPrec->sublist("ThyraPreconditioner").sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").sublist("Blocks").sublist("2").sublist("InterfacePartitionOfUnity").get("Type","NOTFOUND") << endl;
+            cout << "###############################################################" <<endl;
+        }
+    }
     Teuchos::TimeMonitor::report(cout);
 
     return(EXIT_SUCCESS);
