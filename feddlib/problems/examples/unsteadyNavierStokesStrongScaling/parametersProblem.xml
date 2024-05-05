@@ -46,7 +46,7 @@
 
     </ParameterList>
     <ParameterList name="Timestepping Parameter">
-        <Parameter name="Class"                                 type="string"		value="Singlestep"/> <!--Multistep, Singlestep-->
+        <Parameter name="Class"                                 type="string"		value="Multistep"/> <!--Multistep, Singlestep-->
         <Parameter name="BDF"		                    		type="int"		   	value="2"/>
         <Parameter name="Butcher table"                    		type="int"		   	value="1"/>
         <Parameter name="Full implicit pressure"                type="bool"		   	value="true"/>
