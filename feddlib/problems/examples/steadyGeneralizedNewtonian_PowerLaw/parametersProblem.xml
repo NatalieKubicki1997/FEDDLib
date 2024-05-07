@@ -24,6 +24,8 @@
         <Parameter name="Use rel tol" type="bool" value="true"/>
         <Parameter name="Use abs tol" type="bool" value="false"/>
         <Parameter name="Use WRMS" type="bool" value="false"/>
+
+        <Parameter name="Stokes" type="bool" value="false"/> <!-- If true neglect convective part-->
         
         <Parameter name="MaxNonLinIts" type="int" value="20"/>
         <Parameter name="Cancel MaxNonLinIts" type="bool" value="false"/>
@@ -99,6 +101,8 @@
     <ParameterList name="General">
         <Parameter name="Mpi Ranks Coarse" type="int" value="0"/>
         <Parameter name="Linearization" type="string" value="FixedPoint"/> <!-- FixedPoint, Newton, NOX-->
+        <Parameter name="SwitchFromFixedPointToNewton" type="bool" value="false"/> 
+        <Parameter name="Linearization_Tolerance_SwitchToNewton"  type="double" value="0.1"/>
         <Parameter name="ParaViewExport" type="bool" value="true"/>
         <Parameter name="ParaViewCoarse" type="bool" value="false"/>
         <Parameter name="ParaViewCoarseSum" type="bool" value="false"/>

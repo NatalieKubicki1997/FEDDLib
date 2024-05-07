@@ -1,7 +1,7 @@
 #ifndef AssembleFEGeneralizedNewtonianStokes_DEF_hpp
 #define AssembleFEGeneralizedNewtonianStokes_DEF_hpp
 
-#include "AssembleFEGeneralizedNewtonian_decl.hpp"
+#include "AssembleFEGeneralizedNewtonianStokes_decl.hpp"
 
 namespace FEDD
 {
@@ -39,7 +39,7 @@ namespace FEDD
         this->constOutputField_ = vec_dbl_Type(this->dofsElementViscosity_);         ////**********************************************************************************
 
         // Reading through parameterlist
-        this->shearThinningModel = params->sublist("Material").get("This->shearThinningModel", "");
+        this->shearThinningModel = params->sublist("Material").get("ShearThinningModel", "");
         // New: We have to check which material model we use
         if (this->shearThinningModel == "Carreau-Yasuda")
         {

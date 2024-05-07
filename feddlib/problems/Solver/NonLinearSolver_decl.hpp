@@ -66,6 +66,12 @@ private:
 
 	int nonLinearIts_ =0;
 
+    bool SwitchFromFixedPointToNewton_ = false;
+    double residual0_ = 1.0; //@Natalie Inserted this here because as we construct a Object a value can be already fixed
+    int nlIts_=0;             //@Natalie Inserted this here because as we construct a Object a value can be already fixed
+    double	gmresIts_ = 0.;   //@Natalie Inserted this here because as we construct a Object a value can be already fixed
+
+
 
 };
 }

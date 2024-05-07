@@ -131,7 +131,6 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
 	double viscosity_ ;
    	double density_ ;
 
-	string linearization_;
 
    private:
 

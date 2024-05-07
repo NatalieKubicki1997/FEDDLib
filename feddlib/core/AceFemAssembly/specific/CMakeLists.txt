@@ -14,9 +14,9 @@ SET(AceFemAssemblySpecific_HEADERS
 	AceFemAssembly/specific/AssembleFEGeneralizedNewtonian_decl.hpp
 	AceFemAssembly/specific/AssembleFEGeneralizedNewtonian_def.hpp
 	AceFemAssembly/specific/AssembleFEGeneralizedNewtonian.hpp
-	#AceFemAssembly/specific/AssembleFEGeneralizedNewtonianStokes_decl.hpp
-	#AceFemAssembly/specific/AssembleFEGeneralizedNewtonianStokes_def.hpp
-	#AceFemAssembly/specific/AssembleFEGeneralizedNewtonianStokes.hpp
+	AceFemAssembly/specific/AssembleFEGeneralizedNewtonianStokes_decl.hpp
+	AceFemAssembly/specific/AssembleFEGeneralizedNewtonianStokes_def.hpp
+	AceFemAssembly/specific/AssembleFEGeneralizedNewtonianStokes.hpp
 	AceFemAssembly/specific/AssembleFE_LinElas_decl.hpp
 	AceFemAssembly/specific/AssembleFE_LinElas_def.hpp
 	AceFemAssembly/specific/AssembleFE_LinElas.hpp
@@ -52,7 +52,7 @@ SET(AceFemAssemblySpecific_SOURCES
 	AceFemAssembly/specific/AssembleFENavierStokes.cpp
 	AceFemAssembly/specific/AssembleFEStokes.cpp
 	AceFemAssembly/specific/AssembleFEGeneralizedNewtonian.cpp
-	#AceFemAssembly/specific/AssembleFEGeneralizedNewtonianStokes.cpp
+	AceFemAssembly/specific/AssembleFEGeneralizedNewtonianStokes.cpp
 	AceFemAssembly/specific/AssembleFE_LinElas.cpp
 	AceFemAssembly/specific/AssembleFE_NonLinElas.cpp
 	AceFemAssembly/specific/AssembleFE_NonLinElas2.cpp

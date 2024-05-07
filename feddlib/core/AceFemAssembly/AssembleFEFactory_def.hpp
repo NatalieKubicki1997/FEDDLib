@@ -30,12 +30,30 @@ typename AssembleFEFactory<SC,LO,GO,NO>::AssembleFEPtr_Type AssembleFEFactory<SC
     	assembleFE = assembleFESpecific;
   }
 	else if(problemType == "NavierStokes"){
+		// Add here additional check whether we consider Stokes flow so neglecting convective forces
+		if(params->sublist("Parameter").get("Stokes",false) == true) // If it is true we consider Stokes elements
+		{
+		Teuchos::RCP<AssembleFEStokes<SC,LO,GO,NO>> assembleFESpecific(new AssembleFEStokes<SC,LO,GO,NO>(flag,nodesRefConfig, params,tuple) );
+		assembleFE = assembleFESpecific;
+		}
+		else
+		{
 		Teuchos::RCP<AssembleFENavierStokes<SC,LO,GO,NO>> assembleFESpecific(new AssembleFENavierStokes<SC,LO,GO,NO>(flag,nodesRefConfig, params,tuple) );
 		assembleFE = assembleFESpecific;
+		}
 	}
 	else if(problemType == "GeneralizedNewtonian"){
+		// Add here additional check whether we consider Stokes flow so neglecting convective forces
+		if(params->sublist("Parameter").get("Stokes",false) == true) // If it is true we consider Stokes elements
+		{
+		Teuchos::RCP<AssembleFEGeneralizedNewtonianStokes<SC,LO,GO,NO>> assembleFESpecific(new AssembleFEGeneralizedNewtonianStokes<SC,LO,GO,NO>(flag,nodesRefConfig, params,tuple) );
+		assembleFE = assembleFESpecific;
+		}
+		else //In each other case consider with convective terms
+		{
 		Teuchos::RCP<AssembleFEGeneralizedNewtonian<SC,LO,GO,NO>> assembleFESpecific(new AssembleFEGeneralizedNewtonian<SC,LO,GO,NO>(flag,nodesRefConfig, params,tuple) );
 		assembleFE = assembleFESpecific;
+		}
 	}
 	else if(problemType == "LinearElasticity"){
 		Teuchos::RCP<AssembleFE_LinElas<SC,LO,GO,NO>> assembleFESpecific(new AssembleFE_LinElas<SC,LO,GO,NO>(flag,nodesRefConfig, params,tuple) );

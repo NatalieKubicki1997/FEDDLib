@@ -15,6 +15,9 @@
         <Parameter name="Height Inflow"  type="double" value="1.0"/> <!-- For structured bfs grid height of inflow region-->
         <Parameter name="Constant Pressure Gradient" type="double" value="10.0"/>
         
+        <Parameter name="Stokes" type="bool" value="false"/> <!-- If true neglect convective part-->
+
+
         <Parameter name="relNonLinTol" type="double" value="1.0e-6"/> <!-- -4 -->
         <Parameter name="absNonLinTol" type="double" value="1.0e-6"/>
         <Parameter name="updateTol" type="double" value="1.0e-4"/>

@@ -3,15 +3,6 @@
 
 #include "feddlib/core/AceFemAssembly/AssembleFE.hpp"
 #include "feddlib/core/AceFemAssembly/specific/AssembleFEGeneralizedNewtonian.hpp"
-#include "feddlib/core/FE/Helper.hpp"
-#include "feddlib/core/FEDDCore.hpp"
-#include "feddlib/core/LinearAlgebra/Matrix.hpp"
-#include "feddlib/core/LinearAlgebra/MultiVector.hpp"
-#include "feddlib/core/General/DifferentiableFuncClass.hpp"
-// Add the generalized Newtonian Fluid models for the viscosity
-#include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda.hpp"
-#include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/PowerLaw.hpp"
-#include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/Dimless_Carreau.hpp"
 
 namespace FEDD
 {

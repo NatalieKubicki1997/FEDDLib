@@ -226,6 +226,11 @@ namespace FEDD {
         */
         void setFiniteElement(FiniteElement& FE_Object){ this->FEObject_ =  Teuchos::rcpFromRef<FiniteElement>(FE_Object);}; //pass by reference because we do not want to copy the object
 
+         /*
+        In case we want to switch e.g. from FixedPoint to Newton method during computation
+        */
+        void setLinearization(string linearization) {this->linearization_ = linearization;};
+
 
     protected:
 
@@ -269,7 +274,7 @@ namespace FEDD {
 
 
         vec_dbl_Type constOutputField_ ; //  Postprocessing output field defined inside an element using converged solution - can be a vector with values on P1/ P2 nodes or just averaged element value
-
+        string linearization_; // We save in here which linearization we use e.g. FixedPoint or Newton
         FE_ptr_Type FEObject_; // Pointer to the corresponding FiniteElement - if its properties change, e.g. its surface normals, we access the updated value
 
 

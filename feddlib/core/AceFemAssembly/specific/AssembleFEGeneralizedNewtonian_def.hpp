@@ -141,9 +141,9 @@ namespace FEDD
             this->assemblyOutflowNeumannBoundaryTerm(elementMatrixNB);
             this->ANB_->add((*elementMatrixNB), ((*this->ANB_)));
 
-            // Newton converges also if unabled and also in same steps so we can also comment that out
+            // Newton converges also if unabled we can also comment that out more test hav to be performed to see if this works
             // If linearization is not FixdPoint (so NOX or Newton) we add the derivative to the Jacobian matrix. Otherwise the FixedPoint formulation becomes the jacobian.
-            if (this->linearization_ != "FixedPoint")
+           if (this->linearization_ != "FixedPoint")
             {
                 SmallMatrixPtr_Type elementMatrixNBW = Teuchos::rcp(new SmallMatrix_Type(this->dofsElementVelocity_ + this->numNodesPressure_));
                 this->assemblyOutflowNeumannBoundaryTermDev(elementMatrixNBW); //
@@ -1008,7 +1008,7 @@ namespace FEDD
         double viscosity_atw = 0.;
 
         TEUCHOS_TEST_FOR_EXCEPTION(dim == 1, std::logic_error, "AssemblyNeumannBoundaryTerm Not implemented for dim=1");
-
+        // std::cout << "AssemblyNeumannBoundaryTermDEV called" << endl; Check whether it is called but it is
         if (dim == 2)
         {
             double v11, v12, v21, v22, deta_dgamma_dgamma_dtau;
@@ -1023,10 +1023,7 @@ namespace FEDD
             vec_dbl_Type u22(dPhiTrans.size(), -1.);                         // should correspond to dv/dy at each quadrature point
             vec_dbl_ptr_Type gammaDot(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // gammaDot->at(j) j=0...weights
 
-            vec_dbl_ptr_Type a1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor a= 2*(du/dx)^2 + (du/dy+dv/dx)*dv/dx
-            vec_dbl_ptr_Type b1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor b= (du/dy+dv/dx)*du/dx + 2*(dv/dx)*dv/dy
-            vec_dbl_ptr_Type c1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); //   prefactor c= (du/dy+dv/dx)*dv/dy + 2*(du/dx)*du/dy
-            vec_dbl_ptr_Type d1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); //   prefactor c= 2*(dv/dy)^2 + (du/dy+dv/dx)*du/dy
+            vec_dbl_ptr_Type mixed_terms(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor a= 2*(du/dx)^2 + (du/dy+dv/dx)*dv/dx
             for (UN w = 0; w < dPhiTrans.size(); w++)
             { // quads points
                 // set again to zero
@@ -1045,10 +1042,7 @@ namespace FEDD
                 }
                 gammaDot->at(w) = sqrt(2.0 * u11[w] * u11[w] + 2.0 * u22[w] * u22[w] + (u12[w] + u21[w]) * (u12[w] + u21[w]));
 
-                a1->at(w) = 2.0 * (u11[w] * u11[w]) + (u12[w] + u21[w]) * (u21[w]);
-                b1->at(w) = 2.0 * (u21[w] * u22[w]) + (u12[w] + u21[w]) * (u11[w]);
-                c1->at(w) = 2.0 * (u11[w] * u12[w]) + (u12[w] + u21[w]) * (u22[w]);
-                d1->at(w) = 2.0 * (u22[w] * u22[w]) + (u12[w] + u21[w]) * (u12[w]);
+                mixed_terms->at(w) = 0.5 * (u12[w] + u21[w]) ;
             }
             // loop over basis functions
             for (UN i = 0; i < phi->at(0).size(); i++)
@@ -1065,10 +1059,10 @@ namespace FEDD
                     for (UN w = 0; w < phi->size(); w++)
                     {
                         this->viscosityModel->evaluateDerivative(this->params_, gammaDot->at(w), deta_dgamma_dgamma_dtau);
-                        v11 = v11 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((2.0 * dPhiTrans[w][j][0] * a1->at(w) + dPhiTrans[w][j][1] * b1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * a1->at(w)) * normalVector[1]) * ((*phi)[w][i]); // xx contribution:
-                        v12 = v12 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * b1->at(w)) * normalVector[0] + (dPhiTrans[w][j][0] * a1->at(w) + 2.0 * dPhiTrans[w][j][1] * b1->at(w)) * normalVector[1]) * ((*phi)[w][i]); // xy contribution:
-                        v21 = v21 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((2.0 * dPhiTrans[w][j][0] * c1->at(w) + dPhiTrans[w][j][1] * d1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * c1->at(w)) * normalVector[1]) * ((*phi)[w][i]); // yx contribution:
-                        v22 = v22 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * d1->at(w)) * normalVector[0] + (dPhiTrans[w][j][0] * c1->at(w) + 2.0 * dPhiTrans[w][j][1] * d1->at(w)) * normalVector[1]) * ((*phi)[w][i]); // yy contribution:
+                        v11 = v11 + (deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * (( u11[w]* normalVector[0] + u21[w]*normalVector[1] )*( u11[w]*dPhiTrans[w][j][0] + mixed_terms->at(w)*dPhiTrans[w][j][1] ) )  * ((*phi)[w][i]); // xx contribution:
+                        v12 = v12 + (deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * (( u11[w]* normalVector[0] + u21[w]*normalVector[1] )*( u22[w]*dPhiTrans[w][j][1] + mixed_terms->at(w)*dPhiTrans[w][j][0] ) )  * ((*phi)[w][i]); // xy contribution:
+                        v21 = v21 + (deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * (( u12[w]* normalVector[0] + u22[w]*normalVector[1] )*( u11[w]*dPhiTrans[w][j][0] + mixed_terms->at(w)*dPhiTrans[w][j][1] ) )  * ((*phi)[w][i]); // yx contribution:
+                        v22 = v22 + (deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * (( u12[w]* normalVector[0] + u22[w]*normalVector[1] )*( u22[w]*dPhiTrans[w][j][1] + mixed_terms->at(w)*dPhiTrans[w][j][0] ) )  * ((*phi)[w][i]); // yy contribution:
 
                     } // End loop over quadrature points
 
@@ -1106,15 +1100,10 @@ namespace FEDD
 
             vec_dbl_ptr_Type gammaDot(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // gammaDot->at(j) j=0...weights
 
-            vec_dbl_ptr_Type a1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor a= 2*(du/dx)^2 + (du/dy+dv/dx)*xv/dy +  (dw/dx+du/dz)*dw/dx
-            vec_dbl_ptr_Type b1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor b=
-            vec_dbl_ptr_Type c1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor c=
-            vec_dbl_ptr_Type d1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor d=
-            vec_dbl_ptr_Type e1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor e=
-            vec_dbl_ptr_Type f1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor e=
-            vec_dbl_ptr_Type g1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor g=
-            vec_dbl_ptr_Type h1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor g=
-            vec_dbl_ptr_Type i1(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor g=
+            vec_dbl_ptr_Type mixed_term_xy(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // 
+            vec_dbl_ptr_Type mixed_term_yz(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); // prefactor
+            vec_dbl_ptr_Type mixed_term_xz(new vec_dbl_Type(QuadWeightsReference.size(), 0.0)); //
+
 
             for (UN w = 0; w < dPhiTrans.size(); w++)
             { // quads points
@@ -1146,16 +1135,10 @@ namespace FEDD
                     u33[w] += (*this->solution_)[index3] * dPhiTrans[w][i][2];
                 }
                 gammaDot->at(w) = sqrt(2.0 * u11[w] * u11[w] + 2.0 * u22[w] * u22[w] + 2.0 * u33[w] * u33[w] + (u12[w] + u21[w]) * (u12[w] + u21[w]) + (u13[w] + u31[w]) * (u13[w] + u31[w]) + (u23[w] + u32[w]) * (u23[w] + u32[w]));
-
-                a1->at(w) = 2.0 * (u11[w] * u11[w]) + (u12[w] + u21[w]) * (u21[w]) + (u31[w] + u13[w]) * (u31[w]);
-                b1->at(w) = 2.0 * (u21[w] * u22[w]) + (u12[w] + u21[w]) * (u11[w]) + (u32[w] + u23[w]) * (u31[w]);
-                c1->at(w) = 2.0 * (u33[w] * u31[w]) + (u13[w] + u31[w]) * (u11[w]) + (u32[w] + u23[w]) * (u21[w]);
-                d1->at(w) = 2.0 * (u11[w] * u12[w]) + (u12[w] + u21[w]) * (u22[w]) + (u31[w] + u13[w]) * (u32[w]);
-                e1->at(w) = 2.0 * (u22[w] * u22[w]) + (u12[w] + u21[w]) * (u12[w]) + (u32[w] + u23[w]) * (u32[w]);
-                f1->at(w) = 2.0 * (u33[w] * u32[w]) + (u13[w] + u31[w]) * (u12[w]) + (u32[w] + u23[w]) * (u22[w]);
-                g1->at(w) = 2.0 * (u11[w] * u13[w]) + (u12[w] + u21[w]) * (u23[w]) + (u31[w] + u13[w]) * (u33[w]);
-                h1->at(w) = 2.0 * (u22[w] * u23[w]) + (u12[w] + u21[w]) * (u13[w]) + (u32[w] + u23[w]) * (u33[w]);
-                i1->at(w) = 2.0 * (u33[w] * u33[w]) + (u13[w] + u31[w]) * (u13[w]) + (u32[w] + u23[w]) * (u23[w]);
+               
+                mixed_term_xy->at(w) = 0.5 * (u12[w] + u21[w]);
+                mixed_term_xz->at(w) = 0.5 * (u31[w] + u13[w]);
+                mixed_term_yz->at(w) = 0.5 * (u32[w] + u23[w]);
             }
             double v11, v12, v13, v21, v22, v23, v31, v32, v33, deta_dgamma_dgamma_dtau; // helper values for entries
             deta_dgamma_dgamma_dtau = 0.;
@@ -1179,19 +1162,19 @@ namespace FEDD
                     // loop over basis functions quadrature points
                     for (UN w = 0; w < phi->size(); w++)
                     {
-                        this->viscosityModel->evaluateMapping(this->params_, gammaDot->at(w), viscosity_atw);
+                        this->viscosityModel->evaluateDerivative(this->params_, gammaDot->at(w), deta_dgamma_dgamma_dtau);
 
-                        v11 = v11 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((2.0 * dPhiTrans[w][j][0] * a1->at(w) + dPhiTrans[w][j][1] * b1->at(w) + dPhiTrans[w][j][2] * c1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * a1->at(w)) * normalVector[1] + (dPhiTrans[w][j][2] * a1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xx contribution:
-                        v12 = v12 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * b1->at(w)) * normalVector[0] + (dPhiTrans[w][j][0] * a1->at(w) + 2.0 * dPhiTrans[w][j][1] * b1->at(w) + dPhiTrans[w][j][2] * c1->at(w)) * normalVector[1] + (dPhiTrans[w][j][2] * b1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xy contribution:
-                        v13 = v13 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * c1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * c1->at(w)) * normalVector[1] + (dPhiTrans[w][j][0] * a1->at(w) + dPhiTrans[w][j][1] * b1->at(w) + 2.0 * dPhiTrans[w][j][2] * c1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xz contribution:
+                        v11 = v11 + (deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * (( u11[w]* normalVector[0] + u21[w]*normalVector[1] + u31[w]*normalVector[2])*( u11[w]*dPhiTrans[w][j][0] + mixed_term_xy->at(w)*dPhiTrans[w][j][1] + mixed_term_xz->at(w)*dPhiTrans[w][j][2] ) )  * ((*phi)[w][i]); // xx contribution:
+                        v12 = v12 + (deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * (( u11[w]* normalVector[0] + u21[w]*normalVector[1] + u31[w]*normalVector[2])*( u22[w]*dPhiTrans[w][j][1] + mixed_term_xy->at(w)*dPhiTrans[w][j][0] + mixed_term_yz->at(w)*dPhiTrans[w][j][2] ) )  * ((*phi)[w][i]); // xy contribution:
+                        v13 = v13 + (deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * (( u11[w]* normalVector[0] + u21[w]*normalVector[1] + u31[w]*normalVector[2])*( u33[w]*dPhiTrans[w][j][2] + mixed_term_xz->at(w)*dPhiTrans[w][j][0] + mixed_term_yz->at(w)*dPhiTrans[w][j][1]) )  * ((*phi)[w][i]); // xz contribution:
 
-                        v21 = v21 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((2.0 * dPhiTrans[w][j][0] * d1->at(w) + dPhiTrans[w][j][1] * e1->at(w) + dPhiTrans[w][j][2] * f1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * d1->at(w)) * normalVector[1] + (dPhiTrans[w][j][2] * d1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xx contribution:
-                        v22 = v22 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * e1->at(w)) * normalVector[0] + (dPhiTrans[w][j][0] * d1->at(w) + 2.0 * dPhiTrans[w][j][1] * e1->at(w) + dPhiTrans[w][j][2] * f1->at(w)) * normalVector[1] + (dPhiTrans[w][j][2] * e1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xy contribution:
-                        v23 = v23 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * f1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * f1->at(w)) * normalVector[1] + (dPhiTrans[w][j][0] * f1->at(w) + dPhiTrans[w][j][1] * e1->at(w) + 2.0 * dPhiTrans[w][j][2] * f1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xz contribution:
+                        v21 = v21 + (deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * (( u12[w]* normalVector[0] + u22[w]*normalVector[1] + u32[w]*normalVector[2])*( u11[w]*dPhiTrans[w][j][0] + mixed_term_xy->at(w)*dPhiTrans[w][j][1] + mixed_term_xz->at(w)*dPhiTrans[w][j][2] ) )  * ((*phi)[w][i]); // xx contribution:
+                        v22 = v22 + (deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * (( u12[w]* normalVector[0] + u22[w]*normalVector[1] + u32[w]*normalVector[2])*( u22[w]*dPhiTrans[w][j][1] + mixed_term_xy->at(w)*dPhiTrans[w][j][0] + mixed_term_yz->at(w)*dPhiTrans[w][j][2]) )  * ((*phi)[w][i]);  // xy contribution:
+                        v23 = v23 + (deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * (( u12[w]* normalVector[0] + u22[w]*normalVector[1] + u32[w]*normalVector[2])*( u33[w]*dPhiTrans[w][j][2] + mixed_term_xz->at(w)*dPhiTrans[w][j][0] + mixed_term_yz->at(w)*dPhiTrans[w][j][1]) )  * ((*phi)[w][i]);  // xz contribution:
 
-                        v31 = v31 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((2.0 * dPhiTrans[w][j][0] * g1->at(w) + dPhiTrans[w][j][1] * h1->at(w) + dPhiTrans[w][j][2] * i1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * g1->at(w)) * normalVector[1] + (dPhiTrans[w][j][2] * g1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xx contribution:
-                        v32 = v32 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * h1->at(w)) * normalVector[0] + (dPhiTrans[w][j][0] * g1->at(w) + 2.0 * dPhiTrans[w][j][1] * h1->at(w) + dPhiTrans[w][j][2] * i1->at(w)) * normalVector[1] + (dPhiTrans[w][j][2] * h1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xy contribution:
-                        v33 = v33 + (0.25 * deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * ((dPhiTrans[w][j][0] * i1->at(w)) * normalVector[0] + (dPhiTrans[w][j][1] * i1->at(w)) * normalVector[1] + (dPhiTrans[w][j][0] * g1->at(w) + dPhiTrans[w][j][1] * h1->at(w) + 2.0 * dPhiTrans[w][j][2] * i1->at(w)) * normalVector[2]) * ((*phi)[w][i]); // xz contribution:
+                        v31 = v31 + (deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * (( u13[w]* normalVector[0] + u23[w]*normalVector[1] + u33[w]*normalVector[2])*( u11[w]*dPhiTrans[w][j][0] + mixed_term_xy->at(w)*dPhiTrans[w][j][1] + mixed_term_xz->at(w)*dPhiTrans[w][j][2] ) )  * ((*phi)[w][i]); // xx contribution:
+                        v32 = v32 + (deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * (( u13[w]* normalVector[0] + u23[w]*normalVector[1] + u33[w]*normalVector[2])*( u22[w]*dPhiTrans[w][j][1] + mixed_term_xy->at(w)*dPhiTrans[w][j][0] + mixed_term_yz->at(w)*dPhiTrans[w][j][2]) )  * ((*phi)[w][i]); // xy contribution:
+                        v33 = v33 + (deta_dgamma_dgamma_dtau) * QuadWeightsReference[w]  * (( u13[w]* normalVector[0] + u23[w]*normalVector[1] + u33[w]*normalVector[2])*(  u33[w]*dPhiTrans[w][j][2] + mixed_term_xz->at(w)*dPhiTrans[w][j][0] + mixed_term_yz->at(w)*dPhiTrans[w][j][1]) )  * ((*phi)[w][i]); // xz contribution:
 
                     } // End loop over quadrature points
 

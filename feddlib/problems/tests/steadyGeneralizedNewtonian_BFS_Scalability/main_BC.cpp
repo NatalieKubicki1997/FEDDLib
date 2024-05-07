@@ -23,6 +23,9 @@
  Main of steady-state Generalized Newtonian fluid flow problem with Non-Newtonian stress tensor assumption
  where we use e.g. Carreau Yasuda or Power law
 
+ Important: In order to test Newton's method with boundary integral we have to use a Power-law index different o 1.0
+            because in the direction derivative the multiplicative term ( n-1) occurs -> so therefore for 1.0 the whole term vanishes
+
  @brief steady-state Non-Newtonian creeping Flow main
  @author Natalie Kubicki
  @version 1.0

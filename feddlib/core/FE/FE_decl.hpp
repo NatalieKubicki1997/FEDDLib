@@ -617,7 +617,8 @@ class FE {
     // inside this BMV -> For visualization or postprocessing                                
     BlockMultiVectorPtr_Type const_output_fields;
 
-
+   // Change for all assembleFEElements the linearization to Newton
+   void  changeLinearization(string linearization);
 /* ----------------------------------------------------------------------------------------*/
 private:
 	void addFeBlockMatrix(BlockMatrixPtr_Type &A, SmallMatrixPtr_Type elementMatrix, FiniteElement element1,FiniteElement element2, MapConstPtr_Type mapFirstColumn,MapConstPtr_Type mapSecondColumn, tuple_disk_vec_ptr_Type problemDisk);

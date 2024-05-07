@@ -32,8 +32,9 @@ NonLinearSolver<SC,LO,GO,NO>::~NonLinearSolver(){
 
 template<class SC,class LO,class GO,class NO>
 void NonLinearSolver<SC,LO,GO,NO>::solve(NonLinearProblem_Type &problem){
+    this->SwitchFromFixedPointToNewton_ = problem.getParameterList()->sublist("General").get("SwitchFromFixedPointToNewton",false);  // Read from parameter list if we want to switch
 
-    if (!type_.compare("FixedPoint")) {
+    if (!type_.compare("FixedPoint") &&  SwitchFromFixedPointToNewton_==false) {
         solveFixedPoint(problem);
     }
     else if(!type_.compare("Newton")){
@@ -43,6 +44,13 @@ void NonLinearSolver<SC,LO,GO,NO>::solve(NonLinearProblem_Type &problem){
 #ifdef FEDD_HAVE_NOX
         solveNOX(problem);
 #endif
+    }
+        else if((!type_.compare("FixedPoint")) &&  SwitchFromFixedPointToNewton_==true )
+    {
+        solveFixedPoint(problem); // We first use FixedPointMethod until we reach defined Threshold to switch 
+        problem.getParameterList()->sublist("General").set("Linearization","Newton");
+        problem.changeAssFELinearization(problem.getParameterList()->sublist("General").get("Linearization","Newton"));                   // Then we have to change inside each assembleFEElement the linearization from FixedPoint to Newton and use Newton solve
+        solveNewton(problem);     // Then we finish the computation until our desired residual with Newton
     }
 
 }
@@ -321,7 +329,12 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(NonLinearProblem_Type &proble
         // ####### end FPI #######
     }
 
+    this->gmresIts_ = gmresIts;
+    this->nlIts_ = nlIts;
+    this->residual0_ = residual0; 
     gmresIts/=nlIts;
+
+
     if (verbose)
         cout << "### Total FPI : " << nlIts << "  with average gmres its : " << gmresIts << endl;
     if ( problem.getParameterList()->sublist("Parameter").get("Cancel MaxNonLinIts",false) ) {
@@ -410,6 +423,15 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(TimeProblem_Type &problem, do
     double criterionValue = 1.;
     std::string criterion = problem.getParameterList()->sublist("Parameter").get("Criterion","Residual");
 
+    //@ Natalie we want to have here the option to switch after we have reached a certain residual number with FixedPoint method to Newton 
+    /*
+        Therefore we have to first use FixedPointSolve until certain ResidualTolerance
+    */
+    if (this->SwitchFromFixedPointToNewton_==true)
+    {  
+      tol = problem.getParameterList()->sublist("General").get("Linearization_Tolerance_SwitchToNewton",1.0e-1);  // 
+    }
+
     while ( nlIts < maxNonLinIts ) {
         
         problem.calculateNonLinResidualVec("reverse", time);
@@ -477,6 +499,12 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNewton(TimeProblem_Type &problem, double
     double criterionValue = 1.;
     std::string criterion = problem.getParameterList()->sublist("Parameter").get("Criterion","Residual");
     std::string timestepping = problem.getParameterList()->sublist("Timestepping Parameter").get("Class","Singlestep");
+
+    if(this->SwitchFromFixedPointToNewton_==true){
+        gmresIts = this->gmresIts_;
+        residual0 = this->residual0_;
+        nlIts = this->nlIts_;
+    }
 
     while ( nlIts < maxNonLinIts ) {
         if (timestepping == "External")
