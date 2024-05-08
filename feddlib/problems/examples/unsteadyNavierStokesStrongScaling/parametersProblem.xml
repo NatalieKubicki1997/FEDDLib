@@ -6,10 +6,14 @@
         <Parameter name="Mesh Type" type="string" value="unstructured"/> <!--structured, unstructured -->
         <Parameter name="BC Type" type="string" value="Compute Inflow"/><!--partialCFD,Richter3DFull-->
         <Parameter name="Compute Inflow" type="bool" value="true"/>
-              <Parameter name="Mesh Name" type="string" value="arterie_with_plaque_initma_media_adventitia_fluid_fine.mesh"/><!--Turek3DCylinder_1400.mesh, circle2D.mesh-->
-    <Parameter name="Max Ramp Time" type="double" value="0.1"/>
+        <Parameter name="Mesh Name" type="string" value="arterie_with_plaque_initma_media_adventitia_fluid_fine.mesh"/><!--Turek3DCylinder_1400.mesh, circle2D.mesh-->
+        <Parameter name="Max Ramp Time" type="double" value="0.1"/>
         <Parameter name="Mesh Unit" type="string" value="mm"/> <!--  unstructured -->
 	    <Parameter name="Convert Mesh" type="bool" value="false"/> <!--  unstructured -->
+         <Parameter name="Use Pressure Correction" type="bool" value="true"/>     <!-- applying it locally to first level in preconditioner -->
+        <Parameter name="Use Local Pressure Correction" type="bool" value="true"/>    <!-- applying in globally after apply of first level-->
+        <Parameter name="Use Global Pressure Correction" type="bool" value="false"/>    <!-- applying projection globally after first and second level-->
+
 
         <Parameter name="Viscosity" type="double" value="3.0e-02"/> <!-- kinematic viscocity cm²/s-->
         <Parameter name="Density" type="double" value="1.0e-0"/> <!-- g/cm³ -->

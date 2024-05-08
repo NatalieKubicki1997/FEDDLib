@@ -397,7 +397,9 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
 
             // We could simply add 'a' of projection to the parameterlist. There it will be extracted in the Overlapping Operator and used to project the pressure.
             // As it is extracted in the Overlapping Operator we need to pass it to the sublist. Also we have an additional parameter <Parameter name="Use Pressure Correction" type="bool" value="true"/> in the <ParameterList name="AlgebraicOverlappingOperator"> sublist to trigger the read in FROSch.
+           
            if(!pressureProjection_.is_null()){
+                cout << " Adding pressure projection " << endl;
                 pressureProjection_->merge(); // We merge the projection vector, as FROSch does not distinguish between blocks
 
                 pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Projection",pressureProjection_->getMergedVector()->getXpetraMultiVectorNonConst());
@@ -420,6 +422,8 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
                 }*/
 
            }
+           else
+            cout << " Pressure Projection is null !!!!! -----------" << endl;
             /*  We need to set the ranges of local problems and the coarse problem here.
                 When using an unstructured decomposition of, e.g., FSI, with 2 domains, which might be on a different set of ranks, we need to set the following parameters for FROSch here. Similarly we need to set a coarse rank problem range. For now, we use extra coarse ranks only for structured decompositions
              */
@@ -793,6 +797,25 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
             solverBuilder->setParameterList( pListThyraSolver );
             precFactory_ = solverBuilder->createPreconditioningStrategy("");//createPreconditioningStrategy(*solverBuilder);
             Teuchos::RCP<Teko::RequestHandler> rh = Teuchos::rcp(new Teko::RequestHandler());
+
+            CommConstPtr_Type comm;
+            if (!problem_.is_null())
+                comm = problem_->getComm();
+            else if(!timeProblem_.is_null())
+                comm = timeProblem_->getComm();
+            bool verbose ( comm->getRank() == 0 );
+
+            
+            if(velocityMassMatrix_.is_null())
+            {   
+                if(verbose)
+                    cout << "## Velocity Mass Matrix is empty  ##" << endl;
+                
+            }
+            else{
+                if(verbose)
+                cout << " ## Adding Velocity mass matrix to Teko:: LSC call back function: setRequestHandler() ##" << endl;
+            }
 
             Teko::LinearOp thyraMass = velocityMassMatrix_;
 
