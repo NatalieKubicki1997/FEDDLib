@@ -85,6 +85,10 @@ precFactory_()
 {
     timeProblem_.reset( problem, false );
 
+    // We need to ensure that already set information is upheld
+    if(!problem->getUnderlyingProblem()->preconditioner_->getPressureProjection().is_null()){
+        setPressureProjection(problem->getUnderlyingProblem()->preconditioner_->getPressureProjection());
+    }
 }
 
 template <class SC,class LO,class GO,class NO>
@@ -399,7 +403,6 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
             // As it is extracted in the Overlapping Operator we need to pass it to the sublist. Also we have an additional parameter <Parameter name="Use Pressure Correction" type="bool" value="true"/> in the <ParameterList name="AlgebraicOverlappingOperator"> sublist to trigger the read in FROSch.
            
            if(!pressureProjection_.is_null()){
-                cout << " Adding pressure projection " << endl;
                 pressureProjection_->merge(); // We merge the projection vector, as FROSch does not distinguish between blocks
 
                 pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Projection",pressureProjection_->getMergedVector()->getXpetraMultiVectorNonConst());
@@ -414,16 +417,16 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
                 if(parameterList->sublist("Parameter").get("Use Global Pressure Correction",false))
                     pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Use Global Pressure Correction", true);
 
-                // Global correction after apply of first and second level -- removed from trilinos as it is not working
-               /*if(parameterList->sublist("Parameter").get("Use Global Pressure Correction",false)){
-                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").set("Use Global Pressure Correction", true);
-                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").set("Use Pressure Correction", true);
+                // Applying projection in coarse Level. We need to add the projection to the coarse Operator List. Here, to the IPOUHarmonicCoarseOperator. If we use (R)GDSW coarse operator this is differnt!! 
+               if(parameterList->sublist("Parameter").get("Use Coarse Pressure Correction",false)){
+                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").set("Projection",pressureProjection_->getMergedVector()->getXpetraMultiVectorNonConst());
 
-                }*/
+                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").set("Use Coarse Pressure Correction", true);
+
+                }
 
            }
-           else
-            cout << " Pressure Projection is null !!!!! -----------" << endl;
+   
             /*  We need to set the ranges of local problems and the coarse problem here.
                 When using an unstructured decomposition of, e.g., FSI, with 2 domains, which might be on a different set of ranks, we need to set the following parameters for FROSch here. Similarly we need to set a coarse rank problem range. For now, we use extra coarse ranks only for structured decompositions
              */

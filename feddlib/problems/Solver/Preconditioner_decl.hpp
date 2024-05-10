@@ -138,6 +138,8 @@ public:
 
     bool isPreconditionerComputed() const{return precondtionerIsBuilt_;};
 
+    BlockMultiVectorPtr_Type getPressureProjection(){return pressureProjection_;};
+
 private:
     ThyraPrecPtr_Type thyraPrec_;
     bool precondtionerIsBuilt_;

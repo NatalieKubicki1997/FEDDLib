@@ -563,7 +563,6 @@ void Mesh<SC,LO,GO,NO>::correctElementOrientation(){
             flipElement(elementsC_,T); 
 
     }
-    cout << " Finished " << endl;
     reduceAll<int, int> (*this->getComm(), REDUCE_SUM, negDet, outArg (negDet));
     reduceAll<int, int> (*this->getComm(), REDUCE_SUM, posDet, outArg (posDet));
 
@@ -638,6 +637,16 @@ void Mesh<SC,LO,GO,NO>::flipSurface(ElementsPtr_Type subEl, int surfaceNumber){
       
     }  
     FiniteElement feFlipped(surfaceElements_vec,subEl->getElement(surfaceNumber).getFlag());
+    ElementsPtr_Type subsubElements = subEl->getElement(surfaceNumber).getSubElements();
+
+    for(int T = 0; T<subEl->getElement(surfaceNumber).numSubElements(); T++){
+        TEUCHOS_TEST_FOR_EXCEPTION( this->dim_-2 <1, std::runtime_error, "Mesh - Preprocessing:: We somehow try to add points as subelements here. This is not considered in implementation." );
+
+        if(!feFlipped.subElementsInitialized())
+            feFlipped.initializeSubElements( this->FEType_, this->dim_ -2) ; // Points are generally not set as subelements. Thus, dim== 0 should never occure.
+        feFlipped.addSubElement(subsubElements->getElement(T));
+    }  
+    
     subEl->switchElement(surfaceNumber,feFlipped); // We can switch the current element with the newly defined element which has just a different node ordering. 
  
 
