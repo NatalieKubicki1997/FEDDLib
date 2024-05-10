@@ -110,8 +110,8 @@ int main(int argc, char *argv[]) {
     DomainPtr_Type domainRefined;
 	domainRefined.reset( new Domain<SC,LO,GO,NO>( comm, dim ) );
 	{
-		//domainRefined = meshRefiner.refineUniform(domainP1,level); //refineFlag(domainP1,level,6 );
-        domainRefined = meshRefiner.refineFlag(domainP1,level,6);
+		domainRefined = meshRefiner.refineUniform(domainP1,level); //refineFlag(domainP1,level,6 );
+        //domainRefined = meshRefiner.refineFlag(domainP1,level,6);
 
 	}
 	domainP1=domainRefined;
