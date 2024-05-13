@@ -42,7 +42,7 @@ time_(0.)
     if( problem_->preconditioner_->hasFaCSIBCFactory() )
         bcFaCSI = problem_->preconditioner_->getFaCSIBCFactory();
     
-    //problem_->preconditioner_ = Teuchos::rcp( new Preconditioner_Type( this ) ); //we reset the preconditioner of underlying problem!
+    problem_->preconditioner_ = Teuchos::rcp( new Preconditioner_Type( this ) ); //we reset the preconditioner of underlying problem!
     
     if( !bcFaCSI.is_null() )
         problem_->preconditioner_->setFaCSIBCFactory( bcFaCSI );
