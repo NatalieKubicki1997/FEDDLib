@@ -417,12 +417,11 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
                 if(parameterList->sublist("Parameter").get("Use Global Pressure Correction",false))
                     pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Use Global Pressure Correction", true);
 
-                // Applying projection in coarse Level. We need to add the projection to the coarse Operator List. Here, to the IPOUHarmonicCoarseOperator. If we use (R)GDSW coarse operator this is differnt!! 
+                // Applying projection in coarse Level. We need to add the projection to the coarse Operator List. Here, to the IPOUHarmonicCoarseOperaUse Coarse Pressure Correctiontor. If we use (R)GDSW coarse operator this is differnt!! 
                if(parameterList->sublist("Parameter").get("Use Coarse Pressure Correction",false)){
                     pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").set("Projection",pressureProjection_->getMergedVector()->getXpetraMultiVectorNonConst());
-                                                                                               
-                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").set("Use Coarse Pressure Correction", true);
-
+                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").set("Use Coarse Pressure Correction", parameterList->sublist("Parameter").get("Use Coarse Pressure Correction",false));
+                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").set("Dimension", parameterList->sublist("Parameter").get("Dimension",3));
                 }
 
            }
