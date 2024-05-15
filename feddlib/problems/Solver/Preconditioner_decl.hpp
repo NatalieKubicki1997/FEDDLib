@@ -116,6 +116,13 @@ public:
     ThyraLinOpConstPtr_Type getTekoOp();
 
     void setVelocityMassMatrix(MatrixPtr_Type massMatrix) const;
+
+    void setPressureLaplaceMatrix(MatrixPtr_Type matrix) const;
+
+    void setPressureMass(MatrixPtr_Type matrix) const;
+
+    void setPCDOperator(MatrixPtr_Type matrix) const;
+
 #endif
 
     void buildPreconditionerFaCSI( std::string type );
@@ -148,7 +155,10 @@ private:
     Teuchos::RCP<Thyra::PreconditionerFactoryBase<SC> > precFactory_;
 #ifdef FEDD_HAVE_TEKO
     ThyraLinOpConstPtr_Type tekoLinOp_;
-    mutable ThyraLinOpConstPtr_Type velocityMassMatrix_;
+    mutable ThyraLinOpConstPtr_Type velocityMassMatrix_; // LSC
+    mutable ThyraLinOpConstPtr_Type pressureLaplace_; // PCD
+    mutable ThyraLinOpConstPtr_Type pressureMass_; // PCD
+    mutable ThyraLinOpConstPtr_Type pcdOperator_; // PCD
 #endif
     // For FaCSI precondtioner
     ThyraLinOpConstPtr_Type fsiLinOp_;
@@ -166,6 +176,7 @@ private:
     MinPrecProblemPtr_Type probVelocity_;
     MinPrecProblemPtr_Type probSchur_;
     mutable MatrixPtr_Type pressureMassMatrix_;
+
     mutable BlockMultiVectorPtr_Type pressureProjection_;
 
     ParameterListPtr_Type pListPhiExport_;

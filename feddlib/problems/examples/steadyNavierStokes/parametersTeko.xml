@@ -31,6 +31,14 @@
                         <Parameter name="Assume Stable Discretization" type="bool" value="true"/>
                     </ParameterList>
 
+                    <ParameterList name="PCD">
+                        <Parameter name="Type" type="string" value="NS PCD"/>
+                        <Parameter name="Inverse Type" type="string" value=""/>
+                        <Parameter name="Inverse Velocity Type" type="string" value="FROSch-Velocity"/>
+                        <Parameter name="Inverse Pressure Type" type="string" value="FROSch-Pressure"/>
+                        <Parameter name="Ignore Boundary Rows" type="bool" value="false"/>
+                    </ParameterList>
+
                     <ParameterList name="Ifpack2-list">
                         <Parameter name="Type" type="string" value="Ifpack2"/>
                         <Parameter name="Prec Type" type="string" value="SCHWARZ"/>

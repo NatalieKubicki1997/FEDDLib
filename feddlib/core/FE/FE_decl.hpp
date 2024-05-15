@@ -295,6 +295,13 @@ class FE {
                                    MultiVectorPtr_Type u,
                                    bool callFillComplete);
 
+    void assemblyAdvection(int dim, 
+                            std::string FEType, 
+                            MatrixPtr_Type &A, 
+                            MultiVectorPtr_Type u, 
+                            bool callFillComplete);
+
+
     void assemblyAdvectionInUVecField(int dim,
                                       std::string FEType,
                                       MatrixPtr_Type &A,

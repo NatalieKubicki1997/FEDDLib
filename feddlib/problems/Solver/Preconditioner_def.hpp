@@ -797,7 +797,9 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
             pListThyraSolver->setParameters( *tekoPList );
 
             solverBuilder->setParameterList( pListThyraSolver );
-            precFactory_ = solverBuilder->createPreconditioningStrategy("");//createPreconditioningStrategy(*solverBuilder);
+            precFactory_ = solverBuilder->createPreconditioningStrategy("");//createPreconditioningStrategy(*solverBuilder); // this might be the issue
+
+            // Here we have the request handler, which manages the callback matrices/operators
             Teuchos::RCP<Teko::RequestHandler> rh = Teuchos::rcp(new Teko::RequestHandler());
 
             CommConstPtr_Type comm;
@@ -819,10 +821,36 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
                 cout << " ## Adding Velocity mass matrix to Teko:: LSC call back function: setRequestHandler() ##" << endl;
             }
 
-            Teko::LinearOp thyraMass = velocityMassMatrix_;
+            //  Now depending on the desired block preconditioner from teko we need to add different call back operators to the teko factory.
+            // In LSC the operator would be 'Velocity Mass matrix' which is the velocity mass matrix that we would assemble beforehand and pass along
 
-            Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackMass = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "Velocity Mass Matrix", thyraMass ) );
-            rh->addRequestCallback( callbackMass );
+            // For the PCD block preconditioner we need more. This would be: 
+            // - 'Pressure Laplace Operator'
+            // - 'Pressure Mass Operator'
+            // - 'PCD Operator' (which is probably optional)
+
+            if(!tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("LSC")){
+                Teko::LinearOp thyraMass = velocityMassMatrix_;
+
+                Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackMass = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "Velocity Mass Matrix", thyraMass ) );
+                rh->addRequestCallback( callbackMass );
+            }
+            else if(!tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("PCD")){
+                // Pressure Laplace
+                Teko::LinearOp thyraLaplace = pressureLaplace_;
+                Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackLaplace = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "Pressure Laplace Operator", thyraLaplace ) );
+                rh->addRequestCallback( callbackLaplace );
+
+                // Pressure Mass
+                Teko::LinearOp thyraPressureMass = pressureMass_;
+                Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackPressureMass = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "Pressure Mass Matrix", thyraPressureMass ) );
+                rh->addRequestCallback( callbackPressureMass );
+
+                // PCD
+                Teko::LinearOp thyraPCD = pcdOperator_;
+                Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackPCD = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "PCD Operator", thyraPCD ) );
+                rh->addRequestCallback( callbackPCD );
+            }
 
             Teuchos::RCP< Teko::StratimikosFactory > tekoFactory = Teuchos::rcp_dynamic_cast<Teko::StratimikosFactory>(precFactory_);
             tekoFactory->setRequestHandler( rh );
@@ -835,7 +863,6 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
 
         Teuchos::RCP< const Thyra::DefaultLinearOpSource< SC > > thyraMatrixSourceOp =  defaultLinearOpSource (tekoLinOp_);
         //    Thyra::initializePrec<SC>(*precFactory, thyraMatrixSourceOp, thyraPrec_.ptr());
-
         precFactory_->initializePrec(thyraMatrixSourceOp, thyraPrec_.get());
         precondtionerIsBuilt_ = true;
         
@@ -1040,6 +1067,22 @@ template <class SC,class LO,class GO,class NO>
 void Preconditioner<SC,LO,GO,NO>::setPressureMassMatrix(MatrixPtr_Type massMatrix) const{
     pressureMassMatrix_ = massMatrix;
 }
+
+template <class SC,class LO,class GO,class NO>
+void Preconditioner<SC,LO,GO,NO>::setPressureLaplaceMatrix(MatrixPtr_Type matrix) const{
+    pressureLaplace_ =matrix->getThyraLinOp();
+}
+
+template <class SC,class LO,class GO,class NO>
+void Preconditioner<SC,LO,GO,NO>::setPressureMass(MatrixPtr_Type matrix) const{
+    pressureMass_ = matrix->getThyraLinOp();
+}
+
+template <class SC,class LO,class GO,class NO>
+void Preconditioner<SC,LO,GO,NO>::setPCDOperator(MatrixPtr_Type matrix) const{
+    pcdOperator_ = matrix->getThyraLinOp();
+}
+
 
 template <class SC,class LO,class GO,class NO>
 void Preconditioner<SC,LO,GO,NO>::setPressureProjection(BlockMultiVectorPtr_Type pressureProjection) const{

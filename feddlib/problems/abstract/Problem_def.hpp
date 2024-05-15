@@ -292,7 +292,7 @@ namespace FEDD
                                                               "Vector",
                                                               this->rhsFuncVec_[i],
                                                               funcParameter);
-
+                    FERhs->print();
                     this->sourceTerm_->getBlockNonConst(i)->exportFromVector(FERhs, false, "Add");
                 }
             }

@@ -49,6 +49,21 @@ void rhsX(double* x, double* res, double* parameters){
     return;
 }
 
+void rhsYZ(double* x, double* res, double* parameters){
+// parameters[0] is the time, not needed here
+res[0] = 0.;
+res[1] = 0.;
+double force = parameters[1];
+if(parameters[3] == 3)
+    res[1] = force;
+else
+    res[0] =0.;
+
+cout << " Flags " << parameters[3] << " Force " << force  << " res0 " << res[0] << " res1 " << res[1] << endl;
+
+return;
+}
+
 void zeroBC(double* x, double* res, double t, const double* parameters){
     
     res[0] = 0.;
@@ -251,6 +266,7 @@ int main(int argc, char *argv[]) {
                         domain = domainP1;
                 }
                 
+                domain->exportNodeFlags();
                 
                 Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory(new BCBuilder<SC,LO,GO,NO>( ));
                 if (meshType == "structured") {
@@ -279,7 +295,7 @@ int main(int argc, char *argv[]) {
                     elasticity.addBoundaries( bcFactory );
 
                     if (dim==2)
-                        elasticity.addRhsFunction( rhs2D );
+                        elasticity.addRhsFunction( rhsYZ );
                     else if(dim==3)
                         elasticity.addRhsFunction( rhsX );
 
@@ -290,7 +306,6 @@ int main(int argc, char *argv[]) {
                     elasticity.addParemeterRhs( degree );
                     elasticity.initializeProblem();
                     elasticity.assemble();
-                                        
                     elasticity.setBoundaries();
                     
                     std::string nlSolverType = parameterListProblem->sublist("General").get("Linearization","Newton");
