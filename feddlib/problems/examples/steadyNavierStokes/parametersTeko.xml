@@ -32,11 +32,23 @@
                     </ParameterList>
 
                     <ParameterList name="PCD">
-                        <Parameter name="Type" type="string" value="NS PCD"/>
-                        <Parameter name="Inverse Type" type="string" value=""/>
-                        <Parameter name="Inverse Velocity Type" type="string" value="FROSch-Velocity"/>
-                        <Parameter name="Inverse Pressure Type" type="string" value="FROSch-Pressure"/>
-                        <Parameter name="Ignore Boundary Rows" type="bool" value="false"/>
+                        <Parameter name="Type" type="string" value="Block LU2x2"/>
+                        <Parameter name="Strategy Name" type="string" value="NS PCD Strategy"/>
+                        <ParameterList name="Strategy Settings">
+	 					
+	  						 <Parameter name="Inverse Type" type="string" value="FROSch-Pressure"/>
+		                     <Parameter name="Inverse F Type" type="string" value="FROSch-Velocity"/>
+		                     <Parameter name="Inverse Laplace Type" type="string" value="FROSch-Pressure"/>
+	                        <ParameterList name="Pressure Convection Diffusion Parameters">
+        	  						 <Parameter name="Auto Type" type="string" value="FROSch-Pressure"/>
+                            </ParameterList>
+                            <ParameterList name="Pressure Mass Operator">
+        	  						 <Parameter name="Inverse Type" type="string" value="FROSch-Pressure"/>
+                            </ParameterList>
+                            <ParameterList name="Pressure Laplace Operator">
+        	  						 <Parameter name="Inverse Type" type="string" value="FROSch-Pressure"/>
+                            </ParameterList>
+                        </ParameterList>
                     </ParameterList>
 
                     <ParameterList name="Ifpack2-list">
