@@ -128,6 +128,68 @@ void parabolicInflow3DLinArtery(double* x, double* res, double t, const double* 
 
     return;
 }
+void parabolicInflow3DArteryHeartBeat(double* x, double* res, double t, const double* parameters)
+{
+    // parameters[0] is the maxium desired velocity
+    // parameters[1] end of ramp
+    // parameters[3] is the maxium solution value of the laplacian parabolic inflow problme
+    // parameters[2] heart beat start
+    // we use x[0] for the laplace solution in the considered point. Therefore, point coordinates are missing
+    double heartBeatStart = parameters[3];
+
+    if(t < parameters[1])
+    {
+        res[0] = 0.;
+        res[1] = 0.;
+        res[2] = parameters[0] / parameters[2] * x[0] * 0.5 * ( ( 1 - cos( M_PI*t/parameters[1]) ));
+    }
+    else if(t > heartBeatStart)
+    {
+    
+        double a0    = 11.693284502463376;
+        double a [20] = {1.420706949636449,-0.937457438404759,0.281479818173732,-0.224724363786734,0.080426469802665,0.032077024077824,0.039516941555861, 
+            0.032666881040235,-0.019948718147876,0.006998975442773,-0.033021060067630,-0.015708267688123,-0.029038419813160,-0.003001255512608,-0.009549531539299, 
+            0.007112349455861,0.001970095816773,0.015306208420903,0.006772571935245,0.009480436178357};
+        double b [20] = {-1.325494054863285,0.192277311734674,0.115316087615845,-0.067714675760648,0.207297536049255,-0.044080204999886,0.050362628821152,-0.063456242820606,
+            -0.002046987314705,-0.042350454615554,-0.013150127522194,-0.010408847105535,0.011590255438424,0.013281630639807,0.014991955865968,0.016514327477078, 
+            0.013717154383988,0.012016806933609,-0.003415634499995,0.003188511626163};
+                    
+        double Q = 0.5*a0;
+        
+
+        double t_min = t - fmod(t,1.0)+heartBeatStart-std::floor(t); ; //FlowConditions::t_start_unsteady;
+        double t_max = t_min + 1.0; // One heartbeat lasts 1.0 second    
+        double y = M_PI * ( 2.0*( t-t_min ) / ( t_max - t_min ) -1.0)  ;
+        
+        for(int i=0; i< 20; i++)
+            Q += (a[i]*std::cos((i+1.)*y) + b[i]*std::sin((i+1.)*y) ) ;
+        
+        
+        // Remove initial offset due to FFT
+        Q -= 0.026039341343493;
+        Q = (Q - 2.85489)/(7.96908-2.85489);
+        double lambda = 1.;
+
+        if( parameters[0]+1.0e-10 < heartBeatStart + 0.5)
+		    lambda = 0.90 + 0.1*cos(2*M_PI*parameters[0]);
+        else 
+    	    lambda= 0.8 + 1.2*Q;
+
+        res[0] = 0.;
+        res[1] = 0.;
+        res[2] = (parameters[0] / parameters[2]) * (x[0] * lambda) ;
+        
+    }
+    else
+    {
+        res[0] = 0.;
+        res[1] = 0.;
+        res[2] = parameters[0] / parameters[2] * x[0];
+
+    }
+
+    return;
+}
 
 void rhsDummy(double* x, double* res, double* parameters){
     // parameters[0] is the time, not needed here
@@ -241,6 +303,7 @@ int main(int argc, char *argv[])
         string feTypeP = parameterListProblem->sublist("Parameter").get("Discretization Pressure","P1");
         string preconditionerMethod = parameterListProblem->sublist("General").get("Preconditioner Method","Monolithic");
         int         n;
+        int 		m				= parameterListProblem->sublist("Parameter").get("H/h",5);        
 
         TimePtr_Type totalTime(TimeMonitor_Type::getNewCounter("FEDD - main - Total Time"));
         TimePtr_Type buildMesh(TimeMonitor_Type::getNewCounter("FEDD - main - Build Mesh"));
@@ -282,7 +345,21 @@ int main(int argc, char *argv[])
                     domainP1fluid.reset( new Domain_Type( comm, dim ) );
                     domainP2fluid.reset( new Domain_Type( comm, dim ) );
                     //                    
-                    if (!meshType.compare("unstructured")) {
+                    if (!meshType.compare("structured")) {
+                        int minNumberSubdomains = 1;
+                        TEUCHOS_TEST_FOR_EXCEPTION( size%minNumberSubdomains != 0 , std::logic_error, "Wrong number of processors for structured mesh.");
+                        
+                        n = (int) (std::pow( size/minNumberSubdomains, 1/3.) + 100*Teuchos::ScalarTraits<double>::eps()); // 1/H
+                        std::vector<double> x(3);
+                        x[0]=0.0;    x[1]=0.0;	x[2]=0.0;
+                        // setting length, width and depth in cm. Approximating the realistic geometry with a rectangular channel with similar size. 
+                        domainFluidPressure.reset(new Domain<SC,LO,GO,NO>( x, 0.27, 0.27, 0.81, comm)); // 5 Subcubes 1.35
+                        domainFluidVelocity.reset(new Domain<SC,LO,GO,NO>( x, 0.27, 0.27, 0.81, comm));
+                        
+                        domainFluidPressure->buildMesh( 4,"Tube", dim, feTypeP, n, m, numProcsCoarseSolve);
+                        domainFluidVelocity->buildMesh( 4,"Tube", dim, feTypeV, n, m, numProcsCoarseSolve);
+                    }
+                    else if (!meshType.compare("unstructured")) {
                                                 
                         MeshPartitioner_Type::DomainPtrArray_Type domainP1Array(1);
                         domainP1Array[0] = domainP1fluid;
@@ -318,12 +395,12 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            
+            domainFluidVelocity->exportNodeFlags("Fluid");
          
                      
             std::vector<double> parameter_vec(1, parameterListProblem->sublist("Parameter").get("Max Velocity",1.));
             parameter_vec.push_back( parameterListProblem->sublist("Parameter").get("Max Ramp Time",0.1) );
-            
+
             TEUCHOS_TEST_FOR_EXCEPTION(bcType != "Compute Inflow", std::logic_error, "Select a valid boundary condition. Only Compute Inflow available.");
 
             //#############################################
@@ -368,6 +445,8 @@ int main(int argc, char *argv[])
                 
                 parameter_vec.push_back(maxValue);
 
+
+
                 Teuchos::RCP<ExporterParaView<SC,LO,GO,NO> > exPara(new ExporterParaView<SC,LO,GO,NO>());
                 
                 exPara->setup("parabolicInflow", domainFluidVelocity->getMesh(), feTypeV);
@@ -379,7 +458,8 @@ int main(int argc, char *argv[])
                 exPara->closeExporter();
 
             }
-            
+            parameter_vec.push_back( parameterListProblem->sublist("Parameter").get("Heart Beat Start",0.2) ); // Adding the heart beat start last
+
             Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory( new BCBuilder<SC,LO,GO,NO>( ) );
 
             // TODO: Vermutlich braucht man keine bcFactoryFluid und bcFactoryStructure,
@@ -391,7 +471,7 @@ int main(int argc, char *argv[])
                 string rampType = parameterListProblem->sublist("Parameter Fluid").get("Ramp type","cos");
                 
                 bcFactory->addBC(zeroDirichlet3D, 9, 0, domainFluidVelocity, "Dirichlet", dim, parameter_vec); // inflow ring
-                bcFactory->addBC(parabolicInflow3D, 4, 0, domainFluidVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow
+                bcFactory->addBC(parabolicInflow3DArteryHeartBeat, 4, 0, domainFluidVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow
                 bcFactory->addBC(zeroDirichlet3D, 6, 0, domainFluidVelocity, "Dirichlet", dim, parameter_vec); // Wall
 
                 bcFactory->addBC(zeroDirichlet3D, 10, 0, domainFluidVelocity, "Dirichlet", dim, parameter_vec); // outflow ring
@@ -399,6 +479,8 @@ int main(int argc, char *argv[])
                 
             }
             domainFluidVelocity->exportNodeFlags("Fluid");
+
+            domainFluidVelocity->exportProcessor("Fluid");
 
             int timeDisc = parameterListProblem->sublist("Timestepping Parameter").get("Butcher table",0);
 

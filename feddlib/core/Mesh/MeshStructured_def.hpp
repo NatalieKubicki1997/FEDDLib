@@ -620,7 +620,454 @@ void MeshStructured<SC,LO,GO,NO>::buildMesh2D(std::string FEType,
     buildElementsClass(elementsVec, elementFlag);
 
 }
+template <class SC, class LO, class GO, class NO>
+void MeshStructured<SC,LO,GO,NO>::buildMesh3DTube(std::string FEType,
+                                                 int N,
+                                                 int M,
+                                                 int numProcsCoarseSolve,
+                                                 std::string underlyingLib){
 
+    using Teuchos::RCP;
+    using Teuchos::rcp;
+    using Teuchos::ScalarTraits;
+
+    TEUCHOS_TEST_FOR_EXCEPTION(!(M>=1),std::logic_error,"H/h is to small.");
+    TEUCHOS_TEST_FOR_EXCEPTION(this->comm_.is_null(),std::runtime_error,"comm_ is null.");
+
+    bool verbose (this->comm_->getRank() == 0);
+
+    setRankRange( numProcsCoarseSolve );
+
+    if (verbose) {
+        cout << endl;
+        cout << " Building Tube 3D Geometry " << endl;
+    }
+
+    SC eps = ScalarTraits<SC>::eps();
+
+    int         rank = this->comm_->getRank();
+    int         size = this->comm_->getSize() - numProcsCoarseSolve;
+
+   // SC      h_x = length/(M*N);//add variable length - x
+   // SC      h_y = width/(M*N);//add variable width - y 
+   // SC      h_z = length/(M*N);//add variable heigth - z 
+   // N = 1/H
+   // Size = numProcs
+    SC h = length/(M*N); // We want consistent h per subdomain.
+
+    // We will now assume, if x=y != z , so a channel/rectangular like geometry, the number of processors need to be a certain minimum to descretize the mesh nicely
+    int cube_multiplier = std::floor(height/width); //cout << " Multiplier " << cube_multiplier << endl;
+    
+    TEUCHOS_TEST_FOR_EXCEPTION( cube_multiplier * width < height ,std::logic_error,"The height of the domain has to be an exact multiple of the width|length. ");
+    TEUCHOS_TEST_FOR_EXCEPTION((size%cube_multiplier)>0,std::logic_error,"The number of processors cannot be devided by domains sub cubes. ");
+
+
+    // Number of Cubes per multiplier set
+    int nmbSubdomainsSquares = size / cube_multiplier; //cout << " nmbSubdomainsSquares " << nmbSubdomainsSquares << endl;
+    if( std::floor(std::pow(nmbSubdomainsSquares,1./3.)) + 1.e-13 < (std::pow(nmbSubdomainsSquares,1./3.) ))
+        TEUCHOS_TEST_FOR_EXCEPTION(true , std::logic_error, " The number of processors per sub cube are not cubic");
+
+    int nmbSubdomainsSquares_OneDir = (std::pow(nmbSubdomainsSquares,1./3.) + 100*eps); //cout << " nmbSubdomainsSquares_OneDir " << nmbSubdomainsSquares_OneDir << endl; // same as N
+    // A channel is devided in z-direction in the number of cube_multiplier cube, where on cube corresponds to a subdomain.
+
+    //SC      H_x = length/nmbSubdomainsSquares_OneDir;
+    //SC      H_y = width/nmbSubdomainsSquares_OneDir;
+    //SC      H_z = height/(cube_multiplier*nmbSubdomainsSquares_OneDir);
+    SC H = length/nmbSubdomainsSquares_OneDir;
+
+    LO 	nmbPoints_oneDir;
+    GO   nmbPoints_oneDir_allSubdomain;
+
+    LO nmbElements;
+    LO nmbPoints;
+    if (FEType == "P0") {
+        TEUCHOS_TEST_FOR_EXCEPTION(true,std::logic_error,"implement P0.");
+    }
+    else if (FEType == "P1") {
+        nmbPoints_oneDir 	= N * (M+1) - (N-1); //cout << "  nmbPoints_oneDir " << nmbPoints_oneDir << endl;
+        nmbPoints_oneDir_allSubdomain = cube_multiplier * nmbPoints_oneDir;// cout << " nmbPoints_oneDir_allSubdomain " << nmbSubdomainsSquares << endl;
+        nmbPoints			= (M+1)*(M+1)*(M+1);
+    }
+    else if (FEType == "P2"){
+        nmbPoints_oneDir 	=  N * (2*(M+1)-1) - (N-1);
+        nmbPoints_oneDir_allSubdomain = cube_multiplier * nmbPoints_oneDir; //cout << " nmbPoints_oneDir_allSubdomain " << nmbSubdomainsSquares << endl;
+        nmbPoints 			= (2*(M+1)-1)*(2*(M+1)-1)*(2*(M+1)-1);
+    }
+    else if (FEType == "P2-CR"){
+        TEUCHOS_TEST_FOR_EXCEPTION(true,std::logic_error,"P2-CR might not work properly.");
+        nmbPoints_oneDir 	=  N * (2*(M+1)-1) - (N-1);
+        nmbPoints 			= (2*(M+1)-1)*(2*(M+1)-1)*(2*(M+1)-1);
+    }
+    else if (FEType == "P1-disc" || FEType == "P1-disc-global"){
+
+    }
+    else if (FEType == "Q1"){
+
+    }
+    else if (FEType == "Q2"){
+
+    }
+    else if (FEType == "Q2-20"){
+
+    }
+    else
+        TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Wrong FE-Type, only P1,P1-disc, P1-disc-global, P2, P2-CR, Q1, Q2, Q2-20.");
+
+    this->FEType_ = FEType;
+
+    GO nmbPGlob_oneDir = N * (M+1) - (N-1);
+
+    this->numElementsGlob_ = 6*(nmbPGlob_oneDir-1)*(nmbPGlob_oneDir-1)*(nmbPGlob_oneDir-1)*cube_multiplier;
+
+    int MM=M;
+    if (rank>=size) {
+        M = -1; // keine Schleife wird ausgefuehrt
+        nmbElements = 0;
+        nmbPoints = 0;
+    }
+    else{
+        nmbElements = 6*M*M*M;
+    }
+    vec2D_int_ptr_Type elementsVec;
+    vec_int_ptr_Type elementFlag;
+    // P1 Mesh
+
+    if (verbose) {
+        cout << " Building " << FEType << " Points and Elements " << endl;
+    }
+    if (FEType == "P1") {
+
+        this->pointsRep_.reset(new std::vector<std::vector<double> >(nmbPoints,std::vector<double>(3,0.0)));
+        this->bcFlagRep_.reset(new std::vector<int> (nmbPoints,0));
+        elementsVec = Teuchos::rcp(new vec2D_int_Type( nmbElements, vec_int_Type(4, -1) ));
+        elementFlag = Teuchos::rcp(new vec_int_Type( elementsVec->size(),0 ) );
+        Teuchos::Array<GO> pointsRepGlobMapping(nmbPoints);
+        // Which of the cube_multiplier sets am I in 
+        int whichSquareSet = (int)rank / nmbSubdomainsSquares;
+
+        int counter = 0;
+        int offset_x = ((rank - nmbSubdomainsSquares*whichSquareSet) % N);
+        int offset_y = 0;
+        int offset_z = 0;
+
+        if (((rank - nmbSubdomainsSquares*whichSquareSet) % (N*N))>=N) {
+            offset_y = (int) ((rank - nmbSubdomainsSquares*whichSquareSet) % (N*N))/(N);
+        }
+
+        if (((rank - nmbSubdomainsSquares*whichSquareSet) % (N*N*N))>=N*N ) {
+            offset_z = (int) ((rank - nmbSubdomainsSquares*whichSquareSet) % (N*N*N))/(N*(N));
+        }
+
+        int offset_Squares_x = 0; // (int) (whichSquareSet+1) / 2;
+        int offset_Squares_y = 0;
+        int offset_Squares_z = (int) (whichSquareSet); // / 2;
+
+        int offsetSquareSet = whichSquareSet*(pow(N * (M+1) - (N-1),3) -( pow(N * (M+1) - (N-1),2)));
+
+        for (int t=0; t < M+1; t++) {
+            for (int s=0; s < M+1; s++) {
+                for (int r=0; r < M+1; r++) {
+                    (*this->pointsRep_)[counter][0] = r*h + offset_x * H;
+                    if ((*this->pointsRep_)[counter][0]<eps && (*this->pointsRep_)[counter][0]>-eps) (*this->pointsRep_)[counter][0]=0.0;
+
+                    (*this->pointsRep_)[counter][1] = s*h + offset_y * H;
+                    if ((*this->pointsRep_)[counter][1]<eps && (*this->pointsRep_)[counter][1]>-eps) (*this->pointsRep_)[counter][1]=0.0;
+
+                    (*this->pointsRep_)[counter][2] = t*h + offset_z * H + offset_Squares_z * H * nmbSubdomainsSquares_OneDir ;
+                    if ((*this->pointsRep_)[counter][2]<eps && (*this->pointsRep_)[counter][2]>-eps) (*this->pointsRep_)[counter][2]=0.0;
+
+                    pointsRepGlobMapping[counter] = r + s*nmbPoints_oneDir + t*nmbPoints_oneDir*nmbPoints_oneDir + offset_x*(M) + offset_y*(nmbPoints_oneDir)*M + offset_z*(nmbPoints_oneDir)*(nmbPoints_oneDir)*M + offsetSquareSet  ;
+
+                    if ((*this->pointsRep_)[counter][0] > (coorRec[0]+length-eps) 	|| (*this->pointsRep_)[counter][0] < (coorRec[0]+eps) ||
+                        (*this->pointsRep_)[counter][1] > (coorRec[1]+width-eps) 	|| (*this->pointsRep_)[counter][1] < (coorRec[1]+eps) ||
+                        (*this->pointsRep_)[counter][2] > (coorRec[2]+height-eps) 	|| (*this->pointsRep_)[counter][2] < (coorRec[2]+eps) ) {
+
+                        (*this->bcFlagRep_)[counter] = 1;
+                    }
+
+                    counter++;
+                }
+            }
+        }
+
+        this->mapRepeated_.reset(new Map<LO,GO,NO>( underlyingLib, (GO) -1, pointsRepGlobMapping(), 0, this->comm_) );
+
+        this->mapUnique_ = this->mapRepeated_->buildUniqueMap( numProcsCoarseSolve );
+
+        this->pointsUni_.reset(new std::vector<std::vector<double> >(this->mapUnique_->getNodeNumElements(),std::vector<double>(3,0.0)));
+        this->bcFlagUni_.reset(new std::vector<int> (this->mapUnique_->getNodeNumElements(),0));
+        LO index;
+        for (int i=0; i<this->mapUnique_->getNodeNumElements(); i++) {
+
+            index = this->mapRepeated_->getLocalElement( this->mapUnique_->getGlobalElement(i) );
+
+            (*this->pointsUni_)[i][0] = (*this->pointsRep_)[index][0];
+            (*this->pointsUni_)[i][1] = (*this->pointsRep_)[index][1];
+            (*this->pointsUni_)[i][2] = (*this->pointsRep_)[index][2];
+            (*this->bcFlagUni_)[i] = (*this->bcFlagRep_)[index];
+        }
+
+        counter = 0;
+        for (int t=0; t < M; t++) {
+            for (int s=0; s < M; s++) {
+                for (int r=0; r < M; r++) {
+                    (*elementsVec)[counter][0] = r+1 + (M+1) * s + (M+1)*(M+1) * t ;
+                    (*elementsVec)[counter][1] = r + (M+1) * s + (M+1)*(M+1) * t ;
+                    (*elementsVec)[counter][2] = r+1 + (M+1) * s + (M+1)*(M+1) * (t+1) ;
+                    (*elementsVec)[counter][3] = r+1 + (M+1) * (s+1) + (M+1)*(M+1) * (t+1) ;
+                    counter++;
+                    (*elementsVec)[counter][0] = r + (M+1) * s + (M+1)*(M+1) * (t+1) ;
+                    (*elementsVec)[counter][1] = r + (M+1) * s + (M+1)*(M+1) * t ;
+                    (*elementsVec)[counter][2] = r+1 + (M+1) * s + (M+1)*(M+1) * (t+1) ;
+                    (*elementsVec)[counter][3] = r+1 + (M+1) * (s+1) + (M+1)*(M+1) * (t+1) ;
+                    counter++;
+                    (*elementsVec)[counter][0] = r+1 + (M+1) * s + (M+1)*(M+1) * t ;
+                    (*elementsVec)[counter][1] = r + (M+1) * s + (M+1)*(M+1) * t ;
+                    (*elementsVec)[counter][2] = r+1 + (M+1) * (s+1) + (M+1)*(M+1) * t ;
+                    (*elementsVec)[counter][3] = r+1 + (M+1) * (s+1) + (M+1)*(M+1) * (t+1) ;
+                    counter++;
+                    (*elementsVec)[counter][0] = r + (M+1) * s + (M+1)*(M+1) * t ;
+                    (*elementsVec)[counter][1] = r + (M+1) * (s+1) + (M+1)*(M+1) * t ;
+                    (*elementsVec)[counter][2] = r+1 + (M+1) * (s+1) + (M+1)*(M+1) * t ;
+                    (*elementsVec)[counter][3] = r+1 + (M+1) * (s+1) + (M+1)*(M+1) * (t+1) ;
+                    counter++;
+                    (*elementsVec)[counter][0] = r + (M+1) * s + (M+1)*(M+1) * t ;
+                    (*elementsVec)[counter][1] = r + (M+1) * (s+1) + (M+1)*(M+1) * t ;
+                    (*elementsVec)[counter][2] = r + (M+1) * (s+1) + (M+1)*(M+1) * (t+1) ;
+                    (*elementsVec)[counter][3] = r+1 + (M+1) * (s+1) + (M+1)*(M+1) * (t+1) ;
+                    counter++;
+                    (*elementsVec)[counter][0] = r + (M+1) * s + (M+1)*(M+1) * t ;
+                    (*elementsVec)[counter][1] = r + (M+1) * s + (M+1)*(M+1) * (t+1) ;
+                    (*elementsVec)[counter][2] = r + (M+1) * (s+1) + (M+1)*(M+1) * (t+1) ;
+                    (*elementsVec)[counter][3] = r+1 + (M+1) * (s+1) + (M+1)*(M+1) * (t+1) ;
+                    counter++;
+                }
+            }
+        }
+        buildElementsClass(elementsVec, elementFlag);
+    }
+
+    else if(FEType == "P2"){
+
+        this->pointsRep_.reset(new vec2D_dbl_Type(nmbPoints, vec_dbl_Type(3, 0.0)));
+        this->bcFlagRep_.reset(new vec_int_Type (nmbPoints, 0));
+        elementsVec = Teuchos::rcp(new vec2D_int_Type(nmbElements, vec_int_Type(10, -1)));
+        elementFlag = Teuchos::rcp(new vec_int_Type( elementsVec->size(),0 ) );
+        Teuchos::Array<GO> pointsRepGlobMapping(nmbPoints);
+
+        int whichSquareSet = (int)rank / nmbSubdomainsSquares;
+
+        int counter = 0;
+        int offset_x = ((rank - nmbSubdomainsSquares*whichSquareSet) % N);
+        int offset_y = 0;
+        int offset_z = 0;
+
+        if (((rank - nmbSubdomainsSquares*whichSquareSet) % (N*N))>=N) {
+            offset_y = (int) ((rank - nmbSubdomainsSquares*whichSquareSet) % (N*N))/(N);
+        }
+
+        if (((rank - nmbSubdomainsSquares*whichSquareSet) % (N*N*N))>=N*N ) {
+            offset_z = (int) ((rank - nmbSubdomainsSquares*whichSquareSet) % (N*N*N))/(N*(N));
+        }
+
+        int offset_Squares_x = 0; // (int) (whichSquareSet+1) / 2;
+        int offset_Squares_y = 0;
+        int offset_Squares_z = (int) (whichSquareSet);
+
+        int offsetSquareSet = whichSquareSet*(pow( N * (2*(M+1)-1) - (N-1),3) -( pow( N * (2*(M+1)-1) - (N-1),2)));
+        bool p1point;
+
+        int p1_s = 0;
+        int p1_r = 0;
+        int p1_t = 0;
+        for (int t=0; t < 2*(M+1)-1; t++) {
+            for (int s=0; s < 2*(M+1)-1; s++) {
+                for (int r=0; r < 2*(M+1)-1; r++) {
+                    p1point = false;
+                    if (s%2==0 && r%2==0 && t%2==0) {
+                        p1point = true;
+                        p1_s = s/2;
+                        p1_r = r/2;
+                        p1_t = t/2;
+                    }
+                    (*this->pointsRep_)[counter][0] = r*h/2.0 + offset_x * H;
+                    if ((*this->pointsRep_)[counter][0]<eps && (*this->pointsRep_)[counter][0]>-eps) (*this->pointsRep_)[counter][0]=0.0;
+                    (*this->pointsRep_)[counter][1] = s*h/2.0 + offset_y * H;
+                    if ((*this->pointsRep_)[counter][1]<eps && (*this->pointsRep_)[counter][1]>-eps) (*this->pointsRep_)[counter][1]=0.0;
+                    (*this->pointsRep_)[counter][2] = t*h/2.0 + offset_z * H + offset_Squares_z * H * nmbSubdomainsSquares_OneDir ;
+                    if ((*this->pointsRep_)[counter][2]<eps && (*this->pointsRep_)[counter][2]>-eps) (*this->pointsRep_)[counter][2]=0.0;
+
+                    pointsRepGlobMapping[counter] = r + s*nmbPoints_oneDir + t*nmbPoints_oneDir*nmbPoints_oneDir \
+                    + offset_x*(2*(M+1)-2) + offset_y*(nmbPoints_oneDir)*(2*(M+1)-2) + offset_z*(nmbPoints_oneDir)*(nmbPoints_oneDir)*(2*(M+1)-2) + offsetSquareSet;
+
+                    if ((*this->pointsRep_)[counter][0] > (coorRec[0]+length-eps) || (*this->pointsRep_)[counter][0] < (coorRec[0]+eps) ||
+                        (*this->pointsRep_)[counter][1] > (coorRec[1]+width-eps) 	|| (*this->pointsRep_)[counter][1] < (coorRec[1]+eps) ||
+                        (*this->pointsRep_)[counter][2] > (coorRec[2]+height-eps) || (*this->pointsRep_)[counter][2] < (coorRec[2]+eps) ) {
+                        (*this->bcFlagRep_)[counter] = 1;
+
+                    }
+
+                    counter++;
+                }
+            }
+        }
+
+        this->mapRepeated_.reset(new Map<LO,GO,NO>( underlyingLib, (GO) -1, pointsRepGlobMapping(), 0, this->comm_) );
+
+        this->mapUnique_ = this->mapRepeated_->buildUniqueMap( numProcsCoarseSolve );
+
+        this->pointsUni_.reset(new std::vector<std::vector<double> >(this->mapUnique_->getNodeNumElements(),std::vector<double>(3,0.0)));
+        this->bcFlagUni_.reset(new std::vector<int> (this->mapUnique_->getNodeNumElements(),0));
+
+        LO index;
+
+        for (int i=0; i<this->mapUnique_->getNodeNumElements(); i++) {
+            /*(*this->pointsUni_)[i][0] = (this->mapUnique_->getGlobalElement(i) % nmbPoints_oneDir) * h/2;
+            if ((*this->pointsUni_)[i][0]<eps && (*this->pointsUni_)[i][0]>-eps) (*this->pointsUni_)[i][0]=0.0;
+
+            (*this->pointsUni_)[i][1] = ((int) ((this->mapUnique_->getGlobalElement(i) % (nmbPoints_oneDir*nmbPoints_oneDir)) / nmbPoints_oneDir) + eps) *h/2;
+            if ((*this->pointsUni_)[i][1]<eps && (*this->pointsUni_)[i][1]>-eps) (*this->pointsUni_)[i][1]=0.0;
+
+            (*this->pointsUni_)[i][2] = ((int)(this->mapUnique_->getGlobalElement(i) / (nmbPoints_oneDir*nmbPoints_oneDir) + eps)) * h/2;
+            if ((*this->pointsUni_)[i][2]<eps && (*this->pointsUni_)[i][2]>-eps) (*this->pointsUni_)[i][2]=0.0;
+
+            if ((*this->pointsUni_)[i][0] > (coorRec[0]+length-eps) 	|| (*this->pointsUni_)[i][0] < (coorRec[0]+eps) ||
+                (*this->pointsUni_)[i][1] > (coorRec[1]+width-eps) 	|| (*this->pointsUni_)[i][1] < (coorRec[1]+eps) ||
+                (*this->pointsUni_)[i][2] > (coorRec[2]+height-eps) 	|| (*this->pointsUni_)[i][2] < (coorRec[2]+eps) ) {
+                (*this->bcFlagUni_)[i] = 1;
+
+            }*/
+            index = this->mapRepeated_->getLocalElement( this->mapUnique_->getGlobalElement(i) );
+
+            (*this->pointsUni_)[i][0] = (*this->pointsRep_)[index][0];
+            (*this->pointsUni_)[i][1] = (*this->pointsRep_)[index][1];
+            (*this->pointsUni_)[i][2] = (*this->pointsRep_)[index][2];
+            (*this->bcFlagUni_)[i] = (*this->bcFlagRep_)[index];
+        }
+
+        //                Face 1          Face2               Face 3            Face 4
+        //                    2      2 * * 9 * * 3        3 * * 9 * * 2          	3
+        //                  * *      *          *          *          * 		  * *
+        //                *   *      *        *             *        *          *   *
+        //              5	  6      6      7                8      5         8	    7
+        //            *       *      *    *                   *    *        *       *
+        //          *         *      *  *                      *  *       *         *
+        //        1 * * 4 * * 0       0                         1       1 * * 4 * * 0
+
+
+        int    P2M = 2*(M+1)-1;
+
+        counter = 0;
+        for (int t=0; t < M; t++) {
+            for (int s=0; s < M; s++) {
+                for (int r=0; r < M; r++) {
+
+                    (*elementsVec)[counter][0] = 2*(r+1)	+ 2*P2M * (s) 	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][1] = 2*(r) 	+ 2*P2M * (s) 	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][2] = 2*(r+1)	+ 2*P2M * (s) 	+ 2*P2M*P2M * (t+1) ;
+                    (*elementsVec)[counter][3] = 2*(r+1)	+ 2*P2M * (s+1)	+ 2*P2M*P2M * (t+1) ;
+
+                    (*elementsVec)[counter][4] = 2*(r) +1	+ 2*P2M * (s)		+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][6] = 2*(r+1)		+ 2*P2M * (s)		+ 2*P2M*P2M * (t) +P2M*P2M;
+                    (*elementsVec)[counter][7] = 2*(r+1)		+ 2*P2M * (s) +P2M 	+ 2*P2M*P2M * (t) +P2M*P2M;
+                    (*elementsVec)[counter][5] = 2*(r) +1	+ 2*P2M * (s) 		+ 2*P2M*P2M * (t) +P2M*P2M;
+                    (*elementsVec)[counter][8] = 2*(r) +1	+ 2*P2M * (s) +P2M 	+ 2*P2M*P2M * (t) +P2M*P2M;
+                    (*elementsVec)[counter][9] = 2*(r+1)		+ 2*P2M * (s) +P2M	+ 2*P2M*P2M * (t+1);
+
+                    counter++;
+
+                    (*elementsVec)[counter][0] = 2*(r) 	+ 2*P2M * (s)	+ 2*P2M*P2M * (t+1) ;
+                    (*elementsVec)[counter][1] = 2*(r) 	+ 2*P2M * (s)	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][2] = 2*(r+1)	+ 2*P2M * (s)	+ 2*P2M*P2M * (t+1) ;
+                    (*elementsVec)[counter][3] = 2*(r+1)	+ 2*P2M * (s+1)	+ 2*P2M*P2M * (t+1) ;
+
+                    (*elementsVec)[counter][4] = 2*(r) 		+ 2*P2M * (s) 		+ 2*P2M*P2M * (t) +P2M*P2M ;
+                    (*elementsVec)[counter][6] = 2*(r) +1	+ 2*P2M * (s) 		+ 2*P2M*P2M * (t+1) ;
+                    (*elementsVec)[counter][7] = 2*(r) +1	+ 2*P2M * (s)+P2M	+ 2*P2M*P2M * (t+1) ;
+                    (*elementsVec)[counter][5] = 2*(r) +1	+ 2*P2M * (s) 		+ 2*P2M*P2M * (t) +P2M*P2M ;
+                    (*elementsVec)[counter][8] = 2*(r) +1	+ 2*P2M * (s)+P2M 	+ 2*P2M*P2M * (t) +P2M*P2M ;
+                    (*elementsVec)[counter][9] = 2*(r+1)		+ 2*P2M * (s)+P2M 	+ 2*P2M*P2M * (t+1);
+
+                    counter++;
+
+                    (*elementsVec)[counter][0] = 2*(r+1)	+ 2*P2M * (s)	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][1] = 2*(r)	+ 2*P2M * (s)	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][2] = 2*(r+1)	+ 2*P2M * (s+1)	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][3] = 2*(r+1)	+ 2*P2M * (s+1)	+ 2*P2M*P2M * (t+1) ;
+
+                    (*elementsVec)[counter][4] = 2*(r) +1	+ 2*P2M * (s)		+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][6] = 2*(r+1)		+ 2*P2M * (s)+P2M	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][7] = 2*(r+1)		+ 2*P2M * (s)+P2M	+ 2*P2M*P2M * (t) +P2M*P2M ;
+                    (*elementsVec)[counter][5] = 2*(r) +1	+ 2*P2M * (s)+P2M	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][8] = 2*(r) +1	+ 2*P2M * (s)+P2M	+ 2*P2M*P2M * (t) +P2M*P2M ;
+                    (*elementsVec)[counter][9] = 2*(r+1)		+ 2*P2M * (s+1)		+ 2*P2M*P2M * (t) +P2M*P2M ;
+
+                    counter++;
+
+                    (*elementsVec)[counter][0] = 2*(r)	+ 2*P2M * (s)	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][1] = 2*(r)	+ 2*P2M * (s+1)	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][2] = 2*(r+1)	+ 2*P2M * (s+1)	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][3] = 2*(r+1)	+ 2*P2M * (s+1)	+ 2*P2M*P2M * (t+1) ;
+
+                    (*elementsVec)[counter][4] = 2*(r) 		+ 2*P2M * (s) +P2M	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][6] = 2*(r) +1	+ 2*P2M * (s) +P2M	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][7] = 2*(r) +1	+ 2*P2M * (s) +P2M	+ 2*P2M*P2M * (t) +P2M*P2M ;
+                    (*elementsVec)[counter][5] = 2*(r) +1	+ 2*P2M * (s+1)		+ 2*P2M*P2M * (t);
+                    (*elementsVec)[counter][8] = 2*(r) +1	+ 2*P2M * (s+1)		+ 2*P2M*P2M * (t) +P2M*P2M ;
+                    (*elementsVec)[counter][9] = 2*(r+1)		+ 2*P2M * (s+1)		+ 2*P2M*P2M * (t) +P2M*P2M ;
+
+                    counter++;
+
+                    (*elementsVec)[counter][0] = 2*(r)	+ 2*P2M * (s)	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][1] = 2*(r)	+ 2*P2M * (s+1)	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][2] = 2*(r)	+ 2*P2M * (s+1)	+ 2*P2M*P2M * (t+1) ;
+                    (*elementsVec)[counter][3] = 2*(r+1)	+ 2*P2M * (s+1)	+ 2*P2M*P2M * (t+1) ;
+
+                    (*elementsVec)[counter][4] = 2*(r)		+ 2*P2M * (s) +P2M	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][6] = 2*(r)		+ 2*P2M * (s) +P2M	+ 2*P2M*P2M * (t) +P2M*P2M ;
+                    (*elementsVec)[counter][7] = 2*(r) +1	+ 2*P2M * (s) +P2M	+ 2*P2M*P2M * (t) +P2M*P2M ;
+                    (*elementsVec)[counter][5] = 2*(r)		+ 2*P2M*(s+1) 		+ 2*P2M*P2M * (t) +P2M*P2M ;
+                    (*elementsVec)[counter][8] = 2*(r) +1	+ 2*P2M*(s+1) 		+ 2*P2M*P2M * (t) +P2M*P2M ;
+                    (*elementsVec)[counter][9] = 2*(r) +1 	+ 2*P2M*(s+1) 		+ 2*P2M*P2M * (t+1) ;
+
+                    counter++;
+
+                    (*elementsVec)[counter][0] = 2*(r)	+ 2*P2M * (s)	+ 2*P2M*P2M * (t) ;
+                    (*elementsVec)[counter][1] = 2*(r)	+ 2*P2M * (s)	+ 2*P2M*P2M * (t+1) ;
+                    (*elementsVec)[counter][2] = 2*(r)	+ 2*P2M * (s+1)	+ 2*P2M*P2M * (t+1) ;
+                    (*elementsVec)[counter][3] = 2*(r+1)	+ 2*P2M * (s+1)	+ 2*P2M*P2M * (t+1) ;
+
+                    (*elementsVec)[counter][4] = 2*(r)		+ 2*P2M * (s)		+ 2*P2M*P2M * (t) +P2M*P2M ;
+                    (*elementsVec)[counter][6] = 2*(r)		+ 2*P2M * (s) +P2M	+ 2*P2M*P2M * (t) +P2M*P2M ;
+                    (*elementsVec)[counter][7] = 2*(r) +1	+ 2*P2M * (s) +P2M	+ 2*P2M*P2M * (t) +P2M*P2M ;
+                    (*elementsVec)[counter][5] = 2*(r) 		+ 2*P2M * (s) +P2M	+ 2*P2M*P2M * (t+1) ;
+                    (*elementsVec)[counter][8] = 2*(r) +1 	+ 2*P2M * (s) +P2M	+ 2*P2M*P2M * (t+1) ;
+                    (*elementsVec)[counter][9] = 2*(r) +1	+ 2*P2M*(s+1)		+ 2*P2M*P2M * (t+1) ;
+
+                    counter++;
+
+                }
+            }
+        }
+        buildElementsClass(elementsVec, elementFlag);
+    }
+    else if(FEType == "P1-disc" || FEType == "P1-disc-global")
+        buildP1_Disc_Q2_3DCube( N, MM, numProcsCoarseSolve, underlyingLib );
+    else if(FEType == "Q1"){
+        build3DQ1Cube( N, M, numProcsCoarseSolve, underlyingLib );
+    }
+    else if(FEType == "Q2"){
+        build3DQ2Cube( N, MM, numProcsCoarseSolve, underlyingLib );
+    }
+    else if(FEType == "Q2-20"){
+        build3DQ2_20Cube( N, MM, numProcsCoarseSolve, underlyingLib );
+    }
+
+    if (verbose) {
+        cout << " .... done! " << endl;
+    }
+
+};
 template <class SC, class LO, class GO, class NO>
 void MeshStructured<SC,LO,GO,NO>::buildMesh3D(std::string FEType,
                                                  int N,
@@ -3400,6 +3847,76 @@ void MeshStructured<SC,LO,GO,NO>::setStructuredMeshFlags(int flagsOption,string 
                             this->pointsRep_->at(i).at(2) < (coorRec[2] + tol)  )
                             this->bcFlagRep_->at(i) = 0;
 
+                    }
+                    break;
+                case 4: // tube flow through z-direction
+                    for (int i=0; i<this->pointsUni_->size(); i++) {
+                        
+                        //bottom
+                        if (this->pointsUni_->at(i).at(0) > (coorRec[0] + tol) &&
+                            this->pointsUni_->at(i).at(2) < (coorRec[2] + tol) ) {
+                            this->bcFlagUni_->at(i) = 4;
+                        }
+                        //top
+                        if (this->pointsUni_->at(i).at(0) > (coorRec[0] + tol) &&
+                            this->pointsUni_->at(i).at(2) > (coorRec[2] + height - tol) ) {
+                            this->bcFlagUni_->at(i) = 5;
+                        }
+                        if (this->pointsUni_->at(i).at(0) < (coorRec[0] + tol) ) {
+                            this->bcFlagUni_->at(i) = 6;
+                        }
+                        //front
+                        if (this->pointsUni_->at(i).at(0) > (coorRec[0] + tol) &&
+                            this->pointsUni_->at(i).at(1) < (coorRec[1] + tol) ) {
+                            this->bcFlagUni_->at(i) = 6;
+                        }
+                        //back
+                        if (this->pointsUni_->at(i).at(0) > (coorRec[0] + tol) &&
+                            this->pointsUni_->at(i).at(1) > (coorRec[1] + width - tol) ) {
+                            this->bcFlagUni_->at(i) = 6;
+                        }
+                        //out
+                        if (this->pointsUni_->at(i).at(0) > (coorRec[0] + length - tol) &&
+                            this->pointsUni_->at(i).at(1) > (coorRec[1] + tol) &&
+                            this->pointsUni_->at(i).at(1) < (coorRec[1] + width - tol)&&
+                            this->pointsUni_->at(i).at(2) > (coorRec[2] - tol) &&
+                            this->pointsUni_->at(i).at(2) < (coorRec[2] + height + tol)) {
+                            this->bcFlagUni_->at(i) = 6;
+                        }
+                    }
+                    for (int i=0; i<this->pointsUni_->size(); i++) {
+                       
+                        //bottom
+                        if (this->pointsRep_->at(i).at(0) > (coorRec[0] + tol) &&
+                            this->pointsRep_->at(i).at(2) < (coorRec[2] + tol) ) {
+                            this->bcFlagRep_->at(i) = 4;
+                        }
+                        //top
+                        if (this->pointsRep_->at(i).at(0) > (coorRec[0] + tol) &&
+                            this->pointsRep_->at(i).at(2) > (coorRec[2] + height - tol) ) {
+                            this->bcFlagRep_->at(i) = 5;
+                        }
+                        if (this->pointsRep_->at(i).at(0) < (coorRec[0] + tol) ) {
+                            this->bcFlagRep_->at(i) = 6;
+                        }
+                        //front
+                        if (this->pointsRep_->at(i).at(0) > (coorRec[0] + tol) &&
+                            this->pointsRep_->at(i).at(1) < (coorRec[1] + tol) ) {
+                            this->bcFlagRep_->at(i) = 6;
+                        }
+                        //back
+                        if (this->pointsRep_->at(i).at(0) >= (coorRec[0] + tol) &&
+                            this->pointsRep_->at(i).at(1) > (coorRec[1] + width - tol) ) {
+                            this->bcFlagRep_->at(i) = 6;
+                        }
+                        //out
+                        if (this->pointsRep_->at(i).at(0) > (coorRec[0] + length - tol) &&
+                            this->pointsRep_->at(i).at(1) > (coorRec[1] + tol) &&
+                            this->pointsRep_->at(i).at(1) < (coorRec[1] + width - tol)&&
+                            this->pointsRep_->at(i).at(2) > (coorRec[2] - tol) &&
+                            this->pointsRep_->at(i).at(2) < (coorRec[2] + height + tol)) {
+                            this->bcFlagRep_->at(i) = 6;
+                        }
                     }
                     break;
                 default:

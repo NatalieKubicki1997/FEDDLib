@@ -118,6 +118,13 @@ public:
                         int numProcsCoarseSolve=0,
                         std::string underlyingLib="Tpetra");
     
+    void buildMesh3DTube(std::string FEType, 
+                         int N, 
+                         int M, 
+                         int numProcsCoarseSolve=0, 
+                         std::string underlyingLib="Tpetra");
+
+
     /// @brief Building general 3D backward facing step with length, width and height as defines by 'setGeometry3DBox' with Q2-P1 discontinous discretization
     /// @param N Number of subdomains
     /// @param M H/h with H subdomain diameter (length/H) and h characteristic mesh size (length/(M*N))

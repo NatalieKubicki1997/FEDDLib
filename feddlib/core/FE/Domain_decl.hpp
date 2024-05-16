@@ -560,6 +560,10 @@ public:
    /// @param name export suffix to identify flags
    void exportElementOrientation(string name = "default");
 
+   /// @brief Exporting Paraview file displaying element processor number
+   /// @param name
+   void exportProcessor(string name  = "default");
+
    /* ----------------------------------------------------------------------------------------*/
 
    private:
@@ -602,8 +606,7 @@ public:
    int numProcsCoarseSolve_;
    int flagsOption_;
 
-    };
-   
+};
 }
 
 #endif

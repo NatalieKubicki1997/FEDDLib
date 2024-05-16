@@ -133,6 +133,7 @@ partialGlobalInterfaceVecFieldMap_()
     geometries3DVec_->push_back("Square"); // for 3D this is synonymous to Cube with 6-Element subcube structure
     geometries3DVec_->push_back("BFS"); // Backward-facing step geometry
     geometries3DVec_->push_back("Square5Element"); // this is a cube with different 5-Element per subcube structure
+    geometries3DVec_->push_back("Tube"); // this is a cube with different 5-Element per subcube structure
 
 
 }
@@ -262,6 +263,9 @@ void Domain<SC,LO,GO,NO>::buildMesh(int flagsOption , std::string meshType, int 
                 case 2:
                     meshStructured->setGeometry3DBox(coorRec, length, width, height);
                     meshStructured->buildMesh3D5Elements(	FEType, n_, m_, numProcsCoarseSolve);
+                case 3:
+                    meshStructured->setGeometry3DBox(coorRec, length, width, height);
+                    meshStructured->buildMesh3DTube(FEType, n_, m_, numProcsCoarseSolve);
                 break;
                 default:
                     TEUCHOS_TEST_FOR_EXCEPTION(true,std::runtime_error,"Select valid mesh. Structured types are 'structured' and 'structured_bfs' in 3D." );
@@ -1141,7 +1145,33 @@ void Domain<SC, LO, GO, NO>::exportElementFlags(string name)
 
         exPara->closeExporter();
 
-}   
+}  
+
+template <class SC, class LO, class GO, class NO>
+void Domain<SC, LO, GO, NO>::exportProcessor(string name)
+{
+        Teuchos::RCP<ExporterParaView<SC,LO,GO,NO> > exPara(new ExporterParaView<SC,LO,GO,NO>());
+
+        Teuchos::RCP<MultiVector<SC,LO,GO,NO> > exportSolution(new MultiVector<SC,LO,GO,NO>(this->getElementMap()));
+
+        Teuchos::ArrayRCP< SC > entries  = exportSolution->getDataNonConst(0);
+        ElementsPtr_Type elements = this->getElementsC(); // element list
+
+        for(int i=0; i< entries.size(); i++){
+            entries[i] = this->getComm()->getRank(); // element flags
+        }
+
+        Teuchos::RCP<const MultiVector<SC,LO,GO,NO> > exportSolutionConst = exportSolution;
+
+        exPara->setup("Mesh_Procs_"+name,this->getMesh(), "P0");
+
+        exPara->addVariable(exportSolutionConst, "Processor", "Scalar", 1,this->getElementMap(), this->getElementMap());
+
+        exPara->save(0.0);
+
+        exPara->closeExporter();
+
+}  
     
 }
 #endif
