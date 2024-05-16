@@ -300,8 +300,14 @@ int main(int argc, char *argv[])
         MPI_Finalize();
         return 0;
     }
+    Teuchos::RCP<Teuchos::Time> totalTime(Teuchos::TimeMonitor::getNewCounter("Main: Total Time = Build Mesh + Solve + Visualization (if on)"));
+
     // Einlesen von Parameterwerten
     {
+        Teuchos::TimeMonitor totalTimeMonitor(*totalTime);
+
+
+
         ParameterListPtr_Type parameterListProblem = Teuchos::getParametersFromXmlFile(xmlProblemFile);
 
         ParameterListPtr_Type parameterListPrec = Teuchos::getParametersFromXmlFile(xmlPrecFile);
@@ -346,12 +352,18 @@ int main(int argc, char *argv[])
 
         int numProcsCoarseSolve = parameterListProblem->sublist("General").get("Mpi Ranks Coarse",0);
         int size = comm->getSize() - numProcsCoarseSolve;
-
+        Teuchos::RCP<Teuchos::Time> buildMesh(Teuchos::TimeMonitor::getNewCounter("main: Build Mesh = Construction of structured Mesh"));
+        Teuchos::RCP<Teuchos::Time> solveTime(Teuchos::TimeMonitor::getNewCounter("main: Solve problem time = assembly + Solve"));
+        
         {
+
+
             DomainPtr_Type domainPressure;
             DomainPtr_Type domainVelocity;
                               
            if (!meshType.compare("structured_bfs")) {
+                Teuchos::TimeMonitor buildMeshMonitor(*buildMesh);
+
                 TEUCHOS_TEST_FOR_EXCEPTION( size%minNumberSubdomains != 0 , std::logic_error, "Wrong number of processors for structured BFS mesh.");
                 if (dim == 2) {
                     n = (int) (std::pow( size/minNumberSubdomains ,1/2.) + 100*Teuchos::ScalarTraits<double>::eps()); // 1/H
@@ -451,6 +463,7 @@ int main(int argc, char *argv[])
             NavierStokesAssFE<SC, LO, GO, NO> navierStokesAssFE(domainVelocity, discVelocity, domainPressure, discPressure, parameterListAll);
 
             {
+                Teuchos::TimeMonitor solveTimeMonitor(*solveTime);
                 MAIN_TIMER_START(NavierStokesAssFE, " AssFE:   Assemble System and solve");
                 navierStokesAssFE.addBoundaries(bcFactory);
                 navierStokesAssFE.initializeProblem();
@@ -522,6 +535,8 @@ int main(int argc, char *argv[])
         
             //****************************************************************************************
             //          **********************  POST-PROCESSING - WRITE OUT VELOCITY AND PRESSURE ***********************************
+            if ( parameterListAll->sublist("General").get("ParaViewExport",false) ) {
+              
             Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaVelocity(new ExporterParaView<SC, LO, GO, NO>());
             Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaPressure(new ExporterParaView<SC, LO, GO, NO>());
 
@@ -539,7 +554,7 @@ int main(int argc, char *argv[])
 
             exParaVelocity->save(0.0);
             exParaPressure->save(0.0);
-
+            }
          
         
     }
