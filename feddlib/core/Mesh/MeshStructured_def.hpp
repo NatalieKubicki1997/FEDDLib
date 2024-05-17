@@ -664,8 +664,8 @@ void MeshStructured<SC,LO,GO,NO>::buildMesh3DTube(std::string FEType,
 
     // Number of Cubes per multiplier set
     int nmbSubdomainsSquares = size / cube_multiplier; //cout << " nmbSubdomainsSquares " << nmbSubdomainsSquares << endl;
-    if( std::floor(std::pow(nmbSubdomainsSquares,1./3.)) + 1.e-13 < (std::pow(nmbSubdomainsSquares,1./3.) ))
-        TEUCHOS_TEST_FOR_EXCEPTION(true , std::logic_error, " The number of processors per sub cube are not cubic");
+    if( std::floor(std::pow(nmbSubdomainsSquares + 1e-10,1./3.)) + 1.e-10 < (std::pow(nmbSubdomainsSquares,1./3.) ) -  1.e-10)
+        TEUCHOS_TEST_FOR_EXCEPTION(true , std::logic_error, " The number of processors per sub cube are not cubic. Number of subdomains per set: " <<  nmbSubdomainsSquares << " third root: " << std::pow(nmbSubdomainsSquares,1./3.) << " " << std::floor(std::pow(nmbSubdomainsSquares,1./3.)));
 
     int nmbSubdomainsSquares_OneDir = (std::pow(nmbSubdomainsSquares,1./3.) + 100*eps); //cout << " nmbSubdomainsSquares_OneDir " << nmbSubdomainsSquares_OneDir << endl; // same as N
     // A channel is devided in z-direction in the number of cube_multiplier cube, where on cube corresponds to a subdomain.

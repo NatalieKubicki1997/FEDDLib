@@ -132,11 +132,10 @@ void parabolicInflow3DArteryHeartBeat(double* x, double* res, double t, const do
 {
     // parameters[0] is the maxium desired velocity
     // parameters[1] end of ramp
-    // parameters[3] is the maxium solution value of the laplacian parabolic inflow problme
-    // parameters[2] heart beat start
+    // parameters[2] is the maxium solution value of the laplacian parabolic inflow problme
+    // parameters[3] heart beat start
     // we use x[0] for the laplace solution in the considered point. Therefore, point coordinates are missing
     double heartBeatStart = parameters[3];
-
     if(t < parameters[1])
     {
         res[0] = 0.;
@@ -157,7 +156,7 @@ void parabolicInflow3DArteryHeartBeat(double* x, double* res, double t, const do
         double Q = 0.5*a0;
         
 
-        double t_min = t - fmod(t,1.0)+heartBeatStart-std::floor(t); ; //FlowConditions::t_start_unsteady;
+        double t_min = t - fmod(t,1.0)+heartBeatStart-std::floor(t)+0.25; ; //FlowConditions::t_start_unsteady;
         double t_max = t_min + 1.0; // One heartbeat lasts 1.0 second    
         double y = M_PI * ( 2.0*( t-t_min ) / ( t_max - t_min ) -1.0)  ;
         
@@ -170,8 +169,8 @@ void parabolicInflow3DArteryHeartBeat(double* x, double* res, double t, const do
         Q = (Q - 2.85489)/(7.96908-2.85489);
         double lambda = 1.;
 
-        if( parameters[0]+1.0e-10 < heartBeatStart + 0.5)
-		    lambda = 0.90 + 0.1*cos(2*M_PI*parameters[0]);
+        if( t+1.0e-12 < heartBeatStart + 0.25)
+		    lambda = 0.90 + 0.1*cos(4*M_PI*(t-heartBeatStart));
         else 
     	    lambda= 0.8 + 1.2*Q;
 
@@ -353,8 +352,8 @@ int main(int argc, char *argv[])
                         std::vector<double> x(3);
                         x[0]=0.0;    x[1]=0.0;	x[2]=0.0;
                         // setting length, width and depth in cm. Approximating the realistic geometry with a rectangular channel with similar size. 
-                        domainFluidPressure.reset(new Domain<SC,LO,GO,NO>( x, 0.27, 0.27, 0.81, comm)); // 5 Subcubes 1.35
-                        domainFluidVelocity.reset(new Domain<SC,LO,GO,NO>( x, 0.27, 0.27, 0.81, comm));
+                        domainFluidPressure.reset(new Domain<SC,LO,GO,NO>( x, 0.27, 0.27, 0.54, comm)); // 5 Subcubes 1.35
+                        domainFluidVelocity.reset(new Domain<SC,LO,GO,NO>( x, 0.27, 0.27, 0.54, comm));
                         
                         domainFluidPressure->buildMesh( 4,"Tube", dim, feTypeP, n, m, numProcsCoarseSolve);
                         domainFluidVelocity->buildMesh( 4,"Tube", dim, feTypeV, n, m, numProcsCoarseSolve);
@@ -375,7 +374,7 @@ int main(int argc, char *argv[])
                         }
                         MeshPartitioner<SC,LO,GO,NO> partitionerP1 ( domainP1Array, pListPartitioner, "P1", dim );
                         
-                        partitionerP1.readAndPartition(15, "mm",false);
+                        partitionerP1.readAndPartition(15, "mm",true);
                         
                         if (!feTypeV.compare("P2")){
                             domainP2fluid->buildP2ofP1Domain( domainP1fluid );
