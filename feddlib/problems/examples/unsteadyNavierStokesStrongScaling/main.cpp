@@ -394,8 +394,11 @@ int main(int argc, char *argv[])
                     }
                 }
             }
-            domainFluidVelocity->exportNodeFlags("Fluid");
-         
+            //domainFluidPressure->setUnstructuredMesh(domainFluidPressure->getMesh());
+            //domainFluidPressure->exportMesh(" ");
+            //domainFluidVelocity->exportNodeFlags("Fluid");
+            //domainFluidVelocity->exportProcessor("Fluid");
+
                      
             std::vector<double> parameter_vec(1, parameterListProblem->sublist("Parameter").get("Max Velocity",1.));
             parameter_vec.push_back( parameterListProblem->sublist("Parameter").get("Max Ramp Time",0.1) );
@@ -446,7 +449,7 @@ int main(int argc, char *argv[])
 
 
 
-                Teuchos::RCP<ExporterParaView<SC,LO,GO,NO> > exPara(new ExporterParaView<SC,LO,GO,NO>());
+                /*Teuchos::RCP<ExporterParaView<SC,LO,GO,NO> > exPara(new ExporterParaView<SC,LO,GO,NO>());
                 
                 exPara->setup("parabolicInflow", domainFluidVelocity->getMesh(), feTypeV);
                 
@@ -454,7 +457,7 @@ int main(int argc, char *argv[])
                 exPara->addVariable( valuesConst, "values", "Scalar", 1, domainFluidVelocity->getMapUnique() );
 
                 exPara->save(0.0);
-                exPara->closeExporter();
+                exPara->closeExporter();*/
 
             }
             parameter_vec.push_back( parameterListProblem->sublist("Parameter").get("Heart Beat Start",0.2) ); // Adding the heart beat start last
@@ -479,7 +482,6 @@ int main(int argc, char *argv[])
             }
             domainFluidVelocity->exportNodeFlags("Fluid");
 
-            domainFluidVelocity->exportProcessor("Fluid");
 
             int timeDisc = parameterListProblem->sublist("Timestepping Parameter").get("Butcher table",0);
 

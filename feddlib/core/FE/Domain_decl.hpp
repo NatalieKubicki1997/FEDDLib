@@ -564,6 +564,7 @@ public:
    /// @param name
    void exportProcessor(string name  = "default");
 
+     void setUnstructuredMesh(MeshPtr_Type mesh);
    /* ----------------------------------------------------------------------------------------*/
 
    private:

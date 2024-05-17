@@ -1371,6 +1371,8 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinearMultistep(){
     //#########
     //time loop
     //#########
+    vec_dbl_Type linearIterations(0);
+    vec_dbl_Type newtonIterations(0);
     while (timeSteppingTool_->continueTimeStepping()) {
 
         // For the first time step we use BDF1
@@ -1443,7 +1445,10 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinearMultistep(){
         if (printData) {
             exporterTimeTxt->exportData( timeSteppingTool_->currentTime() );
             exporterIterations->exportData( (*its)[0] );
+            linearIterations.push_back((*its)[0]);
             exporterNewtonIterations->exportData( (*its)[1] );
+            newtonIterations.push_back((*its)[1]);
+
         }
         if (print) {
             exportTimestep();
@@ -1453,6 +1458,22 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinearMultistep(){
         exporterTimeTxt->closeExporter();
         exporterIterations->closeExporter();
         exporterNewtonIterations->closeExporter();
+
+        double sumLinear=0., sumNewton=0.;
+        for(int i=0; i < linearIterations.size(); i++){
+            sumLinear += linearIterations[i];
+            sumNewton += newtonIterations[i];
+        }
+        sumLinear = sumLinear / linearIterations.size();
+        sumNewton = sumNewton / newtonIterations.size();
+
+        if (verbose_) {
+            cout << " ############################################ "<< endl;
+            cout << " Average linear iteration count over all time steps:  " << sumLinear << endl;
+            cout << " Average Newton iteration count over all time steps:  " << sumNewton << endl;
+            cout << " ############################################ "<< endl;
+        }
+    
     }
     if (print) {
         closeExporter();
