@@ -89,6 +89,14 @@ precFactory_()
     if(!problem->getUnderlyingProblem()->preconditioner_->getPressureProjection().is_null()){
         setPressureProjection(problem->getUnderlyingProblem()->preconditioner_->getPressureProjection());
     }
+    #ifdef FEDD_HAVE_TEKO
+
+    if(!problem->getUnderlyingProblem()->preconditioner_->getVelocityMassMatrix().is_null()){
+        setVelocityMassMatrix(problem->getUnderlyingProblem()->preconditioner_->getVelocityMassMatrix());
+    }
+
+    #endif
+
 }
 
 template <class SC,class LO,class GO,class NO>
@@ -818,7 +826,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
             }
             else{
                 if(verbose)
-                cout << " ## Adding Velocity mass matrix to Teko:: LSC call back function: setRequestHandler() ##" << endl;
+                cout << " ## Adding Velocity mass matrix to Teko:: LSC/SIMPLE call back function: setRequestHandler() ##" << endl;
             }
 
             //  Now depending on the desired block preconditioner from teko we need to add different call back operators to the teko factory.
@@ -829,7 +837,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
             // - 'Pressure Mass Operator'
             // - 'PCD Operator' (which is probably optional)
 
-            if(!tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("LSC")){
+            if(!tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("LSC") || !tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("SIMPLE")){
                 Teko::LinearOp thyraMass = velocityMassMatrix_;
 
                 Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackMass = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "Velocity Mass Matrix", thyraMass ) );
@@ -1393,6 +1401,7 @@ typename Preconditioner<SC,LO,GO,NO>::ThyraLinOpConstPtr_Type Preconditioner<SC,
 template <class SC,class LO,class GO,class NO>
 void Preconditioner<SC,LO,GO,NO>::setVelocityMassMatrix(MatrixPtr_Type massMatrix) const{
     velocityMassMatrix_ = massMatrix->getThyraLinOp();
+    velocityMassMatrixMatrixPtr_ = massMatrix;
 }
 #endif
 

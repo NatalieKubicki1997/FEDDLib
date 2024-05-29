@@ -374,7 +374,7 @@ int main(int argc, char *argv[])
                         }
                         MeshPartitioner<SC,LO,GO,NO> partitionerP1 ( domainP1Array, pListPartitioner, "P1", dim );
                         
-                        partitionerP1.readAndPartition(15, "mm",true);
+                        partitionerP1.readAndPartition(15, "mm",true); // converting mesh from mm unit to cm unit
                         
                         if (!feTypeV.compare("P2")){
                             domainP2fluid->buildP2ofP1Domain( domainP1fluid );
@@ -480,8 +480,6 @@ int main(int argc, char *argv[])
                 
                 
             }
-            domainFluidVelocity->exportNodeFlags("Fluid");
-
 
             int timeDisc = parameterListProblem->sublist("Timestepping Parameter").get("Butcher table",0);
 

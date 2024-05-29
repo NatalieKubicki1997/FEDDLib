@@ -117,6 +117,8 @@ public:
 
     void setVelocityMassMatrix(MatrixPtr_Type massMatrix) const;
 
+    MatrixPtr_Type getVelocityMassMatrix(){return velocityMassMatrixMatrixPtr_;};
+
     void setPressureLaplaceMatrix(MatrixPtr_Type matrix) const;
 
     void setPressureMass(MatrixPtr_Type matrix) const;
@@ -147,6 +149,7 @@ public:
 
     BlockMultiVectorPtr_Type getPressureProjection(){return pressureProjection_;};
 
+
 private:
     ThyraPrecPtr_Type thyraPrec_;
     bool precondtionerIsBuilt_;
@@ -156,6 +159,7 @@ private:
 #ifdef FEDD_HAVE_TEKO
     ThyraLinOpConstPtr_Type tekoLinOp_;
     mutable ThyraLinOpConstPtr_Type velocityMassMatrix_; // LSC
+    mutable MatrixPtr_Type velocityMassMatrixMatrixPtr_;
     mutable ThyraLinOpConstPtr_Type pressureLaplace_; // PCD
     mutable ThyraLinOpConstPtr_Type pressureMass_; // PCD
     mutable ThyraLinOpConstPtr_Type pcdOperator_; // PCD
