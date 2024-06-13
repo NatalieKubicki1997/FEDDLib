@@ -95,6 +95,16 @@ precFactory_()
         setVelocityMassMatrix(problem->getUnderlyingProblem()->preconditioner_->getVelocityMassMatrix());
     }
 
+    if(!problem->getUnderlyingProblem()->preconditioner_->getPressureLaplaceMatrix().is_null()){
+        setPressureLaplaceMatrix(problem->getUnderlyingProblem()->preconditioner_->getPressureLaplaceMatrix());
+    }
+    if(!problem->getUnderlyingProblem()->preconditioner_->getPressureMassMatrix().is_null()){
+        setPressureMass(problem->getUnderlyingProblem()->preconditioner_->getPressureMassMatrix());
+    }
+    if(!problem->getUnderlyingProblem()->preconditioner_->getPCDOperatorMatrix().is_null()){
+        setPCDOperator(problem->getUnderlyingProblem()->preconditioner_->getPCDOperatorMatrix());
+    }
+
     #endif
 
 }
@@ -1074,21 +1084,25 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerFaCSI( std::string type )
 template <class SC,class LO,class GO,class NO>
 void Preconditioner<SC,LO,GO,NO>::setPressureMassMatrix(MatrixPtr_Type massMatrix) const{
     pressureMassMatrix_ = massMatrix;
+
 }
 
 template <class SC,class LO,class GO,class NO>
 void Preconditioner<SC,LO,GO,NO>::setPressureLaplaceMatrix(MatrixPtr_Type matrix) const{
     pressureLaplace_ =matrix->getThyraLinOp();
+    pressureLaplaceMatrixPtr_ = matrix; 
 }
 
 template <class SC,class LO,class GO,class NO>
 void Preconditioner<SC,LO,GO,NO>::setPressureMass(MatrixPtr_Type matrix) const{
     pressureMass_ = matrix->getThyraLinOp();
+    pressureMassMatrixPtr_ = matrix;
 }
 
 template <class SC,class LO,class GO,class NO>
 void Preconditioner<SC,LO,GO,NO>::setPCDOperator(MatrixPtr_Type matrix) const{
     pcdOperator_ = matrix->getThyraLinOp();
+    pcdOperatorMatrixPtr_ = matrix;
 }
 
 

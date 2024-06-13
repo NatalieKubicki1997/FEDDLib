@@ -376,6 +376,8 @@ int main(int argc, char *argv[])
                         
                         partitionerP1.readAndPartition(15, "mm",true); // converting mesh from mm unit to cm unit
                         
+                        domainP1fluid->exportElementFlags("Fluid");
+
                         if (!feTypeV.compare("P2")){
                             domainP2fluid->buildP2ofP1Domain( domainP1fluid );
                         }
@@ -396,7 +398,6 @@ int main(int argc, char *argv[])
             }
             //domainFluidPressure->setUnstructuredMesh(domainFluidPressure->getMesh());
             //domainFluidPressure->exportMesh(" ");
-            //domainFluidVelocity->exportNodeFlags("Fluid");
             //domainFluidVelocity->exportProcessor("Fluid");
 
                      

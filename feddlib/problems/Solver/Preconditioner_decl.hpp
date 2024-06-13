@@ -116,14 +116,16 @@ public:
     ThyraLinOpConstPtr_Type getTekoOp();
 
     void setVelocityMassMatrix(MatrixPtr_Type massMatrix) const;
-
     MatrixPtr_Type getVelocityMassMatrix(){return velocityMassMatrixMatrixPtr_;};
 
     void setPressureLaplaceMatrix(MatrixPtr_Type matrix) const;
+    MatrixPtr_Type getPressureLaplaceMatrix(){return pressureLaplaceMatrixPtr_;};
 
     void setPressureMass(MatrixPtr_Type matrix) const;
+    MatrixPtr_Type getPressureMassMatrix(){return pressureMassMatrixPtr_;};
 
     void setPCDOperator(MatrixPtr_Type matrix) const;
+    MatrixPtr_Type getPCDOperatorMatrix(){return pcdOperatorMatrixPtr_;};
 
 #endif
 
@@ -161,6 +163,11 @@ private:
     mutable ThyraLinOpConstPtr_Type velocityMassMatrix_; // LSC
     mutable MatrixPtr_Type velocityMassMatrixMatrixPtr_;
     mutable ThyraLinOpConstPtr_Type pressureLaplace_; // PCD
+    mutable MatrixPtr_Type pressureLaplaceMatrixPtr_; // PCD
+
+    mutable MatrixPtr_Type pressureMassMatrixPtr_; // PCD
+    mutable MatrixPtr_Type pcdOperatorMatrixPtr_; // PCD
+
     mutable ThyraLinOpConstPtr_Type pressureMass_; // PCD
     mutable ThyraLinOpConstPtr_Type pcdOperator_; // PCD
 #endif

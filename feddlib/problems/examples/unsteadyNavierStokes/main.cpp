@@ -92,9 +92,19 @@ void inflowParabolic2DSin(double* x, double* res, double t, const double* parame
 void inflowParabolic3D(double* x, double* res, double t, const double* parameters){
 
     double H = parameters[1];
-    res[0] = 16*parameters[0]*x[1]*(H-x[1])*x[2]*(H-x[2])/(H*H*H*H);
-    res[1] = 0.;
-    res[2] = 0.;
+
+    if(t < parameters[2]){
+        res[0] = 16*parameters[0]*x[1]*(H-x[1])*x[2]*(H-x[2])/(H*H*H*H)* 0.5 *( 1 - cos( M_PI*t/parameters[2]) );
+        res[1] = 0.;
+        res[2] = 0.;
+    }
+    else{
+        res[0] = 16*parameters[0]*x[1]*(H-x[1])*x[2]*(H-x[2])/(H*H*H*H);
+        res[1] = 0.;
+        res[2] = 0.;
+
+    }
+    
 
     return;
 }
@@ -397,6 +407,9 @@ int main(int argc, char *argv[]) {
                 parameter_vec.push_back(.4);
             else
                 TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Select a valid boundary condition.");
+
+            parameter_vec.push_back( parameterListProblem->sublist("Parameter").get("Max Ramp Time",0.1) );
+
 
             if (!bcType.compare("parabolic") || !bcType.compare("parabolic_benchmark")) {//flag of obstacle
                 if (dim==2){

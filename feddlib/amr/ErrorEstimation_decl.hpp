@@ -111,6 +111,8 @@ public:
 
 	void setErrorEstimate(MultiVectorPtr_Type errorElements) { errorEstimation_ = errorElements;};	
 
+    void writeMeshQuality(MeshUnstrPtr_Type inputMesh);
+
 	MultiVectorPtr_Type getErrorEstimate() { return errorEstimation_ ; };	
 
 	void tagArea(MeshUnstrPtr_Type meshUnstr,vec2D_dbl_Type area);
