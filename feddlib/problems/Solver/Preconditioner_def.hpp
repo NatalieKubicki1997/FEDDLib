@@ -89,6 +89,7 @@ precFactory_()
     if(!problem->getUnderlyingProblem()->preconditioner_->getPressureProjection().is_null()){
         setPressureProjection(problem->getUnderlyingProblem()->preconditioner_->getPressureProjection());
     }
+    
     #ifdef FEDD_HAVE_TEKO
 
     if(!problem->getUnderlyingProblem()->preconditioner_->getVelocityMassMatrix().is_null()){
