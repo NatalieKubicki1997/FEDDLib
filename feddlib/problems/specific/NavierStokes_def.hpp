@@ -161,7 +161,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
 
    // In case of a monolithic preconditioner and a P2-P1 discretization we have the option to correct the pressure to have mean value = 0. This way, generally, we can improve scalabilty and results. 
     // The real correction is then done via projection in the Overlapping Operator of FROSch,here we only assemble a as \int p dx . a is assembled as a column vector but in the Dissertation of C. Hochmuth defined as row.
-    if(this->parameterList_->sublist("Parameter").get("Use Pressure Correction",false) && !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Monolithic")){ 
+    if(this->parameterList_->sublist("Parameter").get("Use Pressure Correction",false) && !this->getFEType(0).compare("P2") && !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Monolithic")){ 
         // Projection vector a: \int p dx, for pressure component and 0 for velocity.
         BlockMultiVectorPtr_Type projection(new BlockMultiVector_Type (2));
 
