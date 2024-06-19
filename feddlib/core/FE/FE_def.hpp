@@ -2228,7 +2228,6 @@ void FE<SC,LO,GO,NO>::assemblyMass(int dim,
     vec_dbl_ptr_Type weights = Teuchos::rcp(new vec_dbl_Type(0));
 
     UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std);
-
     Helper::getPhi( phi, weights, dim, FEType, deg );
 
     SC detB;
@@ -2240,7 +2239,7 @@ void FE<SC,LO,GO,NO>::assemblyMass(int dim,
 
     for (UN T=0; T<elements->numberElements(); T++) {
 
-        Helper::buildTransformation(elements->getElement(T).getVectorNodeList(), pointsRep, B);
+        Helper::buildTransformation(elements->getElement(T).getVectorNodeList(), pointsRep, B, FEType);
         detB = B.computeDet( );
         absDetB = std::fabs(detB);
 
@@ -2305,7 +2304,7 @@ void FE<SC,LO,GO,NO>::assemblyMass(int dim,
     vec_dbl_ptr_Type	weights = Teuchos::rcp(new vec_dbl_Type(0));
 
     UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std);
-
+    cout << " Degree " << deg << endl;
     Helper::getPhi( phi, weights, dim, FEType, deg );
 
     SC detB;
@@ -2334,6 +2333,7 @@ void FE<SC,LO,GO,NO>::assemblyMass(int dim,
                 }
 
             }
+            cout << " Value " << value[0] << endl;
             if (!fieldType.compare("Scalar")) {
                 GO row = map->getGlobalElement( elements->getElement(T).getNode(i) );
                 A->insertGlobalValues( row, indices(), value() );
