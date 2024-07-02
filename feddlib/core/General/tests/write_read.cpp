@@ -146,11 +146,11 @@ int main(int argc, char *argv[]) {
 
         // ----------------------
         // Exporting as HDF5 Type
-        aUniqueConst->print();
+        //aUniqueConst->print();
         HDF5Export<SC,LO,GO,NO> exporter(domain->getMapUnique(), aUniqueConst, dim, "exportVector");
-        //exporter.writeVariablesHDF5("Test");
+        exporter.writeVariablesHDF5("Test");
 
-        HDF5Import<SC,LO,GO,NO> importer(domain->getMapUnique(),"exportVector");
+        HDF5Import<SC,LO,GO,NO> importer(domain->getMapUnique(),"exportVector_5");
         MultiVectorPtr_Type aImported = importer.readVariablesHDF5("Test");
         //aImported->print();
         
