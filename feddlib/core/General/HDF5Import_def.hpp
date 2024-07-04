@@ -40,8 +40,8 @@ commEpetra_()
     hdf5exporter_.reset( new HDF5_Type(*commEpetra_) );
     //hdf5exporter_->Create(outputFilename_);
   
-    hdf5exporter_->Open(inputFilename+".h5");
-
+    inputFilename_ = inputFilename;
+    hdf5exporter_->Open(inputFilename_+".h5");
 
     u_import_mv_.reset(new MultiVector_Type(readMap)); // ParaView always uses 3D Data. for 2D Data the last entries (for the 3rd Dim) are all zero.
 
@@ -50,7 +50,7 @@ commEpetra_()
 
 template<class SC,class LO,class GO,class NO>
 typename HDF5Import<SC, LO, GO, NO>::MultiVectorPtr_Type HDF5Import<SC,LO,GO,NO>::readVariablesHDF5(string varName){
-    TEUCHOS_TEST_FOR_EXCEPTION( !hdf5exporter_->IsContained(varName), std::logic_error, "Requested varName: " << varName << " not contained in hdf file.");
+    TEUCHOS_TEST_FOR_EXCEPTION( !hdf5exporter_->IsContained(varName), std::logic_error, "Requested varName: " << varName << " not contained in hdf file "<< inputFilename_ << ".h5.");
     hdf5exporter_->Read(varName,*readMap_,u_import_);
     for (int i=0; i<u_import_mv_->getLocalLength(); i++) {
         Teuchos::ArrayRCP<SC> tmpData = u_import_mv_->getDataNonConst(0);

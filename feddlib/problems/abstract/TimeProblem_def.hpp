@@ -560,16 +560,46 @@ int TimeProblem<SC,LO,GO,NO>::solve( BlockMultiVectorPtr_Type rhs ){
     return its;
 }
 
+// For a restart we also need to update the previous solutions. 
+// We saved all previous solutions.
+// Here we update the solution from the previous step with the current solution
 template<class SC,class LO,class GO,class NO>
 void TimeProblem<SC,LO,GO,NO>::updateSolutionPreviousStep(){
 
-    if (solutionPreviousTimesteps_.size()==0)
+    if (solutionPreviousTimesteps_.size()==0) // the case where this is not initialized
+    {   
         solutionPreviousTimesteps_.resize(1);
+        bool restart = parameterList_->sublist("Timestepping Parameter").get("Restart",false);
+        if(restart)
+        {
+            std::string fileName = parameterList_->sublist("Timestepping Parameter").get("File name import", "solution");
+            double timeStep = parameterList_->sublist("Timestepping Parameter").get("Time step", 0.0);
+            double dt = parameterList_->sublist("Timestepping Parameter").get("dt", 0.01);
+            double extract = timeStep - dt;
+            int size = problem_->getSolution()->size();
 
+            if(extract>0.){
+                std::string varName = std::to_string(extract);
+                for (UN i = 0; i < size; i++)
+                {
+                    MapConstPtr_Type map = problem_->getSolution()->getBlock(i)->getMap();
+                    HDF5Import<SC,LO,GO,NO> importer(map,fileName+std::to_string(i));
+                    MultiVectorPtr_Type aImported = importer.readVariablesHDF5(varName);
+                    solutionPreviousTimesteps_[0]->addBlock(aImported,i);
+                }
+            }
+            else{
+                TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error,"You are trying to restart from a time with no previous time.");
+            }
+
+
+        }
+    }
     solutionPreviousTimesteps_[0] = Teuchos::rcp( new BlockMultiVector_Type( problem_->getSolution() ) );
     
 }
 
+// Depending on the number of required steps we need to initialize the solutions
 template<class SC,class LO,class GO,class NO>
 void TimeProblem<SC,LO,GO,NO>::updateSolutionMultiPreviousStep(int nmbSteps){
 
@@ -579,7 +609,44 @@ void TimeProblem<SC,LO,GO,NO>::updateSolutionMultiPreviousStep(int nmbSteps){
         solutionPreviousTimesteps_.push_back( toAddMVreset );
     }
     else if(size == 0)
+    { // No previous solution was initialized
         solutionPreviousTimesteps_.resize(1);
+        bool restart = parameterList_->sublist("Timestepping Parameter").get("Restart",false);
+        if(restart)
+        {
+            solutionPreviousTimesteps_.resize(nmbSteps);
+
+            std::string fileName = parameterList_->sublist("Timestepping Parameter").get("File name import", "solution");
+            double timeStep = parameterList_->sublist("Timestepping Parameter").get("Time step", 0.0);
+            double dt = parameterList_->sublist("Timestepping Parameter").get("dt", 0.01);
+            int size = problem_->getSolution()->size();
+
+            for(int j=0 ; j< nmbSteps ; j++)
+            {
+                double extract = timeStep - j*dt;
+                solutionPreviousTimesteps_[j] = Teuchos::rcp( new BlockMultiVector_Type( problem_->getSolution()->getMap() ) );
+
+                if(extract>0.)
+                {
+                    std::string varName = std::to_string(extract);
+                    for (UN i = 0; i < size; i++)
+                    {
+                        MapConstPtr_Type map = problem_->getSolution()->getBlock(i)->getMap();
+                        HDF5Import<SC,LO,GO,NO> importer(map,fileName+std::to_string(i));
+                        MultiVectorPtr_Type aImported = importer.readVariablesHDF5(varName);
+                        solutionPreviousTimesteps_[j]->addBlock(aImported,i);
+                    }
+                }
+                else{
+                    TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error,"You are trying to restart from a time with no previous time.");
+                }
+            }
+           
+
+
+        }
+
+    }
     else{
         for (int i=size-1; i>0; i--)
             solutionPreviousTimesteps_[i] = Teuchos::rcp( new BlockMultiVector_Type( solutionPreviousTimesteps_[i-1] ) );

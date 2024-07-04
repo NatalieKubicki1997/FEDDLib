@@ -70,6 +70,7 @@ private:
 
 	int nonLinearIts_ =0;
 
+     std::vector<HDF5Export<SC,LO,GO,NO>> HDF5exporter_;
 
 };
 }

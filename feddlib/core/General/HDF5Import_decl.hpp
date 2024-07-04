@@ -89,6 +89,7 @@ protected:
     // ------------------------
     // READ 
     // ------------------------
+    std::string inputFilename_;
     std::vector<std::string>   		varNamesRead_;
     EpetraMapPtr_Type               readMap_;
     Epetra_MultiVector* u_import_;

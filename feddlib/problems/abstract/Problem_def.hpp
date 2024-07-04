@@ -415,16 +415,28 @@ namespace FEDD
             }
 
             bool initSolution = parameterList_->sublist("General").get("Initialize solution from external", false);
+            bool restart = parameterList_->sublist("Timestepping Parameter").get("Restart",false);
 
             if(initSolution){
                 std::string fileName = parameterList_->sublist("General").get("File name import", "solution");
-                std::string varName = parameterList_->sublist("General").get("Variable name import", "u");
+                std::string varName = std::to_string(0.0);
 
                 MapConstPtr_Type map = solution_->getBlock(i)->getMap();
                 HDF5Import<SC,LO,GO,NO> importer(map,fileName+std::to_string(i));
                 MultiVectorPtr_Type aImported = importer.readVariablesHDF5(varName);
                 solution_->addBlock(aImported,i);
-                solution_->getBlock(i)->print();
+                //solution_->getBlock(i)->print();
+            }
+            else if(restart)
+            {
+                std::string fileName = parameterList_->sublist("Timestepping Parameter").get("File name import", "solution");
+                std::string varName = std::to_string(parameterList_->sublist("Timestepping Parameter").get("Time step", 0.0));
+
+                MapConstPtr_Type map = solution_->getBlock(i)->getMap();
+                HDF5Import<SC,LO,GO,NO> importer(map,fileName+std::to_string(i));
+                MultiVectorPtr_Type aImported = importer.readVariablesHDF5(varName);
+                solution_->addBlock(aImported,i);
+
 
             }
 
