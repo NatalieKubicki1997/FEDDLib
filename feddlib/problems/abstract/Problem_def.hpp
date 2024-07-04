@@ -413,6 +413,21 @@ namespace FEDD
                 MultiVectorPtr_Type sourceTermPart = Teuchos::rcp(new MultiVector_Type(map));
                 sourceTerm_->addBlock(sourceTermPart, i);
             }
+
+            bool initSolution = parameterList_->sublist("General").get("Initialize solution from external", false);
+
+            if(initSolution){
+                std::string fileName = parameterList_->sublist("General").get("File name import", "solution");
+                std::string varName = parameterList_->sublist("General").get("Variable name import", "u");
+
+                MapConstPtr_Type map = solution_->getBlock(i)->getMap();
+                HDF5Import<SC,LO,GO,NO> importer(map,fileName+std::to_string(i));
+                MultiVectorPtr_Type aImported = importer.readVariablesHDF5(varName);
+                solution_->addBlock(aImported,i);
+                solution_->getBlock(i)->print();
+
+            }
+
         }
     }
 

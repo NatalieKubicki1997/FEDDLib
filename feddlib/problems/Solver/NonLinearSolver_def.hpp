@@ -45,6 +45,20 @@ void NonLinearSolver<SC,LO,GO,NO>::solve(NonLinearProblem_Type &problem){
 #endif
     }
 
+    // We check if we want to safe the solution by exporting it. As it is a nonlinear problem (and not a time problem) we safe a steady solution
+    bool safeSolution = problem.getParameterList()->sublist("General").get("Safe solution", false);
+    int size = problem.getSolution()->size();
+    if(safeSolution){
+        for (UN i = 0; i < size; i++)
+        {
+            std::string fileName =  problem.getParameterList()->sublist("General").get("File name export", "solution");
+            std::string varName =  problem.getParameterList()->sublist("General").get("Variable name export", "u");
+            //problem.getSolution()->getBlock(i)->getMap()->print();
+            HDF5Export<SC,LO,GO,NO> exporter(problem.getSolution()->getBlock(i)->getMap("row"), problem.getSolution()->getBlock(i), fileName+std::to_string(i));
+            exporter.writeVariablesHDF5(varName);
+        }
+    }
+
 }
 
 template<class SC,class LO,class GO,class NO>
@@ -83,8 +97,20 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNOX(NonLinearProblem_Type &problem){
 
     // Create the initial guess
     Teuchos::RCP<Thyra::VectorBase<SC> > initial_guess = problemPtr->getNominalValues().get_x()->clone_v();
-    Thyra::V_S(initial_guess.ptr(),Teuchos::ScalarTraits<SC>::zero());
-    
+    if(!problem.getParameterList()->get("Zero Initial Guess",true) || problem.getParameterList()->sublist("General").get("Initialize solution from external", false))
+    { 
+        Teuchos::RCP<Thyra::ProductVectorBase<SC> > initialGuessProd = Teuchos::rcp_dynamic_cast<Thyra::ProductVectorBase<SC> >(initial_guess);
+        Teuchos::RCP<Thyra::MultiVectorBase<SC> > solMV;
+            if (!initialGuessProd.is_null())
+                solMV = problemPtr->getSolution()->getProdThyraMultiVector();
+            else
+                solMV = problemPtr->getSolution()->getThyraMultiVector();
+        Thyra::assign(initial_guess.ptr(), *solMV->col(0));
+    }
+    else{
+        Thyra::V_S(initial_guess.ptr(),Teuchos::ScalarTraits<SC>::zero());
+    } 
+
       
     Teuchos::RCP<NOX::Thyra::Group> nox_group(new NOX::Thyra::Group(initial_guess,
                                                                     problemPtr.getConst(),
@@ -171,10 +197,11 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNOX(TimeProblem_Type &problem, vec_dbl_p
 
     problemPtr->getLinearSolverBuilder()->setParameterList(p);
     
-    Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<SC> >
-    lowsFactory = problemPtr->getLinearSolverBuilder()->createLinearSolveStrategy("");
+    Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<SC> > lowsFactory = problemPtr->getLinearSolverBuilder()->createLinearSolveStrategy("");
     
     TEUCHOS_TEST_FOR_EXCEPTION(problemPtr->getSolution()->getNumVectors()>1, std::runtime_error, "With the current implementation NOX can only be used with 1 MultiVector column.");
+    
+    
     // Create the initial guess and fill with last solution
     Teuchos::RCP<Thyra::VectorBase<SC> > initialGuess = problemPtr->getNominalValues().get_x()->clone_v();
     // Try to convert to a ProductVB. If resulting pointer is not null we need to use the ProductMV below, otherwise it is a monolithic vector.

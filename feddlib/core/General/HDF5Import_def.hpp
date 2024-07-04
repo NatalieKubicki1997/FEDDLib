@@ -50,7 +50,7 @@ commEpetra_()
 
 template<class SC,class LO,class GO,class NO>
 typename HDF5Import<SC, LO, GO, NO>::MultiVectorPtr_Type HDF5Import<SC,LO,GO,NO>::readVariablesHDF5(string varName){
-
+    TEUCHOS_TEST_FOR_EXCEPTION( !hdf5exporter_->IsContained(varName), std::logic_error, "Requested varName: " << varName << " not contained in hdf file.");
     hdf5exporter_->Read(varName,*readMap_,u_import_);
     for (int i=0; i<u_import_mv_->getLocalLength(); i++) {
         Teuchos::ArrayRCP<SC> tmpData = u_import_mv_->getDataNonConst(0);

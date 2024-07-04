@@ -14,10 +14,10 @@ comm_(),
 commEpetra_()
 {
 
-}
+}       
 
 template<class SC,class LO,class GO,class NO>
-HDF5Export<SC,LO,GO,NO>::HDF5Export(MapConstPtr_Type writeMap, MultiVectorPtr_Type writeVector, int dim, std::string outputFilename):
+HDF5Export<SC,LO,GO,NO>::HDF5Export(MapConstPtr_Type writeMap, MultiVectorPtr_Type writeVector, std::string outputFilename):
 hdf5exporter_(),
 comm_(),
 commEpetra_()

@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
         // ----------------------
         // Exporting as HDF5 Type
         //aUniqueConst->print();
-        HDF5Export<SC,LO,GO,NO> exporter(domain->getMapUnique(), aUniqueConst, dim, "exportVector");
+        HDF5Export<SC,LO,GO,NO> exporter(domain->getMapUnique(), aUniqueConst, "exportVector");
         exporter.writeVariablesHDF5("Test");
 
         HDF5Import<SC,LO,GO,NO> importer(domain->getMapUnique(),"exportVector");

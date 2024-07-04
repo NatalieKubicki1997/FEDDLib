@@ -11,6 +11,8 @@
 #include "feddlib/core/LinearAlgebra/BlockMultiVector.hpp"
 #include "feddlib/core/LinearAlgebra/BlockMatrix.hpp"
 #include "feddlib/problems/Solver/LinearSolver.hpp"
+#include "feddlib/core/General/HDF5Export.hpp"
+#include "feddlib/core/General/HDF5Import.hpp"
 
 #include <Stratimikos_DefaultLinearSolverBuilder.hpp>
 #include <Thyra_PreconditionerBase.hpp>

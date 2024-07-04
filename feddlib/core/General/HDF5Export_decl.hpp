@@ -73,7 +73,7 @@ public:
     
     HDF5Export();
 
-    HDF5Export(MapConstPtr_Type readMap, MultiVectorPtr_Type writeVector, int dim,std::string outputFilename);
+    HDF5Export(MapConstPtr_Type readMap, MultiVectorPtr_Type writeVector, std::string outputFilename);
 
     void writeVariablesHDF5(string varName);
 
