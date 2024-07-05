@@ -603,6 +603,7 @@ void TimeProblem<SC,LO,GO,NO>::updateSolutionPreviousStep(){
 template<class SC,class LO,class GO,class NO>
 void TimeProblem<SC,LO,GO,NO>::updateSolutionMultiPreviousStep(int nmbSteps){
 
+    cout << " updateSolutionMultiPreviousStep for nmbSteps= " << nmbSteps << endl;
     int size = solutionPreviousTimesteps_.size();
     if (size<nmbSteps &&  size > 0) {
         BlockMultiVectorPtr_Type toAddMVreset = Teuchos::rcp( new BlockMultiVector_Type( solutionPreviousTimesteps_[size-1] ) );
@@ -610,6 +611,7 @@ void TimeProblem<SC,LO,GO,NO>::updateSolutionMultiPreviousStep(int nmbSteps){
     }
     else if(size == 0)
     { // No previous solution was initialized
+        cout << " Size is 0 so we rebuild " << endl;
         solutionPreviousTimesteps_.resize(1);
         bool restart = parameterList_->sublist("Timestepping Parameter").get("Restart",false);
         if(restart)
@@ -634,6 +636,7 @@ void TimeProblem<SC,LO,GO,NO>::updateSolutionMultiPreviousStep(int nmbSteps){
                         MapConstPtr_Type map = problem_->getSolution()->getBlock(i)->getMap();
                         HDF5Import<SC,LO,GO,NO> importer(map,fileName+std::to_string(i));
                         MultiVectorPtr_Type aImported = importer.readVariablesHDF5(varName);
+                        cout << " We imported for timestep " << varName << " the solution from " << fileName+std::to_string(i) << " for step " << j << endl;
                         solutionPreviousTimesteps_[j]->addBlock(aImported,i);
                     }
                 }
@@ -651,9 +654,9 @@ void TimeProblem<SC,LO,GO,NO>::updateSolutionMultiPreviousStep(int nmbSteps){
         for (int i=size-1; i>0; i--)
             solutionPreviousTimesteps_[i] = Teuchos::rcp( new BlockMultiVector_Type( solutionPreviousTimesteps_[i-1] ) );
     }
+    solutionPreviousTimesteps_[0] = Teuchos::rcp( new BlockMultiVector_Type( problem_->getSolution() ) ); //  Newest solution always in 'first'place
     
-    solutionPreviousTimesteps_[0] = Teuchos::rcp( new BlockMultiVector_Type( problem_->getSolution() ) );
-    
+
 }
 
 

@@ -50,21 +50,22 @@ void NonLinearSolver<SC,LO,GO,NO>::solve(NonLinearProblem_Type &problem){
     // We check if we want to safe the solution by exporting it. As it is a nonlinear problem (and not a time problem) we safe a steady solution
     bool safeSolution = problem.getParameterList()->sublist("General").get("Safe solution", false);
     int size = problem.getSolution()->size();
-    if(HDF5exporter_.size()==0){
-        std::string fileName =  problem.getParameterList()->sublist("General").get("File name export", "solution");
-        HDF5exporter_.resize(size);
-        for (UN i = 0; i < size; i++)
-        {
-            HDF5Export<SC,LO,GO,NO> exporter(problem.getSolution()->getBlock(i)->getMap(), problem.getSolution()->getBlock(i), fileName+std::to_string(i));
-            HDF5exporter_[i] = exporter;
-        }
-    }
+    
     if(safeSolution){
+        if(HDF5exporter_.size()==0){
+            std::string fileName =  problem.getParameterList()->sublist("General").get("File name export", "solution");
+            HDF5exporter_.resize(size);
+            for (UN i = 0; i < size; i++)
+            {
+                HDF5Export<SC,LO,GO,NO> exporter(problem.getSolution()->getBlock(i)->getMap(),fileName+std::to_string(i));
+                HDF5exporter_[i] = exporter;
+            }
+        }
         for (UN i = 0; i < size; i++)
         {
             std::string varName =  std::to_string(0.0); 
             //problem.getSolution()->getBlock(i)->getMap()->print();
-            HDF5exporter_[i].writeVariablesHDF5(varName); // Here the different varnames are the time. Then we can re read it 
+            HDF5exporter_[i].writeVariablesHDF5(varName,problem.getSolution()->getBlock(i)); // Here the different varnames are the time. Then we can re read it 
         }
     }
 
@@ -90,22 +91,24 @@ void NonLinearSolver<SC,LO,GO,NO>::solve(TimeProblem_Type &problem, double time,
     bool safeSolution = problem.getParameterList()->sublist("General").get("Safe solution", false);
     int size = problem.getSolution()->size();
 
-    if(HDF5exporter_.size()==0){
-        std::string fileName =  problem.getParameterList()->sublist("General").get("File name export", "solution");
-        HDF5exporter_.resize(size);
-        for (UN i = 0; i < size; i++)
-        {
-            HDF5Export<SC,LO,GO,NO> exporter(problem.getSolution()->getBlock(i)->getMap(), problem.getSolution()->getBlock(i), fileName+std::to_string(i));
-            HDF5exporter_[i] = exporter;
-        }
-    }
     if(safeSolution){
+        if(HDF5exporter_.size()==0){
+            std::string fileName =  problem.getParameterList()->sublist("General").get("File name export", "solution");
+            HDF5exporter_.resize(size);
+            for (UN i = 0; i < size; i++)
+            {
+                HDF5Export<SC,LO,GO,NO> exporter(problem.getSolution()->getBlock(i)->getMap(),  fileName+std::to_string(i));
+                HDF5exporter_[i] = exporter;
+            }
+        }
+    
         for (UN i = 0; i < size; i++)
         {
             std::string varName =  std::to_string(time); 
-            //problem.getSolution()->getBlock(i)->getMap()->print();
-            HDF5exporter_[i].writeVariablesHDF5(varName); // Here the different varnames are the time. Then we can re read it 
+            HDF5exporter_[i].writeVariablesHDF5(varName,problem.getSolution()->getBlock(i)); // Here the different varnames are the time. Then we can re read it 
         }
+        problem.getSolution()->getBlock(0)->print();
+
     }
 }
 

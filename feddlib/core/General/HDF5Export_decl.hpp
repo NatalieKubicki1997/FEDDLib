@@ -73,9 +73,9 @@ public:
     
     HDF5Export();
 
-    HDF5Export(MapConstPtr_Type readMap, MultiVectorPtr_Type writeVector, std::string outputFilename);
+    HDF5Export(MapConstPtr_Type readMap, std::string outputFilename);
 
-    void writeVariablesHDF5(string varName);
+    void writeVariablesHDF5(string varName,MultiVectorPtr_Type writeVector);
 
     void closeExporter();
 
@@ -90,8 +90,7 @@ protected:
     // ------------------------
     std::string outputFilename_;
     std::vector<std::string>   		varNamesRead_;
-    EpetraMapPtr_Type               readMap_;
-    EpetraMVPtr_Type u_export_;
+    EpetraMapPtr_Type               writeMap_;
 
 };
 

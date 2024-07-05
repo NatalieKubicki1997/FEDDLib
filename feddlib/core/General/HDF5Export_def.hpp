@@ -17,7 +17,7 @@ commEpetra_()
 }       
 
 template<class SC,class LO,class GO,class NO>
-HDF5Export<SC,LO,GO,NO>::HDF5Export(MapConstPtr_Type writeMap, MultiVectorPtr_Type writeVector, std::string outputFilename):
+HDF5Export<SC,LO,GO,NO>::HDF5Export(MapConstPtr_Type writeMap, std::string outputFilename):
 hdf5exporter_(),
 comm_(),
 commEpetra_()
@@ -36,31 +36,31 @@ commEpetra_()
 
     EpetraMapPtr_Type mapEpetra = Teuchos::rcp(new Epetra_Map((int)nmbPointsGlob,indices.size(),intGlobIDs,0,*commEpetra_));
 
-    readMap_ = mapEpetra;
+    writeMap_ = mapEpetra;
 
-  
     hdf5exporter_.reset( new HDF5_Type(*commEpetra_) );
 
     hdf5exporter_->Create(outputFilename+".h5");
 
     outputFilename_ = outputFilename;
     //hdf5exporter_->Create(outputFilename_);
-    EpetraMVPtr_Type u_export(new Epetra_MultiVector(*(mapEpetra),1)); // ParaView always uses 3D Data. for 2D Data the last entries (for the 3rd Dim) are all zero.
+    
+  
+}
+
+template<class SC,class LO,class GO,class NO>
+void HDF5Export<SC,LO,GO,NO>::writeVariablesHDF5(string varName,MultiVectorPtr_Type writeVector){
+
+    EpetraMVPtr_Type u_export(new Epetra_MultiVector(*(writeMap_),1)); // ParaView always uses 3D Data. for 2D Data the last entries (for the 3rd Dim) are all zero.
 
     for (int i=0; i<writeVector->getLocalLength(); i++) {
         Teuchos::ArrayRCP<const SC> tmpData = writeVector->getData(0);
         u_export->ReplaceMyValue( i, 0, tmpData[i] );
     }
 
-    u_export_ = u_export;
-  
-}
-
-template<class SC,class LO,class GO,class NO>
-void HDF5Export<SC,LO,GO,NO>::writeVariablesHDF5(string varName){
-
-    hdf5exporter_->Write(varName,*u_export_);
-    cout << " HDF5_Export:: Exporting in " << outputFilename_ << " with variable name " << varName << endl;
+    hdf5exporter_->Write(varName,*u_export);
+    if(writeVector->getMap()->getComm()->getRank() == 0 )
+        cout << " HDF5_Export:: Exporting in " << outputFilename_ << " with variable name " << varName << endl;
     hdf5exporter_->Flush();
     
 }
