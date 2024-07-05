@@ -577,6 +577,8 @@ void TimeProblem<SC,LO,GO,NO>::updateSolutionPreviousStep(){
             double dt = parameterList_->sublist("Timestepping Parameter").get("dt", 0.01);
             double extract = timeStep - dt;
             int size = problem_->getSolution()->size();
+            
+            solutionPreviousTimesteps_[0] = Teuchos::rcp( new BlockMultiVector_Type( problem_->getSolution()->getMap() ) );
 
             if(extract>0.){
                 std::string varName = std::to_string(extract);
@@ -585,6 +587,7 @@ void TimeProblem<SC,LO,GO,NO>::updateSolutionPreviousStep(){
                     MapConstPtr_Type map = problem_->getSolution()->getBlock(i)->getMap();
                     HDF5Import<SC,LO,GO,NO> importer(map,fileName+std::to_string(i));
                     MultiVectorPtr_Type aImported = importer.readVariablesHDF5(varName);
+
                     solutionPreviousTimesteps_[0]->addBlock(aImported,i);
                 }
             }

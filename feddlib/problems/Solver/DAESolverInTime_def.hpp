@@ -422,6 +422,7 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinear(){
     SmallMatrix<double> problemCoeff(size);
     double dt = 0.0;
     int timeit = 0;
+    NonLinearSolver<SC, LO, GO, NO> nlSolver(parameterList_->sublist("General").get("Linearization","FixedPoint"));
     while (timeSteppingTool_->continueTimeStepping()) {
         
         dt = timeSteppingTool_->get_dt();
@@ -477,7 +478,6 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinear(){
                                                        
             problemTime_->setTimeParameters(massCoeff, problemCoeff);
 
-            NonLinearSolver<SC, LO, GO, NO> nlSolver(parameterList_->sublist("General").get("Linearization","FixedPoint"));
             nlSolver.solve(*problemTime_,time);
             
             if (correctPressure) {

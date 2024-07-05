@@ -59,8 +59,10 @@ void HDF5Export<SC,LO,GO,NO>::writeVariablesHDF5(string varName,MultiVectorPtr_T
     }
 
     hdf5exporter_->Write(varName,*u_export);
+    
     if(writeVector->getMap()->getComm()->getRank() == 0 )
         cout << " HDF5_Export:: Exporting in " << outputFilename_ << " with variable name " << varName << endl;
+
     hdf5exporter_->Flush();
     
 }
