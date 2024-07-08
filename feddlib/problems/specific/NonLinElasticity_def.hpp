@@ -75,8 +75,6 @@ void NonLinElasticity<SC,LO,GO,NO>::assemble(std::string type) const{
         u_rep_ = Teuchos::rcp(new MultiVector_Type( this->getDomain(0)->getMapVecFieldRepeated() ));
         MultiVectorConstPtr_Type u = this->solution_->getBlock(0);
         u_rep_->importFromVector(u, true);
-
-        u_rep_->print();
         
         if (this->verbose_)
             std::cout << "done -- " << std::endl;

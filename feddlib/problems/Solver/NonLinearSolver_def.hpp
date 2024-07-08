@@ -107,7 +107,6 @@ void NonLinearSolver<SC,LO,GO,NO>::solve(TimeProblem_Type &problem, double time,
             std::string varName =  std::to_string(time); 
             HDF5exporter_[i].writeVariablesHDF5(varName,problem.getSolution()->getBlock(i)); // Here the different varnames are the time. Then we can re read it 
         }
-        problem.getSolution()->getBlock(0)->print();
 
     }
 }

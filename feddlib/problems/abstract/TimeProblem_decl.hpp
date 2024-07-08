@@ -8,6 +8,8 @@
 #include "NonLinearProblem.hpp"
 //#include "LinearProblem.hpp"
 #include "Thyra_StateFuncModelEvaluatorBase.hpp"
+#include "feddlib/core/General/HDF5Export.hpp"
+
 /*!
  Declaration of TimeProblem
 
@@ -53,6 +55,7 @@ public:
 
     typedef typename Problem_Type::MultiVector_Type MultiVector_Type;
     typedef typename Problem_Type::MultiVectorPtr_Type MultiVectorPtr_Type;
+    typedef typename Problem_Type::MultiVectorConstPtr_Type MultiVectorConstPtr_Type;
 
     typedef typename Problem_Type::BlockMultiVector_Type BlockMultiVector_Type;
     typedef typename Problem_Type::BlockMultiVectorPtr_Type BlockMultiVectorPtr_Type;
@@ -206,6 +209,11 @@ public:
     ProblemPtr_Type problem_;
     CommConstPtr_Type comm_;
     
+    // Exporter
+    Teuchos::RCP <HDF5Export<SC,LO,GO,NO>> HDF5exporterVelocity_;
+    Teuchos::RCP <HDF5Export<SC,LO,GO,NO>> HDF5exporterAcceleration_;
+
+
     mutable BlockMatrixPtr_Type systemCombined_;
     mutable BlockMatrixPtr_Type systemMass_;
     mutable SmallMatrix<double> timeParameters_;

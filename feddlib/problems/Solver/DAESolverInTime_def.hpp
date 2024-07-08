@@ -779,6 +779,7 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinearNewmark()
     // ######################
     // Time loop
     // ######################
+    NonLinearSolver<SC, LO, GO, NO> nlSolver(parameterList_->sublist("General").get("Linearization","Newton"));
     while(timeSteppingTool_->continueTimeStepping())
     {
         // Stelle (massCoeff*M + problemCoeff*A) auf
@@ -811,7 +812,7 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinearNewmark()
         // Uebergabeparameter fuer BC noch hinzu nehmen!
 //        problemTime_->setBoundaries(time);
         
-        NonLinearSolver<SC, LO, GO, NO> nlSolver(parameterList_->sublist("General").get("Linearization","Newton"));
+       
         nlSolver.solve( *problemTime_, time, its );
         
         timeSteppingTool_->advanceTime(true/*output info*/);
