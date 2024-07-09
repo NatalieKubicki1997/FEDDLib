@@ -1018,7 +1018,6 @@ void ExporterParaView<SC,LO,GO,NO>::makePostfix(){
     if (timeIndex_ % saveTimestep_ == 0){
         index << std::setw (postfixLength) << ( timeIndex_ / saveTimestep_ );
         postfix_ = "." + index.str();
-        cout << "POSTFIX " << postfix_ << endl;
     }
 }
 }
