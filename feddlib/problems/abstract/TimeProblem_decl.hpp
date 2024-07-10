@@ -206,12 +206,14 @@ public:
 
     void addToRhs(BlockMultiVectorPtr_Type x);
     
+    void exportSolutionHDF5();
     ProblemPtr_Type problem_;
     CommConstPtr_Type comm_;
     
-    // Exporter
-    Teuchos::RCP <HDF5Export<SC,LO,GO,NO>> HDF5exporterVelocity_;
-    Teuchos::RCP <HDF5Export<SC,LO,GO,NO>> HDF5exporterAcceleration_;
+    // Exporter for various parts of the solution or vectors that are needed for restarts
+    Teuchos::RCP <HDF5Export<SC,LO,GO,NO>> HDF5exporterVelocity_; // Verlocity for Newmark
+    Teuchos::RCP <HDF5Export<SC,LO,GO,NO>> HDF5exporterAcceleration_; // Acceleration for Newmark
+    std::vector<HDF5Export<SC,LO,GO,NO>> HDF5exporterSolution_; // Solution
 
 
     mutable BlockMatrixPtr_Type systemCombined_;

@@ -16,15 +16,13 @@ namespace FEDD {
 
 template<class SC,class LO,class GO,class NO>
 NonLinearSolver<SC,LO,GO,NO>::NonLinearSolver():
-type_(""),
-HDF5exporter_(0)
+type_("")
 {}
 
 
 template<class SC,class LO,class GO,class NO>
 NonLinearSolver<SC,LO,GO,NO>::NonLinearSolver(string type):
-type_(type),
-HDF5exporter_(0)
+type_(type)
 {}
 
 template<class SC,class LO,class GO,class NO>
@@ -47,28 +45,10 @@ void NonLinearSolver<SC,LO,GO,NO>::solve(NonLinearProblem_Type &problem){
 #endif
     }
 
-    // We check if we want to safe the solution by exporting it. As it is a nonlinear problem (and not a time problem) we safe a steady solution
+    // Option to export the newly computed solution via HDF5 file
     bool safeSolution = problem.getParameterList()->sublist("General").get("Safe solution", false);
-    int size = problem.getSolution()->size();
-    
-    if(safeSolution){
-        if(HDF5exporter_.size()==0){
-            std::string fileName =  problem.getParameterList()->sublist("General").get("File name export", "solution");
-            HDF5exporter_.resize(size);
-            for (UN i = 0; i < size; i++)
-            {
-                HDF5Export<SC,LO,GO,NO> exporter(problem.getSolution()->getBlock(i)->getMap(),fileName+std::to_string(i));
-                HDF5exporter_[i] = exporter;
-            }
-        }
-        for (UN i = 0; i < size; i++)
-        {
-            std::string varName =  std::to_string(0.0); 
-            //problem.getSolution()->getBlock(i)->getMap()->print();
-            HDF5exporter_[i].writeVariablesHDF5(varName,problem.getSolution()->getBlock(i)); // Here the different varnames are the time. Then we can re read it 
-        }
-    }
-
+    if(safeSolution)
+        problem.exportSolutionHDF5();
 }
 
 template<class SC,class LO,class GO,class NO>
@@ -88,26 +68,11 @@ void NonLinearSolver<SC,LO,GO,NO>::solve(TimeProblem_Type &problem, double time,
     else if(!type_.compare("Extrapolation")){
         solveExtrapolation(problem, time);
     }
+
+    // Option to export the newly computed solution via HDF5 file
     bool safeSolution = problem.getParameterList()->sublist("General").get("Safe solution", false);
-    int size = problem.getSolution()->size();
-
     if(safeSolution){
-        if(HDF5exporter_.size()==0){
-            std::string fileName =  problem.getParameterList()->sublist("General").get("File name export", "solution");
-            HDF5exporter_.resize(size);
-            for (UN i = 0; i < size; i++)
-            {
-                HDF5Export<SC,LO,GO,NO> exporter(problem.getSolution()->getBlock(i)->getMap(),  fileName+std::to_string(i));
-                HDF5exporter_[i] = exporter;
-            }
-        }
-    
-        for (UN i = 0; i < size; i++)
-        {
-            std::string varName =  std::to_string(time); 
-            HDF5exporter_[i].writeVariablesHDF5(varName,problem.getSolution()->getBlock(i)); // Here the different varnames are the time. Then we can re read it 
-        }
-
+        problem.exportSolutionHDF5();
     }
 }
 
