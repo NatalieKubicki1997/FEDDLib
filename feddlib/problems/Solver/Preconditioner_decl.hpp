@@ -159,6 +159,7 @@ private:
     TimeProblemPtr_Type timeProblem_;
     Teuchos::RCP<Thyra::PreconditionerFactoryBase<SC> > precFactory_;
 #ifdef FEDD_HAVE_TEKO
+    Teuchos::RCP<Teko::RequestHandler> rh_;
     ThyraLinOpConstPtr_Type tekoLinOp_;
     mutable ThyraLinOpConstPtr_Type velocityMassMatrix_; // LSC
     mutable MatrixPtr_Type velocityMassMatrixMatrixPtr_;

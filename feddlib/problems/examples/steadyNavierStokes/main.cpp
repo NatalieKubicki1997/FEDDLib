@@ -331,6 +331,8 @@ int main(int argc, char *argv[]) {
 
                 // ####################
                 Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory( new BCBuilder<SC,LO,GO,NO>( ) );
+                
+                Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryPressure( new BCBuilder<SC,LO,GO,NO>( ) );
 
                 if (!bcType.compare("parabolic"))
                     parameter_vec.push_back(1.);//height of inflow region
@@ -351,6 +353,8 @@ int main(int argc, char *argv[]) {
 //                        bcFactory->addBC(dummyFunc, 3, 0, domainVelocity, "Neumann", dim);
 //                        bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
                         bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
+                        bcFactoryPressure->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
                     }
                     else if (dim==3){
                         bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);
@@ -379,6 +383,8 @@ int main(int argc, char *argv[]) {
                     if (dim==2){
                         bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);
                         bcFactory->addBC(ldcFunc2D, 2, 0, domainVelocity, "Dirichlet", dim);
+                        bcFactoryPressure->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
                     }
                     else if (dim==3){
                         bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);
@@ -397,6 +403,8 @@ int main(int argc, char *argv[]) {
                     Teuchos::TimeMonitor solveTimeMonitor(*solveTime);
 
                     navierStokes.addBoundaries(bcFactory);
+                    navierStokes.addBoundariesPressure(bcFactoryPressure);
+
                     navierStokes.initializeProblem();
                     navierStokes.assemble();
 

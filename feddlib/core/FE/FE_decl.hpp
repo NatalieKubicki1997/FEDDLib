@@ -107,7 +107,7 @@ class FE {
 
     FE(bool saveAssembly=false);
     
-    void assemblyIdentity(MatrixPtr_Type &A);
+    void assemblyIdentity(MatrixPtr_Type &A,bool callFillComplete = true);
     
     void assemblySurfaceIntegral(int dim,
                                  std::string FEType,
@@ -300,6 +300,13 @@ class FE {
                             MatrixPtr_Type &A, 
                             MultiVectorPtr_Type u, 
                             bool callFillComplete);
+
+    // Advection with vector valued w_h with scalar p_h: w_h \cdot \nabla p_h
+    void assemblyAdvectionVecFieldScalar(int dim,
+                            std::string FEType,
+                            MatrixPtr_Type &A,
+                            MultiVectorPtr_Type u,
+                            bool callFillComplete=true);
 
 
     void assemblyAdvectionInUVecField(int dim,

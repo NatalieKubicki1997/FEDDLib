@@ -199,29 +199,41 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
                 std::cout << "\nVelocity mass matrix for LSC block preconditioner not assembled and thus approximated/replaced with matrix F (fluid)." << std::endl;
         }
         if(!this->parameterList_->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","SIMPLE").compare("PCD")){
-            // Pressure velocity matrx
+             // Pressure mass matrix
             MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
             this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(1), "Scalar", Mpressure, true ); //assemblyIdentity(Mpressure);//
             this->getPreconditionerConst()->setPressureMass( Mpressure );
-            //Mpressure->print();
+
             // Pressure Laplace matrix
             MatrixPtr_Type Lpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
             this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lpressure, true );//assemblyIdentity(Lpressure); //
+            BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
+            dummy->addBlock(Lpressure,0,0);
+            this->bcFactoryPressure_->setSystem(dummy); 
             this->getPreconditionerConst()->setPressureLaplaceMatrix( Lpressure );
-            //Lpressure->print();
-            // PCD Operator ? 
-
-            MultiVectorConstPtr_Type p = this->solution_->getBlock(1);
-            p_rep_->importFromVector(p, true);
+            
+            // PCD Operator  
+            MultiVectorConstPtr_Type u = this->solution_->getBlock(0);
+            u_rep_->importFromVector(u, true); // making repeated solution
 
             MatrixPtr_Type AdvPressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+            this->feFactory_->assemblyAdvectionVecFieldScalar( this->dim_, this->domain_FEType_vec_.at(1), AdvPressure, u_rep_, false ); 
 
-            this->feFactory_->assemblyAdvection( this->dim_, this->domain_FEType_vec_.at(1), AdvPressure, p_rep_, false ); // assemblyIdentity(AdvPressure); // 
+            // \nu * \Delta
+            MatrixPtr_Type Lpressure2(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+            this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lpressure2, true );//assemblyIdentity(Lpressure); //
+            SC kinVisco = this->parameterList_->sublist("Parameter").get("Viscosity",1.);
+            Lpressure2->resumeFill();
+            Lpressure2->scale(kinVisco);
+            Lpressure2->fillComplete();
 
-            Lpressure->addMatrix(1.,AdvPressure,0.); // adding advection to diffusion
+            // Adding laplace an convection together
+            Lpressure2->addMatrix(1.,AdvPressure,1.); // adding advection to diffusion
             AdvPressure->fillComplete();
+            BlockMatrixPtr_Type dummy2(new BlockMatrix_Type (1));
+            dummy2->addBlock(AdvPressure,0,0);
+            this->bcFactoryPressure_->setSystem(dummy2); 
             this->getPreconditionerConst()->setPCDOperator( AdvPressure );
-            //AdvPressure->print();
 
         }
     }
@@ -360,6 +372,47 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
         
         A_->addMatrix(1.,ANW,0.);
         N->addMatrix(1.,ANW,1.);
+
+        if ( !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Teko")) {
+        
+            if(!this->parameterList_->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","SIMPLE").compare("PCD")){
+                // Pressure mass matrix
+                MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+                this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(1), "Scalar", Mpressure, true ); //assemblyIdentity(Mpressure);//
+                this->getPreconditionerConst()->setPressureMass( Mpressure );
+
+                // Pressure Laplace matrix
+                MatrixPtr_Type Lpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+                this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lpressure, true );//assemblyIdentity(Lpressure); //
+                BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
+                dummy->addBlock(Lpressure,0,0);
+                this->bcFactoryPressure_->setSystem(dummy); 
+                this->getPreconditionerConst()->setPressureLaplaceMatrix( Lpressure );
+                
+                // PCD Operator  
+                // MultiVectorConstPtr_Type u = this->solution_->getBlock(0);
+                // u_rep_->importFromVector(u, true); // making repeated solution
+
+                MatrixPtr_Type AdvPressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+                this->feFactory_->assemblyAdvectionVecFieldScalar( this->dim_, this->domain_FEType_vec_.at(1), AdvPressure, u_rep_, false ); 
+
+                // \nu * \Delta
+                MatrixPtr_Type Lpressure2(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+                this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lpressure2, true );//assemblyIdentity(Lpressure); //
+                SC kinVisco = this->parameterList_->sublist("Parameter").get("Viscosity",1.);
+                Lpressure2->resumeFill();
+                Lpressure2->scale(kinVisco);
+                Lpressure2->fillComplete();
+                // Adding laplace and convection together
+                Lpressure2->addMatrix(1.,AdvPressure,1.); // adding advection to diffusion
+                AdvPressure->fillComplete();
+                BlockMatrixPtr_Type dummy2(new BlockMatrix_Type (1));
+                dummy2->addBlock(AdvPressure,0,0);
+                this->bcFactoryPressure_->setSystem(dummy2); 
+                this->getPreconditionerConst()->setPCDOperator( AdvPressure );
+
+            }
+        }
     }
     else if(type=="Newton"){ // We assume that reAssmble("FixedPoint") was already called for the current iterate
         MatrixPtr_Type W = Teuchos::rcp(new Matrix_Type( this->getDomain(0)->getMapVecFieldUnique(), this->getDomain(0)->getDimension() * this->getDomain(0)->getApproxEntriesPerRow() ) );
@@ -374,6 +427,12 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
     
     this->system_->addBlock( ANW, 0, 0 );
     
+    MultiVectorConstPtr_Type p = this->solution_->getBlock(1);
+    p_rep_->importFromVector(p, true);
+
+    Teuchos::Array<SC> norm(1);
+    p_rep_->norm2(norm());
+
     if (this->verbose_)
         std::cout << "done -- " << std::endl;
 }

@@ -139,6 +139,8 @@ public:
 
     void addBoundaries(const BCConstPtr_Type &bcFactory);
 
+    void addBoundariesPressure(const BCConstPtr_Type &bcFactory);
+
     void setBoundaries(double time=.0) const;
 
     void setBoundariesRHS(double time=.0) const;
@@ -229,6 +231,8 @@ protected:
     string_vec_Type                 domain_FEType_vec_;
     string_vec_Type                 variableName_vec_;
     mutable BCConstPtr_Type         bcFactory_;
+    mutable BCConstPtr_Type         bcFactoryPressure_;
+
 
     FEFacPtr_Type feFactory_;
     std::vector<int> dofsPerNode_vec_;

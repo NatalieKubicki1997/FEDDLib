@@ -267,7 +267,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditioner( std::string type )
 template <class SC,class LO,class GO,class NO>
 void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
 {
-
+    cout << " Build Monolithic preconditioner " << endl;
     CommConstPtr_Type comm;
     if (!problem_.is_null())
         comm = problem_->getComm();
@@ -294,14 +294,31 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
     bool useNodeLists = parameterList->get( "Use node lists", true );
     ParameterListPtr_Type pListThyraPrec = sublist( parameterList, "ThyraPreconditioner" );
     ParameterListPtr_Type plFrosch = sublist( sublist( pListThyraPrec, "Preconditioner Types" ), "FROSch");
-    
+
     // thyraMatrix is the system matrix in Thyra format to initialize preconditioner with
     ThyraLinOpConstPtr_Type thyraMatrix;
-    if (!problem_.is_null())
+    if (!problem_.is_null()){
         thyraMatrix = problem_->getSystem()->getThyraLinOp();
-    else if(!timeProblem_.is_null())
-        thyraMatrix = timeProblem_->getSystemCombined()->getThyraLinOp();
+        //problem_->getSystem()->getMergedMatrix()->writeMM("Steady_Case");
 
+    }
+    else if(!timeProblem_.is_null()){
+        bool excludeMass = pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").get( "Exclude Mass", false);
+        // Now we can make a distinction between using the matrix with or without mass matrix component
+        //timeProblem_->getSystem()->getBlock(0,0)->print();
+        if(excludeMass){
+            timeProblem_->getUnderlyingProblem()->setBoundariesSystem();
+            thyraMatrix = timeProblem_->getSystem()->getThyraLinOp();
+        }
+        else
+            thyraMatrix = timeProblem_->getSystemCombined()->getThyraLinOp();
+
+        // timeProblem_->getSystem()->getMergedMatrix()->writeMM("Steady_System");
+        // timeProblem_->getMassSystem()->getBlock(0,0)->writeMM("MassMatrix");
+        // timeProblem_->getSystemCombined()->getMergedMatrix()->writeMM("Unsteady_System");
+
+        //timeProblem_->getSystemCombined()->getBlock(0,0)->print();
+    }
     // For more than 1 block we need to add all maps of different blocks
     UN numberOfBlocks = parameterList->get("Number of blocks",1);
     Teuchos::ArrayRCP<Teuchos::RCP<Xpetra::Map<LO,GO,NO> > > repeatedMaps(numberOfBlocks);
@@ -319,6 +336,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
    // timeProblem_->getSystemCombined()->print();
     //Set Precondtioner lists
     if (!precondtionerIsBuilt_) {
+        cout << " PRECONDITIONER NOT BUILD " << endl;
         if ( !precType.compare("FROSch") ){
             Teuchos::ArrayRCP<FROSch::DofOrdering> dofOrderings(numberOfBlocks);
             Teuchos::ArrayRCP<UN> dofsPerNodeVector(numberOfBlocks);
@@ -424,7 +442,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
            if(!pressureProjection_.is_null()){
                 pressureProjection_->merge(); // We merge the projection vector, as FROSch does not distinguish between blocks
 
-                pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Projection",pressureProjection_->getMergedVector()->getXpetraMultiVectorNonConst());
+                pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Projection",pressureProjection_->getMergedVector()->getXpetraMultiVector());
                 // In case of pressure correction we set the parameter in the paramterlist to true
                 pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Use Pressure Correction", true);
 
@@ -438,7 +456,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
 
                 // Applying projection in coarse Level. We need to add the projection to the coarse Operator List. Here, to the IPOUHarmonicCoarseOperaUse Coarse Pressure Correctiontor. If we use (R)GDSW coarse operator this is differnt!! 
                if(parameterList->sublist("Parameter").get("Use Coarse Pressure Correction",false)){
-                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").set("Projection",pressureProjection_->getMergedVector()->getXpetraMultiVectorNonConst());
+                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").set("Projection",pressureProjection_->getMergedVector()->getXpetraMultiVector());
                     pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").set("Use Coarse Pressure Correction", parameterList->sublist("Parameter").get("Use Coarse Pressure Correction",false));
                     pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").set("Dimension", parameterList->sublist("Parameter").get("Dimension",3));
                 }
@@ -773,7 +791,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
         solverBuilder = timeProblem_->getUnderlyingProblem()->getLinearSolverBuilder();
 
     ParameterListPtr_Type tekoPList;
-    if (precFactory_.is_null()) {
+    //if (precFactory_.is_null()) {
         ParameterListPtr_Type tmpSubList = sublist( sublist( sublist( sublist( parameterList, "Teko Parameters" ) , "Preconditioner Types" ) , "Teko" ) , "Inverse Factory Library" );
 
         tekoPList = sublist( parameterList, "Teko Parameters" );
@@ -784,7 +802,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
             setVelocityParameters( tekoPList, parameterList->sublist("General").get("Mpi Ranks Coarse",0) );
             setPressureParameters( tekoPList, parameterList->sublist("General").get("Mpi Ranks Coarse",0) );
         }
-    }
+    //}
 
     BlockMatrixPtr_Type system;
     if (!problem_.is_null())
@@ -809,6 +827,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
     tekoLinOp_ = Thyra::block2x2(thyraF,thyraBT,thyraB,thyraC);
 
     if (!precondtionerIsBuilt_) {
+        cout << " #### PRECONDITIONER:: BUILD TEKO #### " << endl;
 
         if ( precFactory_.is_null() ){
             ParameterListPtr_Type pListThyraSolver = sublist( parameterList, "ThyraSolver" );
@@ -819,7 +838,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
             precFactory_ = solverBuilder->createPreconditioningStrategy("");//createPreconditioningStrategy(*solverBuilder); // this might be the issue
 
             // Here we have the request handler, which manages the callback matrices/operators
-            Teuchos::RCP<Teko::RequestHandler> rh = Teuchos::rcp(new Teko::RequestHandler());
+            rh_.reset(new Teko::RequestHandler());
 
             CommConstPtr_Type comm;
             if (!problem_.is_null())
@@ -846,33 +865,33 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
             // For the PCD block preconditioner we need more. This would be: 
             // - 'Pressure Laplace Operator'
             // - 'Pressure Mass Operator'
-            // - 'PCD Operator' (which is probably optional)
+            // - 'PCD Operator'
 
             if(!tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("LSC") || !tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("SIMPLE")){
                 Teko::LinearOp thyraMass = velocityMassMatrix_;
 
                 Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackMass = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "Velocity Mass Matrix", thyraMass ) );
-                rh->addRequestCallback( callbackMass );
+                rh_->addRequestCallback( callbackMass );
             }
             else if(!tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("PCD")){
                 // Pressure Laplace
                 Teko::LinearOp thyraLaplace = pressureLaplace_;
                 Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackLaplace = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "Pressure Laplace Operator", thyraLaplace ) );
-                rh->addRequestCallback( callbackLaplace );
+                rh_->addRequestCallback( callbackLaplace );
 
                 // Pressure Mass
                 Teko::LinearOp thyraPressureMass = pressureMass_;
                 Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackPressureMass = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "Pressure Mass Matrix", thyraPressureMass ) );
-                rh->addRequestCallback( callbackPressureMass );
+                rh_->addRequestCallback( callbackPressureMass );
 
                 // PCD
                 Teko::LinearOp thyraPCD = pcdOperator_;
                 Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackPCD = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "PCD Operator", thyraPCD ) );
-                rh->addRequestCallback( callbackPCD );
+                rh_->addRequestCallback( callbackPCD );
             }
 
             Teuchos::RCP< Teko::StratimikosFactory > tekoFactory = Teuchos::rcp_dynamic_cast<Teko::StratimikosFactory>(precFactory_);
-            tekoFactory->setRequestHandler( rh );
+            tekoFactory->setRequestHandler( rh_ );
 
         }
 
@@ -883,15 +902,32 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
         Teuchos::RCP< const Thyra::DefaultLinearOpSource< SC > > thyraMatrixSourceOp =  defaultLinearOpSource (tekoLinOp_);
         //    Thyra::initializePrec<SC>(*precFactory, thyraMatrixSourceOp, thyraPrec_.ptr());
         precFactory_->initializePrec(thyraMatrixSourceOp, thyraPrec_.get());
-        precondtionerIsBuilt_ = true;
+        precondtionerIsBuilt_ = true;        
         
     }
     
     else{
+        
+        if(!tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("PCD")){
+            // PCD: As part of the pcd preconditioner depends on the current velocity, we need to update it in each iteration.
+            //pcdOperatorMatrixPtr_->print();
+                    
+            Teuchos::RCP<Teko::RequestHandler> rh = Teuchos::rcp(new Teko::RequestHandler());
+
+            // PCD
+            Teko::LinearOp thyraPCD = pcdOperator_;
+            Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackPCD = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "PCD Operator", thyraPCD ) );
+            rh->addRequestCallback( callbackPCD );
+
+            // Changing the content of the pointer
+            rh_->updateRequestCallback(callbackPCD,2); // We need to update the pcd operator in the call back pointer. Otherwise it will no reach the correct functions in pcd
+
+        }
+        //thyraPrec_ = precFactory_->createPrec();
 
         Teuchos::RCP< const Thyra::DefaultLinearOpSource< SC > > thyraMatrixSourceOp =  defaultLinearOpSource (tekoLinOp_);
         //    Thyra::initializePrec<SC>(*precFactory, thyraMatrixSourceOp, thyraPrec_.ptr());
-
+ 
         precFactory_->initializePrec(thyraMatrixSourceOp, thyraPrec_.get());
     }
 
