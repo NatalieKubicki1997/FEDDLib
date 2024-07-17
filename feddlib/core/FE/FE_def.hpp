@@ -3579,11 +3579,12 @@ void FE<SC,LO,GO,NO>::assemblyAdvectionVecFieldScalar(int dim,
     
     UN FEloc = checkFE(dim,FEType);
 
-    ElementsPtr_Type elements = domainVec_.at(FEloc)->getElementsC();
+    ElementsPtr_Type elements = domainVec_.at(1)->getElementsC();
+    ElementsPtr_Type elementsVel = domainVec_.at(0)->getElementsC();
 
-    vec2D_dbl_ptr_Type pointsRep = domainVec_.at(FEloc)->getPointsRepeated();
+    vec2D_dbl_ptr_Type pointsRep = domainVec_.at(1)->getPointsRepeated();
 
-    MapConstPtr_Type map = domainVec_.at(FEloc)->getMapRepeated();
+    MapConstPtr_Type map = domainVec_.at(1)->getMapRepeated();
 
     vec3D_dbl_ptr_Type     dPhi;
     vec2D_dbl_ptr_Type     phi;
@@ -3619,7 +3620,7 @@ void FE<SC,LO,GO,NO>::assemblyAdvectionVecFieldScalar(int dim,
             for (int d=0; d<dim; d++) {
                 uLoc[d][w] = 0.;
                 for (int i=0; i < phi->at(0).size(); i++) {
-                    LO index = dim * elements->getElement(T).getNode(i) + d;
+                    LO index = dim * elementsVel->getElement(T).getNode(i) + d;
                     uLoc[d][w] += uArray[index] * phi->at(w).at(i);
                 }
             }
@@ -3631,17 +3632,10 @@ void FE<SC,LO,GO,NO>::assemblyAdvectionVecFieldScalar(int dim,
             for (UN j=0; j < value.size(); j++) {
                 for (UN w=0; w<dPhiTrans.size(); w++) {
                     for (UN d=0; d<dim; d++){
-                        value[j] += weights->at(w) * uLoc[d][w] * (*phi)[w][i] * dPhiTrans[w][j][d];
-                    } 
-                        
+                        value[j] += weights->at(w) * uLoc[d][w]* dPhiTrans[w][j][d] * (*phi)[w][i] ;
+                    }                         
                 }
                 value[j] *= absDetB;
-                if (setZeros_ && std::fabs(value[j]) < myeps_) {
-                    value[j] = 0.;
-                }
-
-                GO row = GO (  map->getGlobalElement( elements->getElement(T).getNode(i) )  );
-                GO glob_j = GO ( map->getGlobalElement( elements->getElement(T).getNode(j) )  );
             }
             for (UN j=0; j < indices.size(); j++)
                 indices[j] = GO (  map->getGlobalElement( elements->getElement(T).getNode(j) ) );
@@ -3795,7 +3789,6 @@ void FE<SC,LO,GO,NO>::assemblyAdvectionVecField(int dim,
                     }
 
                     GO row = GO ( dim * map->getGlobalElement( elements->getElement(T).getNode(i) )  );
-                    GO glob_j = GO ( dim * map->getGlobalElement( elements->getElement(T).getNode(j) )  );
                 }
                 for (UN d=0; d<dim; d++) {
                     for (UN j=0; j < indices.size(); j++)

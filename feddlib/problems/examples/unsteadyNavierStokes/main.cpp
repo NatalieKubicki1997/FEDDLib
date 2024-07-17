@@ -398,7 +398,8 @@ int main(int argc, char *argv[]) {
                         
             // ####################
             Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory( new BCBuilder<SC,LO,GO,NO>( ) );
-            Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryPressure( new BCBuilder<SC,LO,GO,NO>( ) );
+            Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryPressureLaplace( new BCBuilder<SC,LO,GO,NO>( ) );
+            Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryPressureFp( new BCBuilder<SC,LO,GO,NO>( ) );
 
             if (!bcType.compare("parabolic") || !bcType.compare("Couette"))
                 parameter_vec.push_back(1.);//height of inflow region
@@ -419,7 +420,9 @@ int main(int argc, char *argv[]) {
 //                    bcFactory->addBC(dummyFunc, 3, 0, domainVelocity, "Neumann", dim);
 //                    bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
                     bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
-                    bcFactoryPressure->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    bcFactoryPressureFp->addBC(zeroDirichlet3D, 2, 0, domainPressure, "Dirichlet", 1);
+
 
                 }
                 else if (dim==3){
@@ -428,7 +431,9 @@ int main(int argc, char *argv[]) {
 //                    bcFactory->addBC(dummyFunc, 3, 0, domainVelocity, "Neumann", dim);
 //                    bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
                     bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);
-                    bcFactoryPressure->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 3, 0, domainPressure, "Dirichlet", 1);
+                    bcFactoryPressureFp->addBC(zeroDirichlet3D, 2, 0, domainPressure, "Dirichlet", 1);
+
 
                     
                 }
@@ -438,8 +443,10 @@ int main(int argc, char *argv[]) {
                     bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);
                     bcFactory->addBC(inflowParabolic2DSin, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
                     bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
-                    
-                    bcFactoryPressure->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                    bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
 
                 }
                 else if (dim==3){
@@ -456,7 +463,9 @@ int main(int argc, char *argv[]) {
                     bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
                     bcFactory->addBC(zeroDirichlet2D, 5, 0, domainVelocity, "Dirichlet", dim);
 
-                    bcFactoryPressure->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
 
                 }
                 else if (dim==3){
@@ -469,7 +478,9 @@ int main(int argc, char *argv[]) {
                 bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet_Z", dim);
                 bcFactory->addBC(zeroDirichlet3D, 5, 0, domainVelocity, "Dirichlet", dim);
                 
-                bcFactoryPressure->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
 
 
             }
@@ -479,16 +490,22 @@ int main(int argc, char *argv[]) {
               //bcFactory->addBC(inflow3DRichter, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
               //bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet_Z", dim);
               //bcFactory->addBC(zeroDirichlet3D, 5, 0, domainVelocity, "Dirichlet", dim);
-              bcFactoryPressure->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+              bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+              bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
 
             }
+
+            domainVelocity->exportNodeFlags();
             
             int timeDisc = parameterListProblem->sublist("Timestepping Parameter").get("Butcher table",0);
 
             NavierStokes<SC,LO,GO,NO> navierStokes( domainVelocity, feTypeV, domainPressure, feTypeP, parameterListAll );
 
             navierStokes.addBoundaries(bcFactory);
-            navierStokes.addBoundariesPressure(bcFactoryPressure);
+            navierStokes.addBoundariesPressureLaplace(bcFactoryPressureLaplace);
+            navierStokes.addBoundariesPressureFp(bcFactoryPressureFp);
+
 
             navierStokes.initializeProblem();
             

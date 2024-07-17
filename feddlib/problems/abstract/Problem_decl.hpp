@@ -139,7 +139,9 @@ public:
 
     void addBoundaries(const BCConstPtr_Type &bcFactory);
 
-    void addBoundariesPressure(const BCConstPtr_Type &bcFactory);
+    void addBoundariesPressureLaplace(const BCConstPtr_Type &bcFactory);
+
+    void addBoundariesPressureFp(const BCConstPtr_Type &bcFactory);
 
     void setBoundaries(double time=.0) const;
 
@@ -231,7 +233,8 @@ protected:
     string_vec_Type                 domain_FEType_vec_;
     string_vec_Type                 variableName_vec_;
     mutable BCConstPtr_Type         bcFactory_;
-    mutable BCConstPtr_Type         bcFactoryPressure_;
+    mutable BCConstPtr_Type         bcFactoryPressureLaplace_;
+    mutable BCConstPtr_Type         bcFactoryPressureFp_;
 
 
     FEFacPtr_Type feFactory_;

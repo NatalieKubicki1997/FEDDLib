@@ -209,7 +209,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
             this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lpressure, true );//assemblyIdentity(Lpressure); //
             BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
             dummy->addBlock(Lpressure,0,0);
-            this->bcFactoryPressure_->setSystem(dummy); 
+            this->bcFactoryPressureLaplace_->setSystem(dummy); 
             this->getPreconditionerConst()->setPressureLaplaceMatrix( Lpressure );
             
             // PCD Operator  
@@ -232,7 +232,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
             AdvPressure->fillComplete();
             BlockMatrixPtr_Type dummy2(new BlockMatrix_Type (1));
             dummy2->addBlock(AdvPressure,0,0);
-            this->bcFactoryPressure_->setSystem(dummy2); 
+            this->bcFactoryPressureFp_->setSystem(dummy2); 
             this->getPreconditionerConst()->setPCDOperator( AdvPressure );
 
         }
@@ -386,7 +386,7 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
                 this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lpressure, true );//assemblyIdentity(Lpressure); //
                 BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
                 dummy->addBlock(Lpressure,0,0);
-                this->bcFactoryPressure_->setSystem(dummy); 
+                this->bcFactoryPressureLaplace_->setSystem(dummy); 
                 this->getPreconditionerConst()->setPressureLaplaceMatrix( Lpressure );
                 
                 // PCD Operator  
@@ -408,7 +408,7 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
                 AdvPressure->fillComplete();
                 BlockMatrixPtr_Type dummy2(new BlockMatrix_Type (1));
                 dummy2->addBlock(AdvPressure,0,0);
-                this->bcFactoryPressure_->setSystem(dummy2); 
+                this->bcFactoryPressureFp_->setSystem(dummy2); 
                 this->getPreconditionerConst()->setPCDOperator( AdvPressure );
 
             }
