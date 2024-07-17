@@ -327,7 +327,6 @@ int main(int argc, char *argv[]) {
                     }
                 }
 
-                domainVelocity->exportNodeFlags();
 
                 std::vector<double> parameter_vec(1, parameterListProblem->sublist("Parameter").get("MaxVelocity",1.));
 
@@ -356,7 +355,7 @@ int main(int argc, char *argv[]) {
 //                        bcFactory->addBC(dummyFunc, 3, 0, domainVelocity, "Neumann", dim);
 //                        bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
                         bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
-                        
+
                         bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
                        // bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
                         bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);

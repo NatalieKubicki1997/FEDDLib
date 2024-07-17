@@ -496,7 +496,6 @@ int main(int argc, char *argv[]) {
 
             }
 
-            domainVelocity->exportNodeFlags();
             
             int timeDisc = parameterListProblem->sublist("Timestepping Parameter").get("Butcher table",0);
 
