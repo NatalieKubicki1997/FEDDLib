@@ -187,6 +187,8 @@ private:
     ThyraLinOpPtr_Type precSchur_;
     MinPrecProblemPtr_Type probVelocity_;
     MinPrecProblemPtr_Type probSchur_;
+    ThyraLinOpPtr_Type laplaceInverse_;
+    ThyraLinOpPtr_Type massMatrixInverse_;
     mutable MatrixPtr_Type pressureMassMatrix_;
 
     mutable BlockMultiVectorPtr_Type pressureProjection_;

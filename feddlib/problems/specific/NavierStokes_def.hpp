@@ -186,18 +186,28 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
     
 #ifdef FEDD_HAVE_TEKO
     if ( !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Teko") ) {
-        if (this->parameterList_->sublist("General").get("Assemble Velocity Mass",false)) {
+        if (!this->parameterList_->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","SIMPLE").compare("LSC")
+         || !this->parameterList_->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","SIMPLE").compare("LSC-Pressure-Laplace")
+         || !this->parameterList_->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","SIMPLE").compare("SIMPLE")) {
             MatrixPtr_Type Mvelocity(new Matrix_Type( this->getDomain(0)->getMapVecFieldUnique(), this->getDomain(0)->getApproxEntriesPerRow() ) );
             //
             this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(0), "Vector", Mvelocity, true );
             //
             this->getPreconditionerConst()->setVelocityMassMatrix( Mvelocity );
+
            if (this->verbose_)
                 std::cout << "\nVelocity mass matrix for LSC block preconditioner is assembled and used for the preconditioner." << std::endl;
-        } else {
-            if (this->verbose_)
-                std::cout << "\nVelocity mass matrix for LSC block preconditioner not assembled and thus approximated/replaced with matrix F (fluid)." << std::endl;
-        }
+
+            MatrixPtr_Type Lpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+            this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lpressure, true );//assemblyIdentity(Lpressure); //
+            BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
+            dummy->addBlock(Lpressure,0,0);
+            this->bcFactoryPressureLaplace_->setSystem(dummy); 
+            this->getPreconditionerConst()->setPressureLaplaceMatrix( Lpressure );
+
+
+        } 
+        
         if(!this->parameterList_->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","SIMPLE").compare("PCD")){
              // Pressure mass matrix
             MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
@@ -209,6 +219,27 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
             this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lpressure, true );//assemblyIdentity(Lpressure); //
             BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
             dummy->addBlock(Lpressure,0,0);
+            // MapConstPtr_Type mapLp = this->getDomain(1)->getMapUnique();
+            // MapConstPtr_Type colMap = Lpressure->getMap("col");
+    
+            // for(int i=0; i<mapLp->getNodeNumElements(); i++){
+            //     Teuchos::ArrayView<const SC> valuesOld;
+            //     Teuchos::ArrayView<const LO> indices;
+
+            //     Lpressure->getLocalRowView(i, indices, valuesOld);
+            //     Teuchos::Array<SC> values( valuesOld.size(), Teuchos::ScalarTraits<SC>::zero() );
+            //     GO globalDof = mapLp->getGlobalElement( i );
+            //     for (UN j=0; j<indices.size(); j++) {
+            //         if ( colMap->getGlobalElement( indices[j] )  == globalDof ){
+            //             values[j] = valuesOld[j] + valuesOld[j]*1.e-10;
+            //         }
+            //         else
+            //             values[j] = valuesOld[j];
+            //     }
+            //     Lpressure->replaceLocalValues(i, indices(), values());
+            // }
+
+
             this->bcFactoryPressureLaplace_->setSystem(dummy); 
             this->getPreconditionerConst()->setPressureLaplaceMatrix( Lpressure );
             
@@ -217,7 +248,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
             u_rep_->importFromVector(u, true); // making repeated solution
 
             MatrixPtr_Type AdvPressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
-            this->feFactory_->assemblyAdvectionVecFieldScalar( this->dim_, this->domain_FEType_vec_.at(1), AdvPressure, u_rep_, false ); 
+            this->feFactory_->assemblyAdvectionVecFieldScalar( this->dim_, this->domain_FEType_vec_.at(1),this->domain_FEType_vec_.at(0), AdvPressure, u_rep_, false ); 
 
             // \nu * \Delta
             MatrixPtr_Type Lpressure2(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
@@ -385,6 +416,28 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
                 MatrixPtr_Type Lpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
                 this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lpressure, true );//assemblyIdentity(Lpressure); //
                 BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
+                // MapConstPtr_Type mapLp = this->getDomain(1)->getMapUnique();
+                // MapConstPtr_Type colMap = Lpressure->getMap("col");
+                // Lpressure->print();
+
+                // for(int i=0; i<mapLp->getNodeNumElements(); i++){
+                //     Teuchos::ArrayView<const SC> valuesOld;
+                //     Teuchos::ArrayView<const LO> indices;
+
+                //     Lpressure->getLocalRowView(i, indices, valuesOld);
+                //     Teuchos::Array<SC> values( valuesOld.size(), Teuchos::ScalarTraits<SC>::zero() );
+                //     GO globalDof = mapLp->getGlobalElement( i );
+                //     for (UN j=0; j<indices.size(); j++) {
+                //         if ( colMap->getGlobalElement( indices[j] )  == globalDof ){
+                //             values[j] = valuesOld[j] + valuesOld[j]*1.e-10;
+                //         }
+                //         else
+                //             values[j] = valuesOld[j];
+                //     }
+                //     Lpressure->replaceLocalValues(globalDof, indices(), values());
+                // }
+                // Lpressure->print();
+
                 dummy->addBlock(Lpressure,0,0);
                 this->bcFactoryPressureLaplace_->setSystem(dummy); 
                 this->getPreconditionerConst()->setPressureLaplaceMatrix( Lpressure );
@@ -394,7 +447,7 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
                 // u_rep_->importFromVector(u, true); // making repeated solution
 
                 MatrixPtr_Type AdvPressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
-                this->feFactory_->assemblyAdvectionVecFieldScalar( this->dim_, this->domain_FEType_vec_.at(1), AdvPressure, u_rep_, false ); 
+                this->feFactory_->assemblyAdvectionVecFieldScalar( this->dim_, this->domain_FEType_vec_.at(1), this->domain_FEType_vec_.at(0),AdvPressure, u_rep_, false ); 
 
                 // \nu * \Delta
                 MatrixPtr_Type Lpressure2(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );

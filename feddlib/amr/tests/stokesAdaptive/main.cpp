@@ -697,6 +697,8 @@ int main(int argc, char *argv[]) {
 			bcFactory->addBC(flag5Func, 5, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
 			bcFactory->addBC(zeroDirichlet2D, 7, 1, domainPressure, "Dirichlet", dim, parameter_vec);
 
+			Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryPressureLaplace( new BCBuilder<SC,LO,GO,NO>( ) );
+            Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryPressureFp( new BCBuilder<SC,LO,GO,NO>( ) );
       
 			MAIN_TIMER_STOP(Bounds);	
 			MAIN_TIMER_START(Solver," Step 2:	 solving PDE");
@@ -708,6 +710,8 @@ int main(int argc, char *argv[]) {
 				Teuchos::TimeMonitor solveTimeMonitor(*solveTime);
 				
 				stokes->addBoundaries(bcFactory);
+				stokes->addBoundariesPressureLaplace(bcFactoryPressureLaplace);
+            	stokes->addBoundariesPressureFp(bcFactoryPressureFp);
 				stokes->addRhsFunction(rhs);						    
 				stokes->initializeProblem();						    
 				stokes->assemble();

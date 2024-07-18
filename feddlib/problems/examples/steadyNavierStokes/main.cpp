@@ -412,6 +412,10 @@ int main(int argc, char *argv[]) {
                 NavierStokes<SC,LO,GO,NO> navierStokes( domainVelocity, discVelocity, domainPressure, discPressure, parameterListAll );
 
                 domainVelocity->info();
+
+                // domainPressure->setUnstructuredMesh(domainPressure->getMesh());
+                // domainPressure->exportMesh(false,false,"BFS_h_H_15_9_subdomains.mesh");
+
                 domainPressure->info();
                 navierStokes.info();
 

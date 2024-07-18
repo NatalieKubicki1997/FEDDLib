@@ -64,6 +64,26 @@ void PrecBlock2x2<SC,LO,GO,NO>::setTriangular(
 }
 
 template<class SC, class LO, class GO, class NO>
+void PrecBlock2x2<SC,LO,GO,NO>::setTriangular(ThyraLinOpPtr_Type velocityInv,
+                        ThyraLinOpPtr_Type laplaceInverse,
+                        ThyraLinOpPtr_Type convectionDiffusionOperator,
+                        ThyraLinOpPtr_Type massMatrixInverse,
+                       ThyraLinOpPtr_Type BT){
+
+    setVeloctiyInv(velocityInv);
+    
+    setPressureInvs(laplaceInverse,convectionDiffusionOperator,massMatrixInverse);
+
+    setType("Triangular");
+
+    BT_ = BT;
+    
+    initialize();
+
+
+}
+
+template<class SC, class LO, class GO, class NO>
 void PrecBlock2x2<SC,LO,GO,NO>::setVeloctiyInv(ThyraLinOpPtr_Type velocityInv){
     velocityInv_ = velocityInv;
 }
@@ -71,6 +91,14 @@ void PrecBlock2x2<SC,LO,GO,NO>::setVeloctiyInv(ThyraLinOpPtr_Type velocityInv){
 template<class SC, class LO, class GO, class NO>
 void PrecBlock2x2<SC,LO,GO,NO>::setPressureInv(ThyraLinOpPtr_Type pressureInv){
     pressureInv_ = pressureInv;
+}
+template<class SC, class LO, class GO, class NO>
+void PrecBlock2x2<SC,LO,GO,NO>::setPressureInvs(ThyraLinOpPtr_Type laplaceInverse,
+                        ThyraLinOpPtr_Type convectionDiffusionOperator,
+                        ThyraLinOpPtr_Type massMatrixInverse){
+    laplaceInverse_ = laplaceInverse;
+    convectionDiffusionOperator_=convectionDiffusionOperator;
+    massMatrixInverse_=massMatrixInverse;
 }
 
 template<class SC, class LO, class GO, class NO>
@@ -150,6 +178,25 @@ void PrecBlock2x2<SC,LO,GO,NO>::applyImpl(
     else if (type_ == "Triangular"){
 
         pressureInv_->apply(NOTRANS, *X_1, Y_1.ptr(), 1., 0.);
+        
+        Teuchos::RCP< MultiVectorBase< SC > > Z_0 = X_0->clone_mv();
+        
+        BT_->apply(NOTRANS, *Y_1, Z_0.ptr(), -1., 1.); //Z0= BT*Y1 + X0
+        
+        velocityInv_->apply(NOTRANS, *Z_0, Y_0.ptr(), 1., 0.);
+                        
+    }
+    else if (type_ == "PCD"){
+
+        // For PCD we need apply the 'pressure inverse' differently, as it is made up of three components.
+        Teuchos::RCP< MultiVectorBase< SC > > X_res_1 = X_1->clone_mv();
+        Teuchos::RCP< MultiVectorBase< SC > > X_res_2 = X_1->clone_mv();
+
+        laplaceInverse_->apply(NOTRANS, *X_1, X_res_1.ptr(), 1., 0.); 
+        convectionDiffusionOperator_->apply(NOTRANS, *X_res_1, X_res_2.ptr(), 1., 0.); 
+        massMatrixInverse_->apply(NOTRANS, *X_res_2, Y_1.ptr(), 1., 0.); 
+
+        //pressureInv_->apply(NOTRANS, *X_1, Y_1.ptr(), 1., 0.);
         
         Teuchos::RCP< MultiVectorBase< SC > > Z_0 = X_0->clone_mv();
         

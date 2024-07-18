@@ -304,6 +304,7 @@ class FE {
     // Advection with vector valued w_h with scalar p_h: w_h \cdot \nabla p_h
     void assemblyAdvectionVecFieldScalar(int dim,
                             std::string FEType,
+                            std::string FEType2,
                             MatrixPtr_Type &A,
                             MultiVectorPtr_Type u,
                             bool callFillComplete=true);

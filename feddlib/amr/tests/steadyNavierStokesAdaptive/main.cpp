@@ -458,6 +458,8 @@ int main(int argc, char *argv[]) {
 
 			MAIN_TIMER_START(Bounds," Step 1:	 bcFactory");
             Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory( new BCBuilder<SC,LO,GO,NO>( ) );
+			Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryPressureLaplace( new BCBuilder<SC,LO,GO,NO>( ) );
+            Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryPressureFp( new BCBuilder<SC,LO,GO,NO>( ) );
 
 			bcFactory->addBC(flag1Func, 1, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
 			bcFactory->addBC(flag2Func, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
@@ -477,6 +479,8 @@ int main(int argc, char *argv[]) {
 	            Teuchos::TimeMonitor solveTimeMonitor(*solveTime);
 
 	            navierStokes->addBoundaries(bcFactory);
+				navierStokes->addBoundariesPressureLaplace(bcFactoryPressureLaplace);
+            	navierStokes->addBoundariesPressureFp(bcFactoryPressureFp);
 				navierStokes->addRhsFunction(rhs);						    
 	            navierStokes->initializeProblem();
 	            navierStokes->assemble();

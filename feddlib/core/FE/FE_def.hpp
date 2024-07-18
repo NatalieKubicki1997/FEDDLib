@@ -3570,6 +3570,7 @@ void FE<SC,LO,GO,NO>::assemblyElasticityStressesAceFEM(int dim,
 template <class SC, class LO, class GO, class NO>
 void FE<SC,LO,GO,NO>::assemblyAdvectionVecFieldScalar(int dim,
                                                   std::string FEType,
+                                                std::string FEType2,
                                                   MatrixPtr_Type &A,
                                                   MultiVectorPtr_Type u,
                                                   bool callFillComplete){
@@ -3587,15 +3588,17 @@ void FE<SC,LO,GO,NO>::assemblyAdvectionVecFieldScalar(int dim,
     MapConstPtr_Type map = domainVec_.at(1)->getMapRepeated();
 
     vec3D_dbl_ptr_Type     dPhi;
-    vec2D_dbl_ptr_Type     phi;
+    vec2D_dbl_ptr_Type     phi,phiV;
     vec_dbl_ptr_Type    weights = Teuchos::rcp(new vec_dbl_Type(0));
 
     UN extraDeg = Helper::determineDegree( dim, FEType, Std); //Elementwise assembly of grad u
 
-    UN deg = Helper::determineDegree( dim, FEType, FEType, Grad, Std, extraDeg);
+    UN deg = Helper::determineDegree( dim, FEType, FEType, Grad, Std, extraDeg)+1;
 
     Helper::getDPhi(dPhi, weights, dim, FEType, deg);
     Helper::getPhi(phi, weights, dim, FEType, deg);
+    Helper::getPhi(phiV, weights, dim, FEType2, deg);
+
     SC detB;
     SC absDetB;
     SmallMatrix<SC> B(dim);
@@ -3616,12 +3619,12 @@ void FE<SC,LO,GO,NO>::assemblyAdvectionVecFieldScalar(int dim,
         vec3D_dbl_Type dPhiTrans( dPhi->size(), vec2D_dbl_Type( dPhi->at(0).size(), vec_dbl_Type(dim,0.) ) );
         applyBTinv( dPhi, dPhiTrans, Binv );
 
-        for (int w=0; w<phi->size(); w++){ //quads points
+        for (int w=0; w<phiV->size(); w++){ //quads points
             for (int d=0; d<dim; d++) {
                 uLoc[d][w] = 0.;
-                for (int i=0; i < phi->at(0).size(); i++) {
+                for (int i=0; i < phiV->at(0).size(); i++) {
                     LO index = dim * elementsVel->getElement(T).getNode(i) + d;
-                    uLoc[d][w] += uArray[index] * phi->at(w).at(i);
+                    uLoc[d][w] += uArray[index] * phiV->at(w).at(i);
                 }
             }
         }

@@ -140,7 +140,7 @@ void Preconditioner<SC,LO,GO,NO>::initializePreconditioner( std::string type )
     if ( type == "Monolithic" || type == "FaCSI" || type == "Diagonal" || type == "Triangular"){
         if (type == "Monolithic")
             initPreconditionerMonolithic( );
-        else if (type == "FaCSI" || type == "Diagonal" || type == "Triangular")
+        else if (type == "FaCSI" || type == "Diagonal" || type == "Triangular" || type == "PCD")
             initPreconditionerBlock( );
         
     }
@@ -827,7 +827,6 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
     tekoLinOp_ = Thyra::block2x2(thyraF,thyraBT,thyraB,thyraC);
 
     if (!precondtionerIsBuilt_) {
-        cout << " #### PRECONDITIONER:: BUILD TEKO #### " << endl;
 
         if ( precFactory_.is_null() ){
             ParameterListPtr_Type pListThyraSolver = sublist( parameterList, "ThyraSolver" );
@@ -867,11 +866,19 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
             // - 'Pressure Mass Operator'
             // - 'PCD Operator'
 
-            if(!tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("LSC") || !tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("SIMPLE")){
+            if(!tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("LSC") || 
+                !tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("LSC-Pressure-Laplace")  || 
+                !tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("SIMPLE")){
                 Teko::LinearOp thyraMass = velocityMassMatrix_;
 
                 Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackMass = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "Velocity Mass Matrix", thyraMass ) );
                 rh_->addRequestCallback( callbackMass );
+
+                Teko::LinearOp thyraLaplace = pressureLaplace_;
+
+                Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackLaplace = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "Pressure Laplace Operator", thyraLaplace ) );
+                rh_->addRequestCallback( callbackLaplace );
+
             }
             else if(!tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("PCD")){
                 // Pressure Laplace
@@ -1242,8 +1249,48 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerBlock2x2( )
     
     precSchur_ = probSchur_->getPreconditioner()->getThyraPrec()->getNonconstUnspecifiedPrecOp();
     
-    
+    // Similar to before we setup the precontioner for the Massmatrix and the Discrete laplacian operator
     string type = parameterList->sublist("General").get("Preconditioner Method","Diagonal");
+
+    if (type == "PCD") {
+
+        if (verbose) {
+            std::cout << "\t --- -------------------------------------------------------- ---"<< std::endl;
+            std::cout << "\t --- Building PCD Opertor Components " << std::endl;
+            std::cout << "\t --- -------------------------------------------------------- ---"<< std::endl;
+        }
+
+
+        MinPrecProblemPtr_Type probLaplace_ = Teuchos::rcp( new MinPrecProblem_Type( plSchur, comm ) );
+        DomainConstPtr_vec_Type domain2(0);
+        domain2.push_back( problem_->getDomain(1) );
+        probLaplace_->initializeDomains( domain2 );
+        probLaplace_->initializeLinSolverBuilder( problem_->getLinearSolverBuilder() );
+
+        BlockMatrixPtr_Type Ap = Teuchos::rcp( new BlockMatrix_Type(1) );
+        Ap->addBlock(pressureLaplaceMatrixPtr_,0,0);
+
+        probLaplace_->initializeSystem( Ap );
+
+        probSchur_->setupPreconditioner( "Monolithic" ); // single matrix
+        laplaceInverse_ = probSchur_->getPreconditioner()->getThyraPrec()->getNonconstUnspecifiedPrecOp();
+
+
+        MinPrecProblemPtr_Type probMass_ = Teuchos::rcp( new MinPrecProblem_Type( plSchur, comm ) );
+        probMass_->initializeDomains( domain2 );
+        probMass_->initializeLinSolverBuilder( problem_->getLinearSolverBuilder() );
+
+        BlockMatrixPtr_Type Qp = Teuchos::rcp( new BlockMatrix_Type(1) );       
+        Qp->addBlock(pressureMassMatrixPtr_,0,0);
+
+        probMass_->initializeSystem( Qp );
+
+        probMass_->setupPreconditioner( "Monolithic" ); // single matrix
+        massMatrixInverse_ = probMass_->getPreconditioner()->getThyraPrec()->getNonconstUnspecifiedPrecOp();
+
+
+    }
+    
     if (type == "Diagonal") {
         blockPrec2x2->setDiagonal(precVelocity_,
                                   precSchur_);
@@ -1252,6 +1299,14 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerBlock2x2( )
         ThyraLinOpPtr_Type BT = system->getBlock(0,1)->getThyraLinOpNonConst();
         blockPrec2x2->setTriangular(precVelocity_,
                                     precSchur_,
+                                    BT);
+    }
+    else if (type == "PCD") {
+        ThyraLinOpPtr_Type BT = system->getBlock(0,1)->getThyraLinOpNonConst();
+        blockPrec2x2->setTriangular(precVelocity_,
+                                    laplaceInverse_,
+                                    pcdOperator_,
+                                    massMatrixInverse_,
                                     BT);
     }
     
