@@ -329,7 +329,7 @@ int main(int argc, char *argv[]) {
                 //domainPressure->setUnstructuredMesh(domainPressure->getMesh());
 
                 //domainPressure->exportMesh(false,false,"BFS_h_H_1_9_subdomains.mesh");
-                domainVelocity->exportNodeFlags();
+                // domainVelocity->exportNodeFlags();
 
                 std::vector<double> parameter_vec(1, parameterListProblem->sublist("Parameter").get("MaxVelocity",1.));
 
