@@ -68,13 +68,14 @@ void PrecBlock2x2<SC,LO,GO,NO>::setTriangular(ThyraLinOpPtr_Type velocityInv,
                         ThyraLinOpPtr_Type laplaceInverse,
                         ThyraLinOpPtr_Type convectionDiffusionOperator,
                         ThyraLinOpPtr_Type massMatrixInverse,
+                        ThyraLinOpPtr_Type massMatrixVInverse,
                        ThyraLinOpPtr_Type BT){
 
     setVeloctiyInv(velocityInv);
     
-    setPressureInvs(laplaceInverse,convectionDiffusionOperator,massMatrixInverse);
+    setPressureInvs(laplaceInverse,convectionDiffusionOperator,massMatrixInverse,massMatrixVInverse);
 
-    setType("Triangular");
+    setType("PCD");
 
     BT_ = BT;
     
@@ -95,10 +96,14 @@ void PrecBlock2x2<SC,LO,GO,NO>::setPressureInv(ThyraLinOpPtr_Type pressureInv){
 template<class SC, class LO, class GO, class NO>
 void PrecBlock2x2<SC,LO,GO,NO>::setPressureInvs(ThyraLinOpPtr_Type laplaceInverse,
                         ThyraLinOpPtr_Type convectionDiffusionOperator,
-                        ThyraLinOpPtr_Type massMatrixInverse){
+                        ThyraLinOpPtr_Type massMatrixInverse,
+                        ThyraLinOpPtr_Type massMatrixVInverse){
+
     laplaceInverse_ = laplaceInverse;
     convectionDiffusionOperator_=convectionDiffusionOperator;
     massMatrixInverse_=massMatrixInverse;
+    massMatrixVInverse_=massMatrixVInverse;
+
 }
 
 template<class SC, class LO, class GO, class NO>
@@ -109,15 +114,21 @@ void PrecBlock2x2<SC,LO,GO,NO>::setType(std::string type){
 template<class SC, class LO, class GO, class NO>
 void PrecBlock2x2<SC,LO,GO,NO>::initialize(){
     TEUCHOS_TEST_FOR_EXCEPTION(velocityInv_.is_null(), std::runtime_error,"Can not initialize Block2x2 preconditioner: 1 preconditioner not set.");
-    TEUCHOS_TEST_FOR_EXCEPTION(pressureInv_.is_null(), std::runtime_error,"Can not initialize Block2x2 preconditioner: 2 preconditioner not set.");
+    TEUCHOS_TEST_FOR_EXCEPTION(pressureInv_.is_null() && laplaceInverse_.is_null(), std::runtime_error,"Can not initialize Block2x2 preconditioner: 2 preconditioner not set.");
     Teuchos::Array< Teuchos::RCP< const Thyra::VectorSpaceBase< SC > > > vectorSpacesRange( 2 );
     Teuchos::Array< Teuchos::RCP< const Thyra::VectorSpaceBase< SC > > > vectorSpacesDomain( 2 );
     vectorSpacesRange[0] = velocityInv_->range();
-    vectorSpacesRange[1] = pressureInv_->domain();
     
     vectorSpacesDomain[0] = velocityInv_->domain();
-    vectorSpacesDomain[1] = pressureInv_->domain();
-    
+
+    if(!pressureInv_.is_null()){
+        vectorSpacesRange[1] = pressureInv_->domain();
+        vectorSpacesDomain[1] = pressureInv_->domain();
+    }
+    else{
+        vectorSpacesRange[1] = laplaceInverse_->domain();
+        vectorSpacesDomain[1] = laplaceInverse_->domain();
+    }
     Teuchos::RCP<const Thyra::DefaultProductVectorSpace<SC> > pR = Thyra::productVectorSpace<SC>( vectorSpacesRange );
     Teuchos::RCP<const Thyra::DefaultProductVectorSpace<SC> > pD = Thyra::productVectorSpace<SC>( vectorSpacesDomain );
 
@@ -187,14 +198,35 @@ void PrecBlock2x2<SC,LO,GO,NO>::applyImpl(
                         
     }
     else if (type_ == "PCD"){
-
+        TEUCHOS_TEST_FOR_EXCEPTION(laplaceInverse_.is_null(), std::runtime_error,"laplaceInverse_ not set.");
+        TEUCHOS_TEST_FOR_EXCEPTION(convectionDiffusionOperator_.is_null(), std::runtime_error,"convectionDiffusionOperator_ not set.");
+        TEUCHOS_TEST_FOR_EXCEPTION(massMatrixInverse_.is_null(), std::runtime_error,"massMatrixInverse_ not set.");
         // For PCD we need apply the 'pressure inverse' differently, as it is made up of three components.
         Teuchos::RCP< MultiVectorBase< SC > > X_res_1 = X_1->clone_mv();
         Teuchos::RCP< MultiVectorBase< SC > > X_res_2 = X_1->clone_mv();
 
-        laplaceInverse_->apply(NOTRANS, *X_1, X_res_1.ptr(), 1., 0.); 
-        convectionDiffusionOperator_->apply(NOTRANS, *X_res_1, X_res_2.ptr(), 1., 0.); 
-        massMatrixInverse_->apply(NOTRANS, *X_res_2, Y_1.ptr(), 1., 0.); 
+        // X_1->describe(*out,Teuchos::VERB_EXTREME);
+        
+        // std::cout << " Apply Mass Matrix " << std::endl;
+        massMatrixInverse_->apply(NOTRANS, *X_1, Y_1.ptr(), 1., 0.); 
+        // Y_1->describe(*out,Teuchos::VERB_EXTREME);
+
+        // std::cout << " Apply convectionDiffusionOperator_ " << std::endl;
+        convectionDiffusionOperator_->apply(NOTRANS, *Y_1, Y_1.ptr(), 1., 0.); 
+        // Y_1->describe(*out,Teuchos::VERB_EXTREME);
+
+        // std::cout << " Apply laplaceInverse_ " << std::endl;
+        bool useLaplaceInverse=true;
+        if(useLaplaceInverse)
+            laplaceInverse_->apply(NOTRANS, *Y_1, Y_1.ptr(), 1., 0.); 
+        else{ // We operate in different dimensions here
+            Teuchos::RCP< MultiVectorBase< SC > > X_res_0 = X_0->clone_mv();
+            BT_->apply(NOTRANS, *Y_1, X_res_0.ptr(), 1., 0.); //BT*y
+            massMatrixVInverse_->apply(NOTRANS, *X_res_0, X_res_0.ptr(), 1., 0.);
+            BT_->apply(TRANS, *X_res_0, Y_1.ptr(), 1., 0.);  
+        }
+
+        // Y_1->describe(*out,Teuchos::VERB_EXTREME);
 
         //pressureInv_->apply(NOTRANS, *X_1, Y_1.ptr(), 1., 0.);
         
@@ -203,7 +235,8 @@ void PrecBlock2x2<SC,LO,GO,NO>::applyImpl(
         BT_->apply(NOTRANS, *Y_1, Z_0.ptr(), -1., 1.); //Z0= BT*Y1 + X0
         
         velocityInv_->apply(NOTRANS, *Z_0, Y_0.ptr(), 1., 0.);
-                        
+                    // std::cout << " ################################################## " << std::endl;
+            
     }
     else{
         TEUCHOS_TEST_FOR_EXCEPTION(true, std::runtime_error,"Unknow 2x2 block preconditioner type. Select Diagonal or Triangular.");

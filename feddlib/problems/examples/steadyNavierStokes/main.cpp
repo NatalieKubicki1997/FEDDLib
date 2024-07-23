@@ -216,7 +216,7 @@ int main(int argc, char *argv[]) {
             parameterListAll->setParameters(*parameterListPrec);
         else if(precMethod == "Teko")
             parameterListAll->setParameters(*parameterListPrecTeko);
-        else if(precMethod == "Diagonal" || precMethod == "Triangular")
+        else if(precMethod == "Diagonal" || precMethod == "Triangular" || precMethod == "PCD")
             parameterListAll->setParameters(*parameterListPrecBlock);
 
         parameterListAll->setParameters(*parameterListSolver);    
@@ -318,7 +318,7 @@ int main(int argc, char *argv[]) {
                         ParameterListPtr_Type pListPartitioner = sublist( parameterListProblem, "Mesh Partitioner" );
                         MeshPartitioner<SC,LO,GO,NO> partitionerP1 ( domainP1Array, pListPartitioner, "P1", dim );
                         
-                        partitionerP1.readAndPartition();
+                        partitionerP1.readAndPartition(10);
 
                         if (discVelocity=="P2")
                             domainVelocity->buildP2ofP1Domain( domainPressure );
@@ -326,7 +326,10 @@ int main(int argc, char *argv[]) {
                             domainVelocity = domainPressure;
                     }
                 }
+                //domainPressure->setUnstructuredMesh(domainPressure->getMesh());
 
+                //domainPressure->exportMesh(false,false,"BFS_h_H_1_9_subdomains.mesh");
+                domainVelocity->exportNodeFlags();
 
                 std::vector<double> parameter_vec(1, parameterListProblem->sublist("Parameter").get("MaxVelocity",1.));
 
@@ -357,8 +360,9 @@ int main(int argc, char *argv[]) {
                         bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
 
                         bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
-                       // bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
                         bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                        
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 4, 0, domainPressure, "Dirichlet", 1);
                         //bcFactoryPressureFp->addBC(zeroDirichlet2D, 1, 0, domainPressure, "Dirichlet", 1);
 
 
@@ -413,8 +417,6 @@ int main(int argc, char *argv[]) {
 
                 domainVelocity->info();
 
-                // domainPressure->setUnstructuredMesh(domainPressure->getMesh());
-                // domainPressure->exportMesh(false,false,"BFS_h_H_15_9_subdomains.mesh");
 
                 domainPressure->info();
                 navierStokes.info();

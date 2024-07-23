@@ -252,7 +252,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditioner( std::string type )
     else if( type == "FaCSI" || type == "FaCSI-Teko" ){
         buildPreconditionerFaCSI( type );
     }
-    else if(type == "Triangular" || type == "Diagonal"){
+    else if(type == "Triangular" || type == "Diagonal" || type == "PCD" ){
         buildPreconditionerBlock2x2( );
     }
     else
@@ -267,7 +267,6 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditioner( std::string type )
 template <class SC,class LO,class GO,class NO>
 void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
 {
-    cout << " Build Monolithic preconditioner " << endl;
     CommConstPtr_Type comm;
     if (!problem_.is_null())
         comm = problem_->getComm();
@@ -336,7 +335,6 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
    // timeProblem_->getSystemCombined()->print();
     //Set Precondtioner lists
     if (!precondtionerIsBuilt_) {
-        cout << " PRECONDITIONER NOT BUILD " << endl;
         if ( !precType.compare("FROSch") ){
             Teuchos::ArrayRCP<FROSch::DofOrdering> dofOrderings(numberOfBlocks);
             Teuchos::ArrayRCP<UN> dofsPerNodeVector(numberOfBlocks);
@@ -1256,29 +1254,33 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerBlock2x2( )
 
         if (verbose) {
             std::cout << "\t --- -------------------------------------------------------- ---"<< std::endl;
-            std::cout << "\t --- Building PCD Opertor Components " << std::endl;
+            std::cout << "\t --- Building PCD Operator Components " << std::endl;
             std::cout << "\t --- -------------------------------------------------------- ---"<< std::endl;
         }
 
-
-        MinPrecProblemPtr_Type probLaplace_ = Teuchos::rcp( new MinPrecProblem_Type( plSchur, comm ) );
-        DomainConstPtr_vec_Type domain2(0);
-        domain2.push_back( problem_->getDomain(1) );
-        probLaplace_->initializeDomains( domain2 );
-        probLaplace_->initializeLinSolverBuilder( problem_->getLinearSolverBuilder() );
+        if (probLaplace_.is_null()) {
+            probLaplace_ = Teuchos::rcp( new MinPrecProblem_Type( plSchur, comm ) );
+            DomainConstPtr_vec_Type domain2(0);
+            domain2.push_back( problem_->getDomain(1) );
+            probLaplace_->initializeDomains( domain2 );
+            probLaplace_->initializeLinSolverBuilder( problem_->getLinearSolverBuilder() );
+        }
 
         BlockMatrixPtr_Type Ap = Teuchos::rcp( new BlockMatrix_Type(1) );
         Ap->addBlock(pressureLaplaceMatrixPtr_,0,0);
 
         probLaplace_->initializeSystem( Ap );
 
-        probSchur_->setupPreconditioner( "Monolithic" ); // single matrix
-        laplaceInverse_ = probSchur_->getPreconditioner()->getThyraPrec()->getNonconstUnspecifiedPrecOp();
+        probLaplace_->setupPreconditioner( "Monolithic" ); // single matrix
+        laplaceInverse_ = probLaplace_->getPreconditioner()->getThyraPrec()->getNonconstUnspecifiedPrecOp();
 
-
-        MinPrecProblemPtr_Type probMass_ = Teuchos::rcp( new MinPrecProblem_Type( plSchur, comm ) );
-        probMass_->initializeDomains( domain2 );
-        probMass_->initializeLinSolverBuilder( problem_->getLinearSolverBuilder() );
+        if (probMass_.is_null()) {
+            probMass_ = Teuchos::rcp( new MinPrecProblem_Type( plSchur, comm ) );
+            DomainConstPtr_vec_Type domain2(0);
+            domain2.push_back( problem_->getDomain(1) );
+            probMass_->initializeDomains( domain2 );
+            probMass_->initializeLinSolverBuilder( problem_->getLinearSolverBuilder() );
+        }
 
         BlockMatrixPtr_Type Qp = Teuchos::rcp( new BlockMatrix_Type(1) );       
         Qp->addBlock(pressureMassMatrixPtr_,0,0);
@@ -1288,7 +1290,21 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerBlock2x2( )
         probMass_->setupPreconditioner( "Monolithic" ); // single matrix
         massMatrixInverse_ = probMass_->getPreconditioner()->getThyraPrec()->getNonconstUnspecifiedPrecOp();
 
+        if (probVMass_.is_null()) {
+            probVMass_ = Teuchos::rcp( new MinPrecProblem_Type( plVelocity, comm ) );
+            DomainConstPtr_vec_Type domain1(0);
+            domain1.push_back( problem_->getDomain(0) );
+            probVMass_->initializeDomains( domain1 );
+            probVMass_->initializeLinSolverBuilder( problem_->getLinearSolverBuilder() );
+        }
+        BlockMatrixPtr_Type Qv = Teuchos::rcp( new BlockMatrix_Type(1) );       
+        Qv->addBlock(velocityMassMatrixMatrixPtr_,0,0);
 
+        probVMass_->initializeSystem( Qv );
+
+        probVMass_->setupPreconditioner( "Monolithic" ); // single matrix
+        massMatrixVInverse_ = probVMass_->getPreconditioner()->getThyraPrec()->getNonconstUnspecifiedPrecOp();
+        
     }
     
     if (type == "Diagonal") {
@@ -1302,12 +1318,21 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerBlock2x2( )
                                     BT);
     }
     else if (type == "PCD") {
+        MatrixPtr_Type pcdOperatorScaled = Teuchos::rcp( new Matrix_Type( pcdOperatorMatrixPtr_ ) );
+        //pcdOperatorScaled->print();
+        pcdOperatorScaled->resumeFill();
+        pcdOperatorScaled->scale(-1.0);
+        pcdOperatorScaled->fillComplete();
+        //pcdOperatorScaled->print();
         ThyraLinOpPtr_Type BT = system->getBlock(0,1)->getThyraLinOpNonConst();
         blockPrec2x2->setTriangular(precVelocity_,
                                     laplaceInverse_,
-                                    pcdOperator_,
+                                    pcdOperatorScaled->getThyraLinOpNonConst(),
                                     massMatrixInverse_,
+                                    massMatrixVInverse_,
                                     BT);
+        ThyraLinOpPtr_Type B = system->getBlock(1,0)->getThyraLinOpNonConst();
+        blockPrec2x2->setB(B);        
     }
     
     LinSolverBuilderPtr_Type solverBuilder;

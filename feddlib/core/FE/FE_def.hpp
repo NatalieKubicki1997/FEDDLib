@@ -2228,7 +2228,7 @@ void FE<SC,LO,GO,NO>::assemblyMass(int dim,
     vec2D_dbl_ptr_Type 	phi;
     vec_dbl_ptr_Type weights = Teuchos::rcp(new vec_dbl_Type(0));
 
-    UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std);
+    UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std)+2;
 
     Helper::getPhi( phi, weights, dim, FEType, deg );
 
@@ -2305,7 +2305,7 @@ void FE<SC,LO,GO,NO>::assemblyMass(int dim,
     vec2D_dbl_ptr_Type 	phi;
     vec_dbl_ptr_Type	weights = Teuchos::rcp(new vec_dbl_Type(0));
 
-    UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std);
+    UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std)+2;
     Helper::getPhi( phi, weights, dim, FEType, deg );
 
     SC detB;
@@ -2381,7 +2381,7 @@ void FE<SC,LO,GO,NO>::assemblyLaplace(int dim,
     vec3D_dbl_ptr_Type 	dPhi;
     vec_dbl_ptr_Type weights = Teuchos::rcp(new vec_dbl_Type(0));
     
-    UN deg = Helper::determineDegree(dim,FEType,FEType,Grad,Grad);
+    UN deg = Helper::determineDegree(dim,FEType,FEType,Grad,Grad)+2;
     Helper::getDPhi(dPhi, weights, dim, FEType, deg);
     
     SC detB;
@@ -3593,11 +3593,12 @@ void FE<SC,LO,GO,NO>::assemblyAdvectionVecFieldScalar(int dim,
 
     UN extraDeg = Helper::determineDegree( dim, FEType, Std); //Elementwise assembly of grad u
 
-    UN deg = Helper::determineDegree( dim, FEType, FEType, Grad, Std, extraDeg)+1;
+    UN deg = Helper::determineDegree( dim, FEType, FEType, Grad, Std, extraDeg)+2;
 
     Helper::getDPhi(dPhi, weights, dim, FEType, deg);
     Helper::getPhi(phi, weights, dim, FEType, deg);
     Helper::getPhi(phiV, weights, dim, FEType2, deg);
+
 
     SC detB;
     SC absDetB;
@@ -3635,13 +3636,12 @@ void FE<SC,LO,GO,NO>::assemblyAdvectionVecFieldScalar(int dim,
             for (UN j=0; j < value.size(); j++) {
                 for (UN w=0; w<dPhiTrans.size(); w++) {
                     for (UN d=0; d<dim; d++){
-                        value[j] += weights->at(w) * uLoc[d][w]* dPhiTrans[w][j][d] * (*phi)[w][i] ;
+                        value[j] += weights->at(w) * uLoc[d][w]* dPhiTrans[w][j][d] * (*phi)[w][i]  ;
                     }                         
                 }
                 value[j] *= absDetB;
-            }
-            for (UN j=0; j < indices.size(); j++)
                 indices[j] = GO (  map->getGlobalElement( elements->getElement(T).getNode(j) ) );
+            }
 
             GO row = GO ( map->getGlobalElement( elements->getElement(T).getNode(i) ) );
             A->insertGlobalValues( row, indices(), value() );
@@ -3790,8 +3790,6 @@ void FE<SC,LO,GO,NO>::assemblyAdvectionVecField(int dim,
                     if (setZeros_ && std::fabs(value[j]) < myeps_) {
                         value[j] = 0.;
                     }
-
-                    GO row = GO ( dim * map->getGlobalElement( elements->getElement(T).getNode(i) )  );
                 }
                 for (UN d=0; d<dim; d++) {
                     for (UN j=0; j < indices.size(); j++)

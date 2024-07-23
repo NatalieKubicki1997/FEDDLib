@@ -46,13 +46,16 @@ public:
                         ThyraLinOpPtr_Type laplaceInverse,
                         ThyraLinOpPtr_Type convectionDiffusionOperator,
                         ThyraLinOpPtr_Type massMatrixInverse,
+                        ThyraLinOpPtr_Type massMatrixVInverse,
                        ThyraLinOpPtr_Type BT);
 
-    void setPressureInvs(ThyraLinOpPtr_Type laplaceInverse, ThyraLinOpPtr_Type convectionDiffusionOperator, ThyraLinOpPtr_Type massMatrixInverse);
+    void setPressureInvs(ThyraLinOpPtr_Type laplaceInverse, ThyraLinOpPtr_Type convectionDiffusionOperator, ThyraLinOpPtr_Type massMatrixInverse, ThyraLinOpPtr_Type massMatrixVInverse);
 
     void setVeloctiyInv(ThyraLinOpPtr_Type veloctiyInv);
     
     void setPressureInv(ThyraLinOpPtr_Type pressureInv);
+
+    void setB(ThyraLinOpPtr_Type B) {B_ = B;};
 
     void setType(std::string type);
     
@@ -85,9 +88,12 @@ private:
     ThyraLinOpPtr_Type velocityInv_;
     ThyraLinOpPtr_Type pressureInv_;
     ThyraLinOpPtr_Type BT_;
+    ThyraLinOpPtr_Type B_;
     ThyraLinOpPtr_Type laplaceInverse_;
     ThyraLinOpPtr_Type convectionDiffusionOperator_;
     ThyraLinOpPtr_Type massMatrixInverse_;
+    ThyraLinOpPtr_Type massMatrixVInverse_;
+
     
     mutable Teuchos::RCP<const Thyra::DefaultProductVectorSpace<SC> > productRangeFluid_;
     
