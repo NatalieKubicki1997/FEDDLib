@@ -413,10 +413,12 @@ void Domain<SC, LO, GO, NO>::setUnstructuredMesh(MeshPtr_Type mesh)
     outputMesh->elementMap_ = mesh->elementMap_ ;
 	outputMesh->mapUnique_ = mesh->mapUnique_  ;
 	outputMesh->mapRepeated_ = mesh->mapRepeated_;
-	//outputMesh->edgeMap_  = mesh->edgeMap_  ;
+    if(!mesh->edgeMap_.is_null())
+	    outputMesh->edgeMap_  = mesh->edgeMap_  ;
 
 	outputMesh->elementsC_ = mesh->elementsC_;
-	//outputMesh->edgeElements_ = mesh->edgeElements_;
+    if(!mesh->edgeElements_.is_null())
+	    outputMesh->edgeElements_ = mesh->edgeElements_;
 	//outputMesh->surfaceTriangleElements_ = mesh->surfaceTriangleElements_;
 
    	outputMesh->pointsRep_ =  mesh->pointsRep_  ; 

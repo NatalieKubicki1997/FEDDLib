@@ -6940,6 +6940,163 @@ void FE<SC,LO,GO,NO>::assemblyShapeDerivativeDivergence(int dim,
 }
 
 template <class SC, class LO, class GO, class NO>
+void FE<SC,LO,GO,NO>::assemblySurfaceRobinBC(int dim,
+                                              std::string FEType,
+                                              std::string FEType2,
+                                              MultiVectorPtr_Type u,
+                                              MatrixPtr_Type A,
+                                              std::vector<SC>& funcParameter,
+                                              RhsFunc_Type func,
+                                              ParameterListPtr_Type parameters){
+
+    ElementsPtr_Type elements = domainVec_.at(1)->getElementsC();
+    ElementsPtr_Type elementsV = domainVec_.at(0)->getElementsC();
+
+    vec2D_dbl_ptr_Type pointsRep = domainVec_.at(1)->getPointsRepeated();
+
+    MapConstPtr_Type map = domainVec_.at(1)->getMapRepeated();
+
+    vec3D_dbl_ptr_Type     dPhi;
+    vec2D_dbl_ptr_Type     phi,phiV;
+    vec_dbl_ptr_Type    weights = Teuchos::rcp(new vec_dbl_Type(0));
+
+    UN extraDeg = Helper::determineDegree( dim-1, FEType, Std); //Elementwise assembly of grad u
+
+    UN deg = Helper::determineDegree( dim-1, FEType, FEType, Grad, Std, extraDeg);
+
+    Helper::getDPhi(dPhi, weights, dim-1, FEType, deg);
+    Helper::getPhi(phi, weights, dim-1, FEType, deg);
+    Helper::getPhi(phiV, weights, dim-1, FEType2, deg);
+
+    double kinVisc = parameters->sublist("Parameter").get("Viscosity",1.);
+
+    SC detB;
+    SC absDetB;
+    SmallMatrix<SC> B(dim);
+    SmallMatrix<SC> Binv(dim);
+    SmallMatrix<SC> B1(dim);
+    SmallMatrix<SC> Binv1(dim);  
+    GO glob_i, glob_j;
+    vec_dbl_Type v_i(dim);
+    vec_dbl_Type v_j(dim);
+
+    vec2D_dbl_Type uLoc( dim, vec_dbl_Type( weights->size() , -1. ) );
+    vec_dbl_Type uLocN(  weights->size() , -1. );
+
+    Teuchos::ArrayRCP< const SC > uArray = u->getData(0);
+
+
+    SC elScaling;
+    vec_dbl_Type b(dim);
+       
+    std::vector<double> valueFunc(dim);
+    // The second last entry is a placeholder for the surface element flag. It will be set below
+    SC* paramsFunc = &(funcParameter[0]);
+    for (UN T=0; T<elements->numberElements(); T++) {
+        FiniteElement fe = elementsV->getElement( T );
+        ElementsPtr_Type subEl = fe.getSubElements(); // might be null
+        for (int surface=0; surface<fe.numSubElements(); surface++) {
+            FiniteElement feSub = subEl->getElement( surface  );
+            if(subEl->getDimension() == dim-1){
+                // Setting flag to the placeholder (second last entry). The last entry at (funcParameter.size() - 1) should always be the degree of the surface function
+               
+                vec_int_Type nodeList = feSub.getVectorNodeListNonConst ();
+                vec_int_Type nodeListP = elements->getElement(T).getSubElements()->getElement(surface).getVectorNodeListNonConst();
+
+                vec_dbl_Type v_E(dim,1.);
+                double norm_v_E=1.;
+                vec_dbl_Type x(dim,0.); //dummy
+                paramsFunc[ funcParameter.size() - 1 ] = feSub.getFlag();          
+
+                func( &x[0], &valueFunc[0], paramsFunc);
+                if(valueFunc[0] > 0.){
+
+                    Helper::computeSurfaceNormal(dim, pointsRep,nodeList,v_E,norm_v_E);
+
+                    Helper::buildTransformationSurface( nodeList, pointsRep, B, b, FEType);
+                    elScaling = B.computeScaling( );
+                    for (int w=0; w<phiV->size(); w++){ //quads points
+                        for (int d=0; d<dim; d++) {
+                            uLoc[d][w] = 0.;
+                            for (int i=0; i < phiV->at(0).size(); i++) {
+                                LO index = dim * nodeList[i] + d;
+                                uLoc[d][w] += uArray[index] * phiV->at(w).at(i);
+                            }
+                        }
+                    }
+                    for (int w=0; w<phiV->size(); w++){ //quads points
+                        uLocN[w] = 0.;
+                        for (int d=0; d<dim; d++) {
+                            uLocN[w] += uLoc[d][w] *v_E[d] / norm_v_E;
+                        }
+                    }
+                
+                    for (UN i=0; i < phi->at(0).size(); i++) {
+                        Teuchos::Array<SC> value( phi->at(0).size(), 0. );
+                        Teuchos::Array<GO> indices( phi->at(0).size(), 0 );
+                        for (UN j=0; j < value.size(); j++) {
+                            for (UN w=0; w<phi->size(); w++) {
+                                value[j] += weights->at(w) * uLocN[w]* (*phi)[w][j] * (*phi)[w][i]  ;
+                            }
+                            value[j] *= elScaling;
+                            indices[j] = GO (  map->getGlobalElement( nodeListP[j] ) );
+                        }
+
+                        GO row = GO ( map->getGlobalElement( nodeListP[i] ) );
+                        A->insertGlobalValues( row, indices(), value() );
+                    }
+                    vec_int_Type kn1= elements->getElement(T).getVectorNodeListNonConst();
+                    vec_dbl_ptr_Type 	value(new vec_dbl_Type(dim,0.0));
+                    vec2D_dbl_ptr_Type	QuadPts;
+                    vec_dbl_ptr_Type    weightsDummy = Teuchos::rcp(new vec_dbl_Type(0));
+                    Helper::buildTransformation(elements->getElement(T).getVectorNodeList(), pointsRep, B1);
+                    detB = B1.computeInverse(Binv1);
+                    absDetB = std::fabs(detB);
+                    Helper::getQuadratureValues(dim, deg, QuadPts, weightsDummy, FEType);
+
+                    for (UN i=0; i < phi->at(0).size(); i++) {
+                        Teuchos::Array<SC> value(  phi->at(0).size(), 0. );
+                        Teuchos::Array<GO> indices(  phi->at(0).size(), 0 );
+                        for(int w=0; w< weights->size(); w++){
+                            for (UN j=0; j < value.size(); j++) {
+
+                                vec_dbl_Type deriPhi1( dim,0.0)  ;
+                                vec_dbl_ptr_Type valuePhi(new vec_dbl_Type(dim,0.0));
+
+                                auto it1 = find( kn1.begin(), kn1.end() ,nodeListP[j] );
+                                int id_in_element = distance( kn1.begin() , it1 );
+
+                                Helper::gradPhi(dim,1,id_in_element,QuadPts->at(w),valuePhi);
+                                for (int d=0; d<dim; d++) {
+                                    deriPhi1[d] = valuePhi->at(d);
+                                }
+
+                                vec_dbl_Type deriPhiT1(dim,0.);
+                                for(int q=0; q<dim; q++){
+                                    for(int s=0; s< dim ; s++)
+                                        deriPhiT1[q] += (deriPhi1[s]*Binv1[s][q]);
+                                    
+                                }
+                                // Phi might have other quad points
+                                for (UN d=0; d<dim; d++) {
+                                    value[j] -= kinVisc*weights->at(w) * deriPhi1[d]* v_E[d]/norm_v_E * (*phi)[w][i];
+                                }
+                                value[j] *= elScaling;
+                                indices[j] = GO (  map->getGlobalElement( nodeListP[j] ) );
+                            }
+                            GO row = GO ( map->getGlobalElement( nodeListP[i] ) );
+                            A->insertGlobalValues( row, indices(), value() );
+                            
+                        }   
+                    }
+                }
+            }
+        }
+    }
+    A->fillComplete();
+}
+
+template <class SC, class LO, class GO, class NO>
 void FE<SC,LO,GO,NO>::assemblySurfaceIntegralExternal(int dim,
                                               std::string FEType,
                                               MultiVectorPtr_Type f,

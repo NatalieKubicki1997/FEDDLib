@@ -109,6 +109,15 @@ class FE {
     
     void assemblyIdentity(MatrixPtr_Type &A,bool callFillComplete = true);
     
+    void assemblySurfaceRobinBC(int dim, 
+                                std::string FEType, 
+                                std::string FEType2, 
+                                MultiVectorPtr_Type u_rep, 
+                                MatrixPtr_Type A, 
+                                std::vector<SC> &funcParameter, 
+                                RhsFunc_Type func, 
+                                ParameterListPtr_Type params);
+
     void assemblySurfaceIntegral(int dim,
                                  std::string FEType,
                                  MultiVectorPtr_Type  a,

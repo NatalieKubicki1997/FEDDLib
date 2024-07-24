@@ -412,6 +412,7 @@ int main(int argc, char *argv[]) {
 
             parameter_vec.push_back( parameterListProblem->sublist("Parameter").get("Max Ramp Time",0.1) );
 
+            string pcdBC = parameterListProblem->sublist("Parameter").get("PCD BC","Inlet");
 
             if (!bcType.compare("parabolic") || !bcType.compare("parabolic_benchmark")) {//flag of obstacle
                 if (dim==2){
@@ -420,9 +421,25 @@ int main(int argc, char *argv[]) {
 //                    bcFactory->addBC(dummyFunc, 3, 0, domainVelocity, "Neumann", dim);
 //                    bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
                     bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
-                    bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
-                    bcFactoryPressureFp->addBC(zeroDirichlet3D, 2, 0, domainPressure, "Dirichlet", 1);
+                  
+                    // bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    if( !pcdBC.compare("Inlet")){
 
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Outlet")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Mixed")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+    
 
                 }
                 else if (dim==3){
@@ -431,10 +448,24 @@ int main(int argc, char *argv[]) {
 //                    bcFactory->addBC(dummyFunc, 3, 0, domainVelocity, "Neumann", dim);
 //                    bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
                     bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);
-                    bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 3, 0, domainPressure, "Dirichlet", 1);
-                    bcFactoryPressureFp->addBC(zeroDirichlet3D, 2, 0, domainPressure, "Dirichlet", 1);
+                 
+                    if( !pcdBC.compare("Inlet")){
 
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 2, 0, domainPressure, "Dirichlet", 1);
 
+                        bcFactoryPressureFp->addBC(zeroDirichlet3D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Outlet")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet3D, 3, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Mixed")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet3D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+    
                     
                 }
             }
@@ -444,9 +475,22 @@ int main(int argc, char *argv[]) {
                     bcFactory->addBC(inflowParabolic2DSin, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
                     bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
 
-                    bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
-                    bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    if( !pcdBC.compare("Inlet")){
 
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Outlet")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Mixed")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
 
                 }
                 else if (dim==3){
@@ -463,9 +507,22 @@ int main(int argc, char *argv[]) {
                     bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
                     bcFactory->addBC(zeroDirichlet2D, 5, 0, domainVelocity, "Dirichlet", dim);
 
-                    bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
-                    bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                     if( !pcdBC.compare("Inlet")){
 
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Outlet")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Mixed")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
 
                 }
                 else if (dim==3){
@@ -478,9 +535,22 @@ int main(int argc, char *argv[]) {
                 bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet_Z", dim);
                 bcFactory->addBC(zeroDirichlet3D, 5, 0, domainVelocity, "Dirichlet", dim);
                 
-                bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
-                bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                if( !pcdBC.compare("Inlet")){
 
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Outlet")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Mixed")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                }
 
 
             }

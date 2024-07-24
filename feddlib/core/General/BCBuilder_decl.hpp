@@ -162,6 +162,10 @@ public:
     /// @param blockMatrix 
     void setSystem(const BlockMatrixPtr_Type &blockMatrix) const;
     
+    /// @brief Set boundary conditions to system
+    /// @param blockMatrix 
+    void setSystemScaled(const BlockMatrixPtr_Type &blockMatrix) const;
+    
 //    void setSystem(const MatrixPtr_Type &matrix) const;
     
     /// @brief 
@@ -173,11 +177,28 @@ public:
 
     /// @brief 
     /// @param matrix 
+    /// @param loc 
+    /// @param blockRow 
+    /// @param isDiagonalBlock 
+    void setDirichletBCScaled(const MatrixPtr_Type &matrix, int loc, int blockRow, bool isDiagonalBlock) const;
+
+    /// @brief 
+    /// @param matrix 
+    /// @param localNode 
+    /// @param dofsPerNode 
+    /// @param loc 
+    void setLocalRowEntry(const MatrixPtr_Type &matrix, LO localNode, UN dofsPerNode, int loc) const;
+    
+    /// @brief 
+    /// @param matrix 
     /// @param localNode 
     /// @param dofsPerNode 
     /// @param loc 
     void setLocalRowOne(const MatrixPtr_Type &matrix, LO localNode, UN dofsPerNode, int loc) const;
     
+    void setRobinBC(const MatrixPtr_Type &matrix, int loc, int blockRow, bool isDiagonalBlock) const;
+
+    bool blockHasRobinBC(int block, int &loc) const;
     /// @brief 
     /// @param matrix 
     /// @param localNode 

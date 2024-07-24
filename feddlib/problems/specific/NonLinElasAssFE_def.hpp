@@ -291,7 +291,6 @@ void NonLinElasAssFE<SC,LO,GO,NO>::assembleSourceTermLoadstepping(double time) c
                 //A->print();
                 MatrixPtr_Type AKext(new Matrix_Type( this->getDomain(0)->getMapVecFieldUnique(), this->getDomain(0)->getDimension() * this->getDomain(0)->getApproxEntriesPerRow() ) );          
                 MatrixPtr_Type Kext(new Matrix_Type( this->getDomain(0)->getMapVecFieldUnique(), this->getDomain(0)->getDimension() * this->getDomain(0)->getApproxEntriesPerRow()*2 ) );          
-                MultiVectorPtr_Type Kext_vec;
                 this->feFactory_->assemblyNonlinearSurfaceIntegralExternal(this->dim_, this->getDomain(0)->getFEType(),FERhs, u_rep_,Kext, funcParameter, this->rhsFuncVec_[0],this->parameterList_);
                
                 A->addMatrix(1.,AKext,0.);

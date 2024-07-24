@@ -23,7 +23,6 @@ template <class SC, class LO, class GO, class NO>
 MeshUnstructured<SC,LO,GO,NO>::MeshUnstructured():
 Mesh<SC,LO,GO,NO>(),
 meshInterface_(),
-volumeID_(10),
 edgeElements_(),
 surfaceEdgeElements_(),
 meshFileName_("fileName.mesh"),
@@ -54,7 +53,6 @@ template <class SC, class LO, class GO, class NO>
 MeshUnstructured<SC,LO,GO,NO>::MeshUnstructured(CommConstPtr_Type comm, int volumeID, string meshUnit, bool convertToSI):
 Mesh<SC,LO,GO,NO>(comm),
 meshInterface_(),
-volumeID_(volumeID),
 edgeElements_(),
 surfaceEdgeElements_(),
 meshFileName_("fileName.mesh"),
@@ -400,7 +398,6 @@ void MeshUnstructured<SC,LO,GO,NO>::addSurfaceP2Nodes( FiniteElement &feP2, cons
     }
     
 }
-
 
 template <class SC, class LO, class GO, class NO>
 void MeshUnstructured<SC,LO,GO,NO>::setSurfaceP2( FiniteElement &feP2, const FiniteElement &surfFeP1, const vec2D_int_Type &surfacePermutation, int dim ){
@@ -802,50 +799,54 @@ int MeshUnstructured<SC,LO,GO,NO>::determineFlagP2( LO p1ID, LO p2ID, LO localEd
         vec_int_Type edge(2);
         bool foundLineSegment = false;
         vec_int_Type newFlags(0);
-        for (int i=0; i<elementsOfEdge.size() && !foundLineSegment; i++) {
-            if ( elementsOfEdge[i] != OTLO::invalid() ) {
-                //In elementsOfEdge we can access all elements which have this (the current) edge.
-                
-                FiniteElement fe = elements->getElement( elementsOfEdge[i] );
-                const vec_int_Type nodeList = fe.getVectorNodeList();
+        if(this->dim_ == 2 &&  elementsOfEdgeGlobal.size()>1) // We know it in interior edge then
+            newFlag = this->volumeID_;
+        else{
+            for (int i=0; i<elementsOfEdge.size() && !foundLineSegment; i++) {
+                if ( elementsOfEdge[i] != OTLO::invalid() ) {
+                    //In elementsOfEdge we can access all elements which have this (the current) edge.
+                    
+                    FiniteElement fe = elements->getElement( elementsOfEdge[i] );
+                    const vec_int_Type nodeList = fe.getVectorNodeList();
 
-                // we need to determine the numbering of p1ID and p2ID corresponding to the current element
-                auto it1 = find( nodeList.begin(), nodeList.end() , p1ID );
-                localElementNumbering[0] = distance( nodeList.begin() , it1 );
-                auto it2 = find( nodeList.begin(), nodeList.end() , p2ID );
-                localElementNumbering[1] = distance( nodeList.begin() , it2 );
-                edge[0] = p1ID; edge[1] = p2ID;
-                sort( edge.begin(), edge.end() );
-                
-                fe.findEdgeFlagInSubElements( edge, newFlags, false /*we are not in a subElement yet*/, permutation, foundLineSegment );
+                    // we need to determine the numbering of p1ID and p2ID corresponding to the current element
+                    auto it1 = find( nodeList.begin(), nodeList.end() , p1ID );
+                    localElementNumbering[0] = distance( nodeList.begin() , it1 );
+                    auto it2 = find( nodeList.begin(), nodeList.end() , p2ID );
+                    localElementNumbering[1] = distance( nodeList.begin() , it2 );
+                    edge[0] = p1ID; edge[1] = p2ID;
+                    sort( edge.begin(), edge.end() );
+                    
+                    fe.findEdgeFlagInSubElements( edge, newFlags, false /*we are not in a subElement yet*/, permutation, foundLineSegment );
 
-                //We need to mark this point since it can still be on the surface and another element holds the corresponding surface with the correct flag.
-                if (newFlags.size() == 0 && newFlag > this->volumeID_)
-                    newFlag = this->volumeID_; //do we need this?
+                    //We need to mark this point since it can still be on the surface and another element holds the corresponding surface with the correct flag.
+                    if (newFlags.size() == 0 && newFlag > this->volumeID_)
+                        newFlag = this->volumeID_; //do we need this?
 
-                //If we found a line element, then we choose this flag
-                if (foundLineSegment){
-                    foundFlag = true;
-                    newFlag = newFlags [0];
-                }
-                else {
-                    // We use the lowest flag of all surfaces
-					
-                    for (int k = 0; k < newFlags.size(); k++) {
+                    //If we found a line element, then we choose this flag
+                    if (foundLineSegment){
                         foundFlag = true;
-                       if (newFlag > newFlags[k] )
-                            newFlag = newFlags[k];
+                        newFlag = newFlags [0];
+                    }
+                    else {
+                        // We use the lowest flag of all surfaces
+                        
+                        for (int k = 0; k < newFlags.size(); k++) {
+                            foundFlag = true;
+                        if (newFlag > newFlags[k] )
+                                newFlag = newFlags[k];
+                        }
                     }
                 }
+                else
+                    markPoint = true;
             }
-            else
-                markPoint = true;
-        }
-        if (markPoint && !foundFlag) {
-            // We have not found a surface flag for this point.
-            // No part of the element which owns this edge is part of the surface, but there might be a different element which has this edge but does not own it, but this element might have a part of the surface. We mark this point and determine the correct flag later
-            markedPoint.push_back( {p1ID, p2ID, localEdgeID } );
-            newFlag = -1;
+            if (markPoint && !foundFlag) {
+                // We have not found a surface flag for this point.
+                // No part of the element which owns this edge is part of the surface, but there might be a different element which has this edge but does not own it, but this element might have a part of the surface. We mark this point and determine the correct flag later
+                markedPoint.push_back( {p1ID, p2ID, localEdgeID } );
+                newFlag = -1;
+            }
         }
         
     }

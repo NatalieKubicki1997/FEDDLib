@@ -464,11 +464,15 @@ int main(int argc, char *argv[])
             parameter_vec.push_back( parameterListProblem->sublist("Parameter").get("Heart Beat Start",0.2) ); // Adding the heart beat start last
 
             Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory( new BCBuilder<SC,LO,GO,NO>( ) );
+            Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryPressureLaplace( new BCBuilder<SC,LO,GO,NO>( ) );
+            Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryPressureFp( new BCBuilder<SC,LO,GO,NO>( ) );
 
             // TODO: Vermutlich braucht man keine bcFactoryFluid und bcFactoryStructure,
             // da die RW sowieso auf dem FSI-Problem gesetzt werden.
 
             // Fluid-RW
+            string pcdBC = parameterListProblem->sublist("Parameter").get("PCD BC","Inlet");
+
             {                               
                 //bcFactory->addBC(zeroDirichlet3D, 1, 0, domainFluidVelocity, "Dirichlet", dim); // wall
                 string rampType = parameterListProblem->sublist("Parameter Fluid").get("Ramp type","cos");
@@ -479,6 +483,21 @@ int main(int argc, char *argv[])
 
                 bcFactory->addBC(zeroDirichlet3D, 10, 0, domainFluidVelocity, "Dirichlet", dim, parameter_vec); // outflow ring
                 
+                if( !pcdBC.compare("Inlet")){
+                    bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 2, 0, domainFluidPressure, "Dirichlet", 1);
+
+                    bcFactoryPressureFp->addBC(zeroDirichlet3D, 2, 0, domainFluidPressure, "Dirichlet", 1);
+                }
+                else if( !pcdBC.compare("Outlet")){
+                    bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 3, 0, domainFluidPressure, "Dirichlet", 1);
+
+                    bcFactoryPressureFp->addBC(zeroDirichlet3D, 3, 0, domainFluidPressure, "Dirichlet", 1);
+                }
+                else if( !pcdBC.compare("Mixed")){
+                    bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 3, 0, domainFluidPressure, "Dirichlet", 1);
+
+                    bcFactoryPressureFp->addBC(zeroDirichlet3D, 2, 0, domainFluidPressure, "Dirichlet", 1);
+                }
                 
             }
 
@@ -487,7 +506,9 @@ int main(int argc, char *argv[])
             NavierStokes<SC,LO,GO,NO> navierStokes( domainFluidVelocity, feTypeV, domainFluidPressure, feTypeP, parameterListAll );
 
             navierStokes.addBoundaries(bcFactory);
-            
+            navierStokes.addBoundariesPressureLaplace(bcFactoryPressureLaplace);
+            navierStokes.addBoundariesPressureFp(bcFactoryPressureFp);
+
             navierStokes.initializeProblem();
             
             navierStokes.assemble();

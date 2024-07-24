@@ -422,54 +422,61 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
             // Pressure Laplace matrix
             MatrixPtr_Type Lp(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
             this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lp, true );//assemblyIdentity(Lp); //
-
-            // MatrixPtr_Type Identity(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
-            // this->feFactory_->assemblyIdentity(Identity); 
-            // Identity->resumeFill();
-            // Identity->scale(1.e-10);
-            // Identity->fillComplete();
-            //Identity->addMatrix(1,Lp,1);
-            //Lp->fillComplete();
-    
+            // Adding Boundary Conditions
             BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
             dummy->addBlock(Lp,0,0);
             this->bcFactoryPressureLaplace_->setSystem(dummy); 
+
             this->getPreconditionerConst()->setPressureLaplaceMatrix( Lp );
-            //Lp->print();
             // --------------------------------------------------------------------------------------------
 
             // PCD Operator  
             MatrixPtr_Type Kp(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
             // --------------------------------------------------------------------------------------------
-
-
-            // MultiVectorConstPtr_Type utest = this->solution_->getBlock(0);
-            // utest->putScalar(1.0);
+            // Advection component
             MatrixPtr_Type AdvPressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
             this->feFactory_->assemblyAdvectionVecFieldScalar( this->dim_, this->domain_FEType_vec_.at(1), this->domain_FEType_vec_.at(0),AdvPressure, u_rep_, true ); 
-            // \nu * \Delta
+           
+            // Diffusion component: \nu * \Delta
             MatrixPtr_Type Lp2(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
-            this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lp2, true );//assemblyIdentity(Lp); //
+            this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lp2, true );//assemblyIdentity(Lp);
             SC kinVisco = this->parameterList_->sublist("Parameter").get("Viscosity",1.);
-            dummy->addBlock(Lp2,0,0);
-            this->bcFactoryPressureLaplace_->setSystem(dummy); 
-            this->getPreconditionerConst()->setPressureLaplaceMatrix( Lp );
             Lp2->resumeFill();
             Lp2->scale(kinVisco);
-            Lp2->fillComplete();
-            // Lp2->print();
+            Lp2->fillComplete(); 
+            // ---------------------
+            if(this->parameterList_->sublist("Parameter").get("Fp-Ap Option 1",false)){ // Setting in Lp2 the boundaries of Lp
+                BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
+                dummy->addBlock(Lp2,0,0);
+                this->bcFactoryPressureLaplace_->setSystemScaled(dummy);        
+            }
+            
+            if(this->parameterList_->sublist("Parameter").get("Fp-Ap Option 2",true)){  // Setting in Lp2 the boundaries of Fp
+                BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
+                dummy->addBlock(Lp2,0,0);
+                this->bcFactoryPressureFp_->setSystemScaled(dummy);     
+            }
+            
+            if(this->parameterList_->sublist("Parameter").get("Robin BC",false)){
+                MatrixPtr_Type Kext(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getDimension() * this->getDomain(1)->getApproxEntriesPerRow()*2 ) );          
+                vec_dbl_Type funcParameter(1,kinVisco);
+                this->feFactory_->assemblySurfaceRobinBC(this->dim_, this->getDomain(1)->getFEType(),this->getDomain(0)->getFEType(),u_rep_,Kext, funcParameter, this->rhsFuncVec_[0],this->parameterList_);
+                Kext->addMatrix(1.,Kp,1.); // adding advection to diffusion
+            }
+
+            dummy->addBlock(AdvPressure,0,0);
+            this->bcFactoryPressureFp_->setSystemScaled(dummy); 
+
             // Adding laplace an convection together
             Lp2->addMatrix(1.,Kp,1.); // adding advection to diffusion
             AdvPressure->addMatrix(1.,Kp,1.); // adding advection to diffusion
 
             Kp->fillComplete();
-            // AdvPressure->print();
 
-            BlockMatrixPtr_Type dummy2(new BlockMatrix_Type (1));
-            dummy2->addBlock(Kp,0,0);
-            this->bcFactoryPressureFp_->setSystem(dummy2); 
+
             this->getPreconditionerConst()->setPCDOperator( Kp );
-                        
+
+               
         }
     }
     else if(type=="Newton"){ // We assume that reAssmble("FixedPoint") was already called for the current iterate

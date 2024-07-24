@@ -269,8 +269,9 @@ void EdgeElements::sortUniqueAndSetGlobalIDsParallel(MapConstPtr_Type elementMap
 	for(int i=0; i < elementsOfEdgeGlobal_.size() ;i++)
 	{
 		elementsOfEdgeLocal_[i].push_back(elementsOfEdgeGlobal_[i][0]);
-		if(elementsOfEdgeGlobal_[i].size()>1)
+		if(elementsOfEdgeGlobal_[i].size()>1){
 			elementsOfEdgeLocal_[i].push_back(elementsOfEdgeGlobal_[i][1]);
+        }
 	}
 }
 
