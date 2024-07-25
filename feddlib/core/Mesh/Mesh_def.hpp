@@ -840,7 +840,7 @@ void Mesh<SC,LO,GO,NO>::buildEdgeMap(){
     newEdgesUniqueGlobal->putScalar(   0 ); 
     newEdgesUniqueGlobal->importFromVector( exportLocalEntry, true, "Insert");
     // offset EdgesUnique for proc and globally
-    Teuchos::ArrayRCP< const LO > newEdgesList = newEdgesUniqueGlobal->getData(0);
+    Teuchos::ArrayRCP< const SC > newEdgesList = newEdgesUniqueGlobal->getData(0);
 
     GO procOffsetEdges=0;
     for(int i=0; i< myRank; i++)
@@ -890,7 +890,7 @@ void Mesh<SC,LO,GO,NO>::buildEdgeMap(){
     newEdgesInterfaceGlobal->importFromVector( exportLocalEntry, true, "Insert");
 
     // offset EdgesUnique for proc and globally
-    Teuchos::ArrayRCP< const LO > numUniqueInterface = newEdgesInterfaceGlobal->getData(0);
+    Teuchos::ArrayRCP< const SC > numUniqueInterface = newEdgesInterfaceGlobal->getData(0);
 
     procOffsetEdges=0;
     for(int i=0; i< myRank; i++)
