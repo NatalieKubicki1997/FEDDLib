@@ -1054,7 +1054,7 @@ void Mesh<SC,LO,GO,NO>::buildEdges(ElementsPtr_Type elements){
     this->edgeElements_->setUpElementsOfEdge( this->elementMap_, this->edgeMap_);
 
     int maxRank = std::get<1>(this->rankRange_);
-    this->updateElementsOfEdgesLocalAndGlobal(maxRank, this->edgeMap_);
+    this->updateElementsOfEdgesLocalAndGlobal(maxRank);
 
     FEDD_TIMER_STOP(elementsOfEdgeTimer);
 
@@ -1078,7 +1078,7 @@ void Mesh<SC,LO,GO,NO>::buildEdges(ElementsPtr_Type elements){
 */
 
 template <class SC, class LO, class GO, class NO>
-void Mesh<SC,LO,GO,NO>::updateElementsOfEdgesLocalAndGlobal(int maxRank,  MapConstPtr_Type edgeMap){
+void Mesh<SC,LO,GO,NO>::updateElementsOfEdgesLocalAndGlobal(int maxRank){
 
 	if(maxRank >0 && this->dim_ == 2){
 		vec_GO_Type edgesInterfaceGlobalID(0);

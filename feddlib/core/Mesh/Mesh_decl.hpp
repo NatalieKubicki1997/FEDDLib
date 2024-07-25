@@ -207,7 +207,7 @@ public:
     void buildEdges(ElementsPtr_Type elements);
 
     /// Rebuilding the information of elementsOfEdgeLocal and elementsOfEdgeGlobal of edges
-    void updateElementsOfEdgesLocalAndGlobal(int maxRank, MapConstPtr_Type edgeMap);
+    void updateElementsOfEdgesLocalAndGlobal(int maxRank);
 
     /// @brief This just gives us the element locations of nodes that determine an edge
     void setLocalEdgeIndices(vec2D_int_Type &localEdgeIndices);
