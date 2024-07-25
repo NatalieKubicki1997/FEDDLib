@@ -834,10 +834,10 @@ void Mesh<SC,LO,GO,NO>::buildEdgeMap(){
     // Setting the IDs of Edges that are uniquely on one
     // Processor
     // ---------------------------------------------------
-    exportLocalEntry->putScalar( (LO) edgesUnique );
+    exportLocalEntry->putScalar(   edgesUnique );
 
     MultiVectorLOPtr_Type newEdgesUniqueGlobal= Teuchos::rcp( new MultiVectorLO_Type( mapGlobalProc, 1 ) );
-    newEdgesUniqueGlobal->putScalar( (LO) 0 ); 
+    newEdgesUniqueGlobal->putScalar(   0 ); 
     newEdgesUniqueGlobal->importFromVector( exportLocalEntry, true, "Insert");
     // offset EdgesUnique for proc and globally
     Teuchos::ArrayRCP< const LO > newEdgesList = newEdgesUniqueGlobal->getData(0);
@@ -886,7 +886,7 @@ void Mesh<SC,LO,GO,NO>::buildEdgeMap(){
 
     exportLocalEntry->putScalar( uniqueEdges );
     MultiVectorLOPtr_Type newEdgesInterfaceGlobal= Teuchos::rcp( new MultiVectorLO_Type( mapGlobalProc, 1 ) );
-    newEdgesInterfaceGlobal->putScalar( (LO) 0 ); 
+    newEdgesInterfaceGlobal->putScalar(   0 ); 
     newEdgesInterfaceGlobal->importFromVector( exportLocalEntry, true, "Insert");
 
     // offset EdgesUnique for proc and globally
@@ -963,10 +963,10 @@ void Mesh<SC,LO,GO,NO>::buildEdgeMap(){
     MapConstPtr_Type edgeMapUnique = this->edgeMap_->buildUniqueMap( this->rankRange_ );
 
     MultiVectorPtr_Type repeatedEdges = Teuchos::rcp( new MultiVector_Type( this->edgeMap_, 1 ) );
-    repeatedEdges->putScalar((LO) 1);
+    repeatedEdges->putScalar(  1);
 
     MultiVectorPtr_Type uniqueEdgesVec = Teuchos::rcp( new MultiVector_Type( edgeMapUnique, 1 ) );
-    uniqueEdgesVec->putScalar( (LO) 0 ); 
+    uniqueEdgesVec->putScalar(   0 ); 
 
     // Adding all edges up to determine multiplicity
     uniqueEdgesVec->exportFromVector( repeatedEdges, false, "Add");
@@ -1110,15 +1110,15 @@ void Mesh<SC,LO,GO,NO>::updateElementsOfEdgesLocalAndGlobal(int maxRank){
 		MapConstPtr_Type mapGlobalInterfaceUnique = mapGlobalInterface->buildUniqueMap( this->rankRange_ );
 
 		MultiVectorLOPtr_Type isInterfaceElement_imp = Teuchos::rcp( new MultiVectorLO_Type( mapGlobalInterfaceUnique, 1 ) );
-		isInterfaceElement_imp->putScalar( (LO) 0 ); 
+		isInterfaceElement_imp->putScalar(   0 ); 
 		isInterfaceElement_imp->importFromVector( interfaceElements, false, "Insert");
 
 		MultiVectorLOPtr_Type isInterfaceElement_exp = Teuchos::rcp( new MultiVectorLO_Type( mapGlobalInterfaceUnique, 1 ) );
-		isInterfaceElement_exp->putScalar( (LO) 0 ); 
+		isInterfaceElement_exp->putScalar(   0 ); 
 		isInterfaceElement_exp->exportFromVector( interfaceElements, false, "Insert");
 
 		MultiVectorLOPtr_Type isInterfaceElement2_imp = Teuchos::rcp( new MultiVectorLO_Type( mapGlobalInterface, 1 ) );
-		isInterfaceElement2_imp->putScalar( (LO) 0 ); 
+		isInterfaceElement2_imp->putScalar(   0 ); 
 		isInterfaceElement2_imp->importFromVector(isInterfaceElement_imp, false, "Insert");
 
 		isInterfaceElement2_imp->exportFromVector(isInterfaceElement_exp, false, "Insert");
@@ -1172,11 +1172,11 @@ void Mesh<SC,LO,GO,NO>::updateElementsOfEdgesLocalAndGlobal(int maxRank){
 		//  - if an edge is not identified as an interface edge, of course it will not import nor export its interface Information, making itself and others incomplete
 
 		MultiVectorLOPtr_Type isInterfaceElement_exp = Teuchos::rcp( new MultiVectorLO_Type( mapGlobalInterfaceUnique, 1 ) );
-		isInterfaceElement_exp->putScalar( (LO) 0 ); 
+		isInterfaceElement_exp->putScalar(   0 ); 
 		isInterfaceElement_exp->exportFromVector( numberInterfaceElements, false, "Add");
 
 		MultiVectorLOPtr_Type isInterfaceElement2_imp = Teuchos::rcp( new MultiVectorLO_Type( mapGlobalInterface, 1 ) );
-		isInterfaceElement2_imp->putScalar( (LO) 0 ); 
+		isInterfaceElement2_imp->putScalar(   0 ); 
 		isInterfaceElement2_imp->importFromVector(isInterfaceElement_exp, true, "Insert");
 
 		Teuchos::ArrayRCP< LO > numberInterfaceElementsImportEntries  = isInterfaceElement2_imp->getDataNonConst(0);
@@ -1238,7 +1238,7 @@ void Mesh<SC,LO,GO,NO>::updateElementsOfEdgesLocalAndGlobal(int maxRank){
 				}
 
 				MultiVectorLOPtr_Type isInterfaceElement_exp = Teuchos::rcp( new MultiVectorLO_Type( mapGlobalInterfaceUnique, 1 ) );
-				isInterfaceElement_exp->putScalar( (LO) -1 ); 
+				isInterfaceElement_exp->putScalar(   -1 ); 
 				isInterfaceElement_exp->exportFromVector( interfaceElements, false, "Insert");
 
 				if(this->comm_->getRank() == k && mapGlobalInterfaceUnique->getNodeNumElements() > 0){
@@ -1252,7 +1252,7 @@ void Mesh<SC,LO,GO,NO>::updateElementsOfEdgesLocalAndGlobal(int maxRank){
 
 			
 				MultiVectorLOPtr_Type isInterfaceElement2_imp = Teuchos::rcp( new MultiVectorLO_Type( mapGlobalInterface, 1 ) );
-				isInterfaceElement2_imp->putScalar( (LO) 0 ); 
+				isInterfaceElement2_imp->putScalar(   0 ); 
 				isInterfaceElement2_imp->importFromVector(isInterfaceElement_exp, false, "Insert");
 
 				interfaceElementsEntries  = isInterfaceElement2_imp->getDataNonConst(0);

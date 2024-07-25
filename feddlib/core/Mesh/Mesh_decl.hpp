@@ -51,9 +51,9 @@ public:
 
 	typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
 	typedef Teuchos::RCP<MultiVector_Type> MultiVectorPtr_Type;
-	typedef MultiVector<LO,LO,GO,NO> MultiVectorLO_Type;
+	typedef MultiVector<SC,LO,GO,NO> MultiVectorLO_Type;
 	typedef Teuchos::RCP<MultiVectorLO_Type> MultiVectorLOPtr_Type;
-    typedef MultiVector<GO,LO,GO,NO> MultiVectorGO_Type;
+    typedef MultiVector<SC,LO,GO,NO> MultiVectorGO_Type;
     typedef Teuchos::RCP<MultiVectorGO_Type> MultiVectorGOPtr_Type;
 	typedef Teuchos::RCP<const MultiVector_Type> MultiVectorPtrConst_Type;
     typedef Teuchos::OrdinalTraits<LO> OTLO;
