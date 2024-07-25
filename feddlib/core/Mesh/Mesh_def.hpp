@@ -32,7 +32,6 @@ bcFlagUni_(),
 surfaceElements_(),
 elementMap_(),
 comm_(),
-volumeID_(0),
 edgeElements_(),
 pointsRepRef_(),
 pointsUniRef_(),
@@ -48,6 +47,8 @@ AABBTree_()
     edgeElements_ = Teuchos::rcp( new EdgeElements_Type() );
     
     FEType_ = "P1"; // We generally assume the mesh to be p1. In case of P1 or Q2 the FEType is allways adjusted
+
+    volumeID_=0;
 }
 
 template <class SC, class LO, class GO, class NO>
@@ -78,6 +79,9 @@ AABBTree_()
     edgeElements_ = Teuchos::rcp( new EdgeElements_Type() );
 
     FEType_ = "P1";
+
+    volumeID_=0;
+
 }
 
 template <class SC, class LO, class GO, class NO>
