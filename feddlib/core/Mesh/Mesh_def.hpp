@@ -1101,7 +1101,7 @@ void Mesh<SC,LO,GO,NO>::updateElementsOfEdgesLocalAndGlobal(int maxRank){
 		// Global IDs of Procs
 		// Setting newPoints as to be communicated Values
 		MultiVectorLOPtr_Type interfaceElements = Teuchos::rcp( new MultiVectorLO_Type( mapGlobalInterface, 1 ) );
-		Teuchos::ArrayRCP< LO > interfaceElementsEntries  = interfaceElements->getDataNonConst(0);
+		Teuchos::ArrayRCP < SC > interfaceElementsEntries  = interfaceElements->getDataNonConst(0);
 
 		for(int i=0; i< interfaceElementsEntries.size() ; i++){
 			interfaceElementsEntries[i] = this->edgeElements_->getElementsOfEdgeGlobal(this->edgeMap_->getLocalElement(edgesInterfaceGlobalID[i])).at(0);
@@ -1159,7 +1159,7 @@ void Mesh<SC,LO,GO,NO>::updateElementsOfEdgesLocalAndGlobal(int maxRank){
 
 		// As edges can be part of multiple elements on different processors we collect the number of elements connected to the edge in total
 		MultiVectorLOPtr_Type numberInterfaceElements = Teuchos::rcp( new MultiVectorLO_Type( mapGlobalInterface, 1 ) );
-		Teuchos::ArrayRCP< LO > numberInterfaceElementsEntries  = numberInterfaceElements->getDataNonConst(0);
+		Teuchos::ArrayRCP < SC > numberInterfaceElementsEntries  = numberInterfaceElements->getDataNonConst(0);
 
 		for(int i=0; i< numberInterfaceElementsEntries.size(); i++)
 			numberInterfaceElementsEntries[i] = numberElements[i];
@@ -1179,7 +1179,7 @@ void Mesh<SC,LO,GO,NO>::updateElementsOfEdgesLocalAndGlobal(int maxRank){
 		isInterfaceElement2_imp->putScalar(   0 ); 
 		isInterfaceElement2_imp->importFromVector(isInterfaceElement_exp, true, "Insert");
 
-		Teuchos::ArrayRCP< LO > numberInterfaceElementsImportEntries  = isInterfaceElement2_imp->getDataNonConst(0);
+		Teuchos::ArrayRCP < SC > numberInterfaceElementsImportEntries  = isInterfaceElement2_imp->getDataNonConst(0);
 
 		vec_int_Type missingEntries(numberInterfaceElementsEntries.size());
 		// With this number we can complete the elementsOfEdgeLocal List with -1 for the elements not on our processor
@@ -1205,7 +1205,7 @@ void Mesh<SC,LO,GO,NO>::updateElementsOfEdgesLocalAndGlobal(int maxRank){
 		reduceAll<int, int> (*this->comm_, REDUCE_MAX,  myNumberElementsMax , outArg ( myNumberElementsMax));
 
 		MultiVectorLOPtr_Type interfaceElements = Teuchos::rcp( new MultiVectorLO_Type( mapGlobalInterface, 1 ) );
-		Teuchos::ArrayRCP< LO > interfaceElementsEntries  = interfaceElements->getDataNonConst(0);
+		Teuchos::ArrayRCP < SC > interfaceElementsEntries  = interfaceElements->getDataNonConst(0);
 
 		vec2D_int_Type importElements(this->edgeElements_->getElementsOfEdgeGlobal().size(),vec_int_Type( 0));
 
@@ -1228,7 +1228,7 @@ void Mesh<SC,LO,GO,NO>::updateElementsOfEdgesLocalAndGlobal(int maxRank){
 
 			for(int j=0; j< myNumberElementsMax; j++){
 				MultiVectorLOPtr_Type interfaceElements = Teuchos::rcp( new MultiVectorLO_Type( mapGlobalInterfaceProcs, 1 ) );
-				Teuchos::ArrayRCP< LO > interfaceElementsEntries  = interfaceElements->getDataNonConst(0);
+				Teuchos::ArrayRCP < SC > interfaceElementsEntries  = interfaceElements->getDataNonConst(0);
 
 				for(int i=0; i< interfaceElementsEntries.size() ; i++){		
 					if(numberElements[i] > j && this->comm_->getRank() == k )
@@ -1242,7 +1242,7 @@ void Mesh<SC,LO,GO,NO>::updateElementsOfEdgesLocalAndGlobal(int maxRank){
 				isInterfaceElement_exp->exportFromVector( interfaceElements, false, "Insert");
 
 				if(this->comm_->getRank() == k && mapGlobalInterfaceUnique->getNodeNumElements() > 0){
-					Teuchos::ArrayRCP< LO > interfaceElementsEntries_exp  = isInterfaceElement_exp->getDataNonConst(0);
+					Teuchos::ArrayRCP < SC > interfaceElementsEntries_exp  = isInterfaceElement_exp->getDataNonConst(0);
 					for(int i=0; i<  interfaceElementsEntries_exp.size() ; i++){
 						LO id = mapGlobalInterface->getLocalElement(mapGlobalInterfaceUnique->getGlobalElement(i));
 						interfaceElementsEntries_exp[i] = interfaceElementsEntries[id];
