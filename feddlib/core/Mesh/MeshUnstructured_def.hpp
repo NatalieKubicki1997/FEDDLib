@@ -63,6 +63,7 @@ delimiter_(" ")
     meshUnitRead_ = meshUnit;
     meshUnitFinal_ = meshUnit; 
     convertToSI_ = convertToSI;
+    this->volumeID_=volumeID;
         
 }
 
@@ -751,7 +752,7 @@ int MeshUnstructured<SC,LO,GO,NO>::determineFlagP2( FiniteElement& fe, LO p1ID, 
     fe.findEdgeFlagInSubElements( localElementNumbering, newFlags, false /*we are not in a subElement yet*/, permutation, foundLineSegment );
     
     if (newFlags.size() == 0)
-        newFlag = volumeID_;
+        newFlag = this->volumeID_;
     
     // We use the lowest flag
     for (int k = 0; k < newFlags.size(); k++) {

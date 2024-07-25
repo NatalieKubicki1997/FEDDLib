@@ -474,9 +474,7 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
             Kp->fillComplete();
 
 
-            this->getPreconditionerConst()->setPCDOperator( Kp );
-
-               
+            this->getPreconditionerConst()->setPCDOperator( Kp );              
         }
     }
     else if(type=="Newton"){ // We assume that reAssmble("FixedPoint") was already called for the current iterate

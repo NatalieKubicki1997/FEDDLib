@@ -24,6 +24,9 @@ int main(int argc, char *argv[]) {
 
     RCP<const Comm<int> > comm = Xpetra::DefaultPlatform::getDefaultPlatform().getComm();
     
+    typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
+    typedef RCP<MultiVector_Type> MultiVectorPtr_Type;
+    typedef RCP<const MultiVector_Type> MultiVectorConstPtr_Type;
     // Command Line Parameters
     Teuchos::CommandLineProcessor myCLP;
     string ulib_str = "Tpetra";
@@ -82,13 +85,7 @@ int main(int argc, char *argv[]) {
     }
     
     if ( exportSubdomains ){
-    
-        typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
-        typedef RCP<MultiVector_Type> MultiVectorPtr_Type;
-        typedef RCP<const MultiVector_Type> MultiVectorConstPtr_Type;
-        typedef BlockMultiVector<SC,LO,GO,NO> BlockMultiVector_Type;
-        typedef RCP<BlockMultiVector_Type> BlockMultiVectorPtr_Type;
-
+         
         {
             MultiVectorPtr_Type vecDecomposition = rcp(new MultiVector_Type( domain->getElementMap() ) );
             MultiVectorConstPtr_Type vecDecompositionConst = vecDecomposition;

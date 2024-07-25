@@ -112,7 +112,7 @@ class FE {
     void assemblySurfaceRobinBC(int dim, 
                                 std::string FEType, 
                                 std::string FEType2, 
-                                MultiVectorPtr_Type u_rep, 
+                                MultiVectorPtr_Type u, 
                                 MatrixPtr_Type A, 
                                 std::vector<SC> &funcParameter, 
                                 RhsFunc_Type func, 

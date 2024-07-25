@@ -72,11 +72,10 @@ public:
     
     ~Mesh();
     
-    
     /*!
      Delete all member variables
      */
-    void deleteData();
+    void deleteData(){};
     
     /// @brief Setting input parameterlist to be parameterlist here
     /// @param pL 
