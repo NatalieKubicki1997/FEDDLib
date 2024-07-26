@@ -440,7 +440,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
            if(!pressureProjection_.is_null()){
                 pressureProjection_->merge(); // We merge the projection vector, as FROSch does not distinguish between blocks
 
-                pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Projection",pressureProjection_->getMergedVector()->getXpetraMultiVector());
+                pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Projection",pressureProjection_->getMergedVector()->getXpetraMultiVectorNonConst()());
                 // In case of pressure correction we set the parameter in the paramterlist to true
                 pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("AlgebraicOverlappingOperator").set("Use Pressure Correction", true);
 
@@ -454,7 +454,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerMonolithic( )
 
                 // Applying projection in coarse Level. We need to add the projection to the coarse Operator List. Here, to the IPOUHarmonicCoarseOperaUse Coarse Pressure Correctiontor. If we use (R)GDSW coarse operator this is differnt!! 
                if(parameterList->sublist("Parameter").get("Use Coarse Pressure Correction",false)){
-                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").set("Projection",pressureProjection_->getMergedVector()->getXpetraMultiVector());
+                    pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").set("Projection",pressureProjection_->getMergedVector()->getXpetraMultiVectorNonConst()());
                     pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").set("Use Coarse Pressure Correction", parameterList->sublist("Parameter").get("Use Coarse Pressure Correction",false));
                     pListThyraPrec->sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").set("Dimension", parameterList->sublist("Parameter").get("Dimension",3));
                 }

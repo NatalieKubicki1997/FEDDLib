@@ -425,7 +425,7 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
             // Adding Boundary Conditions
             BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
             dummy->addBlock(Lp,0,0);
-            this->bcFactoryPressureLaplace_->setSystem(dummy); 
+            this->bcFactoryPressureLaplace_->setSystemScaled(dummy); 
 
             this->getPreconditionerConst()->setPressureLaplaceMatrix( Lp );
             // --------------------------------------------------------------------------------------------
@@ -437,6 +437,8 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
             MatrixPtr_Type AdvPressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
             this->feFactory_->assemblyAdvectionVecFieldScalar( this->dim_, this->domain_FEType_vec_.at(1), this->domain_FEType_vec_.at(0),AdvPressure, u_rep_, true ); 
            
+            bool scaledDiag = this->parameterList_->sublist("Parameter").get("Scale Diag",true);
+
             // Diffusion component: \nu * \Delta
             MatrixPtr_Type Lp2(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
             this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lp2, true );//assemblyIdentity(Lp);
@@ -465,6 +467,7 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
             }
 
             dummy->addBlock(AdvPressure,0,0);
+
             this->bcFactoryPressureFp_->setSystemScaled(dummy); 
 
             // Adding laplace an convection together
