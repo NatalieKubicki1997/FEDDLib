@@ -440,6 +440,7 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
 
             // this->getPreconditionerConst()->setPressureLaplaceMatrix( Lp );
             // // --------------------------------------------------------------------------------------------
+            BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
 
             // PCD Operator  
             MatrixPtr_Type Kp(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
@@ -459,13 +460,11 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
             Lp2->fillComplete(); 
             // ---------------------
             if(this->parameterList_->sublist("Parameter").get("Fp-Ap Option 1",false)){ // Setting in Lp2 the boundaries of Lp
-                BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
                 dummy->addBlock(Lp2,0,0);
                 this->bcFactoryPressureLaplace_->setSystemScaled(dummy);        
             }
             
             if(this->parameterList_->sublist("Parameter").get("Fp-Ap Option 2",true)){  // Setting in Lp2 the boundaries of Fp
-                BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
                 dummy->addBlock(Lp2,0,0);
                 this->bcFactoryPressureFp_->setSystemScaled(dummy);     
             }
