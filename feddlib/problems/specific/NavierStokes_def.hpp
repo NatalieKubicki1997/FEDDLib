@@ -192,6 +192,13 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
             MatrixPtr_Type Mvelocity(new Matrix_Type( this->getDomain(0)->getMapVecFieldUnique(), this->getDomain(0)->getApproxEntriesPerRow() ) );
             //
             this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(0), "Vector", Mvelocity, true );
+
+            //
+            BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
+            if(this->parameterList_->sublist("Parameter").get("BC in LSC Mu",true)){
+                dummy->addBlock(Mvelocity,0,0);
+                this->bcFactory_->setSystemScaled(dummy); 
+            }
             //
             this->getPreconditionerConst()->setVelocityMassMatrix( Mvelocity );
 
@@ -200,9 +207,8 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
 
             MatrixPtr_Type Lp(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
             this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lp, true );//assemblyIdentity(Lp); //
-            BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
             dummy->addBlock(Lp,0,0);
-            this->bcFactoryPressureLaplace_->setSystem(dummy); 
+            this->bcFactoryPressureLaplace_->setSystemScaled(dummy); 
             this->getPreconditionerConst()->setPressureLaplaceMatrix( Lp );
 
 
@@ -211,13 +217,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
         if(!this->parameterList_->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","SIMPLE").compare("PCD") 
         || !this->parameterList_->sublist("General").get("Preconditioner Method","Diagonal").compare("PCD") ){
 
-            MatrixPtr_Type Mvelocity(new Matrix_Type( this->getDomain(0)->getMapVecFieldUnique(), this->getDomain(0)->getApproxEntriesPerRow() ) );
-            //
-            this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(0), "Vector", Mvelocity, true );
-            //
-            this->getPreconditionerConst()->setVelocityMassMatrix( Mvelocity );
-            
-             // Pressure mass matrix
+              // Pressure mass matrix
             MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
             this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(1), "Scalar", Mpressure, true ); //assemblyIdentity(Mpressure);//
             this->getPreconditionerConst()->setPressureMass( Mpressure );
@@ -226,51 +226,62 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
             // Pressure Laplace matrix
             MatrixPtr_Type Lp(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
             this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lp, true );//assemblyIdentity(Lp); //
-
-            // MatrixPtr_Type Identity(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
-            // this->feFactory_->assemblyIdentity(Identity); 
-            // Identity->resumeFill();
-            // Identity->scale(1.e-10);
-            // Identity->fillComplete();
-            //Identity->addMatrix(1,Lp,1);
-            //Lp->fillComplete();
-    
+            // Adding Boundary Conditions
             BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
             dummy->addBlock(Lp,0,0);
-            this->bcFactoryPressureLaplace_->setSystem(dummy); 
+            this->bcFactoryPressureLaplace_->setSystemScaled(dummy); 
+
             this->getPreconditionerConst()->setPressureLaplaceMatrix( Lp );
-            //Lp->print();
             // --------------------------------------------------------------------------------------------
 
             // PCD Operator  
             MatrixPtr_Type Kp(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
             // --------------------------------------------------------------------------------------------
-
-            // MultiVectorConstPtr_Type utest = this->solution_->getBlock(0);
+            // Advection component
             MatrixPtr_Type AdvPressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
             this->feFactory_->assemblyAdvectionVecFieldScalar( this->dim_, this->domain_FEType_vec_.at(1), this->domain_FEType_vec_.at(0),AdvPressure, u_rep_, true ); 
-            // \nu * \Delta
+           
+            bool scaledDiag = this->parameterList_->sublist("Parameter").get("Scale Diag",true);
+
+            // Diffusion component: \nu * \Delta
             MatrixPtr_Type Lp2(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
-            this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lp2, true );//assemblyIdentity(Lp); //
+            this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lp2, true );//assemblyIdentity(Lp);
             SC kinVisco = this->parameterList_->sublist("Parameter").get("Viscosity",1.);
-            dummy->addBlock(Lp2,0,0);
-            this->bcFactoryPressureLaplace_->setSystem(dummy); 
-            this->getPreconditionerConst()->setPressureLaplaceMatrix( Lp );
             Lp2->resumeFill();
             Lp2->scale(kinVisco);
-            Lp2->fillComplete();
-            // Lp2->print();
+            Lp2->fillComplete(); 
+            // ---------------------
+            if(this->parameterList_->sublist("Parameter").get("Fp-Ap Option 1",false)){ // Setting in Lp2 the boundaries of Lp
+                BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
+                dummy->addBlock(Lp2,0,0);
+                this->bcFactoryPressureLaplace_->setSystemScaled(dummy);        
+            }
+            
+            if(this->parameterList_->sublist("Parameter").get("Fp-Ap Option 2",true)){  // Setting in Lp2 the boundaries of Fp
+                BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
+                dummy->addBlock(Lp2,0,0);
+                this->bcFactoryPressureFp_->setSystemScaled(dummy);     
+            }
+            
+            if(this->parameterList_->sublist("Parameter").get("Robin BC",false)){
+                MatrixPtr_Type Kext(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getDimension() * this->getDomain(1)->getApproxEntriesPerRow()*2 ) );          
+                vec_dbl_Type funcParameter(1,kinVisco);
+                this->feFactory_->assemblySurfaceRobinBC(this->dim_, this->getDomain(1)->getFEType(),this->getDomain(0)->getFEType(),u_rep_,Kext, funcParameter, this->rhsFuncVec_[0],this->parameterList_);
+                Kext->addMatrix(1.,Kp,1.); // adding advection to diffusion
+            }
+
+            dummy->addBlock(AdvPressure,0,0);
+
+            this->bcFactoryPressureFp_->setSystemScaled(dummy); 
+
             // Adding laplace an convection together
             Lp2->addMatrix(1.,Kp,1.); // adding advection to diffusion
             AdvPressure->addMatrix(1.,Kp,1.); // adding advection to diffusion
 
             Kp->fillComplete();
-            // AdvPressure->print();
 
-            BlockMatrixPtr_Type dummy2(new BlockMatrix_Type (1));
-            dummy2->addBlock(Kp,0,0);
-            this->bcFactoryPressureFp_->setSystem(dummy2); 
-            this->getPreconditionerConst()->setPCDOperator( Kp );
+
+            this->getPreconditionerConst()->setPCDOperator( Kp );  
 
         }
     }
@@ -413,22 +424,22 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
         if ( !this->parameterList_->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","SIMPLE").compare("PCD") 
                 || !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("PCD") ) {
         
-            // Pressure mass matrix
-            MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
-            this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(1), "Scalar", Mpressure, true ); //assemblyIdentity(Mpressure);//
-            this->getPreconditionerConst()->setPressureMass( Mpressure );
-            // --------------------------------------------------------------------------------------------
+            // // Pressure mass matrix
+            // MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+            // this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(1), "Scalar", Mpressure, true ); //assemblyIdentity(Mpressure);//
+            // this->getPreconditionerConst()->setPressureMass( Mpressure );
+            // // --------------------------------------------------------------------------------------------
 
-            // Pressure Laplace matrix
-            MatrixPtr_Type Lp(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
-            this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lp, true );//assemblyIdentity(Lp); //
-            // Adding Boundary Conditions
-            BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
-            dummy->addBlock(Lp,0,0);
-            this->bcFactoryPressureLaplace_->setSystemScaled(dummy); 
+            // // Pressure Laplace matrix
+            // MatrixPtr_Type Lp(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+            // this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lp, true );//assemblyIdentity(Lp); //
+            // // Adding Boundary Conditions
+            // BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
+            // dummy->addBlock(Lp,0,0);
+            // this->bcFactoryPressureLaplace_->setSystemScaled(dummy); 
 
-            this->getPreconditionerConst()->setPressureLaplaceMatrix( Lp );
-            // --------------------------------------------------------------------------------------------
+            // this->getPreconditionerConst()->setPressureLaplaceMatrix( Lp );
+            // // --------------------------------------------------------------------------------------------
 
             // PCD Operator  
             MatrixPtr_Type Kp(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
@@ -475,7 +486,6 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
             AdvPressure->addMatrix(1.,Kp,1.); // adding advection to diffusion
 
             Kp->fillComplete();
-
 
             this->getPreconditionerConst()->setPCDOperator( Kp );              
         }
