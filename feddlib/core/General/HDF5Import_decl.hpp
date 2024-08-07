@@ -3,9 +3,7 @@
 
 #include <fstream>
 #include "feddlib/core/FEDDCore.hpp"
-#include "feddlib/core/General/DefaultTypeDefs.hpp"
 #include "feddlib/core/LinearAlgebra/MultiVector.hpp"
-#include "feddlib/core/Mesh/Mesh.hpp"
 // Trilinos
 #include <Teuchos_Array.hpp>
 
@@ -20,15 +18,17 @@
 
 #include <Epetra_Map.h>
 #include <Epetra_MultiVector.h>
-#include <Epetra_Vector.h>
-#include <Epetra_LongLongVector.h>
-#include <Epetra_IntVector.h>
 
 #include <EpetraExt_HDF5.h>
 #include <hdf5.h>
 
 /*!
+ Importing a HDF5 file
 
+ @brief  HDF5Import
+ 
+ Based on Epetra_Ext it is popssible to import a HDF5 file with the command 'read'.
+ The use must provide the corresponding map, to distribute the vector and the correct file and variable name.
  
  */
 
@@ -36,64 +36,52 @@ namespace FEDD {
 template <class SC = default_sc, class LO = default_lo, class GO = default_go, class NO = default_no>
 class HDF5Import {
 public:
-    typedef std::vector<double>										vec_dbl;
-    typedef std::vector<std::vector<double> >						vec2D_dbl;
-    typedef std::vector<std::vector<int> >							vec2D_int;
-    typedef std::vector<std::vector<long long> >					vec2D_longlong;
-    typedef Teuchos::RCP<std::vector<int> >							vec_int_ptr;
-    typedef Teuchos::RCP<std::vector<long long> >					vec_longlong_ptr;
-    typedef Teuchos::RCP<vec_dbl>									vec_dbl_ptr;
-    typedef Teuchos::RCP<std::vector<std::vector<double> > >     	vec2D_dbl_ptr;
-    typedef Teuchos::RCP<std::vector<std::vector<int> > >        	vec2D_int_ptr;
-    typedef Teuchos::RCP<vec2D_longlong >				        	vec2D_longlong_ptr;
-    typedef Teuchos::RCP<Epetra_Vector> 							EpetraVec_ptr;
-    typedef Teuchos::RCP<Epetra_MpiComm>		 					EpetraComm_ptr;
-    typedef Teuchos::RCP<Epetra_IntVector>	 						EpetraVecInt_ptr;
-    typedef Teuchos::RCP<Epetra_LongLongVector>	 					EpetraVecLongLong_ptr;
-    typedef Teuchos::RCP<Epetra_MultiVector>	 					EpetraMVPtr_Type;
-    typedef Teuchos::RCP<Epetra_Map>                               	EpetraMapPtr_Type;
+    typedef Teuchos::RCP<Epetra_Map> EpetraMapPtr_Type;
 
-    
     typedef EpetraExt::HDF5 HDF5_Type;
     typedef Teuchos::RCP<HDF5_Type> HDF5Ptr_Type;
     
     typedef Teuchos::Comm<int> Comm_Type;
     typedef Teuchos::RCP<const Comm_Type> CommConstPtr_Type;
-    typedef const Teuchos::RCP<const Comm_Type> CommConstPtrConst_Type;
     
     typedef Map<LO,GO,NO> Map_Type;
     typedef Teuchos::RCP<const Map_Type> MapConstPtr_Type;
-    typedef const MapConstPtr_Type MapConstPtrConst_Type;
     
     typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
     typedef Teuchos::RCP<MultiVector_Type> MultiVectorPtr_Type;
 
-    typedef Teuchos::RCP<const MultiVector_Type> MultiVecConstPtr_Type;
-    typedef const MultiVecConstPtr_Type MultiVecConstPtrConst_Type;
-    
-    typedef Mesh<SC,LO,GO,NO> Mesh_Type;
-    typedef Teuchos::RCP<Mesh_Type> MeshPtr_Type;
-    
-    typedef typename Mesh_Type::ElementsPtr_Type ElementsPtr_Type;
-    
+
+    /// @brief Constructor of HDF import. Here the general setting are defined. An epetra map build based on the read map
+    /// @param readMap Map for reading file. Parallel distribution for the to be imported multivector. 
+    /// @param inputFilename Name of input file
     HDF5Import(MapConstPtr_Type readMap, std::string inputFilename);
 
+    /// @brief Reading a variable 'varName' from the inputFile with inputFilename of file type HDF5
+    /// @param varName Name of variable contained in file
+    /// @return Xpetra formatted multivector distributed as defined with readMap
     MultiVectorPtr_Type readVariablesHDF5(string varName);
 
-protected:
+    // Closing Importer
+    void closeImporter();
+
+  protected:
     
-    HDF5Ptr_Type hdf5exporter_;
+    /// @brief HDF5 importer based on EpetraExt HDF5 importer
+    HDF5Ptr_Type hdf5importer_; 
     CommConstPtr_Type comm_;
     Teuchos::RCP<Epetra_MpiComm> commEpetra_;
     
     // ------------------------
     // READ 
     // ------------------------
-    std::string inputFilename_;
-    std::vector<std::string>   		varNamesRead_;
-    EpetraMapPtr_Type               readMap_;
-    Epetra_MultiVector* u_import_;
-    MultiVectorPtr_Type u_import_mv_;
+    /// @brief Name of input file
+    std::string inputFilename_; 
+    /// @brief Name of Map of import multivector
+    EpetraMapPtr_Type  readMap_;
+    /// @brief Imported MultiVector in Epetra format
+    Epetra_MultiVector* u_import_Epetra_;
+    /// @brief Imported file in Xpetra format
+    MultiVectorPtr_Type u_import_Xpetra_;
 
 };
 

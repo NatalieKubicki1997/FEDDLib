@@ -97,8 +97,7 @@ int main(int argc, char *argv[]) {
     
 
     {
-        // Mesh
-        bool exportParaView = true;
+        // Reading Mesh
         std::string filename="square.mesh";
         int dim = 2;
         ParameterListPtr_Type pListPartitioner = Teuchos::rcp( new ParameterList("Mesh Partitioner") );
@@ -123,17 +122,14 @@ int main(int argc, char *argv[]) {
         
         Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory( new BCBuilder<SC,LO,GO,NO>( ) );
     
-        bcFactory->addBC(zeroDirichlet, 3, 0, domain, "Dirichlet", 1); // inflow
-       // bcFactory->addBC(scalarFunc, 3, 1, domain, "Neumann", dofs); // inflow
+        bcFactory->addBC(zeroDirichlet, 3, 0, domain, "Dirichlet", 1); // Setting some sort of boundary conditions
         
         std::vector<MapConstPtr_Type> maps(1);
-        //maps[0] = domain->getMapVecFieldUnique();
         maps[0] = domain->getMapUnique();
         BlockMultiVectorPtr_Type  vector = Teuchos::rcp( new BlockMultiVector_Type( maps ) ) ;
         vector->getBlockNonConst(0)->putScalar(1.);
         bcFactory->setRHS(vector);
         
-
         Teuchos::RCP<ExporterParaView<SC,LO,GO,NO> > exPara(new ExporterParaView<SC,LO,GO,NO>());
         std::string filenameExport = "exportValues";
 
@@ -146,22 +142,20 @@ int main(int argc, char *argv[]) {
 
         // ----------------------
         // Exporting as HDF5 Type
-        //aUniqueConst->print();
-        HDF5Export<SC,LO,GO,NO> exporter(domain->getMapUnique(), aUniqueConst, "exportVector");
-        exporter.writeVariablesHDF5("Test");
+        HDF5Export<SC,LO,GO,NO> exporter(domain->getMapUnique(), "exportVector"); //  Map and file name
+        exporter.writeVariablesHDF5("Test",aUniqueConst); // VariableName and Variable
 
-        HDF5Import<SC,LO,GO,NO> importer(domain->getMapUnique(),"exportVector");
-        MultiVectorPtr_Type aImported = importer.readVariablesHDF5("Test");
-        //aImported->print();
+        HDF5Import<SC,LO,GO,NO> importer(domain->getMapUnique(),"exportVector"); // Import Map and  file name to read
+        MultiVectorPtr_Type aImported = importer.readVariablesHDF5("Test"); // VariableName 
         
-        TEUCHOS_TEST_FOR_EXCEPTION(fabs(aUniqueConst->getLocalLength() - aImported->getLocalLength())>1e-13  , std::runtime_error, "Local length of written and read vector is differnt");
+        TEUCHOS_TEST_FOR_EXCEPTION(fabs(aUniqueConst->getLocalLength() - aImported->getLocalLength())>1e-13  , std::runtime_error, "Local length of written and read vector is differnt"); // Checking of vectors have the same length
 
         // Testing difference
         double error= 0.;
         for(int i=0; i<aUniqueConst->getLocalLength(); i++)
             error += abs((aUniqueConst->getData(0))[i] - (aImported->getData(0))[i]);
         
-        TEUCHOS_TEST_FOR_EXCEPTION( error>1e-13, std::runtime_error, "Error between written and read vector is to great: " << error);
+        TEUCHOS_TEST_FOR_EXCEPTION( error>1e-13, std::runtime_error, "Error between written and read vector is to great: " << error); // Checking if error between solutions is to great
 
     }
     

@@ -3,9 +3,7 @@
 
 #include <fstream>
 #include "feddlib/core/FEDDCore.hpp"
-#include "feddlib/core/General/DefaultTypeDefs.hpp"
 #include "feddlib/core/LinearAlgebra/MultiVector.hpp"
-#include "feddlib/core/Mesh/Mesh.hpp"
 // Trilinos
 #include <Teuchos_Array.hpp>
 
@@ -27,56 +25,51 @@
 #include <EpetraExt_HDF5.h>
 #include <hdf5.h>
 
+/*!
+ Exporting a HDF5 file
+
+ @brief  HDF5Export
+ 
+ Based on Epetra_Ext it is popssible to export a MultiVector to a HDF5 file with the command 'write'.
+ The use must provide the corresponding writemap, to correctly store the (parallely distributed) vector and the file and variable name to stroe it in.
+ 
+ The Structure is as follows:
+    The HDF5 file which stores data is set up via Create(filename) -> We have a HDF5 file
+    The file can now contain one or more variables with different MultiVectors, but they all correspond to the same map
+    When we use more than one variable, the different variables can correspond ie. to different time steps
+    -> This can be useful for restarts, where we can then import the different time steps
+ */
 
 namespace FEDD {
 template <class SC = default_sc, class LO = default_lo, class GO = default_go, class NO = default_no>
 class HDF5Export{
 public:
-    typedef std::vector<double>										vec_dbl;
-    typedef std::vector<std::vector<double> >						vec2D_dbl;
-    typedef std::vector<std::vector<int> >							vec2D_int;
-    typedef std::vector<std::vector<long long> >					vec2D_longlong;
-    typedef Teuchos::RCP<std::vector<int> >							vec_int_ptr;
-    typedef Teuchos::RCP<std::vector<long long> >					vec_longlong_ptr;
-    typedef Teuchos::RCP<vec_dbl>									vec_dbl_ptr;
-    typedef Teuchos::RCP<std::vector<std::vector<double> > >     	vec2D_dbl_ptr;
-    typedef Teuchos::RCP<std::vector<std::vector<int> > >        	vec2D_int_ptr;
-    typedef Teuchos::RCP<vec2D_longlong >				        	vec2D_longlong_ptr;
-    typedef Teuchos::RCP<Epetra_Vector> 							EpetraVec_ptr;
-    typedef Teuchos::RCP<Epetra_MpiComm>		 					EpetraComm_ptr;
-    typedef Teuchos::RCP<Epetra_IntVector>	 						EpetraVecInt_ptr;
-    typedef Teuchos::RCP<Epetra_LongLongVector>	 					EpetraVecLongLong_ptr;
-    typedef Teuchos::RCP<Epetra_MultiVector>	 					EpetraMVPtr_Type;
-    typedef Teuchos::RCP<Epetra_Map>                               	EpetraMapPtr_Type;
+    typedef Teuchos::RCP<Epetra_Map> EpetraMapPtr_Type;
+    typedef Teuchos::RCP<Epetra_MultiVector> EpetraMVPtr_Type;
 
-    
     typedef EpetraExt::HDF5 HDF5_Type;
     typedef Teuchos::RCP<HDF5_Type> HDF5Ptr_Type;
     
     typedef Teuchos::Comm<int> Comm_Type;
     typedef Teuchos::RCP<const Comm_Type> CommConstPtr_Type;
-    typedef const Teuchos::RCP<const Comm_Type> CommConstPtrConst_Type;
     
     typedef Map<LO,GO,NO> Map_Type;
     typedef Teuchos::RCP<const Map_Type> MapConstPtr_Type;
-    typedef const MapConstPtr_Type MapConstPtrConst_Type;
     
-    typedef MultiVector<SC,LO,GO,NO> MultiVec_Type;
-    typedef Teuchos::RCP<MultiVec_Type> MultiVectorPtr_Type;
-    typedef Teuchos::RCP<const MultiVec_Type> MultiVecConstPtr_Type;
-    typedef const MultiVecConstPtr_Type MultiVecConstPtrConst_Type;
+    typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
+    typedef Teuchos::RCP<MultiVector_Type> MultiVectorPtr_Type;
     
-    typedef Mesh<SC,LO,GO,NO> Mesh_Type;
-    typedef Teuchos::RCP<Mesh_Type> MeshPtr_Type;
-    
-    typedef typename Mesh_Type::ElementsPtr_Type ElementsPtr_Type;
-    
-    HDF5Export();
+    /// @brief Constructor for HDF5 Exporter
+    /// @param writeMap Map for writing file. Parallel distribution for of the exported multivector. 
+    /// @param outputFilename Name for output file
+    HDF5Export(MapConstPtr_Type writeMap, std::string outputFilename);
 
-    HDF5Export(MapConstPtr_Type readMap, std::string outputFilename);
-
+    /// @brief Exporting MultiVector writeVector as HDF5 File with the variable name varName
+    /// @param varName Variable name of MultiVector
+    /// @param writeVector Vector to be exported, corresponding to writeMap_ 
     void writeVariablesHDF5(string varName,MultiVectorPtr_Type writeVector);
 
+     /// @brief Closing Exporter
     void closeExporter();
 
 protected:

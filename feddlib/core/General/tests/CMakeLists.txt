@@ -23,7 +23,7 @@ TRIBITS_COPY_FILES_TO_BINARY_DIR(data_bc_2dSquare
 	EXEDEPS neumannBC
 )
 
-### neumannBC
+### Write and Read File HDF5
 TRIBITS_ADD_EXECUTABLE(
 writeRead
 SOURCES write_read.cpp
