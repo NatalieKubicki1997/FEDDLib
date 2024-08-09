@@ -191,7 +191,14 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
          || !this->parameterList_->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","SIMPLE").compare("SIMPLE")) {
             MatrixPtr_Type Mvelocity(new Matrix_Type( this->getDomain(0)->getMapVecFieldUnique(), this->getDomain(0)->getApproxEntriesPerRow() ) );
             //
-            this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(0), "Vector", Mvelocity, true );
+            if(this->parameterList_->sublist("Parameter").get("BFBT",true)){
+                this->feFactory_->assemblyIdentity( Mvelocity, true );
+                Mvelocity->resumeFill();
+                Mvelocity->scale(1./100000000.);
+                Mvelocity->fillComplete();
+            }
+            else
+                this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(0), "Vector", Mvelocity, true );
 
             //
             BlockMatrixPtr_Type dummy(new BlockMatrix_Type (1));
@@ -199,6 +206,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
                 dummy->addBlock(Mvelocity,0,0);
                 this->bcFactory_->setSystemScaled(dummy); 
             }
+
             //
             this->getPreconditionerConst()->setVelocityMassMatrix( Mvelocity );
 

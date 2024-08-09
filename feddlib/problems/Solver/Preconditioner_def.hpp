@@ -893,6 +893,7 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
                 Teko::LinearOp thyraPCD = pcdOperator_;
                 Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackPCD = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "PCD Operator", thyraPCD ) );
                 rh_->addRequestCallback( callbackPCD );
+
             }
 
             Teuchos::RCP< Teko::StratimikosFactory > tekoFactory = Teuchos::rcp_dynamic_cast<Teko::StratimikosFactory>(precFactory_);
@@ -920,7 +921,17 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
             Teuchos::RCP<Teko::RequestHandler> rh = Teuchos::rcp(new Teko::RequestHandler());
 
             // PCD
-            Teko::LinearOp thyraPCD = pcdOperator_;
+            Teko::LinearOp thyraPCD;
+            
+            // When we deal with a time problem only the underlying problem holds the updated pcd matrix. Why: When we assemble the PCD operator it within i.e. the Navier Stokes class. 
+            // The Navier stokes class is derived from a nonlinear problem originally derived from a problem which has a precondidioner object to which the PCD operator is added in each reassembly.
+            // Since the Navier Stokes problem does not know the timeProblem, we need to extract the information from the problem which is added to the time problem / which the timeProblem is based on.
+            if(!timeProblem_.is_null())
+            {
+              thyraPCD = timeProblem_->getUnderlyingProblem()->preconditioner_->getPCDOperatorMatrix()->getThyraLinOp();       
+            }
+            else
+                thyraPCD= pcdOperator_;
             Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackPCD = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "PCD Operator", thyraPCD ) );
             rh->addRequestCallback( callbackPCD );
 
