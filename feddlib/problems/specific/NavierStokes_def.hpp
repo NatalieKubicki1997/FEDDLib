@@ -513,7 +513,6 @@ void NavierStokes<SC,LO,GO,NO>::reAssemble(std::string type) const {
 
                 Mp2->addMatrix(1.,Fp,1.);
 
-            
             }
 
 
