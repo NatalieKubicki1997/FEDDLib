@@ -913,7 +913,6 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
     }
     
     else{
-        
         if(!tekoPList->sublist("Preconditioner Types").sublist("Teko").get("Inverse Type", "SIMPLE").compare("PCD")){
             // PCD: As part of the pcd preconditioner depends on the current velocity, we need to update it in each iteration.
             //pcdOperatorMatrixPtr_->print();
@@ -928,12 +927,15 @@ void Preconditioner<SC,LO,GO,NO>::buildPreconditionerTeko( )
             // Since the Navier Stokes problem does not know the timeProblem, we need to extract the information from the problem which is added to the time problem / which the timeProblem is based on.
             if(!timeProblem_.is_null())
             {
-              thyraPCD = timeProblem_->getUnderlyingProblem()->preconditioner_->getPCDOperatorMatrix()->getThyraLinOp();       
+              // timeProblem_->getUnderlyingProblem()->preconditioner_->getPCDOperatorMatrix()->print(); 
+              pcdOperator_ = timeProblem_->getUnderlyingProblem()->preconditioner_->getPCDOperatorMatrix()->getThyraLinOp();
+              thyraPCD = timeProblem_->getUnderlyingProblem()->preconditioner_->getPCDOperatorMatrix()->getThyraLinOp();     
             }
             else
                 thyraPCD= pcdOperator_;
+
             Teuchos::RCP< Teko::StaticRequestCallback<Teko::LinearOp> > callbackPCD = Teuchos::rcp(new Teko::StaticRequestCallback<Teko::LinearOp> ( "PCD Operator", thyraPCD ) );
-            rh->addRequestCallback( callbackPCD );
+            //rh->addRequestCallback( callbackPCD );
 
             // Changing the content of the pointer
             rh_->updateRequestCallback(callbackPCD,2); // We need to update the pcd operator in the call back pointer. Otherwise it will no reach the correct functions in pcd

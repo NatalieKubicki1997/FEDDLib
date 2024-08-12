@@ -10,6 +10,7 @@
 
 #include <Teuchos_GlobalMPISession.hpp>
 #include <Xpetra_DefaultPlatform.hpp>
+#include <Teuchos_StackedTimer.hpp>
 
 
 /*!
@@ -140,6 +141,7 @@ typedef default_sc SC;
 typedef default_lo LO;
 typedef default_go GO;
 typedef default_no NO;
+using namespace Teuchos;
 
 using namespace FEDD;
 
@@ -187,7 +189,8 @@ int main(int argc, char *argv[]) {
         MPI_Finalize();
         return 0;
     }
-
+    Teuchos::RCP<StackedTimer> stackedTimer =  rcp(new StackedTimer("Steady Navier-Stokes",true));
+    TimeMonitor::setStackedTimer(stackedTimer);
     {
         ParameterListPtr_Type parameterListProblem = Teuchos::getParametersFromXmlFile(xmlProblemFile);
 
@@ -552,6 +555,10 @@ int main(int argc, char *argv[]) {
         }
     }
     Teuchos::TimeMonitor::report(cout);
-
+    stackedTimer->stop("Steady Navier-Stokes");
+	StackedTimer::OutputOptions options;
+	options.output_fraction = options.output_histogram = options.output_minmax = true;
+	stackedTimer->report((std::cout),comm,options);
+	
     return(EXIT_SUCCESS);
 }

@@ -2228,7 +2228,7 @@ void FE<SC,LO,GO,NO>::assemblyMass(int dim,
     vec2D_dbl_ptr_Type 	phi;
     vec_dbl_ptr_Type weights = Teuchos::rcp(new vec_dbl_Type(0));
 
-    UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std)+2;
+    UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std);
 
     Helper::getPhi( phi, weights, dim, FEType, deg );
 
@@ -2305,7 +2305,7 @@ void FE<SC,LO,GO,NO>::assemblyMass(int dim,
     vec2D_dbl_ptr_Type 	phi;
     vec_dbl_ptr_Type	weights = Teuchos::rcp(new vec_dbl_Type(0));
 
-    UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std)+2;
+    UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std);
     Helper::getPhi( phi, weights, dim, FEType, deg );
 
     SC detB;
@@ -2381,7 +2381,7 @@ void FE<SC,LO,GO,NO>::assemblyLaplace(int dim,
     vec3D_dbl_ptr_Type 	dPhi;
     vec_dbl_ptr_Type weights = Teuchos::rcp(new vec_dbl_Type(0));
     
-    UN deg = Helper::determineDegree(dim,FEType,FEType,Grad,Grad)+2;
+    UN deg = Helper::determineDegree(dim,FEType,FEType,Grad,Grad);
     Helper::getDPhi(dPhi, weights, dim, FEType, deg);
     
     SC detB;
@@ -3570,7 +3570,7 @@ void FE<SC,LO,GO,NO>::assemblyElasticityStressesAceFEM(int dim,
 template <class SC, class LO, class GO, class NO>
 void FE<SC,LO,GO,NO>::assemblyAdvectionVecFieldScalar(int dim,
                                                   std::string FEType,
-                                                std::string FEType2,
+                                                  std::string FETypeV,
                                                   MatrixPtr_Type &A,
                                                   MultiVectorPtr_Type u,
                                                   bool callFillComplete){
@@ -3591,13 +3591,12 @@ void FE<SC,LO,GO,NO>::assemblyAdvectionVecFieldScalar(int dim,
     vec2D_dbl_ptr_Type     phi,phiV;
     vec_dbl_ptr_Type    weights = Teuchos::rcp(new vec_dbl_Type(0));
 
-    UN extraDeg = Helper::determineDegree( dim, FEType, Std); //Elementwise assembly of grad u
-
-    UN deg = Helper::determineDegree( dim, FEType, FEType, Grad, Std, extraDeg)+2;
+    UN extraDeg = Helper::determineDegree( dim, FETypeV, Std); //Elementwise assembly of grad u
+    UN deg = Helper::determineDegree( dim, FETypeV, FETypeV, Grad, Std, extraDeg); // We use the FEType of the velocity for quadratur degree
 
     Helper::getDPhi(dPhi, weights, dim, FEType, deg);
     Helper::getPhi(phi, weights, dim, FEType, deg);
-    Helper::getPhi(phiV, weights, dim, FEType2, deg);
+    Helper::getPhi(phiV, weights, dim, FETypeV, deg);
 
 
     SC detB;
@@ -7424,8 +7423,7 @@ void FE<SC,LO,GO,NO>::assemblySurfaceIntegral(int dim,
                         else if ( fieldType == "Vector" ){
                             for (int j=0; j<value.size(); j++){
                                 value[j] += weights->at(w) * valueFunc[j]*v_E[j]/norm_v_E * (*phi)[w][i];
-                                cout << " " << value[j] << " " <<  weights->at(w) << " " << valueFunc[j] << " " <<  v_E[j] << " " <<  norm_v_E << " "<<  (*phi)[w][i];
-                                                       cout << endl;
+                              
 
                             }
 
@@ -7443,7 +7441,6 @@ void FE<SC,LO,GO,NO>::assemblySurfaceIntegral(int dim,
                     else if ( fieldType== "Vector" ){
                         for (int j=0; j<value.size(); j++){
                             valuesF[ dim * nodeList[ i ] + j ] += value[j];
-                            cout << " Adding value " << valuesF[ dim * nodeList[ i ] + j ] << " from " << value[j]<< endl;
                         }
                     }
                 }
