@@ -853,6 +853,9 @@ void ExporterParaView<SC,LO,GO,NO>::writeXmfVariables(){
     else if (FEType_=="P2"){
         centerString = "Node";
     }
+    else if (FEType_=="Q1"){
+        centerString = "Node";
+    }
     else if (FEType_=="Q2"){
         centerString = "Node";
     }

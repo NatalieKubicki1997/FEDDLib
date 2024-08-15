@@ -11,6 +11,10 @@ UN Helper::determineDegree(UN dim, std::string FEType, UN degFunc){
         deg = 0;
     else if (!FEType.compare("P1"))
         deg = 1;
+    else if (!FEType.compare("P1-disc"))
+        deg = 1;
+    else if (!FEType.compare("Q1"))
+        deg = 1;
     else if (!FEType.compare("P2"))
         deg = 2;
     else if (!FEType.compare("Q2"))
@@ -30,6 +34,18 @@ UN Helper::determineDegree(UN dim, std::string FEType, int type){
         deg = 0;
     }
     else if (!FEType.compare("P1")) {
+        if (type==Std)
+            deg = 1;
+        else if (type==Grad)
+            deg = 0;
+    }
+    else if (!FEType.compare("P1-disc")) {
+        if (type==Std)
+            deg = 1;
+        else if (type==Grad)
+            deg = 0;
+    }
+    else if (!FEType.compare("Q1")) {
         if (type==Std)
             deg = 1;
         else if (type==Grad)
@@ -809,6 +825,31 @@ void Helper::gradPhi(int dim,
                 }
                 break;
             }
+            case 6://P1
+                switch (i) {
+                    case 0:
+                        value->at(0)= -1.;
+                        value->at(1)= -1.;
+                        value->at(2)= -1.;
+                        break;
+                    case 1:
+                        value->at(0)= 1.;
+                        value->at(1)= 0.;
+                        value->at(2)= 0.;
+                        break;
+                    case 2:
+                        value->at(0)= 0.;
+                        value->at(1)= 1.;
+                        value->at(2)= 0.;
+                        break;
+                    case 3:
+                        value->at(0)= 0.;
+                        value->at(1)= 0.;
+                        value->at(2)= 1.;
+                        break;
+                }
+                break;
+            
         }
     }
 }

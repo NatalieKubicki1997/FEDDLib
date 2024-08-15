@@ -2383,7 +2383,7 @@ void FE<SC,LO,GO,NO>::assemblyLaplace(int dim,
     
     UN deg = Helper::determineDegree(dim,FEType,FEType,Grad,Grad);
     Helper::getDPhi(dPhi, weights, dim, FEType, deg);
-    
+
     SC detB;
     SC absDetB;
     SmallMatrix<SC> B(dim);
