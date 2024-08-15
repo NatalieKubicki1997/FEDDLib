@@ -2087,7 +2087,7 @@ void Helper::getQuadratureValues(int dim,
                 {
                     QuadPts.reset(new vec2D_dbl_Type(1,vec_dbl_Type(3,0.0)));
                     QuadW->resize(1);
-                    QuadW->at(0) = 2.;
+                    QuadW->at(0) = 8.; // Used to be =2, not used anyway, but i think 8 is correct
                     break;
                 }
                 case 3: // 2 points in each direction; order 3

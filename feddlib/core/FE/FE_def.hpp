@@ -4278,18 +4278,18 @@ void FE<SC,LO,GO,NO>::assemblyBDStabilization(int dim,
     UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std);
 
     Helper::getPhi( phi, weights, dim, FEType, deg );
-    cout << " Degree "<< deg << endl;
     SC detB;
     SC absDetB;
     SmallMatrix<SC> B(dim);
     GO glob_i, glob_j;
     vec_dbl_Type v_i(dim);
     vec_dbl_Type v_j(dim);
-    cout << " IN BD Stabilization " << endl;
-    SC refElementSize=1.;
-    SC refElementScale=1.;
-    if(dim==3)
-        SC refElementScale=1./9;
+    SC refElementScale=1./64;
+    SC refElementSize=8.;
+    if(dim==3){
+        refElementScale=1./64;
+        refElementSize=8.;
+    }
 
     if(FEType=="P1"){
         if (dim==2) {

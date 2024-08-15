@@ -363,7 +363,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleDivAndStab() const{
         C->resumeFill();
         C->scale( -1. / ( viscosity * density ) );
         C->fillComplete( pressureMap, pressureMap );
-        C->print();
+        //C->print();
         this->system_->addBlock( C, 1, 1 );
     }
     //else 
