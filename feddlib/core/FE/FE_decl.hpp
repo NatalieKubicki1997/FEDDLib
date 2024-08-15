@@ -188,6 +188,12 @@ class FE {
                         MatrixPtr_Type &A,
                         bool callFillComplete = true,
                          int FELocExternal = -1);
+    void assemblyLaplacePressureDisc(int dim,
+                        std::string FEType,
+                        int degree,
+                        MatrixPtr_Type &A,
+                        bool callFillComplete,
+                        int FELocExternal=-1);
 
     void assemblyMass(int dim,
                       std::string FEType,

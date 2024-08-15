@@ -95,7 +95,12 @@ UN Helper::determineDegree(UN dim, std::string FEType1, std::string FEType2, int
         else if (type1==Grad)
             deg1 = 3;
     }
-
+     else if (!FEType1.compare("Q1")) {
+        if (type1==Std)
+            deg1 = 1;
+        else if (type1==Grad)
+            deg1 = 0;
+    }
     else if (!FEType1.compare("Q2")) {
         if (type1==Std)
             deg1 = 2;
@@ -130,7 +135,12 @@ UN Helper::determineDegree(UN dim, std::string FEType1, std::string FEType2, int
         else if (type2==Grad)
             deg2 = 3;
     }
-
+    else if ( !FEType2.compare("Q1")) {
+        if (type2==Std)
+            deg2 = 1;
+        else if (type2==Grad)
+            deg2 = 0;
+    }
     else if (!FEType2.compare("Q2")) {
         if (type2==Std)
             deg2 = 2;

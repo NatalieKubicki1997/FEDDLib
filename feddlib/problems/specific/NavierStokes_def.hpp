@@ -169,13 +169,13 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
 
    // In case of a monolithic preconditioner and a P2-P1 discretization we have the option to correct the pressure to have mean value = 0. This way, generally, we can improve scalabilty and results. 
     // The real correction is then done via projection in the Overlapping Operator of FROSch,here we only assemble a as \int p dx . a is assembled as a column vector but in the Dissertation of C. Hochmuth defined as row.
-    if(this->parameterList_->sublist("Parameter").get("Use Pressure Correction",false) && !this->getFEType(0).compare("P2") && !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Monolithic")){ 
+    if(this->parameterList_->sublist("Parameter").get("Use Pressure Correction",false) && (!this->getFEType(0).compare("P2") || (!this->getFEType(0).compare("Q2") && !this->getFEType(1).compare("Q1"))) && !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Monolithic")){ 
         // Projection vector a: \int p dx, for pressure component and 0 for velocity.
         BlockMultiVectorPtr_Type projection(new BlockMultiVector_Type (2));
 
         MultiVectorPtr_Type P(new MultiVector_Type( this->getDomain(1)->getMapUnique(), 1 ) );
 
-        this->feFactory_->assemblyPressureMeanValue( this->dim_,"P1",P) ;
+        this->feFactory_->assemblyPressureMeanValue( this->dim_,this->getFEType(1),P) ;
 
         MultiVectorPtr_Type vel0(new MultiVector_Type( this->getDomain(0)->getMapVecFieldUnique(), 1 ) );
         vel0->putScalar(0.);
@@ -199,10 +199,10 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
          || !this->parameterList_->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","SIMPLE").compare("SIMPLE")) {
             MatrixPtr_Type Mvelocity(new Matrix_Type( this->getDomain(0)->getMapVecFieldUnique(), this->getDomain(0)->getApproxEntriesPerRow() ) );
             //
-            if(this->parameterList_->sublist("Parameter").get("BFBT",true)){
+            if(this->parameterList_->sublist("Parameter").get("BFBT",false)){
                 this->feFactory_->assemblyIdentity( Mvelocity, true );
                 Mvelocity->resumeFill();
-                Mvelocity->scale(1./100000000.);
+                //Mvelocity->scale(1./100000000.);
                 Mvelocity->fillComplete();
             }
             else
@@ -210,7 +210,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
 
             //
             BlockMatrixPtr_Type bcBlockMatrix(new BlockMatrix_Type (1));
-            if(this->parameterList_->sublist("Parameter").get("BC in LSC Mu",true)){
+            if(this->parameterList_->sublist("Parameter").get("BC in LSC Mu",false)){
                 bcBlockMatrix->addBlock(Mvelocity,0,0);
                 this->bcFactory_->setSystemScaled(bcBlockMatrix); 
             }
@@ -223,6 +223,8 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
 
             MatrixPtr_Type Lp(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
             this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 2, Lp, true );//assemblyIdentity(Lp); //
+            //    this->feFactory_->assemblyLaplacePressureDisc( this->dim_, this->domain_FEType_vec_.at(1), 2, Lp, true );//assemblyIdentity(Lp); //
+
             bcBlockMatrix->addBlock(Lp,0,0);
             this->bcFactoryPressureLaplace_->setSystemScaled(bcBlockMatrix); 
             this->getPreconditionerConst()->setPressureLaplaceMatrix( Lp );
@@ -244,7 +246,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
             MatrixPtr_Type Lp(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
             this->feFactory_->assemblyLaplace( this->dim_, this->domain_FEType_vec_.at(1), 1, Lp, true );//assemblyIdentity(Lp); //
             Ap_.reset(new Matrix_Type(Lp)); // Setting Ap_ as Lp without any BC
-            
+        
             // Adding Boundary Conditions
             BlockMatrixPtr_Type bcBlockMatrix(new BlockMatrix_Type (1));
             bcBlockMatrix->addBlock(Lp,0,0);
@@ -355,13 +357,13 @@ void NavierStokes<SC,LO,GO,NO>::assembleDivAndStab() const{
     this->system_->addBlock( BT, 0, 1 );
     this->system_->addBlock( B, 1, 0 );
     
-    if ( !this->getFEType(0).compare("P1") ) {
+    if ( !this->getFEType(0).compare("P1") || !this->getFEType(0).compare("Q1") ) {
         C.reset(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
-        this->feFactory_->assemblyBDStabilization( this->dim_, "P1", C, true);
+        this->feFactory_->assemblyBDStabilization( this->dim_, this->getFEType(1), C, true);
         C->resumeFill();
         C->scale( -1. / ( viscosity * density ) );
         C->fillComplete( pressureMap, pressureMap );
-        
+        C->print();
         this->system_->addBlock( C, 1, 1 );
     }
     //else 

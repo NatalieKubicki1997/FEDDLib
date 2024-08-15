@@ -2425,6 +2425,70 @@ void FE<SC,LO,GO,NO>::assemblyLaplace(int dim,
 }
 
 template <class SC, class LO, class GO, class NO>
+void FE<SC,LO,GO,NO>::assemblyLaplacePressureDisc(int dim,
+                                        std::string FEType,
+                                        int degree,
+                                        MatrixPtr_Type &A,
+                                        bool callFillComplete,
+                                        int FELocExternal){
+    TEUCHOS_TEST_FOR_EXCEPTION(FEType == "P0",std::logic_error, "Not implemented for P0");
+
+    
+    ElementsPtr_Type elementsV = domainVec_.at(0)->getElementsC();
+    ElementsPtr_Type elements = domainVec_.at(1)->getElementsC();
+
+    vec2D_dbl_ptr_Type pointsRep = domainVec_.at(1)->getPointsRepeated();
+
+    MapConstPtr_Type map = domainVec_.at(1)->getMapRepeated();
+
+    vec3D_dbl_ptr_Type 	dPhi;
+    vec_dbl_ptr_Type weights = Teuchos::rcp(new vec_dbl_Type(0));
+    
+    UN deg = Helper::determineDegree(dim,FEType,FEType,Grad,Grad);
+    Helper::getDPhi(dPhi, weights, dim, FEType, deg);
+
+    SC detB;
+    SC absDetB;
+    SmallMatrix<SC> B(dim);
+    SmallMatrix<SC> Binv(dim);
+    GO glob_i, glob_j;
+    vec_dbl_Type v_i(dim);
+    vec_dbl_Type v_j(dim);
+
+    for (UN T=0; T<elements->numberElements(); T++) {
+
+        Helper::buildTransformation(elementsV->getElement(T).getVectorNodeList(), pointsRep, B, "Q1");
+        detB = B.computeInverse(Binv);
+        absDetB = std::fabs(detB);
+
+        vec3D_dbl_Type dPhiTrans( dPhi->size(), vec2D_dbl_Type( dPhi->at(0).size(), vec_dbl_Type(dim,0.) ) );
+        applyBTinv( dPhi, dPhiTrans, Binv );
+        for (UN i=0; i < dPhiTrans[0].size(); i++) {
+            Teuchos::Array<SC> value( dPhiTrans[0].size(), 0. );
+            Teuchos::Array<GO> indices( dPhiTrans[0].size(), 0 );
+            for (UN j=0; j < value.size(); j++) {
+                for (UN w=0; w<dPhiTrans.size(); w++) {
+                    for (UN d=0; d<dim; d++){
+                        value[j] += weights->at(w) * dPhiTrans[w][i][d] * dPhiTrans[w][j][d];
+                    }
+                }
+                value[j] *= absDetB;
+                indices[j] = map->getGlobalElement( elements->getElement(T).getNode(j) );
+            }
+            GO row = map->getGlobalElement( elements->getElement(T).getNode(i) );
+
+            A->insertGlobalValues( row, indices(), value() );
+        }
+
+
+    }
+    if (callFillComplete)
+        A->fillComplete();
+
+}
+
+
+template <class SC, class LO, class GO, class NO>
 void FE<SC,LO,GO,NO>::assemblyLaplaceVecField(int dim,
                                                 std::string FEType,
                                                 int degree,
@@ -4198,7 +4262,7 @@ void FE<SC,LO,GO,NO>::assemblyBDStabilization(int dim,
                                               MatrixPtr_Type &A,
                                               bool callFillComplete){
      
-    TEUCHOS_TEST_FOR_EXCEPTION(FEType != "P1",std::logic_error, "Only implemented for P1. Q1 is equivalent but we need to adjust scaling for the reference element.");
+    TEUCHOS_TEST_FOR_EXCEPTION(FEType != "P1" && FEType != "Q1",std::logic_error, "Only implemented for P1. Q1 is equivalent but we need to adjust scaling for the reference element.");
     UN FEloc = checkFE(dim,FEType);
 
     ElementsPtr_Type elements = domainVec_.at(FEloc)->getElementsC();
@@ -4214,30 +4278,35 @@ void FE<SC,LO,GO,NO>::assemblyBDStabilization(int dim,
     UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std);
 
     Helper::getPhi( phi, weights, dim, FEType, deg );
-
+    cout << " Degree "<< deg << endl;
     SC detB;
     SC absDetB;
     SmallMatrix<SC> B(dim);
     GO glob_i, glob_j;
     vec_dbl_Type v_i(dim);
     vec_dbl_Type v_j(dim);
+    cout << " IN BD Stabilization " << endl;
+    SC refElementSize=1.;
+    SC refElementScale=1.;
+    if(dim==3)
+        SC refElementScale=1./9;
 
-    SC refElementSize;
-    SC refElementScale;
-    if (dim==2) {
-        refElementSize = 0.5;
-        refElementScale = 1./9.;
+    if(FEType=="P1"){
+        if (dim==2) {
+            refElementSize = 0.5;
+            refElementScale = 1./9.;
+        }
+        else if(dim==3){
+            refElementSize = 1./6.;
+            refElementScale = 1./16.;
+        }
+        else
+            TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Only implemented for 2D and 3D.");
     }
-    else if(dim==3){
-        refElementSize = 1./6.;
-        refElementScale = 1./16.;
-    }
-    else
-        TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Only implemented for 2D and 3D.");
 
     for (UN T=0; T<elements->numberElements(); T++) {
 
-        Helper::buildTransformation(elements->getElement(T).getVectorNodeList(), pointsRep, B);
+        Helper::buildTransformation(elements->getElement(T).getVectorNodeList(), pointsRep, B,FEType);
         detB = B.computeDet( );
         absDetB = std::fabs(detB);
 
