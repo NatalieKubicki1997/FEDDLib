@@ -423,7 +423,7 @@ int main(int argc, char *argv[])
                 Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaViscsoity(new ExporterParaView<SC, LO, GO, NO>());
                 DomainPtr_Type domV = domainVelocity;
 
-                navierStokesAssFE.computeSteadyPostprocessingViscosity_Solution();
+                navierStokesAssFE.computeSteadyPostprocessingViscositySolution();
 
                 //**************** Write out viscosity ******************
                 Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionViscosityAssFE = navierStokesAssFE.viscosity_element_;

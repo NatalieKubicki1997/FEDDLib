@@ -595,10 +595,10 @@ class FE {
     void checkMeshOrientation(int dim,string FEType);
 
     /* Given a converged velocity solution this function 
-       computes the averaged viscosity estimate in each cell at the center of mass 
-       - CM stands for center of mass so the values at the node are averaged to obtain one value
-    */
-    void computeSteadyViscosityFE_CM(int dim,
+       computes e.g. in case of NavierStokesAssFE for GeneralizedNewtonian fluids the averaged viscosity estimate in each cell at the center of mass 
+       for specific implementation one has to check the specific AssembleFE class */
+    
+    void computeConstOutputFields(int dim,
 	                                    string FETypeVelocity,
 	                                    string FETypePressure,
 										int dofsVelocity,
@@ -609,7 +609,7 @@ class FE {
 
     // Write prostprocessing output fields like e.g. the viscosity based on  velocity, pressure .. solution
     // inside this BMV -> For visualization or postprocessing                                
-    BlockMultiVectorPtr_Type const_output_fields;
+    BlockMultiVectorPtr_Type constOutputFields_;
 
 
 /* ----------------------------------------------------------------------------------------*/

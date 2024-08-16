@@ -758,7 +758,7 @@ void NavierStokesAssFE<SC,LO,GO,NO>::reAssembleExtrapolation(BlockMultiVectorPtr
 
 // Use converged solution to compute viscosity field
 template<class SC,class LO,class GO,class NO>
-void NavierStokesAssFE<SC,LO,GO,NO>::computeSteadyPostprocessingViscosity_Solution() {
+void NavierStokesAssFE<SC,LO,GO,NO>::computeSteadyPostprocessingViscositySolution() {
     
 
     MultiVectorConstPtr_Type u = this->solution_->getBlock(0); // solution_ is initialized in problem_def.hpp so the most general class
@@ -771,9 +771,9 @@ void NavierStokesAssFE<SC,LO,GO,NO>::computeSteadyPostprocessingViscosity_Soluti
     // to visualize viscosity field
     // @ToDo Add possibility for transient problem to save viscosity solution in each time step
     viscosity_element_ = Teuchos::rcp( new MultiVector_Type( this->getDomain(0)->getElementMap() ) );
-    this->feFactory_->computeSteadyViscosityFE_CM(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), this->dim_,1,u_rep_,p_rep_,this->parameterList_);        
+    this->feFactory_->computeConstOutputFields(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), this->dim_,1,u_rep_,p_rep_,this->parameterList_);        
   
-    Teuchos::RCP<const MultiVector<SC,LO,GO,NO>> exportSolutionViscosityAssFE = this->feFactory_->const_output_fields->getBlock(0); // For now we assume that viscosity is always saved in first block
+    Teuchos::RCP<const MultiVector<SC,LO,GO,NO>> exportSolutionViscosityAssFE = this->feFactory_->constOutputFields_->getBlock(0); // For now we assume that viscosity is always saved in first block
     viscosity_element_->importFromVector(exportSolutionViscosityAssFE, true);  
   
   

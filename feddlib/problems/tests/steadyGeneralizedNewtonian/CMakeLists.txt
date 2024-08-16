@@ -1,3 +1,8 @@
+INCLUDE(TribitsCopyFilesToBinaryDir)
+INCLUDE(TribitsAddExecutableAndTest)
+INCLUDE(AddSubdirectories)
+ADD_SUBDIRECTORIES(addingSolutionField)
+
 TRIBITS_ADD_EXECUTABLE(
 	steadyGeneralizedNewtonian 
 	SOURCES main.cpp
@@ -46,8 +51,8 @@ TRIBITS_ADD_TEST(
 
 TRIBITS_COPY_FILES_TO_BINARY_DIR(data_steadyCreepingMotionNonNewtonianAssFE_wBI 
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-	SOURCE_FILES parametersPrec.xml rectangle_200.mesh parametersProblem.xml parametersSolver.xml parametersTeko.xml
+	SOURCE_FILES parametersPrec.xml rectangle_200.mesh rectangle_400.mesh parametersProblem.xml parametersSolver.xml parametersTeko.xml
 	DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
-	DEST_FILES parametersPrec.xml rectangle_200.mesh  parametersProblem.xml parametersSolver.xml parametersTeko.xml
+	DEST_FILES parametersPrec.xml rectangle_200.mesh  rectangle_400.mesh parametersProblem.xml parametersSolver.xml parametersTeko.xml
 	EXEDEPS steadyGeneralizedNonNewtonianAssFE_wBI  
 )

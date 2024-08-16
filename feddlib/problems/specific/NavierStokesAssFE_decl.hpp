@@ -101,7 +101,7 @@ public:
 //    virtual void assembleExternal( std::string type ){};
     /*####################*/
 
-    void computeSteadyPostprocessingViscosity_Solution(); // Compute the viscosity based on the current velocity solution and save it inside viscosity_element_
+    void computeSteadyPostprocessingViscositySolution(); // Compute the viscosity based on the current velocity solution and save it inside viscosity_element_
 
 
     mutable MatrixPtr_Type 	A_;

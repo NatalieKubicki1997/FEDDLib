@@ -1240,7 +1240,8 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 
 
 /*!
- \brief Postprocessing: Using a converged velocity solution -> compute averaged viscosity inside an element at center of mass
+ \brief Postprocessing: Using a converged velocity solution -> For Generalized Newton Fluid: Compute averaged viscosity inside an element at center of mass
+ 
 @param[in] dim Dimension
 @param[in] FEType FE Discretization
 @param[in] degree Degree of basis function
@@ -1250,7 +1251,7 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 
 
 template <class SC, class LO, class GO, class NO>
-void FE<SC,LO,GO,NO>::computeSteadyViscosityFE_CM(int dim,
+void FE<SC,LO,GO,NO>::computeConstOutputFields(int dim,
 	                                    string FETypeVelocity,
 	                                    string FETypePressure,
 										int dofsVelocity,
@@ -1296,7 +1297,7 @@ void FE<SC,LO,GO,NO>::computeSteadyViscosityFE_CM(int dim,
           
 	} // end loop over all elements
     // We could also instead of just overwrite it add an aditional block such that we could also compute other output fields and save it in there
-    this->const_output_fields= visco_output;
+    this->constOutputFields_= visco_output;
 
 
 }
