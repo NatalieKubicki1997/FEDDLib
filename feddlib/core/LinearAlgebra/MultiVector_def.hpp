@@ -334,7 +334,8 @@ void MultiVector<SC,LO,GO,NO>::exportFromVector( MultiVectorConstPtr_Type mvIn, 
     else
         TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error,"Unknown type for export. Choose Forward or Reverse");
 }
-    
+
+// See     https://docs.trilinos.org/dev/packages/tpetra/doc/html/classTpetra_1_1MatrixMarket_1_1Reader.html#ae0d2754386924fb9939255da1b0c0a62
 template <class SC, class LO, class GO, class NO>
 void MultiVector<SC,LO,GO,NO>::writeMM(std::string fileName) const{
     TEUCHOS_TEST_FOR_EXCEPTION( multiVector_.is_null(), std::runtime_error,"MultiVector in writeMM is null.");
