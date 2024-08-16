@@ -355,6 +355,89 @@ int Helper::getDPhi(vec3D_dbl_ptr_Type &DPhi,
     return intFE;
 }
 
+// Functions which return DPhi at specified quadrature points
+int Helper::getDPhi(vec3D_dbl_ptr_Type &DPhi,
+                     vec_dbl_Type weightsDPhi,
+                     vec2D_dbl_Type QuadPts,
+                     int dim,
+		             std::string FEType){
+
+    int 			nmbLocElPts;
+    int 			intFE;
+    vec_dbl_ptr_Type 	value(new vec_dbl_Type(dim,0.0));
+
+    if (dim==2) {
+        if (FEType == "P0") {
+            nmbLocElPts = 1;
+            intFE = 0;
+        }
+        else if (FEType == "P1") {
+            nmbLocElPts = 3;
+            intFE = 1;
+        }
+        else if (FEType == "P2") {
+            nmbLocElPts = 6;
+            intFE = 2;
+        }
+
+        DPhi.reset(new vec3D_dbl_Type(weightsDPhi.size(),vec2D_dbl_Type(nmbLocElPts,vec_dbl_Type(2,0.0))));
+
+        for (int k=0; k<DPhi->size(); k++ ){
+            for (int i=0; i<DPhi->at(0).size(); i++) {
+                gradPhi(dim,intFE,i,QuadPts[k],value);
+                for (int j=0; j<2; j++) {
+                    DPhi->at(k).at(i).at(j) = value->at(j);
+                }
+            }
+        }
+    }
+
+    else if(dim==3){
+        if (FEType == "P0") {
+            nmbLocElPts = 1;
+            intFE = 0;
+        }
+        else if (FEType == "P1") {
+            nmbLocElPts = 4;
+            intFE = 1;
+        }
+        else if (FEType == "P2") {
+            nmbLocElPts = 10;
+            intFE = 2;
+        }
+        else if (FEType == "Q1") {
+            nmbLocElPts = 8;
+            intFE = 3;
+        }
+        else if (FEType == "Q2") {
+            nmbLocElPts = 27;
+            intFE = 4;
+        }
+        else if (FEType == "Q2-20") {
+            nmbLocElPts = 20;
+            intFE = 5;
+        }
+        else if (FEType == "P1-disc") {
+            nmbLocElPts = 4;
+            intFE = 6;
+        }
+        else if (FEType == "P1-disc-global")
+            TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error   ,"grad of P1-disc-global not implemented yet.");
+
+        DPhi.reset( new vec3D_dbl_Type( weightsDPhi.size(), vec2D_dbl_Type( nmbLocElPts, vec_dbl_Type(3,0.0) ) ) );
+        for (int k=0; k<DPhi->size(); k++ ){
+            for (int i=0; i<DPhi->at(0).size(); i++) {
+                gradPhi(dim,intFE,i,QuadPts[k],value);
+                for (int j=0; j<3; j++) {
+                    DPhi->at(k).at(i).at(j) = value->at(j);
+                }
+            }
+        }
+    }
+
+    return intFE;
+}
+
 
 void Helper::gradPhi(int dim,
                 int intFE,
@@ -658,6 +741,107 @@ void Helper::phi(int dim,
         }
 
 }
+
+// New added functions which computes phi at specified quadrature points
+int Helper::getPhi(vec2D_dbl_ptr_Type &Phi,
+                            vec_dbl_Type weightsPhi,
+                            vec2D_dbl_Type QuadPts,
+                            int dim,
+                            std::string FEType){
+
+    int 			nmbLocElPts;
+    int 			intFE;
+    double  		value;
+    if (dim==1) {
+        if (FEType == "P0") {
+            nmbLocElPts = 1;
+            intFE = 0;
+        }
+        else if (FEType == "P1") {
+            nmbLocElPts = 2;
+            intFE = 1;
+        }
+        else if (FEType == "P2") {
+            nmbLocElPts = 3;
+            intFE = 2;
+        }
+        Phi.reset( new vec2D_dbl_Type( weightsPhi.size(), vec_dbl_Type( nmbLocElPts, 0.0 ) ) );
+        for (int k=0; k<Phi->size(); k++ ){
+            for (int i=0; i<Phi->at(0).size(); i++) {
+                phi(dim,intFE,i,QuadPts[k],&value);
+                Phi->at(k).at(i) = value;
+            }
+        }
+
+    }
+    else if (dim==2) {
+        if (FEType == "P0") {
+            nmbLocElPts = 1;
+            intFE = 0;
+        }
+        else if (FEType == "P1") {
+            nmbLocElPts = 3;
+            intFE = 1;
+        }
+        else if (FEType == "P2") {
+            nmbLocElPts = 6;
+            intFE = 2;
+        }
+
+        Phi.reset(new vec2D_dbl_Type(weightsPhi.size(),vec_dbl_Type(nmbLocElPts,0.0)));
+
+        for (int k=0; k<Phi->size(); k++ ){
+            for (int i=0; i<Phi->at(0).size(); i++) {
+                phi(dim,intFE,i,QuadPts[k],&value);
+                Phi->at(k).at(i) = value;
+            }
+        }
+    }
+    else if(dim==3){
+        if (FEType == "P0") {
+            nmbLocElPts = 1;
+            intFE = 0;
+        }
+        else if (FEType == "P1") {
+            nmbLocElPts = 4;
+            intFE = 1;
+        }
+        else if (FEType == "P2") {
+            nmbLocElPts = 10;
+            intFE = 2;
+        }
+        else if (FEType == "Q1") {
+            nmbLocElPts = 8;
+            intFE = 3;
+        }
+        else if (FEType == "Q2") {
+            nmbLocElPts = 27;
+            intFE = 4;
+        }
+        else if (FEType == "Q2-20") {
+            nmbLocElPts = 20;
+            intFE = 5;
+        }
+        else if (FEType == "P1-disc") {
+            nmbLocElPts = 4;
+            intFE = 1;
+        }
+        else if (FEType == "P1-disc-global")
+            TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "P1-disc-global not implemented yet.");
+        
+
+        Phi.reset(new vec2D_dbl_Type(weightsPhi.size(),vec_dbl_Type(nmbLocElPts,0.0)));
+
+        for (int k=0; k<Phi->size(); k++ ){
+            for (int i=0; i<Phi->at(0).size(); i++) {
+                phi(dim,intFE,i,QuadPts[k],&value);
+                Phi->at(k).at(i) = value;
+            }
+        }
+    }
+    return intFE;
+}
+
 
 int Helper::getPhi(vec2D_dbl_ptr_Type &Phi,
                             vec_dbl_ptr_Type &weightsPhi,
@@ -1556,6 +1740,162 @@ int Helper::getDPhiAtCM(vec3D_dbl_ptr_Type &DPhi,
     }
 
     }
+
+/*!
+
+\brief Returns neccesary quadrature Values in global coordinate system 
+
+@param[in] dim Dimension for which the quadrature points are needed.
+@param[in] FEType Finite element type for which the quadrature points are needed.
+@param[in] QuadP Vector with coordinates vectors of quadrature points
+@param[in] QuadW Vector to be filled with the quadrature weights accordingly
+@param[in] vec_LO_Type surfaceIDs for which you need the quadrature points.
+@param[in] points The repeated(!) points of current problem to identify the surface node ids. 
+
+@param[out] QuadPts Quadrature points
+@param[out] QuadW Quadrature weights
+
+\brief Keep in mind that elementwise quadPoints are defined on reference element whereas surface quadPoints at hand are defined on the input surface, which is typically not the reference Element. 
+We also set here the quadrature weights but as we already now that they will be mapped back to a reference line or a reference triangle we will save here 
+already the quadrature weights defined on reference element
+*/
+    void Helper::getQuadraturePointsOnSurfaceInGlobalSpace(int dim, 	
+    										std::string FEType, 
+    										vec_dbl_Type &QuadW,
+                                            vec2D_dbl_Type &QuadPts,  
+    										vec_LO_Type surfaceIDs, 
+    										vec2D_dbl_ptr_Type points)
+                                            {
+	
+	if(dim==2){ // Then correpsonding surface is a line
+		double x0 = points->at(surfaceIDs.at(0)).at(0);
+		double y0 = points->at(surfaceIDs.at(0)).at(1);
+		double x1 = points->at(surfaceIDs.at(1)).at(0);
+		double y1 = points->at(surfaceIDs.at(1)).at(1);
+		
+
+		if(FEType == "P1"){
+			
+			QuadPts[0][0] =  (x0+x1)/2.;
+			QuadPts[0][1] =  (y0+y1)/2.;
+
+			QuadW[0] = 1.;
+		}
+		else if(FEType == "P2"){
+
+            /*   
+             // Variables for computing Gaussian-legendre-quadrature points on physical element edge
+             // For Degree 3! We need the quadrature points for Intervall [0,1] as our reference element edges are defined in this range. We compute the
+             // corresponding quadrature points for the physical element such that if we map back on 
+             // the UNIT reference element we get the correct quadrature points BUT We still have to check if we are not on
+             // the diagonal of the unit triangle because then we have to multiply by a factor of sqrt(2)
+             */
+             double quad_p1, quad_p2; 
+             quad_p1=-0.5/sqrt(3.)+0.5;
+             quad_p2=0.5/sqrt(3.)+0.5;
+
+             QuadPts[0][0] = x0+(x1- x0)*quad_p1; // Scale the coordinates from [0 to 1] to [ a b ]
+             QuadPts[0][1] = y0+(y1- y0)*quad_p1;
+             QuadPts[1][0] = x0+(x1- x0)*quad_p2;
+             QuadPts[1][1] = y0+(y1- y0)*quad_p2;
+
+             QuadW[0] = 0.5;
+			 QuadW[1] = 0.5;
+
+		}
+		
+	}	
+	else if(dim==3){
+        // // Then correpsonding surface is a line
+		// Here we choose as quadpoints the midpoints of the triangle sides
+		double x0 = points->at(surfaceIDs.at(0)).at(0);
+		double y0 = points->at(surfaceIDs.at(0)).at(1);
+		double z0 = points->at(surfaceIDs.at(0)).at(2);
+		double x1 = points->at(surfaceIDs.at(1)).at(0);
+		double y1 = points->at(surfaceIDs.at(1)).at(1);
+		double z1 = points->at(surfaceIDs.at(1)).at(2);
+		double x2 = points->at(surfaceIDs.at(2)).at(0);
+		double y2 = points->at(surfaceIDs.at(2)).at(1);
+		double z2 = points->at(surfaceIDs.at(2)).at(2);
+
+        double a, b, P1, P2, lambda_a, lambda_b;
+
+		if(FEType == "P1"){
+			QuadPts[0][0] =   1/3.;
+			QuadPts[0][1] =   1/3.;
+			QuadPts[0][2] =   1/3.;
+
+			QuadW[0] = 1.;
+		}
+		else if(FEType == "P2"){
+
+                // So in order to map the Gaussian integration points at the correct location inside the 
+                // global element we have to consider barycentric coordinates
+                // https://en.wikipedia.org/wiki/Barycentric_coordinate_system#:~:text=Barycentric%20coordinates%20on%20triangles,-Learn%20more&text=In%20the%20context%20of%20a,of%20the%20reference%20triangle%20ABC.
+                // So if (\lambda_1, \lambda_2, \lambda_3 ) the barycentric coordinates of the points computed using the reference element (0,0)-(0,1)-(1,0
+                // Then we can just use the formulas
+                // x_global = \lambda_1 * P1_x + \lambda_2*P2_x* (1-\lambda_1-\lambda_2)*P3_x where the x_i are the global vertices x-coordinates
+                // same formula for y_global and z_global using y and z component of the vertices
+                // Then if we do the mapping we will correctly map back the quadrature points to the positions 
+
+                // Barycentric coordinates for (1/3, 1/3) -> (1/3, 1/3, 1/3)
+                // Barycentric coordinates for (a   , a)  -> (1-2*a , a , a   )
+                // Barycentric coordinates for (1-2*a, a) -> (a, 1-2*a , a)
+                // Barycentric coordinates for (a, 1-2*a) -> (a, a, 1-2*a)
+                // Barycentric coordinates for  (b, b)    -> (1-2*b, b, b)
+                // Barycentric coordinates for  (1-2*b, b)    -> (b, 1-2*b, b)
+                // Barycentric coordinates for  (b, 1-2*b)    -> (b, b, 1-2*b)
+
+ 
+                a = 0.470142064105115;
+                b = 0.101286507323456;
+                lambda_a = 1-2.*a;
+                lambda_b = 1-2.*b;
+                P1 = 0.066197076394253;
+                P2 = 0.062969590272413;
+
+                QuadPts[0][0]  	 = 1/3.*x0+1/3.*x1+1/3.*x2;
+                QuadPts[0][1]    = 1/3.*y0+1/3.*y1+1/3.*y2;
+                QuadPts[0][2]    = 1/3.*z0+1/3.*z1+1/3.*z2;
+
+                QuadPts[1][0]	= lambda_a*x0 + a*x1 + a* x2;
+                QuadPts[1][1] 	= lambda_a*y0 + a*y1 + a* y2;
+                QuadPts[1][2] 	= lambda_a*z0 + a*z1 + a* z2;
+
+                QuadPts[2][0]	= a*x0 + lambda_a*x1 + a* x2;
+                QuadPts[2][1] 	= a*y0 + lambda_a*y1 + a* y2;
+                QuadPts[2][2] 	= a*z0 + lambda_a*z1 + a* z2;
+
+                QuadPts[3][0] 	= a*x0 + a*x1 + x2*lambda_a;
+                QuadPts[3][1] 	= a*y0 + a*y1 + y2*lambda_a;
+                QuadPts[3][2] 	= a*z0 + a*z1 + z2*lambda_a;
+
+                QuadPts[4][0] 	= lambda_b*x0 + b*x1 + b* x2;
+                QuadPts[4][1] 	= lambda_b*y0 + b*y1 + b* y2;
+                QuadPts[4][2] 	= lambda_b*z0 + b*z1 + b* z2;
+
+                QuadPts[5][0] 	= lambda_b*x1 + b*x0 + b* x2;
+                QuadPts[5][1] 	= lambda_b*y1 + b*y0 + b* y2;
+                QuadPts[5][2] 	= lambda_b*z1 + b*z0 + b* z2;
+
+                QuadPts[6][0] 	= lambda_b*x2 + b*x0 + b* x1;
+                QuadPts[6][1] 	= lambda_b*y2 + b*y0 + b* y1;
+                QuadPts[6][2] 	= lambda_b*z2 + b*z0 + b* z1;
+
+                QuadW[0]			= 9/80.;
+                QuadW[1]           = P1;
+                QuadW[2]            = P1;
+                QuadW[3] 			= P1;
+                QuadW[4]            = P2;
+                QuadW[5]           = P2;
+                QuadW[6]            = P2;
+
+		}
+	}
+
+
+
+                                            }
 
 
 

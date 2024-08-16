@@ -6,19 +6,18 @@
 #define MAIN_TIMER_STOP(A) A.reset();
 #endif
 
-#include <Tpetra_Core.hpp>
-
 #include "feddlib/core/FEDDCore.hpp"
-#include "feddlib/core/General/DefaultTypeDefs.hpp"
-
 #include "feddlib/core/Mesh/MeshPartitioner.hpp"
 #include "feddlib/core/FE/Domain.hpp"
+#include "feddlib/core/General/DefaultTypeDefs.hpp"
 #include "feddlib/core/General/ExporterParaView.hpp"
 #include "feddlib/core/LinearAlgebra/MultiVector.hpp"
 
 #include "feddlib/problems/Solver/NonLinearSolver.hpp"
 #include "feddlib/problems/specific/NavierStokesAssFE.hpp"
 
+#include <Teuchos_GlobalMPISession.hpp>
+#include <Xpetra_DefaultPlatform.hpp>
 
 /*!
  Main of steady-state Generalized Newtonian fluid flow problem with generalized Newtonian shear stress tensor assumption
@@ -236,10 +235,10 @@ int main(int argc, char *argv[])
     typedef Matrix<SC, LO, GO, NO> Matrix_Type;
     typedef Teuchos::RCP<Matrix_Type> MatrixPtr_Type;
 
-    // MPI boilerplate
-    Tpetra::ScopeGuard tpetraScope (&argc, &argv); // initializes MPI
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = Tpetra::getDefaultComm();
+    Teuchos::oblackholestream blackhole;
+    Teuchos::GlobalMPISession mpiSession(&argc, &argv, &blackhole);
 
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = Xpetra::DefaultPlatform::getDefaultPlatform().getComm();
     bool verbose(comm->getRank() == 0);
 
     if (verbose)
@@ -271,7 +270,8 @@ int main(int argc, char *argv[])
     Teuchos::CommandLineProcessor::EParseCommandLineReturn parseReturn = myCLP.parse(argc, argv);
     if (parseReturn == Teuchos::CommandLineProcessor::PARSE_HELP_PRINTED)
     {
-        return EXIT_SUCCESS;
+        MPI_Finalize();
+        return 0;
     }
     // Einlesen von Parameterwerten
     {
@@ -341,7 +341,6 @@ int main(int argc, char *argv[])
                 domainVelocity = domainPressure;
 
 
-
 			domainVelocity->exportNodeFlags();
 			domainPressure->preProcessMesh(true,true); // Preprocessing pressure mesh
 			domainVelocity->preProcessMesh(true,true); // Preprocessing velocity mesh
@@ -349,8 +348,13 @@ int main(int argc, char *argv[])
    			domainVelocity->exportSurfaceNormals("domain"); // exporting to check if correct
     		domainVelocity->exportElementOrientation("domain"); // exporting to check if correct
 
+            // Here we set the Surface Normal Function and save them in the FiniteElement Objects
             domainVelocity->setSurfaceNormalsForFE();
             domainPressure->setSurfaceNormalsForFE();
+
+            // See domain_def.hpp for detailed explanation but idea is to introduce an additional integral over a surface element
+            // First input is flag , second is degree 
+            domainVelocity->setSurfaceQuadraturePointsWeights( 3 , 3);
             //          **********************  BOUNDARY CONDITIONS ***********************************
             std::string bcType = parameterListProblem->sublist("Parameter").get("BC Type", "parabolic");
             // We can here differentiate between different problem cases and boundary conditions
@@ -630,5 +634,5 @@ int main(int argc, char *argv[])
         }
     }
     Teuchos::TimeMonitor::report(cout);
-    return EXIT_SUCCESS;
+    return (EXIT_SUCCESS);
 }

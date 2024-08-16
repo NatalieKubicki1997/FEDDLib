@@ -36,7 +36,9 @@ namespace FEDD
 
 		typedef InputToOutputMappingClass<SC, LO, GO, NO> InputToOutputMappingClass_Type;
 		typedef Teuchos::RCP<InputToOutputMappingClass_Type> InputToOutputMappingClassPtr_Type;
-		// smart pointer inside we need a type
+
+    typedef Elements Elements_Type;
+    typedef Teuchos::RCP<Elements_Type> ElementsPtr_Type;
 
 		/*!
 		 \brief Assemble the element Jacobian matrix.
@@ -112,7 +114,7 @@ namespace FEDD
 		}
 		@param[in] &elementMatrix
 		*/
-		void assemblyOutflowNeumannBoundaryTerm(SmallMatrixPtr_Type &elementMatrix){TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Will be added when normal evaluation on the finite element is finished");} ;
+		void assemblyOutflowNeumannBoundaryTerm(SmallMatrixPtr_Type &elementMatrix) ;
 
 		/*!
 

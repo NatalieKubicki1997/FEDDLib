@@ -53,6 +53,8 @@ public:
     
     typedef typename Mesh_Type::Elements_Type Elements_Type;
     typedef typename Mesh_Type::ElementsPtr_Type ElementsPtr_Type;
+
+    typedef Teuchos::RCP<FiniteElement> FE_ptr_Type;
             
     typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
     typedef Teuchos::RCP<MultiVector_Type> MultiVectorPtr_Type;
@@ -558,6 +560,19 @@ public:
    /// @param name export suffix to identify flags
    void exportElementOrientation(string name = "default");
 
+   //Add here an additional function which sets for each FiniteElement its normal to the computed value !CAUTION preProcessMesh has to be called first if not normal calculation does not always compute the outward normal
+   /// @brief Save in each Finite Element the surface normal as variable in order to use it in AssemblySpecific classes. 
+   void setSurfaceNormalsForFE();
+
+   /// @brief If an element is an outer boundary surface element we want to be in some cases able to add specific Neumann/ Robin Boundary conditions and therefore we have to add element contribution for this respective boundary element
+   //         With this function we set needed quadrature points/weights / mapping factor / in order to have everything ready for computation
+   // @param[in] flag Define in main on which boundary we want to add an additional special neumann boundary condition
+   // @param[in] degree For the quadrature rule choose a degree and the weight number will be set accordingly
+   void setSurfaceQuadraturePointsWeights( int flag , int degree);
+
+
+   void setPreProcessedMesh(bool value){this->preProcessedMesh_ = value;}; // Setter - Is called if preProcessMesh is called
+   bool getPreProcessedMesh(){return this->preProcessedMesh_;};            // Getter of variable 
    /* ----------------------------------------------------------------------------------------*/
 
    private:
@@ -599,6 +614,7 @@ public:
    std::string meshType_;
    int numProcsCoarseSolve_;
    int flagsOption_;
+   bool preProcessedMesh_ = false; // We need a variable to check whether the mesh was preprocessed such that outward normal computation will be correct
 
     };
    

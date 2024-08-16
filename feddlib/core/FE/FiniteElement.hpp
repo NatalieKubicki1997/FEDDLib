@@ -107,6 +107,28 @@ class FiniteElement {
 
 	bool isMarkedEdge(){return markedEdge_;};
 
+    // Computed in Domain_def.hpp -> Save in each (Sub) Finite Element the outward normal if the Finite Element is laying on the outer boundary
+    void setSurfaceNormal(vec_dbl_Type  computedNormal){ this->surfaceNormal_ =  computedNormal; };
+
+    // Return the vector saved for the surface Normal of the edge/ face
+    vec_dbl_Type getSurfaceNormal()
+        { if (this->surfaceNormal_.size() == 0){ TEUCHOS_TEST_FOR_EXCEPTION(true,std::runtime_error,"SurfaceNormal is not initialized")};
+        return this->surfaceNormal_;};
+
+    // Getter and setter functions for a boundary surface element 
+    void setNeumannBCElement(bool flag){ this->neumannBCElement_ = flag ; };   
+    bool getNeumannBCElement(){ return this->neumannBCElement_; };   
+    void setElementScaling(double elscaling){ this->elScaling_  = elscaling ; };   
+    double getElementScaling(){ return this->elScaling_  ; };   
+    void setQuadratureWeightsReference(vec_dbl_Type weights){this->neumannBCQuadratureWeightsReference_ = weights;};
+    void setQuadraturePointsGlobal(vec2D_dbl_Type qpoints){this->neumannBCQuadraturePointsGlobal_ = qpoints; };
+    vec_dbl_Type getQuadratureWeightsReference()
+        { if (this->neumannBCQuadratureWeightsReference_.size() == 0){ TEUCHOS_TEST_FOR_EXCEPTION(true,std::runtime_error,"neumannBC_QuadratureWeightsRef is not initialized")};
+        return this->neumannBCQuadratureWeightsReference_;};
+    vec2D_dbl_Type getQuadraturePointsGlobal()
+        { if (this->neumannBCQuadraturePointsGlobal_.size() == 0){ TEUCHOS_TEST_FOR_EXCEPTION(true,std::runtime_error,"neumannBC__QuadraturePointsPhy is not initialized")};
+        return this->neumannBCQuadraturePointsGlobal_;};
+    
 private:
     
     vec_LO_Type localNodeIDs_; /*! Node IDs that define this element. */
@@ -120,6 +142,13 @@ private:
 	GO predecessorElement_ = -1;
 	LO refinementEdge_=-1;
 	vec_LO_Type markedEdges_;
+
+    // Defined variables for boundary elements
+    vec_dbl_Type surfaceNormal_;                           // As we do not have dim here as variable we cannot initialize the vector 
+    bool neumannBCElement_ = false;                        // Check if the element is an surface element where we want to add an additional contribution - only for boundary elements where we want to add surface integral
+    vec_dbl_Type neumannBCQuadratureWeightsReference_;     // These are the Quadrature weights in terms of specified global quadrature points defined in reference coordinate system so here 2D: line [0 1] 3D: Triangle with (0,0)-(0,1)-(1,0) corners 
+    vec2D_dbl_Type neumannBCQuadraturePointsGlobal_;        // 2D: Quadrature points on line, 3D: Quadrature points on face, have to be mapped on reference element with mapping in specificAssemblyClasses
+    double elScaling_ = 0.0;                                // 2D: change of length , 3D: change of area - Surface Element scaling
     
     
 public:    

@@ -6,38 +6,22 @@
 #define MAIN_TIMER_STOP(A) A.reset();
 #endif
 
-#include <Tpetra_Core.hpp>
-
 #include "feddlib/core/FEDDCore.hpp"
-#include "feddlib/core/General/DefaultTypeDefs.hpp"
-
 #include "feddlib/core/Mesh/MeshPartitioner.hpp"
 #include "feddlib/core/FE/Domain.hpp"
+#include "feddlib/core/General/DefaultTypeDefs.hpp"
 #include "feddlib/core/General/ExporterParaView.hpp"
 #include "feddlib/core/LinearAlgebra/MultiVector.hpp"
 
 #include "feddlib/problems/Solver/NonLinearSolver.hpp"
 #include "feddlib/problems/specific/NavierStokesAssFE.hpp"
 
+#include <Teuchos_GlobalMPISession.hpp>
+#include <Xpetra_DefaultPlatform.hpp>
 
 /*!
  Main of steady-state Generalized Newtonian fluid flow problem with generalized Newtonian shear stress tensor assumption
- where we use the Power-law viscosity model
- eta( gamma_dot) = K* gamma_dot(n-1)
-
-***********************************************************************************************
-
-
- Here two simple test cases to see correctness of code are:
-    1. Set exponent n=1 in Power-Law - Then viscosity model gives eta = K so a constant viscosity - Compare results from Newtonian solver using K as viscosity with results obtained from generalized-Newtonian assembly
-       The solution should only differ in the outlet region due to the different natural boundary conditions obtained from using the conventional formulation (Laplace operator) and stress-divergence formulation
-    2. Add for a plane 2D-Flow in a rectangular channel an additional boundary integral term to obtain same outlet condition for both formulation then results should not differ from each other
-    3. For Poiseuille-Flow set the analytical velocity profile for a Power-Law fluid and see if correct pressure gradient is recovered
-
-@IMPORTANT
- Here we have to check that IF we want to compute a comparison between Navier-Stokes and
- Power-Law Model that K has to correspond to kinematicViscosity*density
- If not we are not comparing the same flow
+ In this main we always test the same example but use neumann boundary condition at the outlet 
 
  @brief steady-state generalized-Newtonian Flow of power-law fluid main
  @author Natalie Kubicki
@@ -236,10 +220,10 @@ int main(int argc, char *argv[])
     typedef Matrix<SC, LO, GO, NO> Matrix_Type;
     typedef Teuchos::RCP<Matrix_Type> MatrixPtr_Type;
 
-    // MPI boilerplate
-    Tpetra::ScopeGuard tpetraScope (&argc, &argv); // initializes MPI
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = Tpetra::getDefaultComm();
+    Teuchos::oblackholestream blackhole;
+    Teuchos::GlobalMPISession mpiSession(&argc, &argv, &blackhole);
 
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = Xpetra::DefaultPlatform::getDefaultPlatform().getComm();
     bool verbose(comm->getRank() == 0);
 
     if (verbose)
@@ -271,7 +255,8 @@ int main(int argc, char *argv[])
     Teuchos::CommandLineProcessor::EParseCommandLineReturn parseReturn = myCLP.parse(argc, argv);
     if (parseReturn == Teuchos::CommandLineProcessor::PARSE_HELP_PRINTED)
     {
-        return EXIT_SUCCESS;
+        MPI_Finalize();
+        return 0;
     }
     // Einlesen von Parameterwerten
     {
@@ -341,7 +326,6 @@ int main(int argc, char *argv[])
                 domainVelocity = domainPressure;
 
 
-
 			domainVelocity->exportNodeFlags();
 			domainPressure->preProcessMesh(true,true); // Preprocessing pressure mesh
 			domainVelocity->preProcessMesh(true,true); // Preprocessing velocity mesh
@@ -349,8 +333,13 @@ int main(int argc, char *argv[])
    			domainVelocity->exportSurfaceNormals("domain"); // exporting to check if correct
     		domainVelocity->exportElementOrientation("domain"); // exporting to check if correct
 
+            // Here we set the Surface Normal Function and save them in the FiniteElement Objects
             domainVelocity->setSurfaceNormalsForFE();
             domainPressure->setSurfaceNormalsForFE();
+
+            // See domain_def.hpp for detailed explanation but idea is to introduce an additional integral over a surface element
+            // First input is flag , second is degree 
+            domainVelocity->setSurfaceQuadraturePointsWeights( 2 , 8);
             //          **********************  BOUNDARY CONDITIONS ***********************************
             std::string bcType = parameterListProblem->sublist("Parameter").get("BC Type", "parabolic");
             // We can here differentiate between different problem cases and boundary conditions
@@ -386,10 +375,11 @@ int main(int argc, char *argv[])
             {
 
                 // Flags for straight circular tube inside this folder
-                //
-                //
-                //
-                //
+       // Flags for straight circular tube inside this folder
+                //************* POISEUILLE FLOW  *************
+                bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
+
+                bcFactory->addBC(constx3D, 3, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
             }
 
             //          **********************  CALL SOLVER ***********************************
@@ -630,5 +620,5 @@ int main(int argc, char *argv[])
         }
     }
     Teuchos::TimeMonitor::report(cout);
-    return EXIT_SUCCESS;
+    return (EXIT_SUCCESS);
 }

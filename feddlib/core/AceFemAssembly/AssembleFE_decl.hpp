@@ -5,6 +5,7 @@
 #include "feddlib/core/FEDDCore.hpp"
 #include "feddlib/core/LinearAlgebra/Matrix.hpp"
 #include "feddlib/core/FE/Helper.hpp"
+#include "feddlib/core/FE/FiniteElement.hpp"
 
 namespace FEDD {
 
@@ -64,6 +65,7 @@ namespace FEDD {
 
         typedef SmallMatrix<SC> SmallMatrix_Type;
         typedef Teuchos::RCP<SmallMatrix_Type> SmallMatrixPtr_Type;
+        typedef Teuchos::RCP<FiniteElement> FE_ptr_Type;
 
 	    // Teuchos:: Array anstatt vec_dbl_Type
 
@@ -219,6 +221,11 @@ namespace FEDD {
         */
         vec_dbl_Type getLocalconstOutputField() {return constOutputField_;};
 
+        /*! \brief Assigne a assembledFE Object a corresponding FE object such that we access its geometric information, i.e. surface normals
+         Then we do not have to compute geometric informations again
+        */
+        void setFiniteElement(FiniteElement& FE_Object){ this->FEObject_ =  Teuchos::rcpFromRef<FiniteElement>(FE_Object);}; //pass by reference because we do not want to copy the object
+
 
     protected:
 
@@ -261,8 +268,10 @@ namespace FEDD {
         GO globalElementID_;
 
 
-        // This can be any postprocessing output field ddefined inside an element using converged solution
-        vec_dbl_Type constOutputField_ ; // can be a vector with values on P1/ P2 nodes or just averaged element value
+        vec_dbl_Type constOutputField_ ; //  Postprocessing output field defined inside an element using converged solution - can be a vector with values on P1/ P2 nodes or just averaged element value
+
+        FE_ptr_Type FEObject_; // Pointer to the corresponding FiniteElement - if its properties change, e.g. its surface normals, we access the updated value
+
 
         friend class AssembleFEFactory<SC,LO,GO,NO>;
     };

@@ -60,6 +60,9 @@ public:
     typedef typename NonLinearProblem_Type::ThyraOp_Type ThyraOp_Type;
     typedef Thyra::BlockedLinearOpBase<SC> ThyraBlockOp_Type;
 
+    typedef Teuchos::RCP<FiniteElement> FE_ptr_Type;
+
+
     typedef typename NonLinearProblem_Type::TpetraOp_Type TpetraOp_Type;
     //@}
 

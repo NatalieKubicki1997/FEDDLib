@@ -1402,6 +1402,8 @@ void FE<SC,LO,GO,NO>::initAssembleFEElements(string elementType,tuple_disk_vec_p
         //  
         assemblyFE->setGlobalElementID(elementMap->getGlobalElement(T));
 
+        assemblyFE->setFiniteElement(elements->getElement(T)); // Assigne to each AssembledFE Element the corresponding FiniteElement -> !Be careful from which domain elements are given to this function
+         
 		assemblyFEElements_.push_back(assemblyFE);
 
 	}
