@@ -1302,6 +1302,56 @@ void FE<SC,LO,GO,NO>::computeConstOutputFields(int dim,
 
 }
 
+template <class SC, class LO, class GO, class NO>
+void FE<SC,LO,GO,NO>::addExternalConstInputFieldToAssembledElement(MapConstPtr_Type readMap,  std::string filename){
+	
+    // We could extend this function to obtain a list of strings if we have more than one external input field
+    // This is our input which we want to read in and have as additional available information for each assembledElement
+    HDF5Import<SC,LO,GO,NO> importer( readMap,filename);
+    Teuchos::RCP<MultiVector<SC,LO,GO,NO> > solutionImported = importer.readVariablesHDF5(filename);
+    Teuchos::ArrayRCP<SC>  resArray_readMV = solutionImported->getDataNonConst(0);
+
+    // We initialize a BlockMultiVectorPtr_Type which we can use to save the read in solution 
+    BlockMultiVectorPtr_Type input= Teuchos::rcp( new BlockMultiVector_Type(2) ); // 1 as we currently only assume one external input field
+    input->addBlock(solutionImported ,0);
+    this->constInputFields_= input;
+
+    if(assemblyFEElements_.size()== 0){
+     TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error, "AssembleFEElements have to be already built in order to add external field variable!" );
+    }
+
+    // This solution currently only works for one external input field and if it is a scalar and NOT defined on the nodes
+	for (UN T=0; T<assemblyFEElements_.size(); T++) 
+    {
+        // Set for each assemblyFE Object the read Input field
+        assemblyFEElements_[T]->setLocalConstInputField(  resArray_readMV[T]   );
+    }
+
+}
+
+template <class SC, class LO, class GO, class NO>
+void FE<SC,LO,GO,NO>::checkInputField(MapConstPtr_Type readMap){
+	
+    double solution_input;
+    // Specify form of MV and add it the inputFields_ Variable
+	MultiVectorPtr_Type Sol_input = Teuchos::rcp( new MultiVector_Type( readMap, 1 ) ); //
+    this->constInputFields_->addBlock(Sol_input,1);
+   
+
+	for (UN T=0; T<assemblyFEElements_.size(); T++) {
+        solution_input = assemblyFEElements_[T]->getLocalconstInputField();
+        Teuchos::ArrayRCP<SC>  resArray_block = this->constInputFields_->getBlockNonConst(1)->getDataNonConst(0);
+        resArray_block[T] = solution_input; // although it is a vector it only has one entry because we compute the value in the center of the element
+          
+	} // end loop over all elements
+
+
+
+}
+
+
+
+
 
 
 /*!

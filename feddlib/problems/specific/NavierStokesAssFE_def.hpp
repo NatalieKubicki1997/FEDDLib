@@ -781,8 +781,20 @@ void NavierStokesAssFE<SC,LO,GO,NO>::computeSteadyPostprocessingViscositySolutio
 }
 
 
+// Call from fefactory function to add external input field to assembled element
+template<class SC,class LO,class GO,class NO>
+void NavierStokesAssFE<SC,LO,GO,NO>::readAndSetExternalInputField(MapConstPtr_Type readMap,  std::string filename){
+    
+    this->feFactory_->addExternalConstInputFieldToAssembledElement(readMap, filename);
+    // In order to test if everything worked correctly we call che
+    this->feFactory_->checkInputField(readMap);
+
+    external_input_element_ = Teuchos::rcp( new MultiVector_Type(readMap ) );
+    Teuchos::RCP<const MultiVector<SC,LO,GO,NO>> externalInputFieldAssFE = this->feFactory_->constInputFields_->getBlock(1); // For now we assume that viscosity is always saved in first block
+    external_input_element_->importFromVector(externalInputFieldAssFE, true);  
 
 
+}
 
 
 

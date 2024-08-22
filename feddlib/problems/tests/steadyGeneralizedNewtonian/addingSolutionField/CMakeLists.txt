@@ -26,6 +26,16 @@ TRIBITS_COPY_FILES_TO_BINARY_DIR(mesh_addingSolutionField
 	EXEDEPS addingSolutionField 
 )
 
+TRIBITS_ADD_EXECUTABLE(
+	addingSolutionField_saveAssembleFEElement
+	SOURCES main_addToAssembleFEElement.cpp
+)
 
+TRIBITS_ADD_TEST(
+	addingSolutionField_saveAssembleFEElement 
+	NAME addingSolutionField_saveAssembleFEElement 
+	ARGS
+	NUM_MPI_PROCS 4
+)
 
 

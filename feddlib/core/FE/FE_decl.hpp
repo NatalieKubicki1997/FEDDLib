@@ -16,7 +16,7 @@
 #include "feddlib/core/AceFemAssembly/specific/AssembleFENavierStokes_decl.hpp"
 
 #include "feddlib/core/AceFemAssembly/AssembleFEFactory.hpp"
-
+#include "feddlib/core/General/HDF5Import.hpp"
 #include <Teuchos_Array.hpp>
 #include <Teuchos_BLAS.hpp>
 
@@ -72,6 +72,8 @@ class FE {
     typedef MultiVector<SC,LO,GO,NO> MultiVector_Type;
     typedef Teuchos::RCP<MultiVector_Type> MultiVectorPtr_Type;
     typedef Teuchos::RCP<const MultiVector_Type> MultiVectorConstPtr_Type;
+
+    
 
     typedef std::vector<GO> vec_GO_Type;
     typedef std::vector<vec_GO_Type> vec2D_GO_Type;
@@ -606,10 +608,19 @@ class FE {
 										MultiVectorPtr_Type u_rep,
 										MultiVectorPtr_Type p_rep,
  										ParameterListPtr_Type params);
+                                                
+    /* Read an external field from h5 file and add the field variable as variable inside each assembled FEElement
+    */
+    void addExternalConstInputFieldToAssembledElement(MapConstPtr_Type readMap,  std::string filename);
+
+    /* This method can be called in order to verify that the external read field variable was currently set in each assembled FEElement*/
+    void checkInputField(MapConstPtr_Type readMap);
 
     // Write prostprocessing output fields like e.g. the viscosity based on  velocity, pressure .. solution
     // inside this BMV -> For visualization or postprocessing                                
     BlockMultiVectorPtr_Type constOutputFields_;
+    // Save inside this BMV precomputed fields saved in (h5) format 
+    BlockMultiVectorPtr_Type constInputFields_;
 
 
 /* ----------------------------------------------------------------------------------------*/

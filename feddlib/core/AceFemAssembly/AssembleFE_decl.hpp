@@ -221,6 +221,19 @@ namespace FEDD {
         */
         vec_dbl_Type getLocalconstOutputField() {return constOutputField_;};
 
+        /*!
+            \brief Set the value of constInputField_ to an external read field value
+            \param[in] constInputField
+        */
+        void setLocalConstInputField(SC constInputField ){ this->constInputField_ = constInputField;};
+        /*!
+            \brief Get the value of constInputField_ to an external read field value
+             \return constInputField_
+        */
+        SC getLocalconstInputField(){return this->constInputField_;};
+
+
+
         /*! \brief Assigne a assembledFE Object a corresponding FE object such that we access its geometric information, i.e. surface normals
          Then we do not have to compute geometric informations again
         */
@@ -268,8 +281,9 @@ namespace FEDD {
         GO globalElementID_;
 
 
-        vec_dbl_Type constOutputField_ ; //  Postprocessing output field defined inside an element using converged solution - can be a vector with values on P1/ P2 nodes or just averaged element value
-
+        vec_dbl_Type  constOutputField_ ; //  Postprocessing output field defined inside an element using converged solution - can be a vector with values on P1/ P2 nodes or just averaged element value
+        SC  constInputField_ ;            //        If external field file exist one can save value of external field inside an element to access it 
+  
         FE_ptr_Type FEObject_; // Pointer to the corresponding FiniteElement - if its properties change, e.g. its surface normals, we access the updated value
 
 

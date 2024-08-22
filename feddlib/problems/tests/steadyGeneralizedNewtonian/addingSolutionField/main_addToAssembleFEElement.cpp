@@ -26,9 +26,6 @@
  Main of steady-state Generalized Newtonian fluid flow problem with generalized Newtonian shear stress tensor assumption
  where we can use a defined viscosity function of the form eta(Dot{gamma})
 
- In this file we just want to test if it possible to add an external variable field (here predictions_density) to each AssembleFEElement 
- in order to be able to access it inside this element
-
 ***********************************************************************************************
 
 
@@ -384,6 +381,7 @@ int main(int argc, char *argv[])
                 bcFactory->addBC(constx3D, 3, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
             }
 
+            std::string filename =  "predictions_density";
             //          **********************  CALL SOLVER ***********************************
             NavierStokesAssFE<SC, LO, GO, NO> navierStokesAssFE(domainVelocity, discVelocity, domainPressure, discPressure, parameterListAll);
 
@@ -391,9 +389,14 @@ int main(int argc, char *argv[])
                 MAIN_TIMER_START(NavierStokesAssFE, " AssFE:   Assemble System and solve");
                 navierStokesAssFE.addBoundaries(bcFactory);
                 navierStokesAssFE.initializeProblem();
-                navierStokesAssFE.assemble();
+                navierStokesAssFE.assemble(); // Initialization of the assembleFE elements
 
                 navierStokesAssFE.setBoundariesRHS();
+
+                // So after the assemble Routine is called we can read in an external variable field
+
+                navierStokesAssFE.readAndSetExternalInputField(domainVelocity->getElementMap(),  filename);
+
 
                 std::string nlSolverType = parameterListProblem->sublist("General").get("Linearization", "FixedPoint");
                 NonLinearSolver<SC, LO, GO, NO> nlSolverAssFE(nlSolverType);
@@ -423,6 +426,14 @@ int main(int argc, char *argv[])
                 exParaViscsoity->addVariable(exportSolutionViscosityAssFE, "viscosityAssFE", "Scalar", 1, domV->getElementMap());
                 exParaViscsoity->save(0.0);
             }
+
+            Teuchos::RCP<ExporterParaView<SC, LO, GO, NO>> exParaExternalField(new ExporterParaView<SC, LO, GO, NO>());
+            Teuchos::RCP<const MultiVector<SC, LO, GO, NO>> exportSolutionEAssFE = navierStokesAssFE.external_input_element_;
+            exParaExternalField->setup("external_field", domainVelocity->getMesh(), "P0"); // Viscosity averaged therefore P0 value
+            exParaExternalField->addVariable(exportSolutionEAssFE, "external_field", "Scalar", 1, domainVelocity->getElementMap());
+            exParaExternalField->save(0.0);
+
+
 
             //****************************************************************************************
             //          **********************  POST-PROCESSING - WRITE OUT VELOCITY AND PRESSURE ***********************************
