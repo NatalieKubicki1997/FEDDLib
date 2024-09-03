@@ -121,10 +121,19 @@ void DAESolverInTime<SC,LO,GO,NO>::setProblem(Problem_Type& problem){
 
 template<class SC,class LO,class GO,class NO>
 void DAESolverInTime<SC,LO,GO,NO>::defineTimeStepping(SmallMatrix<int> &timeStepDef){
-
+    cout << " Definite Time Stepping " << endl;
     timeStepDef_ = timeStepDef;
     timeSteppingTool_.reset(new TimeSteppingTools(sublist(parameterList_,"Timestepping Parameter") , comm_));
     isTimeSteppingDefined_ = true;
+
+    // Now we will check if we perform a restart and set the time accordingly.
+    bool restart = parameterList_->sublist("Timestepping Parameter").get("Restart",false);
+    // If we restart we also need to change the starting time
+    if(restart)
+    {
+        timeSteppingTool_->t_ = parameterList_->sublist("Timestepping Parameter").get("Time step", 0.0);
+
+    }
 
 
 }
@@ -413,6 +422,7 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinear(){
     SmallMatrix<double> problemCoeff(size);
     double dt = 0.0;
     int timeit = 0;
+    NonLinearSolver<SC, LO, GO, NO> nlSolver(parameterList_->sublist("General").get("Linearization","FixedPoint"));
     while (timeSteppingTool_->continueTimeStepping()) {
         
         dt = timeSteppingTool_->get_dt();
@@ -468,7 +478,6 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinear(){
                                                        
             problemTime_->setTimeParameters(massCoeff, problemCoeff);
 
-            NonLinearSolver<SC, LO, GO, NO> nlSolver(parameterList_->sublist("General").get("Linearization","FixedPoint"));
             nlSolver.solve(*problemTime_,time);
             
             if (correctPressure) {
@@ -770,6 +779,7 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinearNewmark()
     // ######################
     // Time loop
     // ######################
+    NonLinearSolver<SC, LO, GO, NO> nlSolver(parameterList_->sublist("General").get("Linearization","Newton"));
     while(timeSteppingTool_->continueTimeStepping())
     {
         // Stelle (massCoeff*M + problemCoeff*A) auf
@@ -802,7 +812,7 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinearNewmark()
         // Uebergabeparameter fuer BC noch hinzu nehmen!
 //        problemTime_->setBoundaries(time);
         
-        NonLinearSolver<SC, LO, GO, NO> nlSolver(parameterList_->sublist("General").get("Linearization","Newton"));
+       
         nlSolver.solve( *problemTime_, time, its );
         
         timeSteppingTool_->advanceTime(true/*output info*/);
@@ -1373,6 +1383,8 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinearMultistep(){
     //#########
     vec_dbl_Type linearIterations(0);
     vec_dbl_Type newtonIterations(0);
+    NonLinearSolver<SC, LO, GO, NO> nlSolver(parameterList_->sublist("General").get("Linearization","FixedPoint"));
+
     while (timeSteppingTool_->continueTimeStepping()) {
 
         // For the first time step we use BDF1
@@ -1432,9 +1444,8 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinearMultistep(){
 //                AddSourceTermToRHS(coeffSourceTerm); //ACHTUNG
 //            }
         }
-
-        NonLinearSolver<SC, LO, GO, NO> nlSolver(parameterList_->sublist("General").get("Linearization","FixedPoint"));
-        nlSolver.solve(*problemTime_,time, its);
+        //NonLinearSolver<SC, LO, GO, NO> nlSolver(parameterList_->sublist("General").get("Linearization","FixedPoint"));
+        nlSolver.solve(*problemTime_,time);
 
         // After the first time step we can use the desired BDF Parameters
         if (timeSteppingTool_->currentTime()==0.) {
