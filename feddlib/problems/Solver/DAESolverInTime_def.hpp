@@ -477,7 +477,7 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinear(){
                                                        
             problemTime_->setTimeParameters(massCoeff, problemCoeff);
 
-            nlSolver.solve(*problemTime_,time);
+            nlSolver.solve(*problemTime_,time,its);
             
             if (correctPressure) {
                 TEUCHOS_TEST_FOR_EXCEPTION( !fullImplicitPressure && !semiImplicitPressure, std::logic_error,"There is no pressure that can be corrected." );
@@ -1444,7 +1444,7 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinearMultistep(){
 //            }
         }
         //NonLinearSolver<SC, LO, GO, NO> nlSolver(parameterList_->sublist("General").get("Linearization","FixedPoint"));
-        nlSolver.solve(*problemTime_,time);
+        nlSolver.solve(*problemTime_,time,its);
 
         // After the first time step we can use the desired BDF Parameters
         if (timeSteppingTool_->currentTime()==0.) {
