@@ -477,7 +477,7 @@ void DAESolverInTime<SC,LO,GO,NO>::advanceInTimeNonLinear(){
                                                        
             problemTime_->setTimeParameters(massCoeff, problemCoeff);
 
-            nlSolver.solve(*problemTime_,time,its);
+            nlSolver.solve(*problemTime_,time);
             
             if (correctPressure) {
                 TEUCHOS_TEST_FOR_EXCEPTION( !fullImplicitPressure && !semiImplicitPressure, std::logic_error,"There is no pressure that can be corrected." );
