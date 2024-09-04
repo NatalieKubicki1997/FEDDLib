@@ -30,6 +30,7 @@ namespace FEDD
                                                                domainPtr_vec_(),
                                                                domain_FEType_vec_(),
                                                                variableName_vec_(),
+                                                               HDF5exporterSolution_(),
                                                                bcFactory_(),
                                                                feFactory_(),
                                                                dofsPerNode_vec_(),
@@ -64,6 +65,7 @@ namespace FEDD
                                                                                                      dofsPerNode_vec_(),
                                                                                                      sourceTerm_(),
                                                                                                      rhsFuncVec_(),
+                                                                                                     HDF5exporterSolution_(),
                                                                                                      parasSourceFunc_(0)
 #ifdef FEDD_TIMER
                                                                                                      ,
@@ -468,17 +470,17 @@ namespace FEDD
         if(safeSolution){
             if(HDF5exporterSolution_.size()==0){
                 std::string fileName =  parameterList_->sublist("General").get("File name export", "solution");
-                HDF5exporterSolution_.resize(size);
+                //HDF5exporterSolution_.resize(size);
                 for (UN i = 0; i < size; i++)
                 {
                     HDF5Export<SC,LO,GO,NO> exporter(this->getSolution()->getBlock(i)->getMap(),fileName+std::to_string(i));
-                    HDF5exporterSolution_[i] = exporter;
+                    HDF5exporterSolution_.push_back(exporter);
                 }
             }
             for (UN i = 0; i < size; i++)
             {
                 std::string varName =  std::to_string(0.0); 
-                HDF5exporterSolution_[i].writeVariablesHDF5(std::to_string(0.0),this->getSolution()->getBlock(i)); 
+                HDF5exporterSolution_[i].writeVariablesHDF5(varName,this->getSolution()->getBlock(i)); 
                 // For time dependet problems, the different VarNames are the time. 
                 // In a steady case (thats when we call export 'here' for a 'Problem' (not a TimeProblem)) the time is always 0.0
             }

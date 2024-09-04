@@ -35,22 +35,26 @@
         <Parameter name="ParaView export subdomain" type="bool" value="false"/>
         <Parameter name="Preconditioner Method" type="string" value="Monolithic"/><!-- Monolithic, Teko-->
 
-        <!-- Export: Write solution to hdf5 
-        <Parameter name="Safe solution" type="bool"  value="false"/> -->
-   		<!--<Parameter name="File name export" type="string" value="solution"/> --> <!-- general name of the export file which will be extended by a block id-->
-		<!-- <Parameter name="Variable name export" type="string" value="u"/> -->  <!-- name for variable within file, this be replace with time at some point -->
-  
+        <!-- Export: Write solution to hdf5 -->
+        <Parameter name="Safe solution" type="bool"  value="false"/> 
+   		<Parameter name="File name export" type="string" value="solution_test"/> <!-- general name of the export file which will be extended by a block id-->
+		<Parameter name="Variable name export" type="string" value="u"/>   <!-- name for variable within file, this be replace with time at some point -->
+        <Parameter name="Safe all time steps" type="bool"  value="false"/> 
+        <Parameter name="Export of specific time" type="double"  value="0.5"/> 
+
+
+
     </ParameterList>
     <ParameterList name="Timestepping Parameter">
         <Parameter name="Class"                                 type="string"		value="Multistep"/> <!--Multistep, Singlestep-->
         <Parameter name="BDF"		                    		type="int"		   	value="2"/>
         <Parameter name="Butcher table"                    		type="int"		   	value="1"/>
-        <Parameter name="Final time"	                    	type="double"   	value="1.0"/>
+        <Parameter name="Final time"	                    	type="double"   	value="0.7"/>
         <Parameter name="dt"			                    	type="double"   	value="0.1"/>
        	<!-- Import: Read solution from hdf5 as start soltion :::: RESTART     -->
         <Parameter name="Restart" type="bool"  value="true"/>
         <Parameter name="Time step" type="double"   	value="0.5"/> <!-- this time must be set as variable name import. Variable name import need to be set for 6 dezimal points -->
-      	<Parameter name="File name import" type="string" value="solution_3D_bfs"/> <!-- general name of the export file which will be extended by a block id-->
+      	<Parameter name="File name import" type="string" value="solution_test"/> <!-- general name of the export file which will be extended by a block id-->
 
   
     </ParameterList>

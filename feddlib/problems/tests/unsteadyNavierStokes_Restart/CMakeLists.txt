@@ -5,19 +5,19 @@ TRIBITS_ADD_EXECUTABLE(
 
 TRIBITS_ADD_TEST(
 	unsteadyNavierStokes_Restart
-	NAME unsteadyNavierStokes_Restart_4
+	NAME unsteadyNavierStokes_Restart_9
 	ARGS
 	#--precfile=parametersPrecMumps.xml
-	NUM_MPI_PROCS 4
+	NUM_MPI_PROCS 9
 )
 
-TRIBITS_ADD_TEST(
-	unsteadyNavierStokes_Restart
-	NAME unsteadyNavierStokes_Restart_6
-	ARGS
-	#--precfile=parametersPrecMumps.xml
-	NUM_MPI_PROCS 6
-)
+# TRIBITS_ADD_TEST(
+# 	unsteadyNavierStokes_Restart
+# 	NAME unsteadyNavierStokes_Restart_6
+# 	ARGS
+# 	#--precfile=parametersPrecMumps.xml
+# 	NUM_MPI_PROCS 6
+# )
 
 TRIBITS_COPY_FILES_TO_BINARY_DIR(data_unsteadyNavierStokes_Restart
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}

@@ -21,6 +21,7 @@ systemMass_(),
 timeParameters_(),
 timeStepDef_(),
 massParameters_(),
+HDF5exporterSolution_(),
 feFactory_(),
 dimension_(problem.getDomain(0)->getDimension()),
 verbose_(comm->getRank()==0),
@@ -491,20 +492,43 @@ void TimeProblem<SC, LO, GO, NO>::exportSolutionHDF5()
     if(safeSolution){
         if(HDF5exporterSolution_.size()==0){
             std::string fileName = parameterList_->sublist("General").get("File name export", "solution");
-            HDF5exporterSolution_.resize(size);
+            //HDF5exporterSolution_.resize(size);
             for (UN i = 0; i < size; i++)
             {
                 HDF5Export<SC,LO,GO,NO> exporter(this->getSolution()->getBlock(i)->getMap(),fileName+std::to_string(i));
-                HDF5exporterSolution_[i] = exporter;
+                HDF5exporterSolution_.push_back(exporter);
             }
         }
-        for (UN i = 0; i < size; i++)
-        {
-            std::string varName =  std::to_string(0.0); 
-            HDF5exporterSolution_[i].writeVariablesHDF5(std::to_string(time_),this->getSolution()->getBlock(i)); 
-            // For time dependet problems, the different VarNames are the time. 
-            // In a steady case (thats when we call export 'here' for a 'Problem' (not a TimeProblem)) the time is always 0.0
+        bool safeAllTimeSteps = parameterList_->sublist("General").get("Safe all time steps", true);
+        double exportSpecificTime = parameterList_->sublist("General").get("Export of specific time", -99.);
+        double dt = parameterList_->sublist("Timestepping Parameter").get("dt", 0.01);
+
+        if(safeAllTimeSteps){
+            for (UN i = 0; i < size; i++)
+            {
+                std::string varName =  std::to_string(time_); 
+                HDF5exporterSolution_[i].writeVariablesHDF5(varName,this->getSolution()->getBlock(i)); 
+                // For time dependet problems, the different VarNames are the time. 
+            }
         }
+        else if(exportSpecificTime >0.+ dt && time_ == exportSpecificTime){
+            // We Only export on specific time step. (For BDF 2 we also include the two previous time steps)
+            for (UN i = 0; i < size; i++)
+            {
+                std::string varName =  std::to_string(exportSpecificTime); 
+                HDF5exporterSolution_[i].writeVariablesHDF5(varName,this->getSolution()->getBlock(i)); 
+
+                if(parameterList_->sublist("Timestepping Parameter").get("BDF", 2) > 1){
+                    varName = std::to_string(exportSpecificTime-dt); // n-1
+                    HDF5exporterSolution_[i].writeVariablesHDF5(varName,this->solutionPreviousTimesteps_[0]->getBlock(i)); // We use 0, because it was not updated yet with the newest solution
+                }
+                if(this->comm_->getRank() == 0)
+                    cout << " ---- Exporting specific time " << exportSpecificTime << " and " <<  exportSpecificTime-dt << " --- " << endl;
+                // For time dependet problems, the different VarNames are the time. 
+            }
+        }
+            
+        
     }
 }
 

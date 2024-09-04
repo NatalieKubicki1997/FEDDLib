@@ -215,7 +215,7 @@ int main(int argc, char *argv[]) {
 
 			// ###########################################################################################################
             // Comparing computed solution from restart to the hdf5 saved solution.
-            std::string fileName = parameterListProblem->sublist("Timestepping Parameter").get("File name import", "solution");
+            std::string fileName = "solution_3D_bfs";
             double finalTime = parameterListProblem->sublist("Timestepping Parameter").get("Final time", 0.0);
             double dt = parameterListProblem->sublist("Timestepping Parameter").get("dt", 0.01);
             HDF5Import<SC,LO,GO,NO> importer(navierStokes.getSolution()->getBlock(0)->getMap(),fileName+std::to_string(0));
