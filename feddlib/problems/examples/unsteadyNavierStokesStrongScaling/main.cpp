@@ -484,19 +484,19 @@ int main(int argc, char *argv[])
                 bcFactory->addBC(zeroDirichlet3D, 10, 0, domainFluidVelocity, "Dirichlet", dim, parameter_vec); // outflow ring
                 
                 if( !pcdBC.compare("Inlet")){
-                    bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 2, 0, domainFluidPressure, "Dirichlet", 1);
+                    bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 4, 0, domainFluidPressure, "Dirichlet", 1);
 
-                    bcFactoryPressureFp->addBC(zeroDirichlet3D, 2, 0, domainFluidPressure, "Dirichlet", 1);
+                    bcFactoryPressureFp->addBC(zeroDirichlet3D, 4, 0, domainFluidPressure, "Dirichlet", 1);
                 }
                 else if( !pcdBC.compare("Outlet")){
-                    bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 3, 0, domainFluidPressure, "Dirichlet", 1);
+                    bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 5, 0, domainFluidPressure, "Dirichlet", 1);
 
-                    bcFactoryPressureFp->addBC(zeroDirichlet3D, 3, 0, domainFluidPressure, "Dirichlet", 1);
+                    bcFactoryPressureFp->addBC(zeroDirichlet3D, 5, 0, domainFluidPressure, "Dirichlet", 1);
                 }
                 else if( !pcdBC.compare("Mixed")){
-                    bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 3, 0, domainFluidPressure, "Dirichlet", 1);
+                    bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 5, 0, domainFluidPressure, "Dirichlet", 1);
 
-                    bcFactoryPressureFp->addBC(zeroDirichlet3D, 2, 0, domainFluidPressure, "Dirichlet", 1);
+                    bcFactoryPressureFp->addBC(zeroDirichlet3D, 4, 0, domainFluidPressure, "Dirichlet", 1);
                 }
                 
             }
