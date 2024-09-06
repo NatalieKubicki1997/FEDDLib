@@ -8,7 +8,7 @@
         <Parameter name="Preconditioner Type" type="string" value="FROSch"/>
         <ParameterList name="Preconditioner Types">
             <ParameterList name="FROSch">
-                <Parameter name="FROSch Preconditioner Type" type="string" value="TwoLevelBlockPreconditioner"/>
+                <Parameter name="FROSch Preconditioner Type" type="string" value="OneLevelPreconditioner"/>
                 <Parameter name="Recycling" type="string" value="standard"/>
                 <Parameter name="DofsPerNode1" type="int" value="1"/>
                 <Parameter name="DofOrdering1" type="string" value="NodeWise"/>

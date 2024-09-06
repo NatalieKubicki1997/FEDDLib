@@ -377,6 +377,7 @@ int main(int argc, char *argv[])
                         partitionerP1.readAndPartition(15, "mm",true); // converting mesh from mm unit to cm unit
                         
                         domainP1fluid->exportElementFlags("Fluid");
+                        domainP1fluid->exportNodeFlags("Fluid");
 
                         if (!feTypeV.compare("P2")){
                             domainP2fluid->buildP2ofP1Domain( domainP1fluid );
@@ -480,7 +481,6 @@ int main(int argc, char *argv[])
                 bcFactory->addBC(zeroDirichlet3D, 9, 0, domainFluidVelocity, "Dirichlet", dim, parameter_vec); // inflow ring
                 bcFactory->addBC(parabolicInflow3DArteryHeartBeat, 4, 0, domainFluidVelocity, "Dirichlet", dim, parameter_vec, solutionLaplace); // inflow
                 bcFactory->addBC(zeroDirichlet3D, 6, 0, domainFluidVelocity, "Dirichlet", dim, parameter_vec); // Wall
-
                 bcFactory->addBC(zeroDirichlet3D, 10, 0, domainFluidVelocity, "Dirichlet", dim, parameter_vec); // outflow ring
                 
                 if( !pcdBC.compare("Inlet")){
@@ -492,6 +492,8 @@ int main(int argc, char *argv[])
                     bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 5, 0, domainFluidPressure, "Dirichlet", 1);
 
                     bcFactoryPressureFp->addBC(zeroDirichlet3D, 5, 0, domainFluidPressure, "Dirichlet", 1);
+
+                    cout << " Outlet flags used " << endl;
                 }
                 else if( !pcdBC.compare("Mixed")){
                     bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 5, 0, domainFluidPressure, "Dirichlet", 1);
