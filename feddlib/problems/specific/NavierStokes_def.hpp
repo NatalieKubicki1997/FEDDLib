@@ -214,7 +214,6 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
                 bcBlockMatrix->addBlock(Mvelocity,0,0);
                 this->bcFactory_->setSystemScaled(bcBlockMatrix); 
             }
-            cout << "  #### IN LSC ADDING BC AND AP TO LSC " << endl;
             //
             this->getPreconditionerConst()->setVelocityMassMatrix( Mvelocity );
 

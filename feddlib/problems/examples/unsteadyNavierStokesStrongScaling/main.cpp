@@ -492,8 +492,6 @@ int main(int argc, char *argv[])
                     bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 5, 0, domainFluidPressure, "Dirichlet", 1);
 
                     bcFactoryPressureFp->addBC(zeroDirichlet3D, 5, 0, domainFluidPressure, "Dirichlet", 1);
-
-                    cout << " Outlet flags used " << endl;
                 }
                 else if( !pcdBC.compare("Mixed")){
                     bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 5, 0, domainFluidPressure, "Dirichlet", 1);

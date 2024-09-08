@@ -833,7 +833,6 @@ void BCBuilder<SC,LO,GO,NO>::setLocalRowEntry(const MatrixPtr_Type &matrix, LO l
     
     Teuchos::ArrayView<const SC> valuesOld;
     Teuchos::ArrayView<const LO> indices;
-    cout << " Setting local row entry " << endl;
 
     MapConstPtr_Type colMap = matrix->getMap("col");
     LO localDof = (LO) (dofsPerNode * localNode);
