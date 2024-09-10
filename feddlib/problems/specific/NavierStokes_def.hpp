@@ -251,7 +251,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
             bcBlockMatrix->addBlock(Lp,0,0);
             this->bcFactoryPressureLaplace_->setSystemScaled(bcBlockMatrix); 
             this->getPreconditionerConst()->setPressureLaplaceMatrix( Lp );
-            Lp->writeMM("A_p");
+            //gitLp->writeMM("A_p");
             // --------------------------------------------------------------------------------------------
 
             // PCD Operator  
