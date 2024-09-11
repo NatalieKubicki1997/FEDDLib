@@ -80,7 +80,7 @@ void zeroDirichlet3D(double* x, double* res, double t, const double* parameters)
 // For Lid Driven Cavity Test
 void ldcFunc2D(double* x, double* res, double t, const double* parameters){
     
-    res[0] = 1.;
+    res[0] = 1.*parameters[0];
     res[1] = 0.;
     
     return;
@@ -89,7 +89,7 @@ void ldcFunc2D(double* x, double* res, double t, const double* parameters){
 // For Lid Driven Cavity Test
 void ldcFunc3D(double* x, double* res, double t, const double* parameters){
     
-    res[0] = 1.;
+    res[0] = 1.*parameters[0];
     res[1] = 0.;
     res[2] = 0.;
 
@@ -465,7 +465,7 @@ int main(int argc, char *argv[]) {
                 if (!bcType.compare("LDC")) {
                     if (dim==2){
                         bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);
-                        bcFactory->addBC(ldcFunc2D, 2, 0, domainVelocity, "Dirichlet", dim);
+                        bcFactory->addBC(ldcFunc2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
 
                         bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
                         bcFactoryPressureFp->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
