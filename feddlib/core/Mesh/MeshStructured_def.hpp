@@ -3823,7 +3823,7 @@ void MeshStructured<SC,LO,GO,NO>::setStructuredMeshFlags(int flagsOption,string 
                             this->bcFlagUni_->at(i) = 1; //Left
                         }
                         if (this->pointsUni_->at(i).at(0) < (coorRec[0] +tol) && this->pointsUni_->at(i).at(1) < (coorRec[1] +tol)) {
-                            this->bcFlagUni_->at(i) = 1; // (0,0) point of ldc
+                            this->bcFlagUni_->at(i) = 3; // (0,0) point of ldc
                         }
                     }
                     for (int i=0; i<this->pointsRep_->size(); i++) {
@@ -3840,7 +3840,7 @@ void MeshStructured<SC,LO,GO,NO>::setStructuredMeshFlags(int flagsOption,string 
                             this->bcFlagRep_->at(i) = 1;
                         }
                         if (this->pointsRep_->at(i).at(0) < (coorRec[0] +tol) && this->pointsRep_->at(i).at(1) < (coorRec[1] +tol)) {
-                            this->bcFlagRep_->at(i) = 1;
+                            this->bcFlagRep_->at(i) = 3;
                         }
                     }
                     break;
