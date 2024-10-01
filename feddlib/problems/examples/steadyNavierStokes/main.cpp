@@ -466,10 +466,10 @@ int main(int argc, char *argv[]) {
                     if (dim==2){
                         bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);
                         bcFactory->addBC(zeroDirichlet2D, 3, 0, domainVelocity, "Dirichlet", dim);
+                        bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1);
 
                         bcFactory->addBC(ldcFunc2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
 
-                        bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1);
 
                         bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
                         bcFactoryPressureFp->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
