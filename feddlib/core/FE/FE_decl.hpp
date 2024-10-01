@@ -202,7 +202,8 @@ class FE {
                       std::string FEType,
                       std::string fieldType,
                       MatrixPtr_Type &A,
-                      bool callFillComplete = true);
+                      bool callFillComplete = true,
+                      UN extraDeg =0);
 
     // Ueberladung der Assemblierung der Massematrix fuer FSI, da
     // checkFE sonst auch fuer das Strukturproblem FEloc = 1 liefert (= Fluid)
@@ -212,7 +213,8 @@ class FE {
                       std::string fieldType,
                       MatrixPtr_Type &A,
                       int FEloc,
-                      bool callFillComplete = true);
+                      bool callFillComplete = true,
+                      UN extraDeg =0);
 
     void assemblyLaplaceVecField(int dim,
                                  std::string FEType,

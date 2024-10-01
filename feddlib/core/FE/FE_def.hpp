@@ -2225,7 +2225,8 @@ void FE<SC,LO,GO,NO>::assemblyMass(int dim,
                                      std::string FEType,
                                      std::string fieldType,
                                      MatrixPtr_Type &A,
-                                     bool callFillComplete){
+                                     bool callFillComplete,
+                                     UN extraDeg){
 
     TEUCHOS_TEST_FOR_EXCEPTION( FEType == "P0", std::logic_error, "Not implemented for P0" );
     UN FEloc = checkFE(dim,FEType);
@@ -2238,8 +2239,7 @@ void FE<SC,LO,GO,NO>::assemblyMass(int dim,
     vec2D_dbl_ptr_Type 	phi;
     vec_dbl_ptr_Type weights = Teuchos::rcp(new vec_dbl_Type(0));
 
-    UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std,1);
-    cout << " Degree " << deg << endl;
+    UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std,extraDeg);
 
     Helper::getPhi( phi, weights, dim, FEType, deg );
 
@@ -2303,7 +2303,8 @@ void FE<SC,LO,GO,NO>::assemblyMass(int dim,
                                      std::string fieldType,
                                      MatrixPtr_Type &A,
                                      int FEloc, // 0 = Fluid, 2 = Struktur
-                                     bool callFillComplete){
+                                     bool callFillComplete,
+                                     UN extraDeg){
 
     TEUCHOS_TEST_FOR_EXCEPTION(FEType == "P0",std::logic_error, "Not implemented for P0");
 
@@ -2316,8 +2317,7 @@ void FE<SC,LO,GO,NO>::assemblyMass(int dim,
     vec2D_dbl_ptr_Type 	phi;
     vec_dbl_ptr_Type	weights = Teuchos::rcp(new vec_dbl_Type(0));
 
-    UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std,1);
-    cout << " Degree " << deg << endl;
+    UN deg = Helper::determineDegree(dim,FEType,FEType,Std,Std,extraDeg);
     Helper::getPhi( phi, weights, dim, FEType, deg );
 
     SC detB;
