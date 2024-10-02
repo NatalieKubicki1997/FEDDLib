@@ -301,97 +301,6 @@ int main(int argc, char *argv[]) {
                     
                 }
             }
-
-            
-//            ofstream myFile;
-//            FILE * pFile;
-//            std::cout << "FluidP2Elements..." << '\n';
-//            myFile.open ("FluidP2ElementsH00.txt");
-//            for(int i = 0; i < domainVelocity->getElements()->size(); i++)
-//            {
-//                for(int j= 0; j < domainVelocity->getElements()->at(i).size(); j++)
-//                {
-//                    myFile << domainVelocity->getElements()->at(i).at(j);
-//                    myFile << " ";
-//                }
-//                myFile << endl;
-//            }
-//            myFile.close();
-//            std::cout << "done" << '\n';
-//
-//            std::cout << "FluidP1Elements..." << '\n';
-//            myFile.open ("FluidP1ElementsH00.txt");
-//            for(int i = 0; i < domainPressure->getElements()->size(); i++)
-//            {
-//                for(int j= 0; j < domainPressure->getElements()->at(i).size(); j++)
-//                {
-//                    myFile << domainPressure->getElements()->at(i).at(j);
-//                    myFile << " ";
-//                }
-//                myFile << endl;
-//            }
-//            myFile.close();
-//            std::cout << "done" << '\n';
-//
-//            std::cout << "FluidP2Nodes..." << '\n';
-////            myFile.open ("FluidP2NodesH00.txt");
-//            pFile = fopen ("FluidP2NodesH00.txt","w");
-//
-//            for(int i = 0; i < domainVelocity->getPointsUnique()->size(); i++)
-//            {
-//                for(int j= 0; j < domainVelocity->getPointsUnique()->at(i).size(); j++)
-//                {
-//                    fprintf(pFile,"%4.10f ", domainVelocity->getPointsUnique()->at(i).at(j) );
-//
-////                    printf("%4.10f ", domainFluidVelocity->getPointsUnique()->at(i).at(j) );
-////                    myFile << domainFluidVelocity->getPointsUnique()->at(i).at(j);
-////                    myFile << " ";
-//                }
-//                fprintf(pFile,"\n");
-////                myFile << endl;
-//            }
-//            fclose(pFile);
-////            myFile.close();
-//            std::cout << "done" << '\n';
-//
-//            std::cout << "FluidP1Nodes..." << '\n';
-////            myFile.open ("FluidP1NodesH00.txt");
-//            pFile = fopen ("FluidP1NodesH00.txt","w");
-//
-//            for(int i = 0; i < domainPressure->getPointsUnique()->size(); i++)
-//            {
-//                for(int j= 0; j < domainPressure->getPointsUnique()->at(i).size(); j++)
-//                {
-//                    fprintf(pFile,"%4.10f ", domainPressure->getPointsUnique()->at(i).at(j) );
-////                    myFile << domainFluidPressure->getPointsUnique()->at(i).at(j);
-////                    myFile << " ";
-//                }
-//                fprintf(pFile,"\n");
-////                myFile << endl;
-//            }
-//            fclose(pFile);
-////            myFile.close();
-//            std::cout << "done" << '\n';
-//            
-//
-//            std::cout << "FluidP2Flags..." << '\n';
-//            myFile.open ("FluidP2FlagsH00.txt");
-//            for(int i = 0; i < domainVelocity->getBCFlagUnique()->size(); i++)
-//            {
-//                myFile << domainVelocity->getBCFlagUnique()->at(i) << endl;
-//            }
-//            myFile.close();
-//            std::cout << "done" << '\n';
-//
-//            std::cout << "FluidPFlags..." << '\n';
-//            myFile.open ("FluidP1FlagsH00.txt");
-//            for(int i = 0; i < domainPressure->getBCFlagUnique()->size(); i++)
-//            {
-//                myFile << domainPressure->getBCFlagUnique()->at(i) << endl;
-//            }
-//            myFile.close();
-//            std::cout << "done" << '\n';
-            
             std::vector<double> parameter_vec(1);
             if ( !bcType.compare("parabolic") || !bcType.compare("parabolic_benchmark") || !bcType.compare("parabolic_benchmark_sin") )
                 parameter_vec[0] = parameterListProblem->sublist("Parameter").get("MaxVelocity",1.5);
@@ -598,6 +507,28 @@ int main(int argc, char *argv[]) {
             daeTimeSolver.setupTimeStepping();
 
             daeTimeSolver.advanceInTime();
+
+
+
+
+            if (verbose) {
+                cout << "###############################################################" <<endl;
+                cout << "##################### Steady Navier-Stokes ####################" <<endl;
+                cout << "Discretization: \t" << feTypeV << "-" << feTypeP  << endl;
+                if (!precMethod.compare("Monolithic")){
+                cout << "Coarse Opertor Type: \t" << parameterListPrec->sublist("ThyraPreconditioner").sublist("Preconditioner Types").sublist("FROSch").get("CoarseOperator Type","NOTFOUND") << endl;
+                cout << "IPOU Block 1: \t \t" << parameterListPrec->sublist("ThyraPreconditioner").sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").sublist("Blocks").sublist("1").sublist("InterfacePartitionOfUnity").get("Type","NOTFOUND") << endl;
+                cout << "IPOU Block 2: \t \t" << parameterListPrec->sublist("ThyraPreconditioner").sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").sublist("Blocks").sublist("2").sublist("InterfacePartitionOfUnity").get("Type","NOTFOUND") << endl;
+                }
+                else if (!precMethod.compare("Teko")){
+                    cout << "Block Preconditioner Type: \t" << parameterListAll->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","SIMPLE") << endl;
+                    cout << "Velocity Preconditioner: \t" << parameterListAll->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").sublist("Inverse Factory Library").sublist("FROSch-Velocity").get("CoarseOperator Type","GDSW#") << endl;
+                    cout << "Pressure Preconditioner: \t" << parameterListAll->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").sublist("Inverse Factory Library").sublist("FROSch-Pressure").get("CoarseOperator Type","GDSW#") << endl;
+
+                }            
+                cout << "###############################################################" <<endl;
+            }
+
 
         }
     }
