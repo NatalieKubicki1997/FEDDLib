@@ -202,7 +202,6 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
             if(this->parameterList_->sublist("Parameter").get("BFBT",false)){
                 this->feFactory_->assemblyIdentity( Mvelocity, true );
                 Mvelocity->resumeFill();
-                //Mvelocity->scale(1./100000000.);
                 Mvelocity->fillComplete();
             }
             else
@@ -212,7 +211,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
             BlockMatrixPtr_Type bcBlockMatrix(new BlockMatrix_Type (1));
             if(this->parameterList_->sublist("Parameter").get("BC in LSC Mu",false)){
                 bcBlockMatrix->addBlock(Mvelocity,0,0);
-                this->bcFactory_->setSystemScaled(bcBlockMatrix); 
+                this->bcFactory_->setSystem(bcBlockMatrix); // setSystemScaled(bcBlockMatrix); 
             }
             //
             this->getPreconditionerConst()->setVelocityMassMatrix( Mvelocity );
