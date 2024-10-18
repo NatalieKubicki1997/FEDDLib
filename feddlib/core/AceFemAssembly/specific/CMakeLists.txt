@@ -38,6 +38,9 @@ SET(AceFemAssemblySpecific_HEADERS
 	AceFemAssembly/specific/GeneralizedNewtonianModels/Dimless_Carreau_decl.hpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/Dimless_Carreau_def.hpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/Dimless_Carreau.hpp
+	AceFemAssembly/specific/GeneralizedNewtonianModels/GNF_Const_Hematocrit.hpp
+	AceFemAssembly/specific/GeneralizedNewtonianModels/GNF_Const_Hematocrit_decl.hpp
+	AceFemAssembly/specific/GeneralizedNewtonianModels/GNF_Const_Hematocrit_def.hpp
 CACHE INTERNAL "")
 
 SET(AceFemAssemblySpecific_SOURCES
@@ -54,6 +57,7 @@ SET(AceFemAssemblySpecific_SOURCES
 	AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda.cpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/PowerLaw.cpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/Dimless_Carreau.cpp
+	AceFemAssembly/specific/GeneralizedNewtonianModels/GNF_Const_Hematocrit.cpp
 CACHE INTERNAL "")
 
 

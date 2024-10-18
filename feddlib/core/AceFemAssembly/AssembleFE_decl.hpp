@@ -282,7 +282,7 @@ namespace FEDD {
 
 
         vec_dbl_Type  constOutputField_ ; //  Postprocessing output field defined inside an element using converged solution - can be a vector with values on P1/ P2 nodes or just averaged element value
-        SC  constInputField_ ;            //        If external field file exist one can save value of external field inside an element to access it 
+        SC  constInputField_ = 0.0 ;            //        If external field file exist one can save value of external field inside an element to access it 
   
         FE_ptr_Type FEObject_; // Pointer to the corresponding FiniteElement - if its properties change, e.g. its surface normals, we access the updated value
 

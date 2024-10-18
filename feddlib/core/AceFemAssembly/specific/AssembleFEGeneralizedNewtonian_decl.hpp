@@ -12,6 +12,7 @@
 #include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda.hpp"
 #include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/PowerLaw.hpp"
 #include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/Dimless_Carreau.hpp"
+#include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/GNF_Const_Hematocrit.hpp"
 
 namespace FEDD
 {

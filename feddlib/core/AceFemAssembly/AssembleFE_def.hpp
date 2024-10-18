@@ -19,6 +19,8 @@ solution_(0)
 	newtonStep_ =0 ;
 	globalElementID_=-1; // First not set
 
+	constInputField_  = 0.0; // We initialize this field to zero and value is only changed if user calls the read Function in FE_def.hpp
+
 
 	params_=params;
 

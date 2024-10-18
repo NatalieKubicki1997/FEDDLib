@@ -1,14 +1,15 @@
-#ifndef GNF_CONSTANT_HEMATOCRIT_DECL_hpp
-#define GNF_CONSTANT_HEMATOCRIT_DECL_hpp
+#ifndef GNF_CONST_HEMATOCRIT_DECL_hpp
+#define GNF_CONST_HEMATOCRIT_DECL_hpp
 
 #include "feddlib/core/General/DifferentiableFuncClass.hpp"
 #include "feddlib/core/FEDDCore.hpp"
+
 
 namespace FEDD
 {
 
   /*!
-        \class GNF_Constant_Hematocrit_decl
+        \class GNF_Const_Hematocrit_decl
         \brief This class is derived from the abstract class DifferentiableFuncClass and should provide functionality to evaluate the viscosity function specified by
                a certain model which not includes a dependence on the shear rate but also on the hematocrit
                For this model we assume that the hematocrit is spatially varying BUT constant - So basically we assume that we already know the correct hematocrit profile
@@ -59,7 +60,7 @@ namespace FEDD
    */
 
   template <class SC = default_sc, class LO = default_lo, class GO = default_go, class NO = default_no>
-  class GNG_Const_Hematocrit : public DifferentiableFuncClass<SC, LO, GO, NO>
+  class GNF_Const_Hematocrit : public DifferentiableFuncClass<SC, LO, GO, NO>
   {
   public:
     typedef MultiVector<SC, LO, GO, NO> MultiVector_Type;
@@ -85,14 +86,6 @@ namespace FEDD
     */
     void evaluateMapping(ParameterListPtr_Type params, double shearRate, double &viscosity) override;
 
-     /*!
-     \brief Update the viscosity according to a chosen shear thinning generalized newtonian constitutive equation. Viscosity depends on spatial coordinates due to its dependency on velocity gradients
-     @param[in] params as read from the xml file (maybe redundant)
-     @param[in] shearRate scalar value of computed shear rate
-    @param[in]  localHematocrit scalar value of externally read hematocrit field
-     @param[in,out] viscosity value of viscosity
-    */
-    void evaluateMapping(ParameterListPtr_Type params, double shearRate,  double localHematocrit, double &viscosity) 
 
     /*!
      \brief For Newton method and NOX we need additional term in Jacobian considering directional derivative of our functional formulation.
@@ -103,6 +96,8 @@ namespace FEDD
      @param[in,out] res scalar value of   d(eta)/ d(gamma_Dot) * d(gamma_Dot)*d(Pi_||)
     */
     void evaluateDerivative(ParameterListPtr_Type params, double shearRate, double &res) override;
+  
+
   
     /*!
     \brief Print parameter values used in model at runtime
@@ -116,15 +111,22 @@ namespace FEDD
      */
     double getViscosity() { return viscosity_; };
 
+    /*!
+     \brief Set the local hematocrit value
+     @param[in] localHematocrit scalar value of hematocrit
+     */
+    void setLocalHematocrit(double localHematocrit) { this->localHematocrit_ = localHematocrit; };
+
 
 
     /*!
-    \brief Constructor for GNG_Const_Hematocrit
+    \brief Constructor for GNF_Const_Hematocrit
     @param[in] parameters Parameterlist for current problem	*/
-    GNG_Const_Hematocrit(ParameterListPtr_Type parameters);
+    GNF_Const_Hematocrit(ParameterListPtr_Type parameters);
 
   private:
     double viscosity_;
+    double localHematocrit_;
     std::string shearThinningModel_; // for printing out which model is actually used
     //!
     double characteristicTime;   // corresponds to \lambda in the formulas in the literature
@@ -133,6 +135,7 @@ namespace FEDD
     double nu_infty;             // is the infinite shear-rate viscosity
     double inflectionPoint;      // corresponds to a in the formulas in the literature
     double shear_rate_limitZero; // In the formulas the shear rate is in the denominator so we have to ensure that it is
+
   };
 
 }

@@ -3,6 +3,7 @@
 
 #include "AssembleFENavierStokes_decl.hpp"
 
+
 namespace FEDD
 {
     // All important things are so far defined in AssembleFENavierStokes. Please check there.
@@ -55,8 +56,15 @@ namespace FEDD
             Teuchos::RCP<Dimless_Carreau<SC, LO, GO, NO>> viscosityModelSpecific(new Dimless_Carreau<SC, LO, GO, NO>(params));
             viscosityModel = viscosityModelSpecific;
         }
+        else if (shearThinningModel == "GNF-Constant-Hematocrit")
+        {
+            Teuchos::RCP<GNF_Const_Hematocrit<SC, LO, GO, NO>> viscosityModelSpecific(new GNF_Const_Hematocrit<SC, LO, GO, NO>(params));
+            viscosityModel = viscosityModelSpecific;
+
+
+        }
         else
-            TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "No specific implementation for your material model request. Valid are:Carreau-Yasuda, Power-Law, Dimless-Carreau");
+            TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "No specific implementation for your material model request. Valid are:Carreau-Yasuda, Power-Law, Dimless-Carreau, GNF-Constant-Hematocrit");
 
     }
 
@@ -71,6 +79,13 @@ namespace FEDD
         // For nonlinear convection
         SmallMatrixPtr_Type elementMatrixNC = Teuchos::rcp(new SmallMatrix_Type(this->dofsElementVelocity_ + this->numNodesPressure_));
         SmallMatrixPtr_Type elementMatrixWC = Teuchos::rcp(new SmallMatrix_Type(this->dofsElementVelocity_ + this->numNodesPressure_));
+
+        // Here we first check that if our shear thinning model is GNF-Constant-Hematocrit we have to set the hematocrit value in each local element to the value which was read from external file
+        if (shearThinningModel == "GNF-Constant-Hematocrit")
+        {
+            Teuchos::RCP<GNF_Const_Hematocrit<SC, LO, GO, NO>> viscosityModel_casted = Teuchos::rcp_dynamic_cast<GNF_Const_Hematocrit<SC, LO, GO, NO>>(this->viscosityModel);
+            viscosityModel_casted->setLocalHematocrit(this->constInputField_);
+        }
 
         // In the first iteration step we initialize the constant matrices
         // So in the case of a newtonian fluid we would have the matrix A with the contributions of the Laplacian term
@@ -159,6 +174,14 @@ namespace FEDD
 
         SmallMatrixPtr_Type elementMatrixN = Teuchos::rcp(new SmallMatrix_Type(this->dofsElementVelocity_ + this->numNodesPressure_));
         SmallMatrixPtr_Type elementMatrixNC = Teuchos::rcp(new SmallMatrix_Type(this->dofsElementVelocity_ + this->numNodesPressure_));
+
+        // Here we first check that if our shear thinning model is GNF-Constant-Hematocrit we have to set the hematocrit value in each local element to the value which was read from external file
+        if (shearThinningModel == "GNF-Constant-Hematocrit")
+        {
+            Teuchos::RCP<GNF_Const_Hematocrit<SC, LO, GO, NO>> viscosityModel_casted = Teuchos::rcp_dynamic_cast<GNF_Const_Hematocrit<SC, LO, GO, NO>>(this->viscosityModel);
+            viscosityModel_casted->setLocalHematocrit(this->constInputField_);
+        }
+
 
 	    if(this->newtonStep_ ==0){
             SmallMatrixPtr_Type elementMatrixB = Teuchos::rcp(new SmallMatrix_Type(this->dofsElementVelocity_ + this->numNodesPressure_));
@@ -484,6 +507,8 @@ namespace FEDD
 
                         value1_i = dPhiTrans[w][i][0]; // so this corresponds to d\phi_i/dx
                         value2_i = dPhiTrans[w][i][1]; // so this corresponds to d\phi_i/dy
+
+                        
 
                         this->viscosityModel->evaluateDerivative(this->params_, gammaDot->at(w), deta_dgamma_dgamma_dtau);
                         /* EInfacher in unausmultiplizierter Form
