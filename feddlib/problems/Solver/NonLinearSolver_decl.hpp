@@ -65,6 +65,10 @@ private:
     std::string 	type_;
 
 	int nonLinearIts_ =0;
+    bool SwitchFromFixedPointToNewton_ = false;
+    double residual0_ = 1.0; //@Natalie Inserted this here because as we construct a Object a value can be already fixed
+    int nlIts=0;             //@Natalie Inserted this here because as we construct a Object a value can be already fixed
+    double	gmresIts = 0.;   //@Natalie Inserted this here because as we construct a Object a value can be already fixed
 
 
 };

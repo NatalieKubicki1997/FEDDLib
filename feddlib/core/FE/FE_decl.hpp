@@ -622,6 +622,9 @@ class FE {
     // Save inside this BMV precomputed fields saved in (h5) format 
     BlockMultiVectorPtr_Type constInputFields_;
 
+    // Change for all assembleFEElements the linearization to Newton
+    void  changeLinearizationFE(string linearization);
+
 
 /* ----------------------------------------------------------------------------------------*/
 private:

@@ -1239,6 +1239,18 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 }
 
 
+/*
+Short method to loop over all assembleFESpecific elements and set the defined linearization to Newton
+*/
+template <class SC, class LO, class GO, class NO>
+void FE<SC,LO,GO,NO>::changeLinearizationFE(string linearization)
+{
+    for (UN T=0; T<assemblyFEElements_.size(); T++) // For each assembledFEElement change Linearization
+    {	
+        assemblyFEElements_[T]->changeLinearization(linearization);
+    }
+}
+
 /*!
  \brief Postprocessing: Using a converged velocity solution -> For Generalized Newton Fluid: Compute averaged viscosity inside an element at center of mass
  

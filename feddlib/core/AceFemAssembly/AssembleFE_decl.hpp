@@ -239,6 +239,12 @@ namespace FEDD {
         */
         void setFiniteElement(FiniteElement& FE_Object){ this->FEObject_ =  Teuchos::rcpFromRef<FiniteElement>(FE_Object);}; //pass by reference because we do not want to copy the object
 
+        /*
+                In case we want to switch e.g. from FixedPoint to Newton method during computation
+        */
+        void changeLinearization(string linearization) {this->linearization_ = linearization;};
+
+
 
     protected:
 
@@ -285,6 +291,8 @@ namespace FEDD {
         SC  constInputField_ = 0.0 ;            //        If external field file exist one can save value of external field inside an element to access it 
   
         FE_ptr_Type FEObject_; // Pointer to the corresponding FiniteElement - if its properties change, e.g. its surface normals, we access the updated value
+
+        string linearization_; // We save in here which linearization we use e.g. FixedPoint or Newton
 
 
         friend class AssembleFEFactory<SC,LO,GO,NO>;

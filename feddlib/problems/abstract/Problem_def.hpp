@@ -612,5 +612,12 @@ namespace FEDD
         return result;
     }
 
+
+    template <class SC, class LO, class GO, class NO>
+    void Problem<SC, LO, GO, NO>::changeAssFELinearization(string linearization)
+    {
+      this->feFactory_->changeLinearizationFE(linearization);
+    }
+
 }
 #endif
