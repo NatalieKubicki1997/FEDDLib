@@ -7,13 +7,13 @@
         <Parameter name="Mesh Type" type="string" value="unstructured"/> <!--structured, unstructured -->
         <Parameter name="BC Type" type="string"   value="partialCFD"/><!-- parabolic, parabolic_benchmark, partialCFD, parabolic_benchmark_sin-->
         <Parameter name="Mesh Delimiter" type="string" value=" "/>
-        <Parameter name="Viscosity" type="double" value="3.5"/> <!-- kinematic Viscosity-->
-        <Parameter name="Density" type="double" value="100.0"/>
+        <Parameter name="Viscosity" type="double" value="0.00000404484"/> <!-- kinematic Viscosity, Limit Viscosity of Data-Based Curve-->
+        <Parameter name="Density" type="double" value="1000.0"/>
         
         <Parameter name="H/h" type="int" value="3"/>
         <Parameter name="MaxVelocity" type="double" value="0.44"/>
         <Parameter name="MeanVelocity"  type="double" value="1.0"/>
-        <Parameter name="Height Inflow"  type="double" value="1.0"/>
+        <Parameter name="Height Inflow"  type="double" value="0.001"/>
         <Parameter name="Constant Pressure Gradient" type="double" value="10.0"/>
         
         <Parameter name="relNonLinTol" type="double" value="1.0e-4"/> <!-- -4 -->
@@ -32,7 +32,7 @@
 
     <ParameterList name="Mesh Partitioner">
         <Parameter name="Contiguous" type="bool" value="true"/>        
-	<Parameter name="Mesh 1 Name" type="string" value="2D_artery_number_2.mesh"/>
+	<Parameter name="Mesh 1 Name" type="string" value="/work/pz0530/z30530/Japan_PatchBasedCNN_BloodFlow/mesh_generation/meshFiles/2D_stenotic_artery_mesh_maxdiameter_0_001_totallength_0_02_number_0.mesh"/>
     </ParameterList>
 
     <!-- Material specific parameters like e.g. Newtonian fluid, Carreau-Yasuda model and corresponding parameters -->
@@ -40,7 +40,7 @@
         <Parameter name="Newtonian" type="bool" value="true"/> <!-- If false than User has to set below one of the ShearThinning Models and define parameters -->
         <Parameter name="compareNavierStokes" type="bool" value="true"/> <!-- Compare to Navier-Stokes Solver for Newtonian Fluid -->  
 
-        <Parameter name="ShearThinningModel" type="string" value="Power-Law"/> <!-- Power-Law, Carreau-Yasuda, Dimensionless Carreau-Model  -->
+        <Parameter name="ShearThinningModel" type="string" value="Power-Law"/> <!-- Power-Law, Carreau-Yasuda, Dimless-Carreau  -->s
         <Parameter name="WriteOutViscosity" type="bool" value="true"/> <!-- If material is non-newtonian and this variable is set true the viscosity is computed in one element in the center of mass and written out in paraview format -->  
         
         
@@ -79,7 +79,7 @@
         <Parameter name="Dimless_ZeroShearRateViscosity_eta0" type="double" value="230.6330"/> <!--[]  -->
         <Parameter name="Reference_Viscosity" type="double" value="0.0012"/> <!--[Pa s]  -->
         <Parameter name="Carreau_FluidIndex_n" type="double" value="0.45"/> <!-- [] -->  
-        <Parameter name="Dimless_CharacteristicTime_Lambda" type="double" value="-300"/> <!-- [] --> -
+        <Parameter name="Dimless_CharacteristicTime_Lambda" type="double" value="-300.0"/> <!-- [] --> -
         
         
         
