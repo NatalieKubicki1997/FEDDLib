@@ -330,12 +330,12 @@ int main(int argc, char *argv[])
 
 
 
-			domainVelocity->exportNodeFlags();
+			//domainVelocity->exportNodeFlags();
 			domainPressure->preProcessMesh(true,true); // Preprocessing pressure mesh
 			domainVelocity->preProcessMesh(true,true); // Preprocessing velocity mesh
 
-   			domainVelocity->exportSurfaceNormals("domain"); // exporting to check if correct
-    		domainVelocity->exportElementOrientation("domain"); // exporting to check if correct
+   			//domainVelocity->exportSurfaceNormals("domain"); // exporting to check if correct
+    		//domainVelocity->exportElementOrientation("domain"); // exporting to check if correct
 
             domainVelocity->setSurfaceNormalsForFE();
             domainPressure->setSurfaceNormalsForFE();

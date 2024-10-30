@@ -11,7 +11,7 @@
         <Parameter name="Density" type="double" value="1000.0"/>
         
         <Parameter name="H/h" type="int" value="3"/>
-        <Parameter name="MaxVelocity" type="double" value="0.44"/>
+        <Parameter name="MaxVelocity" type="double" value="0.50"/>
         <Parameter name="MeanVelocity"  type="double" value="1.0"/>
         <Parameter name="Height Inflow"  type="double" value="0.001"/>
         <Parameter name="Constant Pressure Gradient" type="double" value="10.0"/>
@@ -28,19 +28,24 @@
         <Parameter name="MaxNonLinIts" type="int" value="20"/>
         <Parameter name="Cancel MaxNonLinIts" type="bool" value="false"/>
         <Parameter name="Symmetric gradient" type="bool" value="false"/>
+
+        <Parameter name="Use Pressure Correction" type="bool" value="true"/>    <!-- use pressure projection to correct pressure in P2-P1 case-->
+        <Parameter name="Use Local Pressure Correction" type="bool" value="true"/>     <!-- applying it locally to first level in preconditioner -->
+        <Parameter name="Use Global Pressure Correction" type="bool" value="false"/>    <!-- applying in globally after apply of first level-->
+
     </ParameterList>
 
     <ParameterList name="Mesh Partitioner">
         <Parameter name="Contiguous" type="bool" value="true"/>        
-	<Parameter name="Mesh 1 Name" type="string" value="/work/pz0530/z30530/Japan_PatchBasedCNN_BloodFlow/mesh_generation/meshFiles/2D_stenotic_artery_mesh_maxdiameter_0_001_totallength_0_02_number_0.mesh"/>
+	<Parameter name="Mesh 1 Name" type="string" value="/work/pz0530/z30530/Japan_PatchBasedCNN_BloodFlow/mesh_generation/meshFiles/2D_stenotic_artery_mesh_maxdiameter_0_001_totallength_0_02_number_1.mesh"/>
     </ParameterList>
 
     <!-- Material specific parameters like e.g. Newtonian fluid, Carreau-Yasuda model and corresponding parameters -->
     <ParameterList name="Material">    
-        <Parameter name="Newtonian" type="bool" value="true"/> <!-- If false than User has to set below one of the ShearThinning Models and define parameters -->
+        <Parameter name="Newtonian" type="bool" value="false"/> <!-- If false than User has to set below one of the ShearThinning Models and define parameters -->
         <Parameter name="compareNavierStokes" type="bool" value="true"/> <!-- Compare to Navier-Stokes Solver for Newtonian Fluid -->  
 
-        <Parameter name="ShearThinningModel" type="string" value="Power-Law"/> <!-- Power-Law, Carreau-Yasuda, Dimless-Carreau  -->s
+        <Parameter name="ShearThinningModel" type="string" value="Dimless-Carreau"/> <!-- Power-Law, Carreau-Yasuda, Dimless-Carreau  -->s
         <Parameter name="WriteOutViscosity" type="bool" value="true"/> <!-- If material is non-newtonian and this variable is set true the viscosity is computed in one element in the center of mass and written out in paraview format -->  
         
         
@@ -51,7 +56,7 @@
        
         
 	<!--********************FOR CHOSEN MODEL USER HAS TO SET MATERIAL PARAMETERS BELOW**************************-->
-	     <Parameter name="Numerical_ZeroValue_ShearRate" type="double" value="1.0e-12"/> <!-- Independent of the model we have to ensure that IF the shear rate is in the denominator of an term (for example in the Gateaux-derivatives) than we should not divide by zero but instead set shear rate to a really small value -->
+	     <Parameter name="Numerical_ZeroValue_ShearRate" type="double" value="1.0e-14"/> <!-- Independent of the model we have to ensure that IF the shear rate is in the denominator of an term (for example in the Gateaux-derivatives) than we should not divide by zero but instead set shear rate to a really small value -->
     <!-- ALL VARIABLES ARE IN SI UNITS WHICH ARE WRITTEN AS COMMENT BEYOND THE PHSICAL QUANTITY -->	
 
 
@@ -98,7 +103,7 @@
     <!-- Nonlinear Solution method (Preconditioner) as well as Parallelization specific parameters like e.g. Newton -->
     <ParameterList name="General">
         <Parameter name="Mpi Ranks Coarse" type="int" value="0"/>
-        <Parameter name="Linearization" type="string" value="FixedPoint"/> <!-- FixedPoint, Newton, NOX-->
+        <Parameter name="Linearization" type="string" value="NOX"/> <!-- FixedPoint, Newton, NOX-->
         <Parameter name="ParaViewExport" type="bool" value="true"/>
         <Parameter name="ParaViewCoarse" type="bool" value="false"/>
         <Parameter name="ParaViewCoarseSum" type="bool" value="false"/>

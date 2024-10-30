@@ -14,7 +14,7 @@ source $HOME/Installation/load_env.sh
 
 # Loop over the mesh files
 # Manually change the range to control how many meshes you want to process
-for i in $(seq 0 1); do
+for i in $(seq 0 20); do
     # Define the mesh path
     MESH_PATH="/work/pz0530/z30530/Japan_PatchBasedCNN_BloodFlow/mesh_generation/meshFiles"
 
@@ -32,7 +32,7 @@ for i in $(seq 0 1); do
     MAX_VELOCITY=$(awk -v min=0.1 -v max=0.5 'BEGIN{srand(); printf "%.2f", min+rand()*(max-min)}')
 
     # Print out the random velocity for reference
-    echo "Running simulation with MaxVelocity=$MAX_VELOCITY"
+    echo "Simulation Run ${i}: Running simulation with MaxVelocity=$MAX_VELOCITY"
 
     # Modify the XML file to update the MaxVelocity value
     sed -i "s/<Parameter name=\"MaxVelocity\" type=\"double\" value=\"[^\"]*\"/<Parameter name=\"MaxVelocity\" type=\"double\" value=\"$MAX_VELOCITY\"/" parametersProblem.xml
