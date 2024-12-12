@@ -482,11 +482,13 @@ public:
 
     /*!
          \brief Generally the domain object holds only meshes from type 'Mesh'. If we read a mesh from file it becomes the type 'MeshUnstructured' and needs to be initialized
-         @param[in] dimension
-         @param[in] FEType
-         @param[in] volumeID       
+          @param[in] dimension
+          @param[in] FEType
+          @param[in] volumeID 
+          @param[in] unit of read mesh (i.e. cm, mm ..)
+          @param[in] converToSI option to convert unit to SI unit which is m
     */
-    void initializeUnstructuredMesh(int dimension, string feType, int volumeID=10);
+    void initializeUnstructuredMesh(int dimension, string feType, int volumeID=10, string meshUnit = "m", bool convertToSI = false);
 
     /*!
 		 \brief Hilfsfunktion fuer buildLocalInterfaceIDInGlobal().
@@ -573,6 +575,11 @@ public:
 
    void setPreProcessedMesh(bool value){this->preProcessedMesh_ = value;}; // Setter - Is called if preProcessMesh is called
    bool getPreProcessedMesh(){return this->preProcessedMesh_;};            // Getter of variable 
+   /// @brief Exporting Paraview file displaying element processor number
+   /// @param name
+   void exportProcessor(string name  = "default");
+
+   void setUnstructuredMesh(MeshPtr_Type mesh);
    /* ----------------------------------------------------------------------------------------*/
 
    private:
@@ -616,8 +623,7 @@ public:
    int flagsOption_;
    bool preProcessedMesh_ = false; // We need a variable to check whether the mesh was preprocessed such that outward normal computation will be correct
 
-    };
-   
+};
 }
 
 #endif

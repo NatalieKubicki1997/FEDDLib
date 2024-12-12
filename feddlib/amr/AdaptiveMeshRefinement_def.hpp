@@ -307,11 +307,26 @@ typename AdaptiveMeshRefinement<SC,LO,GO,NO>::DomainPtr_Type AdaptiveMeshRefinem
 	// Refinement Factory object
 	RefinementFactory<SC,LO,GO,NO> refinementFactory( domainP1->getComm(), inputMeshP1_->volumeID_, parameterListAll_); // refinementRestriction_, refinement3DDiagonal_, restrictionLayer_); 
 
+	if(dim_ ==3){
+		SurfaceElementsPtr_Type surfaceTriangleElements = inputMeshP1_->getSurfaceTriangleElements(); // Surfaces
+		if(surfaceTriangleElements.is_null()){
+			surfaceTriangleElements.reset(new SurfaceElements()); // Surface
+			refinementFactory.buildSurfaceTriangleElements( inputMeshP1_->getElementsC(),inputMeshP1_->getEdgeElements(),surfaceTriangleElements, inputMeshP1_->getEdgeMap(),inputMeshP1_->getElementMap() );
+			inputMeshP1_->surfaceTriangleElements_ = surfaceTriangleElements;
+		}
+		else if(surfaceTriangleElements->numberElements() ==0){
+			refinementFactory.buildSurfaceTriangleElements( inputMeshP1_->getElementsC(),inputMeshP1_->getEdgeElements(),inputMeshP1_->getSurfaceTriangleElements() , inputMeshP1_->getEdgeMap(),inputMeshP1_->getElementMap() );
+			inputMeshP1_->surfaceTriangleElements_ = surfaceTriangleElements;
+		}
+	}
+
 	// Estimating the error with the Discretizations Mesh.
 	int currentLevel =0;
 	while(currentLevel < level){		
 		errorEstimator.tagAll(inputMeshP1_);
+		errorEstimator.writeMeshQuality(inputMeshP1_);
 		refinementFactory.refineMesh(inputMeshP1_,currentLevel, outputMesh, refinementMode_);
+		errorEstimator.writeMeshQuality(outputMesh);
 
 		inputMeshP1_ = outputMesh;
 		currentLevel++;

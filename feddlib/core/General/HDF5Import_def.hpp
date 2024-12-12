@@ -53,7 +53,7 @@ typename HDF5Import<SC, LO, GO, NO>::MultiVectorPtr_Type HDF5Import<SC,LO,GO,NO>
     // Testing if requested vairable is contained in file
     TEUCHOS_TEST_FOR_EXCEPTION( !hdf5importer_->IsContained(varName), std::logic_error, "Requested varName: " << varName << " not contained in hdf file "<< inputFilename_ << ".h5.");
     hdf5importer_->Read(varName,*readMap_,u_import_Epetra_); // Reading the variable 'varName' from the file and distribute according to readMap_ to u_import_
-
+    
     //  Now we write the contents of the eptera multivector u_import to u_import_mv
     Teuchos::ArrayRCP<SC> tmpData = u_import_Xpetra_->getDataNonConst(0);
     for (int i=0; i<u_import_Xpetra_->getLocalLength(); i++) {

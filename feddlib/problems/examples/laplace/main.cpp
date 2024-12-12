@@ -159,6 +159,8 @@ int main(int argc, char *argv[]) {
             
             partitionerP1.readAndPartition();
 
+            domainP1->exportElementFlags("fluid");
+
             if (FEType=="P2") {
                 domainP2.reset( new Domain<SC,LO,GO,NO>( comm, dim ));
                 domainP2->buildP2ofP1Domain( domainP1 );

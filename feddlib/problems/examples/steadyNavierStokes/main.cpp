@@ -11,6 +11,9 @@
 #include "feddlib/problems/Solver/NonLinearSolver.hpp"
 #include "feddlib/problems/specific/NavierStokes.hpp"
 
+#include <Teuchos_GlobalMPISession.hpp>
+#include <Xpetra_DefaultPlatform.hpp>
+#include <Teuchos_StackedTimer.hpp>
 
 
 /*!
@@ -76,6 +79,26 @@ void zeroDirichlet3D(double* x, double* res, double t, const double* parameters)
     return;
 }
 
+
+// For Lid Driven Cavity Test
+void ldcFunc2D(double* x, double* res, double t, const double* parameters){
+    
+    res[0] = 1.*parameters[0];
+    res[1] = 0.;
+    
+    return;
+}
+
+// For Lid Driven Cavity Test
+void ldcFunc3D(double* x, double* res, double t, const double* parameters){
+    
+    res[0] = 1.*parameters[0];
+    res[1] = 0.;
+    res[2] = 0.;
+
+    return;
+}
+
 void inflowParabolic2D(double* x, double* res, double t, const double* parameters){
 
     double H = parameters[1];
@@ -106,7 +129,11 @@ void inflow3DRichter(double* x, double* res, double t, const double* parameters)
     
     return;
 }
-void dummyFunc(double* x, double* res, double t, const double* parameters){
+void dummyFunc(double* x, double* res, double* parameters){
+    if(parameters[0]==2)
+        res[0]=1;
+    else
+        res[0] = 0.;
 
     return;
 }
@@ -117,6 +144,7 @@ typedef default_sc SC;
 typedef default_lo LO;
 typedef default_go GO;
 typedef default_no NO;
+using namespace Teuchos;
 
 using namespace FEDD;
 
@@ -148,7 +176,9 @@ int main(int argc, char *argv[]) {
     myCLP.setOption("precfile",&xmlPrecFile,".xml file with Inputparameters.");
     string xmlSolverFile = "parametersSolver.xml";
     myCLP.setOption("solverfile",&xmlSolverFile,".xml file with Inputparameters.");
-
+    string xmlBlockPrecFile = "parametersPrecBlock.xml";
+    myCLP.setOption("blockprecfile",&xmlBlockPrecFile,".xml file with Inputparameters.");
+   
     string xmlTekoPrecFile = "parametersTeko.xml";
     myCLP.setOption("tekoprecfile",&xmlTekoPrecFile,".xml file with Inputparameters.");
 
@@ -161,7 +191,8 @@ int main(int argc, char *argv[]) {
     if(parseReturn == Teuchos::CommandLineProcessor::PARSE_HELP_PRINTED) {
         return EXIT_SUCCESS;
     }
-
+    Teuchos::RCP<StackedTimer> stackedTimer =  rcp(new StackedTimer("Steady Navier-Stokes",true));
+    TimeMonitor::setStackedTimer(stackedTimer);
     {
         ParameterListPtr_Type parameterListProblem = Teuchos::getParametersFromXmlFile(xmlProblemFile);
 
@@ -170,6 +201,8 @@ int main(int argc, char *argv[]) {
         ParameterListPtr_Type parameterListSolver = Teuchos::getParametersFromXmlFile(xmlSolverFile);
 
         ParameterListPtr_Type parameterListPrecTeko = Teuchos::getParametersFromXmlFile(xmlTekoPrecFile);
+
+        ParameterListPtr_Type parameterListPrecBlock = Teuchos::getParametersFromXmlFile(xmlBlockPrecFile);
 
         int 		dim				= parameterListProblem->sublist("Parameter").get("Dimension",3);
 
@@ -190,14 +223,16 @@ int main(int argc, char *argv[]) {
         ParameterListPtr_Type parameterListAll(new Teuchos::ParameterList(*parameterListProblem)) ;
         if (!precMethod.compare("Monolithic"))
             parameterListAll->setParameters(*parameterListPrec);
-        else
+        else if(precMethod == "Teko")
             parameterListAll->setParameters(*parameterListPrecTeko);
+        else if(precMethod == "Diagonal" || precMethod == "Triangular" || precMethod == "PCD")
+            parameterListAll->setParameters(*parameterListPrecBlock);
 
         parameterListAll->setParameters(*parameterListSolver);    
         
         std::string bcType = parameterListProblem->sublist("Parameter").get("BC Type","parabolic");
 
-        int minNumberSubdomains;
+        int minNumberSubdomains=1;
         if (!meshType.compare("structured")) {
             minNumberSubdomains = 1;
         }
@@ -242,6 +277,26 @@ int main(int argc, char *argv[]) {
                         domainPressure->buildMesh( 1,"Square", dim, discPressure, n, m, numProcsCoarseSolve);
                         domainVelocity->buildMesh( 1,"Square", dim, discVelocity, n, m, numProcsCoarseSolve);
                     }
+                    if (!meshType.compare("structured_ldc")) {
+                    // Structured Mesh for Lid-Driven Cavity Test
+                    TEUCHOS_TEST_FOR_EXCEPTION( size%minNumberSubdomains != 0 , std::logic_error, "Wrong number of processors for structured mesh.");
+                    if (dim == 2) {
+                        n = (int) (std::pow( size/minNumberSubdomains ,1/2.) + 100*Teuchos::ScalarTraits<double>::eps()); // 1/H
+                        std::vector<double> x(2);
+                        x[0]=0.0;    x[1]=0.0;
+                        domainPressure.reset(new Domain<SC,LO,GO,NO>( x, 1., 1., comm ) );
+                        domainVelocity.reset(new Domain<SC,LO,GO,NO>( x, 1., 1., comm ) );
+                    }
+                    else if (dim == 3){
+                        n = (int) (std::pow( size/minNumberSubdomains, 1/3.) + 100*Teuchos::ScalarTraits<double>::eps()); // 1/H
+                        std::vector<double> x(3);
+                        x[0]=0.0;    x[1]=0.0;	x[2]=0.0;
+                        domainPressure.reset(new Domain<SC,LO,GO,NO>( x, 1., 1., 1., comm));
+                        domainVelocity.reset(new Domain<SC,LO,GO,NO>( x, 1., 1., 1., comm));
+                    }
+                    domainPressure->buildMesh( 5,"Square", dim, discPressure, n, m, numProcsCoarseSolve);
+                    domainVelocity->buildMesh( 5,"Square", dim, discVelocity, n, m, numProcsCoarseSolve);
+                    }
                     if (!meshType.compare("structured_bfs")) {
                         TEUCHOS_TEST_FOR_EXCEPTION( size%minNumberSubdomains != 0 , std::logic_error, "Wrong number of processors for structured BFS mesh.");
                         if (dim == 2) {
@@ -272,7 +327,7 @@ int main(int argc, char *argv[]) {
                         ParameterListPtr_Type pListPartitioner = sublist( parameterListProblem, "Mesh Partitioner" );
                         MeshPartitioner<SC,LO,GO,NO> partitionerP1 ( domainP1Array, pListPartitioner, "P1", dim );
                         
-                        partitionerP1.readAndPartition();
+                        partitionerP1.readAndPartition(10);
 
                         if (discVelocity=="P2")
                             domainVelocity->buildP2ofP1Domain( domainPressure );
@@ -280,11 +335,29 @@ int main(int argc, char *argv[]) {
                             domainVelocity = domainPressure;
                     }
                 }
+                if(parameterListProblem->sublist("Parameter").get("Robin BC",false)==true)
+                {
+                    if(!meshType.compare("structured") || !meshType.compare("structured_bfs")){
+                        domainPressure->getMesh()->buildEdges(domainPressure->getElementsC());
+                        
+                        domainPressure->setUnstructuredMesh(domainPressure->getMesh());
+                        domainVelocity->buildP2ofP1Domain( domainPressure );
+                    }
+                    //domainPressure->exportMesh(true,false,"BFS_h_H_25_9_subdomains.mesh");
+                    //domainVelocity->exportNodeFlags();
+                    domainVelocity->preProcessMesh(true,false);
+                    domainVelocity->preProcessMesh(true,false);
+
+                    domainPressure->preProcessMesh(true,false);
+                }
 
                 std::vector<double> parameter_vec(1, parameterListProblem->sublist("Parameter").get("MaxVelocity",1.));
 
                 // ####################
                 Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory( new BCBuilder<SC,LO,GO,NO>( ) );
+                
+                Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryPressureLaplace( new BCBuilder<SC,LO,GO,NO>( ) );
+                Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryPressureFp( new BCBuilder<SC,LO,GO,NO>( ) );
 
                 if (!bcType.compare("parabolic"))
                     parameter_vec.push_back(1.);//height of inflow region
@@ -292,10 +365,12 @@ int main(int argc, char *argv[]) {
                     parameter_vec.push_back(.41);//height of inflow region
                 else if(!bcType.compare("Richter3D"))
                     parameter_vec.push_back(.4);
+                 else if(!bcType.compare("LDC")) // Lid Driven Cavity Test
+                    parameter_vec.push_back(0.);//Dummy
                 else
                     TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Select a valid boundary condition.");
-
-
+         
+                string pcdBC = parameterListProblem->sublist("Parameter").get("PCD BC","Inlet");
                 if ( !bcType.compare("parabolic") || !bcType.compare("parabolic_benchmark") ) {//flag of obstacle
                     if (dim==2){
                         bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);
@@ -303,6 +378,50 @@ int main(int argc, char *argv[]) {
 //                        bcFactory->addBC(dummyFunc, 3, 0, domainVelocity, "Neumann", dim);
 //                        bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
                         bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
+
+                        // bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                        if( !pcdBC.compare("Inlet")){
+
+                            bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
+                            bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                        }
+                        else if( !pcdBC.compare("Outlet")){
+                            bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                            bcFactoryPressureFp->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                        }
+                        else if( !pcdBC.compare("Mixed")){
+                            bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                            bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                        }
+                        else if( !pcdBC.compare("Both")){
+                            bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                            bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                            bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                            bcFactoryPressureFp->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        }
+                        else if( !pcdBC.compare("Robin In Diri Out")){
+                            //bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Robin", 1);
+                            bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                            bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Robin", 1);
+                            bcFactoryPressureFp->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                        }
+                        else if( !pcdBC.compare("Mixed Robin")){
+                            bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                            bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Robin", 1);
+                        }
+                        else if( !pcdBC.compare("Inlet Robin")){
+                            bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
+                            bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Robin", 1);
+                        }
+            
                     }
                     else if (dim==3){
                         bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);
@@ -310,6 +429,24 @@ int main(int argc, char *argv[]) {
 //                        bcFactory->addBC(dummyFunc, 3, 0, domainVelocity, "Neumann", dim);
 //                        bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
                         bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);
+
+                        if( !pcdBC.compare("Inlet")){
+
+                            bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 2, 0, domainPressure, "Dirichlet", 1);
+
+                            bcFactoryPressureFp->addBC(zeroDirichlet3D, 2, 0, domainPressure, "Dirichlet", 1);
+                        }
+                        else if( !pcdBC.compare("Outlet")){
+                            bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                            bcFactoryPressureFp->addBC(zeroDirichlet3D, 3, 0, domainPressure, "Dirichlet", 1);
+                        }
+                        else if( !pcdBC.compare("Mixed")){
+                            bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                            bcFactoryPressureFp->addBC(zeroDirichlet3D, 2, 0, domainPressure, "Dirichlet", 1);
+                        }
+    
                         
                     }
                 }
@@ -326,10 +463,33 @@ int main(int argc, char *argv[]) {
                     bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet_Z", dim);
                     bcFactory->addBC(zeroDirichlet3D, 5, 0, domainVelocity, "Dirichlet", dim);
                 }
+
+                if (!bcType.compare("LDC")) {
+                    if (dim==2){
+                        bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);
+                        bcFactory->addBC(zeroDirichlet2D, 3, 0, domainVelocity, "Dirichlet", dim);
+                        bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1);
+
+                        bcFactory->addBC(ldcFunc2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
+
+
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+
+                    }
+                    else if (dim==3){
+                        bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);
+                        bcFactory->addBC(ldcFunc3D, 2, 0, domainVelocity, "Dirichlet", dim);
+
+                    }
+                }
                 
                 NavierStokes<SC,LO,GO,NO> navierStokes( domainVelocity, discVelocity, domainPressure, discPressure, parameterListAll );
 
                 domainVelocity->info();
+
+
                 domainPressure->info();
                 navierStokes.info();
 
@@ -337,6 +497,10 @@ int main(int argc, char *argv[]) {
                     Teuchos::TimeMonitor solveTimeMonitor(*solveTime);
 
                     navierStokes.addBoundaries(bcFactory);
+                    navierStokes.addBoundariesPressureLaplace(bcFactoryPressureLaplace);
+                    navierStokes.addBoundariesPressureFp(bcFactoryPressureFp);
+                    navierStokes.addRhsFunction( dummyFunc );
+
                     navierStokes.initializeProblem();
                     navierStokes.assemble();
 
@@ -382,10 +546,31 @@ int main(int argc, char *argv[]) {
                     exParaPressure->save(0.0);
 
                 }
+                if (verbose) {
+                    cout << "###############################################################" <<endl;
+                    cout << "##################### Steady Navier-Stokes ####################" <<endl;
+                    cout << "Discretization: \t" << discVelocity << "-" << discPressure  << endl;
+                    if (!precMethod.compare("Monolithic")){
+                    cout << "Coarse Opertor Type: \t" << parameterListPrec->sublist("ThyraPreconditioner").sublist("Preconditioner Types").sublist("FROSch").get("CoarseOperator Type","NOTFOUND") << endl;
+                    cout << "IPOU Block 1: \t \t" << parameterListPrec->sublist("ThyraPreconditioner").sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").sublist("Blocks").sublist("1").sublist("InterfacePartitionOfUnity").get("Type","NOTFOUND") << endl;
+                    cout << "IPOU Block 2: \t \t" << parameterListPrec->sublist("ThyraPreconditioner").sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").sublist("Blocks").sublist("2").sublist("InterfacePartitionOfUnity").get("Type","NOTFOUND") << endl;
+                    }
+                    else if (!precMethod.compare("Teko")){
+                        cout << "Block Preconditioner Type: \t" << parameterListAll->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","SIMPLE") << endl;
+                        cout << "Velocity Preconditioner: \t" << parameterListAll->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").sublist("Inverse Factory Library").sublist("FROSch-Velocity").get("CoarseOperator Type","GDSW#") << endl;
+                        cout << "Pressure Preconditioner: \t" << parameterListAll->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").sublist("Inverse Factory Library").sublist("FROSch-Pressure").get("CoarseOperator Type","GDSW#") << endl;
+
+                    }            
+                    cout << "###############################################################" <<endl;
+                }
             }
         }
     }
-
     Teuchos::TimeMonitor::report(cout);
+    stackedTimer->stop("Steady Navier-Stokes");
+	StackedTimer::OutputOptions options;
+	options.output_fraction = options.output_histogram = options.output_minmax = true;
+	stackedTimer->report((std::cout),comm,options);
+	
     return(EXIT_SUCCESS);
 }

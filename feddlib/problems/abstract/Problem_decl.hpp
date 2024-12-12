@@ -11,6 +11,8 @@
 #include "feddlib/core/LinearAlgebra/BlockMultiVector.hpp"
 #include "feddlib/core/LinearAlgebra/BlockMatrix.hpp"
 #include "feddlib/problems/Solver/LinearSolver.hpp"
+#include "feddlib/core/General/HDF5Export.hpp"
+#include "feddlib/core/General/HDF5Import.hpp"
 
 #include <Stratimikos_DefaultLinearSolverBuilder.hpp>
 #include <Thyra_PreconditionerBase.hpp>
@@ -139,6 +141,10 @@ public:
 
     void addBoundaries(const BCConstPtr_Type &bcFactory);
 
+    void addBoundariesPressureLaplace(const BCConstPtr_Type &bcFactory);
+
+    void addBoundariesPressureFp(const BCConstPtr_Type &bcFactory);
+
     void setBoundaries(double time=.0) const;
 
     void setBoundariesRHS(double time=.0) const;
@@ -211,6 +217,7 @@ public:
 
 	double calculateL2Norm(MultiVectorConstPtr_Type mv, int domainInd=0); // Function that calculates L2 Error in the 'mv * M * mv' sense, with M beeing the Mass Matrix
 
+    void exportSolutionHDF5(); // Export the solution BlockMultiVector to a HDF5 Format
 
     int dim_;
     mutable CommConstPtr_Type comm_;
@@ -225,6 +232,10 @@ public:
     std::vector<RhsFunc_Type>   rhsFuncVec_; // RHS functions of different blocks
     vec_dbl_Type parasSourceFunc_; //
     
+    // Exporter for the solution. Vector entry i corresponds to block i of the solution BlockMultiVector
+    std::vector<HDF5Export<SC,LO,GO,NO>> HDF5exporterSolution_; // Solution
+
+
 protected:
 
     mutable ParameterListPtr_Type	parameterList_;
@@ -232,6 +243,9 @@ protected:
     string_vec_Type                 domain_FEType_vec_;
     string_vec_Type                 variableName_vec_;
     mutable BCConstPtr_Type         bcFactory_;
+    mutable BCConstPtr_Type         bcFactoryPressureLaplace_;
+    mutable BCConstPtr_Type         bcFactoryPressureFp_;
+
 
     FEFacPtr_Type feFactory_;
     std::vector<int> dofsPerNode_vec_;

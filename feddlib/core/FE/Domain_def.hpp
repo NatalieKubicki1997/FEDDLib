@@ -133,6 +133,7 @@ partialGlobalInterfaceVecFieldMap_()
     geometries3DVec_->push_back("Square"); // for 3D this is synonymous to Cube with 6-Element subcube structure
     geometries3DVec_->push_back("BFS"); // Backward-facing step geometry
     geometries3DVec_->push_back("Square5Element"); // this is a cube with different 5-Element per subcube structure
+    geometries3DVec_->push_back("Tube"); // this is a cube with different 5-Element per subcube structure
 
 
 }
@@ -262,6 +263,9 @@ void Domain<SC,LO,GO,NO>::buildMesh(int flagsOption , std::string meshType, int 
                 case 2:
                     meshStructured->setGeometry3DBox(coorRec, length, width, height);
                     meshStructured->buildMesh3D5Elements(	FEType, n_, m_, numProcsCoarseSolve);
+                case 3:
+                    meshStructured->setGeometry3DBox(coorRec, length, width, height);
+                    meshStructured->buildMesh3DTube(FEType, n_, m_, numProcsCoarseSolve);
                 break;
                 default:
                     TEUCHOS_TEST_FOR_EXCEPTION(true,std::runtime_error,"Select valid mesh. Structured types are 'structured' and 'structured_bfs' in 3D." );
@@ -280,9 +284,9 @@ void Domain<SC,LO,GO,NO>::buildMesh(int flagsOption , std::string meshType, int 
 }
 
 template <class SC, class LO, class GO, class NO>
-void Domain<SC,LO,GO,NO>::initializeUnstructuredMesh(int dimension, string feType, int volumeID){
+void Domain<SC,LO,GO,NO>::initializeUnstructuredMesh(int dimension, string feType, int volumeID, string meshUnit, bool convertToSI){
     
-    MeshUnstrPtr_Type meshUnstructured = Teuchos::rcp(new MeshUnstr_Type(comm_, volumeID));
+    MeshUnstrPtr_Type meshUnstructured = Teuchos::rcp(new MeshUnstr_Type(comm_, volumeID, meshUnit, convertToSI));
     mesh_ = meshUnstructured;
     mesh_->dim_ = dimension;
     FEType_ = feType;
@@ -397,6 +401,37 @@ void Domain<SC,LO,GO,NO>::setMesh(MeshUnstrPtr_Type meshUnstr){
     mesh_ = meshUnstr;
 }
 
+template <class SC, class LO, class GO, class NO>
+void Domain<SC, LO, GO, NO>::setUnstructuredMesh(MeshPtr_Type mesh)
+{
+    MeshUnstrPtr_Type outputMesh = Teuchos::rcp( new MeshUnstr_Type( comm_) );
+
+    outputMesh->dim_ = mesh->dim_ ;
+	outputMesh->FEType_ = mesh->FEType_ ;
+	outputMesh->rankRange_ =  mesh->rankRange_;
+
+    outputMesh->elementMap_ = mesh->elementMap_ ;
+	outputMesh->mapUnique_ = mesh->mapUnique_  ;
+	outputMesh->mapRepeated_ = mesh->mapRepeated_;
+    if(!mesh->edgeMap_.is_null())
+	    outputMesh->edgeMap_  = mesh->edgeMap_  ;
+
+	outputMesh->elementsC_ = mesh->elementsC_;
+    if(!mesh->edgeElements_.is_null())
+	    outputMesh->edgeElements_ = mesh->edgeElements_;
+	//outputMesh->surfaceTriangleElements_ = mesh->surfaceTriangleElements_;
+
+   	outputMesh->pointsRep_ =  mesh->pointsRep_  ; 
+    outputMesh->pointsUni_ = mesh->pointsUni_; 
+
+    outputMesh->bcFlagUni_ = mesh->bcFlagUni_ ; 
+	outputMesh->bcFlagRep_ = mesh->bcFlagRep_ ;
+
+	outputMesh->edgesElementOrder_ = mesh->edgesElementOrder_;
+	outputMesh->numElementsGlob_ = mesh->numElementsGlob_  ; 
+	
+    mesh_ = outputMesh;
+}
 
 template <class SC, class LO, class GO, class NO>
 void Domain<SC, LO, GO, NO>::initDummyMesh(MapPtr_Type map)
@@ -1262,7 +1297,31 @@ void Domain<SC, LO, GO, NO>::setSurfaceQuadraturePointsWeights( int flag , int d
 
 
 
+template <class SC, class LO, class GO, class NO>
+void Domain<SC, LO, GO, NO>::exportProcessor(string name)
+{
+        Teuchos::RCP<ExporterParaView<SC,LO,GO,NO> > exPara(new ExporterParaView<SC,LO,GO,NO>());
 
+        Teuchos::RCP<MultiVector<SC,LO,GO,NO> > exportSolution(new MultiVector<SC,LO,GO,NO>(this->getElementMap()));
+
+        Teuchos::ArrayRCP< SC > entries  = exportSolution->getDataNonConst(0);
+        ElementsPtr_Type elements = this->getElementsC(); // element list
+
+        for(int i=0; i< entries.size(); i++){
+            entries[i] = this->getComm()->getRank(); // element flags
+        }
+
+        Teuchos::RCP<const MultiVector<SC,LO,GO,NO> > exportSolutionConst = exportSolution;
+
+        exPara->setup("Mesh_Procs_"+name,this->getMesh(), "P0");
+
+        exPara->addVariable(exportSolutionConst, "Processor", "Scalar", 1,this->getElementMap(), this->getElementMap());
+
+        exPara->save(0.0);
+
+        exPara->closeExporter();
+
+}  
     
 }
 #endif

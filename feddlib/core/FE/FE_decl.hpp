@@ -112,8 +112,17 @@ class FE {
 
     FE(bool saveAssembly=false);
     
-    void assemblyIdentity(MatrixPtr_Type &A);
+    void assemblyIdentity(MatrixPtr_Type &A,bool callFillComplete = true);
     
+    void assemblySurfaceRobinBC(int dim, 
+                                std::string FEType, 
+                                std::string FEType2, 
+                                MultiVectorPtr_Type u, 
+                                MatrixPtr_Type A, 
+                                std::vector<SC> &funcParameter, 
+                                RhsFunc_Type func, 
+                                ParameterListPtr_Type params);
+
     void assemblySurfaceIntegral(int dim,
                                  std::string FEType,
                                  MultiVectorPtr_Type  a,
@@ -184,12 +193,19 @@ class FE {
                         MatrixPtr_Type &A,
                         bool callFillComplete = true,
                          int FELocExternal = -1);
+    void assemblyLaplacePressureDisc(int dim,
+                        std::string FEType,
+                        int degree,
+                        MatrixPtr_Type &A,
+                        bool callFillComplete,
+                        int FELocExternal=-1);
 
     void assemblyMass(int dim,
                       std::string FEType,
                       std::string fieldType,
                       MatrixPtr_Type &A,
-                      bool callFillComplete = true);
+                      bool callFillComplete = true,
+                      UN extraDeg =0);
 
     // Ueberladung der Assemblierung der Massematrix fuer FSI, da
     // checkFE sonst auch fuer das Strukturproblem FEloc = 1 liefert (= Fluid)
@@ -199,7 +215,8 @@ class FE {
                       std::string fieldType,
                       MatrixPtr_Type &A,
                       int FEloc,
-                      bool callFillComplete = true);
+                      bool callFillComplete = true,
+                      UN extraDeg =0);
 
     void assemblyLaplaceVecField(int dim,
                                  std::string FEType,
@@ -299,6 +316,21 @@ class FE {
                                    MatrixPtr_Type &A,
                                    MultiVectorPtr_Type u,
                                    bool callFillComplete);
+
+    void assemblyAdvection(int dim, 
+                            std::string FEType, 
+                            MatrixPtr_Type &A, 
+                            MultiVectorPtr_Type u, 
+                            bool callFillComplete);
+
+    // Advection with vector valued w_h with scalar p_h: w_h \cdot \nabla p_h
+    void assemblyAdvectionVecFieldScalar(int dim,
+                            std::string FEType,
+                            std::string FEType2,
+                            MatrixPtr_Type &A,
+                            MultiVectorPtr_Type u,
+                            bool callFillComplete=true);
+
 
     void assemblyAdvectionInUVecField(int dim,
                                       std::string FEType,
@@ -448,7 +480,13 @@ class FE {
     /// @param dim Dimension
     /// @param FEType FEType
     /// @param a Resultin matrix with one column
-    void assemblyPressureMeanValue(int dim, std::string FEType, MatrixPtr_Type a, MatrixPtr_Type aT);
+    void assemblyPressureMeanValue(int dim, std::string FEType, MultiVectorPtr_Type a);
+
+    /// @brief Assembling Pressure Integral to determine pressure mean value
+    /// @param dim Dimension
+    /// @param FEType FEType
+    /// @param a Resultin matrix with one column
+    void assemblyProjectionMatrix(int dim, std::string FEType, MatrixPtr_Type P);
 
     void assemblyRHS(int dim,
                      std::string FEType,

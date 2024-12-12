@@ -116,6 +116,17 @@ public:
     ThyraLinOpConstPtr_Type getTekoOp();
 
     void setVelocityMassMatrix(MatrixPtr_Type massMatrix) const;
+    MatrixPtr_Type getVelocityMassMatrix(){return velocityMassMatrixMatrixPtr_;};
+
+    void setPressureLaplaceMatrix(MatrixPtr_Type matrix) const;
+    MatrixPtr_Type getPressureLaplaceMatrix(){return pressureLaplaceMatrixPtr_;};
+
+    void setPressureMass(MatrixPtr_Type matrix) const;
+    MatrixPtr_Type getPressureMassMatrix(){return pressureMassMatrixPtr_;};
+
+    void setPCDOperator(MatrixPtr_Type matrix) const;
+    MatrixPtr_Type getPCDOperatorMatrix(){return pcdOperatorMatrixPtr_;};
+
 #endif
 
     void buildPreconditionerFaCSI( std::string type );
@@ -123,6 +134,8 @@ public:
     void buildPreconditionerBlock2x2();
 
     void setPressureMassMatrix(MatrixPtr_Type massMatrix) const;
+
+    void setPressureProjection(BlockMultiVectorPtr_Type pressureProjection) const;
 
     void setFaCSIBCFactory( BCConstPtr_Type bcFactory ){ faCSIBCFactory_ = bcFactory; };
 
@@ -136,6 +149,9 @@ public:
 
     bool isPreconditionerComputed() const{return precondtionerIsBuilt_;};
 
+    BlockMultiVectorPtr_Type getPressureProjection(){return pressureProjection_;};
+
+
 private:
     ThyraPrecPtr_Type thyraPrec_;
     bool precondtionerIsBuilt_;
@@ -143,8 +159,18 @@ private:
     TimeProblemPtr_Type timeProblem_;
     Teuchos::RCP<Thyra::PreconditionerFactoryBase<SC> > precFactory_;
 #ifdef FEDD_HAVE_TEKO
+    Teuchos::RCP<Teko::RequestHandler> rh_;
     ThyraLinOpConstPtr_Type tekoLinOp_;
-    mutable ThyraLinOpConstPtr_Type velocityMassMatrix_;
+    mutable ThyraLinOpConstPtr_Type velocityMassMatrix_; // LSC
+    mutable MatrixPtr_Type velocityMassMatrixMatrixPtr_;
+    mutable ThyraLinOpConstPtr_Type pressureLaplace_; // PCD
+    mutable MatrixPtr_Type pressureLaplaceMatrixPtr_; // PCD
+
+    mutable MatrixPtr_Type pressureMassMatrixPtr_; // PCD
+    mutable MatrixPtr_Type pcdOperatorMatrixPtr_; // PCD
+
+    mutable ThyraLinOpConstPtr_Type pressureMass_; // PCD
+    mutable ThyraLinOpConstPtr_Type pcdOperator_; // PCD
 #endif
     // For FaCSI precondtioner
     ThyraLinOpConstPtr_Type fsiLinOp_;
@@ -161,7 +187,15 @@ private:
     ThyraLinOpPtr_Type precSchur_;
     MinPrecProblemPtr_Type probVelocity_;
     MinPrecProblemPtr_Type probSchur_;
+    MinPrecProblemPtr_Type probLaplace_;
+    MinPrecProblemPtr_Type probMass_;
+    MinPrecProblemPtr_Type probVMass_;
+    ThyraLinOpPtr_Type laplaceInverse_;
+    ThyraLinOpPtr_Type massMatrixInverse_;
+    ThyraLinOpPtr_Type massMatrixVInverse_;  
     mutable MatrixPtr_Type pressureMassMatrix_;
+
+    mutable BlockMultiVectorPtr_Type pressureProjection_;
 
     ParameterListPtr_Type pListPhiExport_;
 #define PRECONDITIONER_TIMER

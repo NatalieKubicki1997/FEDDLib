@@ -12,6 +12,9 @@
 #include "feddlib/problems/Solver/NonLinearSolver.hpp"
 #include "feddlib/problems/specific/NavierStokes.hpp"
 
+#include <Xpetra_DefaultPlatform.hpp>
+#include <Teuchos_StackedTimer.hpp>
+
 /*!
  main of time-dependent Navier-Stokes problem
  
@@ -94,9 +97,19 @@ void inflowParabolic2DSin(double* x, double* res, double t, const double* parame
 void inflowParabolic3D(double* x, double* res, double t, const double* parameters){
 
     double H = parameters[1];
-    res[0] = 16*parameters[0]*x[1]*(H-x[1])*x[2]*(H-x[2])/(H*H*H*H);
-    res[1] = 0.;
-    res[2] = 0.;
+
+    if(t < parameters[2]){
+        res[0] = 16*parameters[0]*x[1]*(H-x[1])*x[2]*(H-x[2])/(H*H*H*H)* 0.5 *( 1 - cos( M_PI*t/parameters[2]) );
+        res[1] = 0.;
+        res[2] = 0.;
+    }
+    else{
+        res[0] = 16*parameters[0]*x[1]*(H-x[1])*x[2]*(H-x[2])/(H*H*H*H);
+        res[1] = 0.;
+        res[2] = 0.;
+
+    }
+    
 
     return;
 }
@@ -125,7 +138,7 @@ void dummyFunc(double* x, double* res, double t, const double* parameters){
 
     return;
 }
-
+using namespace Teuchos;
 typedef unsigned UN;
 typedef default_sc SC;
 typedef default_lo LO;
@@ -170,7 +183,8 @@ int main(int argc, char *argv[]) {
     if(parseReturn == Teuchos::CommandLineProcessor::PARSE_HELP_PRINTED) {
         return EXIT_SUCCESS;
     }
-
+    Teuchos::RCP<StackedTimer> stackedTimer = rcp(new StackedTimer("Unsteady Navier-Stokes",true));
+    TimeMonitor::setStackedTimer(stackedTimer);
     {
         ParameterListPtr_Type parameterListProblem = Teuchos::getParametersFromXmlFile(xmlProblemFile);
 
@@ -290,97 +304,6 @@ int main(int argc, char *argv[]) {
                     
                 }
             }
-
-            
-//            ofstream myFile;
-//            FILE * pFile;
-//            std::cout << "FluidP2Elements..." << '\n';
-//            myFile.open ("FluidP2ElementsH00.txt");
-//            for(int i = 0; i < domainVelocity->getElements()->size(); i++)
-//            {
-//                for(int j= 0; j < domainVelocity->getElements()->at(i).size(); j++)
-//                {
-//                    myFile << domainVelocity->getElements()->at(i).at(j);
-//                    myFile << " ";
-//                }
-//                myFile << endl;
-//            }
-//            myFile.close();
-//            std::cout << "done" << '\n';
-//
-//            std::cout << "FluidP1Elements..." << '\n';
-//            myFile.open ("FluidP1ElementsH00.txt");
-//            for(int i = 0; i < domainPressure->getElements()->size(); i++)
-//            {
-//                for(int j= 0; j < domainPressure->getElements()->at(i).size(); j++)
-//                {
-//                    myFile << domainPressure->getElements()->at(i).at(j);
-//                    myFile << " ";
-//                }
-//                myFile << endl;
-//            }
-//            myFile.close();
-//            std::cout << "done" << '\n';
-//
-//            std::cout << "FluidP2Nodes..." << '\n';
-////            myFile.open ("FluidP2NodesH00.txt");
-//            pFile = fopen ("FluidP2NodesH00.txt","w");
-//
-//            for(int i = 0; i < domainVelocity->getPointsUnique()->size(); i++)
-//            {
-//                for(int j= 0; j < domainVelocity->getPointsUnique()->at(i).size(); j++)
-//                {
-//                    fprintf(pFile,"%4.10f ", domainVelocity->getPointsUnique()->at(i).at(j) );
-//
-////                    printf("%4.10f ", domainFluidVelocity->getPointsUnique()->at(i).at(j) );
-////                    myFile << domainFluidVelocity->getPointsUnique()->at(i).at(j);
-////                    myFile << " ";
-//                }
-//                fprintf(pFile,"\n");
-////                myFile << endl;
-//            }
-//            fclose(pFile);
-////            myFile.close();
-//            std::cout << "done" << '\n';
-//
-//            std::cout << "FluidP1Nodes..." << '\n';
-////            myFile.open ("FluidP1NodesH00.txt");
-//            pFile = fopen ("FluidP1NodesH00.txt","w");
-//
-//            for(int i = 0; i < domainPressure->getPointsUnique()->size(); i++)
-//            {
-//                for(int j= 0; j < domainPressure->getPointsUnique()->at(i).size(); j++)
-//                {
-//                    fprintf(pFile,"%4.10f ", domainPressure->getPointsUnique()->at(i).at(j) );
-////                    myFile << domainFluidPressure->getPointsUnique()->at(i).at(j);
-////                    myFile << " ";
-//                }
-//                fprintf(pFile,"\n");
-////                myFile << endl;
-//            }
-//            fclose(pFile);
-////            myFile.close();
-//            std::cout << "done" << '\n';
-//            
-//
-//            std::cout << "FluidP2Flags..." << '\n';
-//            myFile.open ("FluidP2FlagsH00.txt");
-//            for(int i = 0; i < domainVelocity->getBCFlagUnique()->size(); i++)
-//            {
-//                myFile << domainVelocity->getBCFlagUnique()->at(i) << endl;
-//            }
-//            myFile.close();
-//            std::cout << "done" << '\n';
-//
-//            std::cout << "FluidPFlags..." << '\n';
-//            myFile.open ("FluidP1FlagsH00.txt");
-//            for(int i = 0; i < domainPressure->getBCFlagUnique()->size(); i++)
-//            {
-//                myFile << domainPressure->getBCFlagUnique()->at(i) << endl;
-//            }
-//            myFile.close();
-//            std::cout << "done" << '\n';
-            
             std::vector<double> parameter_vec(1);
             if ( !bcType.compare("parabolic") || !bcType.compare("parabolic_benchmark") || !bcType.compare("parabolic_benchmark_sin") )
                 parameter_vec[0] = parameterListProblem->sublist("Parameter").get("MaxVelocity",1.5);
@@ -389,6 +312,8 @@ int main(int argc, char *argv[]) {
                         
             // ####################
             Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactory( new BCBuilder<SC,LO,GO,NO>( ) );
+            Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryPressureLaplace( new BCBuilder<SC,LO,GO,NO>( ) );
+            Teuchos::RCP<BCBuilder<SC,LO,GO,NO> > bcFactoryPressureFp( new BCBuilder<SC,LO,GO,NO>( ) );
 
             if (!bcType.compare("parabolic") || !bcType.compare("Couette"))
                 parameter_vec.push_back(1.);//height of inflow region
@@ -399,6 +324,10 @@ int main(int argc, char *argv[]) {
             else
                 TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Select a valid boundary condition.");
 
+            parameter_vec.push_back( parameterListProblem->sublist("Parameter").get("Max Ramp Time",0.1) );
+
+            string pcdBC = parameterListProblem->sublist("Parameter").get("PCD BC","Inlet");
+
             if (!bcType.compare("parabolic") || !bcType.compare("parabolic_benchmark")) {//flag of obstacle
                 if (dim==2){
                     bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);
@@ -406,6 +335,26 @@ int main(int argc, char *argv[]) {
 //                    bcFactory->addBC(dummyFunc, 3, 0, domainVelocity, "Neumann", dim);
 //                    bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
                     bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
+                  
+                    // bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    if( !pcdBC.compare("Inlet")){
+
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Outlet")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Mixed")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+    
+
                 }
                 else if (dim==3){
                     bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);
@@ -413,6 +362,24 @@ int main(int argc, char *argv[]) {
 //                    bcFactory->addBC(dummyFunc, 3, 0, domainVelocity, "Neumann", dim);
 //                    bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
                     bcFactory->addBC(zeroDirichlet3D, 4, 0, domainVelocity, "Dirichlet", dim);
+                 
+                    if( !pcdBC.compare("Inlet")){
+
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 2, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet3D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Outlet")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet3D, 3, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Mixed")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet3D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet3D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+    
                     
                 }
             }
@@ -421,6 +388,24 @@ int main(int argc, char *argv[]) {
                     bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);
                     bcFactory->addBC(inflowParabolic2DSin, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);
                     bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
+
+                    if( !pcdBC.compare("Inlet")){
+
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Outlet")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Mixed")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+
                 }
                 else if (dim==3){
                     TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "Test for 2D only: parabolic_benchmark_sin");
@@ -435,6 +420,24 @@ int main(int argc, char *argv[]) {
 //                    bcFactory->addBC(dummyFunc, 666, 1, domainPressure, "Neumann", 1);
                     bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim);
                     bcFactory->addBC(zeroDirichlet2D, 5, 0, domainVelocity, "Dirichlet", dim);
+
+                     if( !pcdBC.compare("Inlet")){
+
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Outlet")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Mixed")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+
                 }
                 else if (dim==3){
                     TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "No partial CFD test in 3D.");
@@ -445,6 +448,23 @@ int main(int argc, char *argv[]) {
                 bcFactory->addBC(inflow3DRichter, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
                 bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet_Z", dim);
                 bcFactory->addBC(zeroDirichlet3D, 5, 0, domainVelocity, "Dirichlet", dim);
+                
+                if( !pcdBC.compare("Inlet")){
+
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Outlet")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+                    }
+                    else if( !pcdBC.compare("Mixed")){
+                        bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+
+                        bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+                }
 
 
             }
@@ -454,15 +474,22 @@ int main(int argc, char *argv[]) {
               //bcFactory->addBC(inflow3DRichter, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
               //bcFactory->addBC(zeroDirichlet3D, 3, 0, domainVelocity, "Dirichlet_Z", dim);
               //bcFactory->addBC(zeroDirichlet3D, 5, 0, domainVelocity, "Dirichlet", dim);
-            
+              bcFactoryPressureLaplace->addBC(zeroDirichlet2D, 3, 0, domainPressure, "Dirichlet", 1);
+              bcFactoryPressureFp->addBC(zeroDirichlet2D, 2, 0, domainPressure, "Dirichlet", 1);
+
+
             }
+
             
             int timeDisc = parameterListProblem->sublist("Timestepping Parameter").get("Butcher table",0);
 
             NavierStokes<SC,LO,GO,NO> navierStokes( domainVelocity, feTypeV, domainPressure, feTypeP, parameterListAll );
 
             navierStokes.addBoundaries(bcFactory);
-            
+            navierStokes.addBoundariesPressureLaplace(bcFactoryPressureLaplace);
+            navierStokes.addBoundariesPressureFp(bcFactoryPressureFp);
+
+
             navierStokes.initializeProblem();
             
             navierStokes.assemble();
@@ -484,9 +511,35 @@ int main(int argc, char *argv[]) {
 
             daeTimeSolver.advanceInTime();
 
+
+
+
+            if (verbose) {
+                cout << "###############################################################" <<endl;
+                cout << "##################### Steady Navier-Stokes ####################" <<endl;
+                cout << "Discretization: \t" << feTypeV << "-" << feTypeP  << endl;
+                if (!precMethod.compare("Monolithic")){
+                cout << "Coarse Opertor Type: \t" << parameterListPrec->sublist("ThyraPreconditioner").sublist("Preconditioner Types").sublist("FROSch").get("CoarseOperator Type","NOTFOUND") << endl;
+                cout << "IPOU Block 1: \t \t" << parameterListPrec->sublist("ThyraPreconditioner").sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").sublist("Blocks").sublist("1").sublist("InterfacePartitionOfUnity").get("Type","NOTFOUND") << endl;
+                cout << "IPOU Block 2: \t \t" << parameterListPrec->sublist("ThyraPreconditioner").sublist("Preconditioner Types").sublist("FROSch").sublist("IPOUHarmonicCoarseOperator").sublist("Blocks").sublist("2").sublist("InterfacePartitionOfUnity").get("Type","NOTFOUND") << endl;
+                }
+                else if (!precMethod.compare("Teko")){
+                    cout << "Block Preconditioner Type: \t" << parameterListAll->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","SIMPLE") << endl;
+                    cout << "Velocity Preconditioner: \t" << parameterListAll->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").sublist("Inverse Factory Library").sublist("FROSch-Velocity").get("CoarseOperator Type","GDSW#") << endl;
+                    cout << "Pressure Preconditioner: \t" << parameterListAll->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").sublist("Inverse Factory Library").sublist("FROSch-Pressure").get("CoarseOperator Type","GDSW#") << endl;
+
+                }            
+                cout << "###############################################################" <<endl;
+            }
+
+
         }
     }
 
     Teuchos::TimeMonitor::report(cout);
-    return EXIT_SUCCESS;
+    stackedTimer->stop("Unsteady Navier-Stokes");
+	StackedTimer::OutputOptions options;
+	options.output_fraction = options.output_histogram = options.output_minmax = true;
+	stackedTimer->report((std::cout),comm,options);
+    return(EXIT_SUCCESS);
 }

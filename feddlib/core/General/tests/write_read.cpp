@@ -2,10 +2,14 @@
 #include "feddlib/core/General/DefaultTypeDefs.hpp"
 #include "feddlib/core/Mesh/MeshPartitioner.hpp"
 #include "feddlib/problems/abstract/Problem.hpp"
+#include "feddlib/problems/abstract/Problem_def.hpp"
 #include <Teuchos_GlobalMPISession.hpp>
 #include <Xpetra_DefaultPlatform.hpp>
 #include "feddlib/core/General/HDF5Import.hpp"
 #include "feddlib/core/General/HDF5Export.hpp"
+#include "feddlib/core/General/HDF5Export.cpp"
+#include "feddlib/core/General/HDF5Export_decl.hpp"
+#include "feddlib/core/General/HDF5Export_def.hpp"
 
 
 void scalarFunc(double* x, double* res, double t, const double* parameters){

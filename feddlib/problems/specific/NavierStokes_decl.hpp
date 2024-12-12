@@ -46,6 +46,8 @@ public:
     typedef typename Problem_Type::MultiVectorConstPtr_Type MultiVectorConstPtr_Type;
     typedef typename Problem_Type::BlockMultiVectorPtr_Type BlockMultiVectorPtr_Type;
 
+    typedef typename Problem_Type::BlockMultiVector_Type BlockMultiVector_Type;
+
     typedef typename Problem_Type::DomainConstPtr_Type DomainConstPtr_Type;
     typedef typename Problem_Type::CommConstPtr_Type CommConstPtr_Type;
 
@@ -98,8 +100,13 @@ public:
     /*####################*/
 
     mutable MatrixPtr_Type 	A_;
+    mutable MatrixPtr_Type 	Mp_;
+    mutable MatrixPtr_Type 	Ap_;
+
     vec_int_ptr_Type pressureIDsLoc;
     MultiVectorPtr_Type u_rep_;
+    MultiVectorPtr_Type p_rep_;
+
 private:
     mutable bool stokesTekoPrecUsed_; //Help variable to signal that we constructed the initial preconditioner for NOX with the Stokes system and we do not need to compute it if fill_W_prec is called for the first time. However, the preconditioner is only correct if a Stokes system is solved in the first nonlinear iteration. This only affects the block preconditioners of Teko
     /*####################*/

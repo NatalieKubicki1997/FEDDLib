@@ -552,6 +552,7 @@ void ExporterParaView<SC,LO,GO,NO>::writeMeshPoints(std::string nameP_X,
 
 }
 
+
 template<class SC,class LO,class GO,class NO>
 void ExporterParaView<SC,LO,GO,NO>::updatePoints(){
     int dim = -1;
@@ -851,6 +852,9 @@ void ExporterParaView<SC,LO,GO,NO>::writeXmfVariables(){
     }
 
     else if (FEType_=="P2"){
+        centerString = "Node";
+    }
+    else if (FEType_=="Q1"){
         centerString = "Node";
     }
     else if (FEType_=="Q2"){
