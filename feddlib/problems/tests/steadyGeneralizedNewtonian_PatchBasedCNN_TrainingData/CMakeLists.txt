@@ -24,9 +24,9 @@ TRIBITS_COPY_FILES_TO_BINARY_DIR(data_steadyGeneralizedNewtonian_PatchBasedCNN_T
 
 TRIBITS_COPY_FILES_TO_BINARY_DIR(mesh_steadyGeneralizedNewtonian_PatchBasedCNN_TrainingData   
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-	SOURCE_FILES rectangle_200.mesh run_simulation.sh run_simulation_loop.sh 2D_artery_number_2.mesh
+	SOURCE_FILES rectangle_200.mesh run_simulation.sh run_simulation_loop.sh check_simulation_files.sh checkNewtonIteriations.sh 2D_artery_number_2.mesh
 	DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
-	DEST_FILES rectangle_200.mesh run_simulation.sh run_simulation_loop.sh 2D_artery_number_2.mesh
+	DEST_FILES   rectangle_200.mesh run_simulation.sh run_simulation_loop.sh check_simulation_files.sh checkNewtonIteriations.sh 2D_artery_number_2.mesh
 	EXEDEPS steadyGeneralizedNewtonian_PatchBasedCNN_TrainingData  
 )
 
