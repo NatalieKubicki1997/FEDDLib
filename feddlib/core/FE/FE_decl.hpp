@@ -448,7 +448,13 @@ class FE {
     /// @param dim Dimension
     /// @param FEType FEType
     /// @param a Resultin matrix with one column
-    void assemblyPressureMeanValue(int dim, std::string FEType, MatrixPtr_Type a, MatrixPtr_Type aT);
+    void assemblyPressureMeanValue(int dim, std::string FEType, MultiVectorPtr_Type a);
+
+    /// @brief Assembling Pressure Integral to determine pressure mean value
+    /// @param dim Dimension
+    /// @param FEType FEType
+    /// @param a Resultin matrix with one column
+    void assemblyProjectionMatrix(int dim, std::string FEType, MatrixPtr_Type P);
 
     void assemblyRHS(int dim,
                      std::string FEType,
@@ -625,7 +631,8 @@ class FE {
     // Change for all assembleFEElements the linearization to Newton
     void  changeLinearizationFE(string linearization);
 
-
+   // Change for all assembleFEElements the linearization to Newton
+   void  changeLinearization(string linearization);
 /* ----------------------------------------------------------------------------------------*/
 private:
 	void addFeBlockMatrix(BlockMatrixPtr_Type &A, SmallMatrixPtr_Type elementMatrix, FiniteElement element1,FiniteElement element2, MapConstPtr_Type mapFirstColumn,MapConstPtr_Type mapSecondColumn, tuple_disk_vec_ptr_Type problemDisk);

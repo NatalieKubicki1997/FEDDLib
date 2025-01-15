@@ -960,7 +960,7 @@ void RefinementFactory<SC,LO,GO,NO>::buildEdgeMap(MapConstPtr_Type mapGlobalProc
 		MultiVectorLOPtr_Type exportLocalEntry = Teuchos::rcp( new MultiVectorLO_Type( mapProc, 1 ) );
 
 		// (A) First we determine a Map only for the interface Nodes
-		// This will reduce the size of the Matrix we build later significantly if only look at the interface edges
+		// This will reduce the size of the Matrix we build later significantly if we only look at the interface edges
 		int numEdges= this->edgeElements_->numberElements();
 		vec2D_GO_Type inzidenzIndices(0,vec_GO_Type(2)); // Vector that stores global IDs of each edge (in Repeated Sense)
 		vec_LO_Type localEdgeIndex(0); // stores the local ID of edges in question 
@@ -977,8 +977,6 @@ void RefinementFactory<SC,LO,GO,NO>::buildEdgeMap(MapConstPtr_Type mapGlobalProc
 				id[0] = this->mapRepeated_->getGlobalElement(edgeElements->getElement(i).getNode(0)); 
 				id[1] = this->mapRepeated_->getGlobalElement(edgeElements->getElement(i).getNode(1));
 			 	
-
-
 				sort(id.begin(),id.end());
 				inzidenzIndices.push_back(id);
 
@@ -989,10 +987,7 @@ void RefinementFactory<SC,LO,GO,NO>::buildEdgeMap(MapConstPtr_Type mapGlobalProc
 			else{
 				edgesUnique++;
 			}
-
-
 		 }
-
 
 		// This Matrix is row based, where the row is based on mapInterfaceNodesUnqiue
 		// We then add a '1' Entry when two global Node IDs form an edge

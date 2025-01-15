@@ -116,6 +116,8 @@ public:
 
     void fromThyraMultiVector( Teuchos::RCP< Thyra::MultiVectorBase<SC> > thyraMV);
 
+    void norm1(const Teuchos::ArrayView<typename Teuchos::ScalarTraits<SC>::magnitudeType> &norms) const;
+
     void norm2(const Teuchos::ArrayView<typename Teuchos::ScalarTraits<SC>::magnitudeType> &norms) const;
 
     void normInf(const Teuchos::ArrayView<typename Teuchos::ScalarTraits<SC>::magnitudeType> &norms) const;

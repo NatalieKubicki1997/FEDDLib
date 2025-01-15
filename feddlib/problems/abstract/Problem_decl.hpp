@@ -211,6 +211,7 @@ public:
 
 	double calculateL2Norm(MultiVectorConstPtr_Type mv, int domainInd=0); // Function that calculates L2 Error in the 'mv * M * mv' sense, with M beeing the Mass Matrix
 
+    void changeAssFELinearization(string linearization); //@Natalie Added this function in order to be able to change e.g. from FixedPoint to Newton
 
     int dim_;
     mutable CommConstPtr_Type comm_;

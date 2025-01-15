@@ -369,9 +369,12 @@ void MeshStructured<SC,LO,GO,NO>::buildMesh2D(std::string FEType,
         for (int s=0; s < M+1; s++) {
             for (int r=0; r < M+1; r++) {
                 (*this->pointsRep_)[counter][0] = r*h + offset_x * H;
-                if ((*this->pointsRep_)[counter][0]<100*ScalarTraits<SC>::eps() && (*this->pointsRep_)[counter][0]>-100*ScalarTraits<SC>::eps()) { (*this->pointsRep_)[counter][0]=0.0;}
+                if ((*this->pointsRep_)[counter][0]<100*ScalarTraits<SC>::eps() && (*this->pointsRep_)[counter][0]>-100*ScalarTraits<SC>::eps()) {
+                     (*this->pointsRep_)[counter][0]=0.0;}
                 (*this->pointsRep_)[counter][1] = s*h + offset_y * H;
-                if ((*this->pointsRep_)[counter][1]<100*ScalarTraits<SC>::eps() && (*this->pointsRep_)[counter][1]>-100*ScalarTraits<SC>::eps()) {(*this->pointsRep_)[counter][1]=0.0;}
+                if ((*this->pointsRep_)[counter][1]<100*ScalarTraits<SC>::eps() && (*this->pointsRep_)[counter][1]>-100*ScalarTraits<SC>::eps()) {
+                    (*this->pointsRep_)[counter][1]=0.0;}
+
                 pointsRepGlobMapping[counter] = r + s*nmbPoints_oneDir + offset_x*(M) + offset_y*(nmbPoints_oneDir)*M;
                 if ((*this->pointsRep_)[counter][0] > (coorRec[0]+length-100*ScalarTraits<SC>::eps()) 	|| (*this->pointsRep_)[counter][0] < (coorRec[0]+100*ScalarTraits<SC>::eps()) ||
                     (*this->pointsRep_)[counter][1] > (coorRec[1]+height-100*ScalarTraits<SC>::eps()) 	|| (*this->pointsRep_)[counter][1] < (coorRec[1]+100*ScalarTraits<SC>::eps())) {
@@ -3127,27 +3130,27 @@ void MeshStructured<SC,LO,GO,NO>::setStructuredMeshFlags(int flagsOption,string 
                         this->bcFlagRep_->at(5) = 1;
                     }
                     break;
-                case 5: //Square 
+                case 5: // LDC Square
                     for (int i=0; i<this->pointsUni_->size(); i++) {
                         if (this->pointsUni_->at(i).at(0) > (coorRec[0] - tol) && this->pointsUni_->at(i).at(1) < (coorRec[1] + tol) ) {
-                            this->bcFlagUni_->at(i) = 1;
+                            this->bcFlagUni_->at(i) = 1; // bottom
                         }
                         if (this->pointsUni_->at(i).at(0) > (coorRec[0] - tol) && this->pointsUni_->at(i).at(1) > (coorRec[1] + height - tol) ) {
-                            this->bcFlagUni_->at(i) = 2;
+                            this->bcFlagUni_->at(i) = 2; // top
                         }
                         if (this->pointsUni_->at(i).at(0) > (coorRec[0]+length - tol) && this->pointsUni_->at(i).at(1) > (coorRec[1] + tol) && this->pointsUni_->at(i).at(1) < (coorRec[1] + height - tol)) {
-                            this->bcFlagUni_->at(i) = 1; //outflow
+                            this->bcFlagUni_->at(i) = 1; // right
                         }
                         if (this->pointsUni_->at(i).at(0) < (coorRec[0] +tol)) {
-                            this->bcFlagUni_->at(i) = 1; //inflow
+                            this->bcFlagUni_->at(i) = 1; //Left
                         }
                         if (this->pointsUni_->at(i).at(0) < (coorRec[0] +tol) && this->pointsUni_->at(i).at(1) < (coorRec[1] +tol)) {
-                            this->bcFlagUni_->at(i) = 3; //inflow
+                            this->bcFlagUni_->at(i) = 3; // (0,0) point of ldc
                         }
                     }
                     for (int i=0; i<this->pointsRep_->size(); i++) {
                         if (this->pointsRep_->at(i).at(0) > (coorRec[0] - tol) && this->pointsRep_->at(i).at(1) < (coorRec[1] + tol) ) {
-                            this->bcFlagRep_->at(i) = 1;
+                            this->bcFlagRep_->at(i) = 1; // bottom 
                         }
                         if (this->pointsRep_->at(i).at(0) > (coorRec[0] - tol) && this->pointsRep_->at(i).at(1) > (coorRec[1] + height - tol) ) {
                             this->bcFlagRep_->at(i) = 2;

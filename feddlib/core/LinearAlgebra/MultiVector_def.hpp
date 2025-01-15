@@ -195,6 +195,14 @@ void MultiVector<SC,LO,GO,NO>::norm2(const Teuchos::ArrayView< typename Teuchos:
     multiVector_->norm2(norms);
 }
 
+
+template <class SC, class LO, class GO, class NO>
+void MultiVector<SC,LO,GO,NO>::norm1(const Teuchos::ArrayView< typename Teuchos::ScalarTraits<SC>::magnitudeType> &norms) const {
+    TEUCHOS_TEST_FOR_EXCEPTION( multiVector_.is_null(), std::runtime_error,"MultiVector in norm1 is null.");
+    multiVector_->norm1(norms);
+}
+
+
 // Inf Norm of Multivector
 template <class SC, class LO, class GO, class NO>
 void MultiVector<SC,LO,GO,NO>::normInf(const Teuchos::ArrayView< typename Teuchos::ScalarTraits<SC>::magnitudeType> &normsInf) const {
