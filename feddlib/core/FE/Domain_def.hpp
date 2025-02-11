@@ -1191,16 +1191,15 @@ void Domain<SC, LO, GO, NO>::setSurfaceNormalsForFE()
 | \
 x  0
 |   \      <------ If QuadraturePoints (here x-x) are mapped onte one of the orthogonal lines - we can just use the reference quadrature weights and mapped quadrature points
-|    \     <------ If QuadraturePoints (her o-o)  are mapped onto the diagonal line - we have to scale only the **weights** by a factor of the length of the line sqrt(2) because we assumed in the first hand the reference line to be [0 1]
+|    \     <------ If QuadraturePoints (her o-o)  are mapped onto the diagonal line - we would have to scale only the **weights** by a factor of the length of the line sqrt(2) because we assumed in the first hand the reference line to be [0 1]
 x     0
 |      \
 __________
 
-
 The same problem occurs if we consider faces projected from the three-dimensional tetrahedor to two-dimensional triangle - there if we project the quadrature points onto the "diagonal" face of the tetrahedor we have to scale the weights by 
 a factor which corresponds to the surface are 
 
-So what in our code be beneficial is to precompute on the respective outer boundary elements the quadrature points in physical space and the mapping change in area (determinant)
+So what in our code be beneficial is to precompute on the respective outer boundary elements the quadrature points in physical space and the mapping change in area (determinant) of the line (2D) or face (3D)
 such that in our AssemblySpecific classes we just have to check if we should add to AssembleFE Element an additional boundary integral contribution and then we would just have to map the quadrature points
 defined in the physical space onto the reference element -> Check then if we projected onto the diagonal line if yes scale  quadrature weights with sqrt(2) -> We already have correct coordinates of quadrature points in reference element due to mapping 
 We could then as usually compute our basisfunction phi and their derivative 

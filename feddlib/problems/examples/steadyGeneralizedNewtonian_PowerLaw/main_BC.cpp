@@ -24,6 +24,7 @@
  where we use the Power-law viscosity model
  eta( gamma_dot) = K* gamma_dot(n-1)
 
+So we see if w set n=1 we have a Newtonian fluid with constant viscosity K
 ***********************************************************************************************
 
 
@@ -36,7 +37,7 @@
 @IMPORTANT
  Here we have to check that IF we want to compute a comparison between Navier-Stokes and
  Power-Law Model that K has to correspond to kinematicViscosity*density
- If not we are not comparing the same flow
+ If not we are not comparing the same flow !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
  @brief steady-state generalized-Newtonian Flow of power-law fluid main
  @author Natalie Kubicki
@@ -63,6 +64,7 @@ void zeroDirichlet2D(double *x, double *res, double t, const double *parameters)
 
     return;
 }
+
 
 void one(double *x, double *res, double t, const double *parameters)
 {
@@ -345,16 +347,30 @@ int main(int argc, char *argv[])
 			domainPressure->preProcessMesh(true,true); // Preprocessing pressure mesh
 			domainVelocity->preProcessMesh(true,true); // Preprocessing velocity mesh
 
-   			domainVelocity->exportSurfaceNormals("domain"); // exporting to check if correct
+   			domainVelocity->exportSurfaceNormals("domain");     // exporting to check if correct
     		domainVelocity->exportElementOrientation("domain"); // exporting to check if correct
 
             // Here we set the Surface Normal Function and save them in the FiniteElement Objects
             domainVelocity->setSurfaceNormalsForFE();
             domainPressure->setSurfaceNormalsForFE();
 
+            // INTEGRATE A BOUNDARY INTEGRAL TERM IN OUR ASSEMBLY OVER A NEUMANN BOUNDARY
             // See domain_def.hpp for detailed explanation but idea is to introduce an additional integral over a surface element
-            // First input is flag , second is degree 
-            domainVelocity->setSurfaceQuadraturePointsWeights( 3 , 3);
+            // For stress-divergence formulation we have to add boundary integral at outflow to obtain same outflow condition as in the convential formulation with the Laplacian term
+            // First input is **flag** of boundary where additional boundary integral term should be added  
+            // Second is **degree** for computing in getQuadraturePointsOnSurfaceInGlobalSpace the quadrature Points for integration
+            if (dim==2)
+            {
+                domainVelocity->setSurfaceQuadraturePointsWeights( 3 , 3); //  Outlet has flag 3, Currently only available degree is 3
+            }
+            else if(dim ==3)
+            {
+                domainVelocity->setSurfaceQuadraturePointsWeights( 2 , 8); //  Outlet has flag 2, Currently only available degree is 5
+            }
+            // IMPORTANT: If in our assembly routine there is no check like  if (this->FEObject_->getNeumannBCElement() == true)  
+            // and adding an additional term nothing will happen so until this moment we only marked the elements at the neumann boundary with specific flag to be Neumann boundary elements
+
+
             //          **********************  BOUNDARY CONDITIONS ***********************************
             std::string bcType = parameterListProblem->sublist("Parameter").get("BC Type", "parabolic");
             // We can here differentiate between different problem cases and boundary conditions
@@ -391,9 +407,9 @@ int main(int argc, char *argv[])
 
                 // Flags for straight circular tube inside this folder
                 //
-                //
-                //
-                //
+                bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);                        // wall
+                bcFactory->addBC(constx3D, 3, 0, domainVelocity, "Dirichlet", dim, parameter_vec);                // inlet
+
             }
 
             //          **********************  CALL SOLVER ***********************************
@@ -504,7 +520,7 @@ int main(int argc, char *argv[])
             // So basically they should give same results for n=1.0 as then Power-Law reduces to constant viscosity case
 
             // BUT as the Navier-Stokes equations are implemented in the conventional formulation with the laplacian operator the outlet boudary condition
-            // and therefore the solution at the outlet will differ -> if we want to have the exactly same formulation we have to consider the addiional boundary integral
+            // and therefore the solution at the outlet will differ -> if we want to have the exactly "same" formulation we have to consider the addiional boundary integral
             if ( (parameterListProblem->sublist("Material").get("Newtonian", true)) == false &&  (parameterListProblem->sublist("Material").get("compareNavierStokes", false)) == true && (parameterListProblem->sublist("Material").get("PowerLaw index n", 1.) == 1.) && (parameterListProblem->sublist("Material").get("ShearThinningModel", "") == "Power-Law"))
             {
                 parameterListAll->sublist("Material").set("Newtonian", true);

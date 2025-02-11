@@ -387,9 +387,9 @@ int main(int argc, char *argv[])
 
                 // Flags for straight circular tube inside this folder
                 //
-                //
-                //
-                //
+                bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
+                bcFactory->addBC(constx3D, 3, 0, domainVelocity, "Dirichlet", dim, parameter_vec);                // wall
+
             }
 
             //          **********************  CALL SOLVER ***********************************

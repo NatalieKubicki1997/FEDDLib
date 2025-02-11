@@ -1787,8 +1787,7 @@ already the quadrature weights defined on reference element
              // Variables for computing Gaussian-legendre-quadrature points on physical element edge
              // For Degree 3! We need the quadrature points for Intervall [0,1] as our reference element edges are defined in this range. We compute the
              // corresponding quadrature points for the physical element such that if we map back on 
-             // the UNIT reference element we get the correct quadrature points BUT We still have to check if we are not on
-             // the diagonal of the unit triangle because then we have to multiply by a factor of sqrt(2)
+             // the UNIT reference element we get the correct quadrature points
              */
              double quad_p1, quad_p2; 
              quad_p1=-0.5/sqrt(3.)+0.5;
@@ -1821,11 +1820,13 @@ already the quadrature weights defined on reference element
         double a, b, P1, P2, lambda_a, lambda_b;
 
 		if(FEType == "P1"){
-			QuadPts[0][0] =   1/3.;
+
+            TEUCHOS_TEST_FOR_EXCEPTION(true,std::logic_error, "Not implemented for P1");
+			/*QuadPts[0][0] =   1/3.;
 			QuadPts[0][1] =   1/3.;
 			QuadPts[0][2] =   1/3.;
 
-			QuadW[0] = 1.;
+			QuadW[0] = 1.;*/
 		}
 		else if(FEType == "P2"){
 

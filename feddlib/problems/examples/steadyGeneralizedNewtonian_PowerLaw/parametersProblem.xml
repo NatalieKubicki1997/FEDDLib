@@ -44,12 +44,6 @@
         <Parameter name="WriteOutViscosity" type="bool" value="true"/> <!-- If material is non-newtonian and this variable is set true the viscosity is computed in one element in the center of mass and written out in paraview format -->  
         
         
-        
-        <Parameter name="Additional NeumannBoundaryIntegral" type="bool" value="false"/> <!-- For stress-divergence formulation we have to add boundary integral at outflow to obtain same outflow condition as in the convential formulation with the Laplacian term -->
-        <Parameter name="BoundaryFlag_Additional NeumannBoundaryIntegral" type="int" value="3" /> <!-- So if we want to add the additional boundary integral for the equivalent outflow condition we have to set the boundary flag"-->
-        <!--************************* WE ONLY SET THIS FOR ONE FLAG NUMBER SO IF WE WANT TO ADD THE INTEGRAL ON MORE BOUNDARIES WE HAVE TO EXTEND IT -->
-       
-        
 	<!--********************FOR CHOSEN MODEL USER HAS TO SET MATERIAL PARAMETERS BELOW**************************-->
 	     <Parameter name="Numerical_ZeroValue_ShearRate" type="double" value="1.0e-12"/> <!-- Independent of the model we have to ensure that IF the shear rate is in the denominator of an term (for example in the Gateaux-derivatives) than we should not divide by zero but instead set shear rate to a really small value -->
     <!-- ALL VARIABLES ARE IN SI UNITS WHICH ARE WRITTEN AS COMMENT BEYOND THE PHSICAL QUANTITY -->	

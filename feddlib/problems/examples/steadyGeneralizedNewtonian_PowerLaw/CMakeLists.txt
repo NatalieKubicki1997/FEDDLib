@@ -44,10 +44,10 @@ TRIBITS_ADD_TEST(
 	NUM_MPI_PROCS 4
 )
 
-TRIBITS_COPY_FILES_TO_BINARY_DIR(data_steadyCreepingMotionNonNewtonianAssFE_withBoundaryIntegral  
+TRIBITS_COPY_FILES_TO_BINARY_DIR(data_steadyGeneralizedNonNewtonianAssFE_withBoundaryIntegral
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-	SOURCE_FILES parametersPrec.xml rectangle_200.mesh parametersProblem.xml parametersSolver.xml parametersTeko.xml
+	SOURCE_FILES parametersPrec.xml rectangle_200.mesh parametersProblem.xml parametersSolver.xml parametersTeko.xml Simple_Straight_3D_Pipe_27_03_2024.mesh
 	DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
-	DEST_FILES parametersPrec.xml rectangle_200.mesh  parametersProblem.xml parametersSolver.xml parametersTeko.xml
+	DEST_FILES parametersPrec.xml rectangle_200.mesh  parametersProblem.xml parametersSolver.xml parametersTeko.xml Simple_Straight_3D_Pipe_27_03_2024.mesh
 	EXEDEPS steadyGeneralizedNonNewtonianAssFE_withBoundaryIntegral  
 )

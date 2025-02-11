@@ -141,7 +141,7 @@ namespace FEDD
             this->assemblyOutflowNeumannBoundaryTerm(elementMatrixNB);
             this->ANB_->add((*elementMatrixNB), ((*this->ANB_)));
 
-            // Newton converges also if unabled and also in same steps so we can also comment that out
+            // Newton converges also if unabled
             // If linearization is not FixdPoint (so NOX or Newton) we add the derivative to the Jacobian matrix. Otherwise the FixedPoint formulation becomes the jacobian.
             /*if (this->linearization_ != "FixedPoint")
             {
@@ -729,27 +729,28 @@ namespace FEDD
             }
         }
 
+        // **** @TODO: With or without scaling? In the 2D case no points are projected 
         // Now we have successfully mapped the global quadrature points onto one of the reference faces (2D line / 3D surface)
         // But we still have to consider the case that if the global surface was mapped onto the diagonal line/ diagonal surface we
         // have to scale the weights (not the quadrature points because they were mapped on the right relative locations through the transformation) by the factor area change so in 2D it is just the length so sqrt(2) [0 sqrt(2)] and in 3D it should be the area which is 0.866025403784439
         // Check if a quadrature point lies on the diagonal line
         // We consider the point to be on the diagonal if both its x and y components are nonzero
         // https://www.math.ntnu.no/emner/TMA4130/2021h/lectures/CompositeQuadrature.pdf
-        // !?! If I do not scale the weights I get better results ...
 
-        /*double lengthReferenceElementDiagonalLine = std::sqrt(2.0) ;
+        double lengthReferenceElementDiagonalLine = std::sqrt(2.0) ;
         double eps = 1e-12; // std::numeric_limits<double>::epsilon() is too small
-        double areaReferenceElementDiagonalFace =  1.0; // 0.866025403784439;
+        double areaReferenceElementDiagonalFace =   0.866025403784439; // 0.866025403784439;
         if (dim==2)
         {
             if (  (std::fabs( QuadPointsMappedReference[0][0] - 0.0) >  eps  )   &&  ( (QuadPointsMappedReference[0][1]  - 0.0) >  eps   ) ) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
             {
                 for (int l = 0; l < QuadPointsGlobal.size(); l++)
                 {
-                QuadWeightsReference[l] =  lengthReferenceElementDiagonalLine * QuadWeightsReference[l]; // We have to only scale the weights as quadrature points are already mapped onto correct relative position on the diagonaö
+                QuadWeightsReference[l] =  lengthReferenceElementDiagonalLine * QuadWeightsReference[l]; // We have to only scale the weights as quadrature points are already mapped onto correct relative position on the diagonal
                 }
+                printf("We are on the diagonal\n");
             }
-        }
+        } // Normal checken
         else if (dim==3) // Quadrature Points are already mapped onto the correct positions inside the 2D surface
         {
             if (  (std::fabs( QuadPointsMappedReference[0][0] - 0.0) > eps  )   &&  ( (QuadPointsMappedReference[0][1]  - 0.0) >  eps   ) &&  ( (QuadPointsMappedReference[0][2]  - 0.0) >  eps   ) ) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
@@ -758,9 +759,13 @@ namespace FEDD
                 {
                 QuadWeightsReference[l] = areaReferenceElementDiagonalFace  * QuadWeightsReference[l];
                 }
+                printf("We are on the diagonal\n");
+
+                
+
             }
         }
-        */
+        
 
         Helper::getPhi(phi, QuadWeightsReference, QuadPointsMappedReference, dim, FEType); // This should be zero for the basisfunction not laying on the line/ surface
         Helper::getDPhi(dPhi, QuadWeightsReference, QuadPointsMappedReference, dim, FEType);
