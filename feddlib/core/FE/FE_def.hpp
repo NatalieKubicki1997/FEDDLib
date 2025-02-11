@@ -1238,20 +1238,7 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 
 }
 
-/*
-Short method to loop over all assembleFESpecific elements and set the defined linearization to Newton
-*/
-template <class SC, class LO, class GO, class NO>
-void FE<SC,LO,GO,NO>::changeLinearization(string linearization)
-{
-    for (UN T=0; T<assemblyFEElements_.size(); T++) // For each assembledFEElement change Linearization
-    {	
-        assemblyFEElements_[T]->setLinearization(linearization);
-    }
-}
-
-
-/*
+/*!
 Short method to loop over all assembleFESpecific elements and set the defined linearization to Newton
 */
 template <class SC, class LO, class GO, class NO>

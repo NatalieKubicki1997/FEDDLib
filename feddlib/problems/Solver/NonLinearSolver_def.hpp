@@ -350,17 +350,8 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(NonLinearProblem_Type &proble
         // ####### end FPI #######
     }
 
-<<<<<<< HEAD
     gmres_avg=gmresIts; // Because else if we switch to Newton we change the result
     gmres_avg/=nlIts;
-=======
-    this->gmresIts_ = gmresIts;
-    this->nlIts_ = nlIts;
-    this->residual0_ = residual0; 
-    gmresIts/=nlIts;
-
-
->>>>>>> origin/develop_pull_lea_pressure
     if (verbose)
         cout << "### Total FPI : " << nlIts << "  with average gmres its : " << gmres_avg << endl;
     if ( problem.getParameterList()->sublist("Parameter").get("Cancel MaxNonLinIts",false) ) {
@@ -527,11 +518,6 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNewton(TimeProblem_Type &problem, double
     std::string criterion = problem.getParameterList()->sublist("Parameter").get("Criterion","Residual");
     std::string timestepping = problem.getParameterList()->sublist("Timestepping Parameter").get("Class","Singlestep");
 
-    if(this->SwitchFromFixedPointToNewton_==true){
-        gmresIts = this->gmresIts_;
-        residual0 = this->residual0_;
-        nlIts = this->nlIts_;
-    }
 
     while ( nlIts < maxNonLinIts ) {
         if (timestepping == "External")
