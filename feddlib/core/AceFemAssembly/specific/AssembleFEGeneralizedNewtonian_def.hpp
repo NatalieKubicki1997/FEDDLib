@@ -973,19 +973,20 @@ namespace FEDD
         // https://www.math.ntnu.no/emner/TMA4130/2021h/lectures/CompositeQuadrature.pdf
         // !?! If I do not scale the weights I get better results ...
 
-        /*double lengthReferenceElementDiagonalLine = std::sqrt(2.0) ;
+        double lengthReferenceElementDiagonalLine = std::sqrt(2.0) ;
         double eps = 1e-12; // std::numeric_limits<double>::epsilon() is too small
-        double areaReferenceElementDiagonalFace =  1.0; // 0.866025403784439;
+        double areaReferenceElementDiagonalFace =   0.866025403784439; // 0.866025403784439;
         if (dim==2)
         {
             if (  (std::fabs( QuadPointsMappedReference[0][0] - 0.0) >  eps  )   &&  ( (QuadPointsMappedReference[0][1]  - 0.0) >  eps   ) ) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
             {
                 for (int l = 0; l < QuadPointsGlobal.size(); l++)
                 {
-                QuadWeightsReference[l] =  lengthReferenceElementDiagonalLine * QuadWeightsReference[l]; // We have to only scale the weights as quadrature points are already mapped onto correct relative position on the diagonaö
+                QuadWeightsReference[l] =  lengthReferenceElementDiagonalLine * QuadWeightsReference[l]; // We have to only scale the weights as quadrature points are already mapped onto correct relative position on the diagonal
                 }
+                printf("We are on the diagonal\n");
             }
-        }
+        } // Normal checken
         else if (dim==3) // Quadrature Points are already mapped onto the correct positions inside the 2D surface
         {
             if (  (std::fabs( QuadPointsMappedReference[0][0] - 0.0) > eps  )   &&  ( (QuadPointsMappedReference[0][1]  - 0.0) >  eps   ) &&  ( (QuadPointsMappedReference[0][2]  - 0.0) >  eps   ) ) // if the x and y component of quadrature point are non-zero we are on the diagonal but also only if the quadrature point was not defined in corners of element
@@ -994,9 +995,13 @@ namespace FEDD
                 {
                 QuadWeightsReference[l] = areaReferenceElementDiagonalFace  * QuadWeightsReference[l];
                 }
+                printf("We are on the diagonal\n");
+
+                
+
             }
         }
-        */
+        
 
         Helper::getPhi(phi, QuadWeightsReference, QuadPointsMappedReference, dim, FEType); // This should be zero for the basisfunction not laying on the line/ surface
         Helper::getDPhi(dPhi, QuadWeightsReference, QuadPointsMappedReference, dim, FEType);
