@@ -11,6 +11,7 @@ Epetra epetra
 Triutils triutils
 EpetraExt epetraext
 Thyra thyra
+PyTrilinos2 pytrilinos2
 )
 
 #include_directories(${Trilinos_INCLUDE_DIRS})
@@ -35,63 +36,48 @@ TRIBITS_COPY_FILES_TO_BINARY_DIR(data_bc_2dSquare
 	EXEDEPS neumannBC
 )
 
+#cmake_minimum_required(VERSION 3.4)
+#find_package(pybind11 REQUIRED)
+#IF (HAVE_pybind11)
+#pybind11_add_module(parameterList_Python_example parameterList_Python_example.cpp)
+#########target_link_libraries(example PUBLIC ${Trilinos_LIBRARY_DIRS} Trilinos_PACKAGES_AND_DIRS)
+#ENDIF (HAVE_pybind11)
 
-### pybind11_test
-TRIBITS_ADD_EXECUTABLE(
-pybind11_test
-SOURCES pybind11_test.cpp
-)
+### python parameterList
+#TRIBITS_ADD_EXECUTABLE(
+#parameterList_Python_example
+#SOURCES parameterList_Python_example.cpp
+#)
 
-TRIBITS_ADD_TEST(
-pybind11_test
-NAME pybind11_test
-ARGS
-COMM serial
-)
+#TRIBITS_ADD_TEST(
+#parameterList_Python_example
+#NAME parameterList_Python_example
+#ARGS
+#COMM serial
+#)
+
+## Python script test
+add_subdirectory(PyTrilinos_PythonTests)
+add_subdirectory(PyTrilinos_C++Tests)
+
+
+
+
 
 
 #cmake_minimum_required(VERSION 3.4)
+#project(example2)
 
 # Set the C++ standard to C++11 or higher
-
 # Find the Pybind11 package
-find_package(pybind11 REQUIRED)
-#find_package(Trilinos REQUIRED)
-##TRILINOS_DIR=/home/user/Programme/opt/ntrilinos_newestVersion/
+#find_package(pybind11 REQUIRED)
+#pybind11_add_module(example2 example.cpp)
+#target_link_libraries(example PUBLIC ${Trilinos_LIBRARY_DIRS} Trilinos_PACKAGES_AND_DIRS)
 
-# Add your source files to the project
-#IF (HAVE_pybind11)
-
-pybind11_add_module(example example.cpp)
-target_link_libraries(example PUBLIC ${Trilinos_LIBRARY_DIRS} Trilinos_PACKAGES_AND_DIRS)
-
-#ENDIF (HAVE_pybind11)
-
-#target_link_libraries(example PRIVATE )
+#target_link_libraries(example2 PRIVATE )
 
 #link_directories(/home/user/Programme/opt/ntrilinos_newestVersion/lib)
 #target_link_libraries(example PRIVATE teuchos)
 
 #target_link_libraries(example PRIVATE /home/user/Programme/opt/ntrilinos_newestVersion/lib/libteuchos.so)
 
-
-### sacado
-###TRIBITS_ADD_EXECUTABLE(
-###sacado_example
-###SOURCES sacado_example.cpp
-###)
-
-###TRIBITS_ADD_TEST(
-###sacado_example
-###NAME sacado_example
-###ARGS
-###NUM_MPI_PROCS 4
-###)
-
-###TRIBITS_COPY_FILES_TO_BINARY_DIR(data_bc_2dSquare2
-###	SOURCE_DIR ${CMAKE_SOURCE_DIR}/meshes
-###	SOURCE_FILES square.mesh
-###	DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
-###	DEST_FILES square.mesh
-###	EXEDEPS sacado_example
-###)

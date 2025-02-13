@@ -4,6 +4,9 @@ TRIBITS_REPOSITORY_DEFINE_TPLS(
     Trilinos        "cmake/TPLs/"                                       PT
 )
 
+#    python          "cmake/TPLs/"                                       ST
+
+
 # NOTES:
 #
 # (*) ParMETIS must be listed after Scotch because the

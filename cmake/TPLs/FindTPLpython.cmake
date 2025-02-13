@@ -54,65 +54,31 @@
 # @HEADER
 # Modified by Natalie Kubicki
 # In this file we ensure that we set the correct include paths (important to find header) and path to library 
-# (important for linking process) for pybind11 and python respectively!
-IF (TPL_ENABLE_pybind11)
+# (important for linking process) for python respectively!
+IF (TPL_ENABLE_python)
 
-# Ensure that correcz Pybind11 is imported
 EXECUTE_PROCESS(COMMAND
   	${PYTHON_EXECUTABLE} -c "import pybind11; print(pybind11.get_cmake_dir())"
   	OUTPUT_VARIABLE pybind11_DIR
   	ERROR_VARIABLE  pybind11_CMAKE_ERROR
   	OUTPUT_STRIP_TRAILING_WHITESPACE
   	)
-
-#EXECUTE_PROCESS(COMMAND
-#  ${PYTHON_EXECUTABLE} -c "import mpi4py; print(mpi4py.get_include())"
-#  OUTPUT_VARIABLE Mpi4Py_INCLUDE_DIR
-#  ERROR_VARIABLE  Mpi4Py_INCLUDE_ERROR
-#  OUTPUT_STRIP_TRAILING_WHITESPACE
-#  )
-
-#The form of a simple FindTPL<tplName>.cmake file
-#that just provides a list of required header files and
-#libraries that does not use an internal call to find_package() looks like:
-# This approach did not work
-#TRIBITS_TPL_FIND_INCLUDE_DIRS_AND_LIBRARIES(pybind11
-# REQUIRED_HEADERS pybind11.h 
-# )
-
-    MESSAGE("The pybind11_DIR is set to!:${pybind11_DIR}")
-    find_package(pybind11 REQUIRED)  
-    MESSAGE("pybind11_INCLUDE_DIRS:${pybind11_INCLUDE_DIRS}") #
-    #MESSAGE("${pybind11_LIBRARY_DIRS}") These are empty for pybind11
-    #MESSAGE("${pybind11_LIBRARIES}")
-    
     #Now also set correct paths for python
     FIND_PACKAGE(PythonInterp 3)
     FIND_PACKAGE(PythonLibs   3)
     MESSAGE("The python library is found at:${PYTHON_LIBRARIES}")
 
-    ## Now set for TRIBITS the important include and library paths!
-    #pybind11
-    SET(TPL_pybind11_INCLUDE_DIRS ${pybind11_INCLUDE_DIRS})
-    MESSAGE("${TPL_pybind11_INCLUDE_DIRS}")
+    #python
+    SET(TPL_python_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
+    MESSAGE("TPL_python_INCLUDE_DIRS:${TPL_python_INCLUDE_DIRS}")
   
-    # As alternative we can set here the path to the python library such that linking is working
-    # properly, the "cleaner" way would be to enable python via FindTPLpython.cmake 
-    SET(TPL_pybind11_LIBRARIES ${PYTHON_LIBRARIES}) # Header-only library therefore empty library, we still have to set this
-    MESSAGE("TPL_pybind11_LIBRARIES:${TPL_pybind11_LIBRARIES}")
+    SET(TPL_python_LIBRARIES ${PYTHON_LIBRARIES}) # Header-only library therefore empty library, we still have to set this
+    MESSAGE("TPL_python_LIBRARIES:${TPL_python_LIBRARIES}")
 
-    SET(TPL_pybind11_LIBRARY_DIRS "") # Header-only library therefore empty library
-    MESSAGE("TPL_pybind11_LIBRARY_DIRS:${TPL_pybind11_LIBRARY_DIRS}")
-
-    #python - This did not work we have to create a new file for this 
-    #SET(TPL_PYTHON_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
-    #MESSAGE("TPL_PYTHON_INCLUDE_DIRS:${TPL_PYTHON_INCLUDE_DIRS}")
-    #SET(TPL_PYTHON_LIBRARIES ${PYTHON_LIBRARIES}) # Header-only library therefore empty library, we still have to set this
-    #MESSAGE("TPL_PYTHON1_LIBRARIES:${TPL_PYTHON_LIBRARIES}")
-    #SET(TPL_PYTHON_LIBRARY_DIRS "") #
-    #MESSAGE("TPL_PYTHON_LIBRARY_DIRS:${TPL_PYTHON_LIBRARY_DIRS}")
+    SET(TPL_python_LIBRARY_DIRS "") #
+    MESSAGE("TPL_python_LIBRARY_DIRS:${TPL_python_LIBRARY_DIRS}")
 
 
 
-ENDIF (TPL_ENABLE_pybind11)
+ENDIF (TPL_ENABLE_python)
 

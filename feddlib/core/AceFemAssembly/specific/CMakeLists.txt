@@ -17,6 +17,9 @@ SET(AceFemAssemblySpecific_HEADERS
 	AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda_decl.hpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda_def.hpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda.hpp
+	AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda_Python_decl.hpp
+	AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda_Python_def.hpp
+	AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda_Python.hpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/PowerLaw_decl.hpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/PowerLaw_def.hpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/PowerLaw.hpp
@@ -32,9 +35,11 @@ SET(AceFemAssemblySpecific_SOURCES
 	AceFemAssembly/specific/AssembleFEAceLinElas.cpp
 	AceFemAssembly/specific/AssembleFEAceNonLinElas.cpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda.cpp
+	AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda_Python.cpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/PowerLaw.cpp
 	AceFemAssembly/specific/GeneralizedNewtonianModels/Dimless_Carreau.cpp
 CACHE INTERNAL "")
+
 
 
 SET(LOCAL_HEADERS)
@@ -48,3 +53,7 @@ INSTALL(
   DESTINATION "${${PROJECT_NAME}_INSTALL_INCLUDE_DIR}/feddlib/core/AceFemAssembly/specific"
   COMPONENT ${PACKAGE_NAME}
 )
+
+
+
+

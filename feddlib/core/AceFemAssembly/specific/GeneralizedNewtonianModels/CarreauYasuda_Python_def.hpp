@@ -1,14 +1,15 @@
-#ifndef CARREAUYASUDA_DEF_hpp
-#define CARREAUYASUDA_DEF_hpp
+#ifndef CarreauYasuda_Python_DEF_hpp
+#define CarreauYasuda_Python_DEF_hpp
 
-#include "CarreauYasuda_decl.hpp"
+#include "CarreauYasuda_Python_decl.hpp"
 
 namespace FEDD {
 
 template <class SC, class LO, class GO, class NO>
-CarreauYasuda<SC,LO,GO,NO>::CarreauYasuda(ParameterListPtr_Type params):
+CarreauYasuda_Python<SC,LO,GO,NO>::CarreauYasuda_Python(ParameterListPtr_Type params):
 DifferentiableFuncClass<SC,LO,GO,NO>(params)
 {
+    //py::initialize_interpreter(); working but not if finalize is in destructor?
     this->params_=params;
     // Reading through parameterlist
     shearThinningModel_= this->params_->sublist("Material").get("ShearThinningModel","");
@@ -21,27 +22,36 @@ DifferentiableFuncClass<SC,LO,GO,NO>(params)
    
     viscosity_ = 0.;
     //	TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error, "No discretisation Information for Velocity in Navier Stokes Element." );
-
+    //py::finalize_interpreter();
 	
 }
 
+
+
+
 template <class SC, class LO, class GO, class NO>
-void CarreauYasuda<SC,LO,GO,NO>::evaluateFunction(ParameterListPtr_Type params, double shearRate, double &viscosity) {
-	// Dieser Funktionsaufruf benötigit im Schnitt 113 nanoseconds
-    //auto t1 = Clock::now();
+void CarreauYasuda_Python<SC,LO,GO,NO>::evaluateFunction(ParameterListPtr_Type params, double shearRate, double &viscosity) {
+	
+    // So this is really too slow - we have to export the model from python to C++ and call it 
+    // 8471898 nanoseconds - just for calling py::initialize_interpreter(); and     py::finalize_interpreter(); -> too slow
+	//auto t1 = Clock::now();
+    //py::initialize_interpreter();
+
     viscosity = this->nu_infty +(this->nu_0-this->nu_infty)*(pow(1.0+pow(this->characteristicTime*shearRate,this->inflectionPoint)    , (this->fluid_index_n-1.0)/this->inflectionPoint ));
     this-> viscosity_ = viscosity;
+
+    //py::finalize_interpreter();
+
     //auto t2 = Clock::now();
-    /*std::cout << "Delta t2-t1: " 
-              << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count()
-              << " nanoseconds" << std::endl;
-    */
+    //std::cout << "Delta t2-t1 Python: " 
+    //         << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count()
+    //          << " nanoseconds" << std::endl;
 }
 
 
                 
 template <class SC, class LO, class GO, class NO>
-void CarreauYasuda<SC,LO,GO,NO>::evaluateDerivative(ParameterListPtr_Type params, double shearRate, double &res) {
+void CarreauYasuda_Python<SC,LO,GO,NO>::evaluateDerivative(ParameterListPtr_Type params, double shearRate, double &res) {
 	
 // The function is composed of d_eta/ d_GammaDot * d_GammaDot/ D_Tau while d_GammaDot * d_GammaDot/ D_Tau= - 2/GammaDot
 // So a problematic case is if this->inflectionPoint-2.0 < 0 than the shear rate is in the denominator and because it can
@@ -66,7 +76,7 @@ res = (-2.0)*(this->nu_0-this->nu_infty)*(this->fluid_index_n-1.0)*pow(this->cha
 
 
 template <class SC, class LO, class GO, class NO>
-void CarreauYasuda<SC,LO,GO,NO>::setParams(ParameterListPtr_Type params){
+void CarreauYasuda_Python<SC,LO,GO,NO>::setParams(ParameterListPtr_Type params){
     this->params_=params;
     // Reading through parameterlist
     shearThinningModel_= this->params_->sublist("Material").get("ShearThinningModel","");
@@ -83,7 +93,7 @@ void CarreauYasuda<SC,LO,GO,NO>::setParams(ParameterListPtr_Type params){
 
 
 template <class SC, class LO, class GO, class NO>
-void CarreauYasuda<SC,LO,GO,NO>::echoParams(){
+void CarreauYasuda_Python<SC,LO,GO,NO>::echoParams(){
             std::cout << "************************************************************ "  <<std::endl;
             std::cout << "-- Chosen material model ..." << this->shearThinningModel_ << " --- "  <<std::endl;
             std::cout << "-- Specified material parameters:" <<std::endl;

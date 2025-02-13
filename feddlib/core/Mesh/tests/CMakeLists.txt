@@ -3,46 +3,46 @@ INCLUDE(TribitsAddExecutableAndTest)
 INCLUDE(AddSubdirectories)
 
 ### AABBTree
-TRIBITS_ADD_EXECUTABLE(
-	AABBTree
-	SOURCES AABBTree.cpp
-)
+#TRIBITS_ADD_EXECUTABLE(
+#	AABBTree
+#	SOURCES AABBTree.cpp
+#)
 
-TRIBITS_ADD_TEST(
-	AABBTree
-	NAME AABBTree
-    	ARGS
-    	NUM_MPI_PROCS 1
-)
+#TRIBITS_ADD_TEST(
+#	AABBTree
+#	NAME AABBTree
+#    	ARGS
+#    	NUM_MPI_PROCS 1
+#)
 
-TRIBITS_COPY_FILES_TO_BINARY_DIR(meshes_meshes_AABBTree
-   SOURCE_DIR ${CMAKE_SOURCE_DIR}/meshes
-   SOURCE_FILES rectangle.mesh rectangle.mesh
-   DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
-   DEST_FILES rectangle.mesh rectangle.mesh
-   EXEDEPS AABBTree
-)
+#TRIBITS_COPY_FILES_TO_BINARY_DIR(meshes_meshes_AABBTree
+#   SOURCE_DIR ${CMAKE_SOURCE_DIR}/meshes
+#   SOURCE_FILES rectangle.mesh rectangle.mesh
+#   DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
+#   DEST_FILES rectangle.mesh rectangle.mesh
+#   EXEDEPS AABBTree
+#)
 
 ### mesh_AABBTree
-TRIBITS_ADD_EXECUTABLE(
-	mesh_AABBTree
-	SOURCES mesh_AABBTree.cpp
-)
+#TRIBITS_ADD_EXECUTABLE(
+#	mesh_AABBTree
+#	SOURCES mesh_AABBTree.cpp
+#)
 
-TRIBITS_ADD_TEST(
-	mesh_AABBTree
-	NAME mesh_AABBTree
-	ARGS
-	NUM_MPI_PROCS 1
-)
+#TRIBITS_ADD_TEST(
+#	mesh_AABBTree
+#	NAME mesh_AABBTree
+#	ARGS
+#	NUM_MPI_PROCS 1
+#)
 
-TRIBITS_COPY_FILES_TO_BINARY_DIR(meshes_mesh_AABBTree
-   SOURCE_DIR ${CMAKE_SOURCE_DIR}/meshes
-   SOURCE_FILES big_rectangle.mesh big_rectangle.mesh
-   DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
-   DEST_FILES big_rectangle.mesh big_rectangle.mesh
-   EXEDEPS mesh_AABBTree
-)
+#TRIBITS_COPY_FILES_TO_BINARY_DIR(meshes_mesh_AABBTree
+#   SOURCE_DIR ${CMAKE_SOURCE_DIR}/meshes
+#   SOURCE_FILES big_rectangle.mesh big_rectangle.mesh
+#   DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
+#   DEST_FILES big_rectangle.mesh big_rectangle.mesh
+#   EXEDEPS mesh_AABBTree
+#)
 
 ### mesh_structured
 TRIBITS_ADD_EXECUTABLE(

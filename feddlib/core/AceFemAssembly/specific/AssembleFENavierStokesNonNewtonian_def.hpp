@@ -35,6 +35,10 @@ AssembleFENavierStokes<SC,LO,GO,NO>(flag, nodesRefConfig, params,tuple)
 		Teuchos::RCP<Dimless_Carreau<SC,LO,GO,NO>> materialModelSpecific(new Dimless_Carreau<SC,LO,GO,NO>(params) );
 		materialModel = materialModelSpecific;
 	}
+        else if(shearThinningModel == "Carreau-Yasuda-Python"){
+		Teuchos::RCP<CarreauYasuda_Python<SC,LO,GO,NO>> materialModelSpecific(new CarreauYasuda_Python<SC,LO,GO,NO>(params) );
+		materialModel = materialModelSpecific;
+	}
 	else
     		TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "No specific implementation for your material model request. Valid are:Carreau-Yasuda, Power-Law, Dimless-Carreau");
 }

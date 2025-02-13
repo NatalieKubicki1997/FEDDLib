@@ -11,7 +11,7 @@
 #include <Teuchos_GlobalMPISession.hpp>
 #include <Xpetra_DefaultPlatform.hpp>
 
-
+#include <pybind11/embed.h>
 /*!
  main of steady-state Navier-Stokes problem
 

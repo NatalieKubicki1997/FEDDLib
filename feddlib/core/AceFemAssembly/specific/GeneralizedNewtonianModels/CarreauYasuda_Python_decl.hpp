@@ -1,12 +1,12 @@
-#ifndef CARREAUYASUDA_DECL_hpp
-#define CARREAUYASUDA_DECL_hpp
+#ifndef CARREAUYASUDA_PYTHON_DECL_hpp
+#define CARREAUYASUDA_PYTHON_DECL_hpp
 
 #include "feddlib/core/General/DifferentiableFuncClass.hpp"
 //#include "feddlib/core/AceFemAssembly/Helper.hpp"
 #include "feddlib/core/FEDDCore.hpp"
 #include "feddlib/core/AceFemAssembly/specific/AssembleFENavierStokesNonNewtonian.hpp"
-#include <chrono>
-typedef std::chrono::high_resolution_clock Clock;
+//#include "PyTrilinos2" // everything needed for embedding
+//#include <pybind11/pybind11.h>
 
 
 namespace FEDD {
@@ -19,7 +19,7 @@ namespace FEDD {
 */
     /*!
     \class CarreauYasuda
-    \brief This class is derived from the abstract class DifferentiableFuncClass and should provide functionality to evaluate the viscosity function specified by Carreau-Yasuda model (see [1])
+    \brief This class is derived from the abstract class DifferentiableFuncClass and should provide functionality to evaluate the viscosity function specified by Carreau-Yasuda model and is mainly there to compute timing wheter we use python inside our code or not (see [1])
     \tparam SC The scalar type. So far, this is always double, but having it as a template parameter would allow flexibily, e.g., for using complex instead
     \tparam LO The local ordinal type. The is the index type for local indices
     \tparam GO The global ordinal type. The is the index type for global indices
@@ -47,7 +47,7 @@ namespace FEDD {
     
 
 template <class SC = default_sc, class LO = default_lo, class GO = default_go, class NO = default_no>
-class CarreauYasuda : public DifferentiableFuncClass<SC,LO,GO,NO> {
+class CarreauYasuda_Python : public DifferentiableFuncClass<SC,LO,GO,NO> {
   public:
 
    /* typedef Matrix<SC,LO,GO,NO> Matrix_Type;
@@ -112,8 +112,7 @@ class CarreauYasuda : public DifferentiableFuncClass<SC,LO,GO,NO> {
 
 	\brief Constructor for CarreauYasuda
 	@param[in] parameters Parameterlist for current problem	*/
-	CarreauYasuda(ParameterListPtr_Type parameters); 
-
+	CarreauYasuda_Python(ParameterListPtr_Type parameters);
 
    private:
 
@@ -129,7 +128,6 @@ class CarreauYasuda : public DifferentiableFuncClass<SC,LO,GO,NO> {
 
     
 
-  //  friend class AssembleFENavierStokesNonNewtonian<SC,LO,GO,NO>; why dit it not work?
 
 
  };

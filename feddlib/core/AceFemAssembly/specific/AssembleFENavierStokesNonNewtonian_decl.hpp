@@ -9,6 +9,7 @@
 #include "feddlib/core/LinearAlgebra/MultiVector.hpp"
 #include "feddlib/core/General/DifferentiableFuncClass.hpp"
 #include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda.hpp"
+#include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/CarreauYasuda_Python.hpp"
 #include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/PowerLaw.hpp"
 #include "feddlib/core/AceFemAssembly/specific/GeneralizedNewtonianModels/Dimless_Carreau.hpp"
 

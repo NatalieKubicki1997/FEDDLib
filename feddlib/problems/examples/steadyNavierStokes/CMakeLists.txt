@@ -2,7 +2,8 @@ TRIBITS_ADD_EXECUTABLE(
 	steadyNavierStokes
 	SOURCES main.cpp
 )
-
+#target_link_libraries(steadyNavierStokes "/home/user/Programme/opt/Anaconda/anaconda3/envs/pyfeddlib/lib/libpython3.11.so")
+# this is not working
 TRIBITS_ADD_TEST(
 	steadyNavierStokes
 	NAME steadyNavierStokes
@@ -10,6 +11,8 @@ TRIBITS_ADD_TEST(
 #--precfile=parametersPrecMumps.xml
 	NUM_MPI_PROCS 4
 )
+
+
 
 TRIBITS_COPY_FILES_TO_BINARY_DIR(data_steadyNavierStokes
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}

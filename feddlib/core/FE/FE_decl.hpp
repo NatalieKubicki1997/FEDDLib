@@ -20,6 +20,13 @@
 #include <boost/function.hpp>
 
 
+#include <Xpetra_DefaultPlatform.hpp>
+#include <iostream>
+#include <pybind11/numpy.h>
+#include <pybind11/embed.h>
+#include <pybind11/stl.h>           // mandatory for myPyObject.cast<std::vector<T>>()
+#include <pybind11/functional.h>    // mandatory for py::cast( std::function )
+namespace py = pybind11;
 
 /*!
  Declaration of FE

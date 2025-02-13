@@ -452,7 +452,7 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
         }
         else
         {
-        	initAssembleFEElements("NavierStokes",problemDisk,elements, params,pointsRep); // NEWTONIAN CASE _ CONVENTIONAL FORMULATION
+        	initAssembleFEElements("NavierStokes",problemDisk,elements, params,pointsRep); // NEWTONIAN CASE CONVENTIONAL FORMULATION
         }
     }
 	else if(assemblyFEElements_.size() != elements->numberElements())
@@ -466,7 +466,48 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 	resVecRep->addBlock(resVec_p,1);
 
 
+    // Call python interpreter
+    // Moment ne wahrscheinlich reicht schon es einfach einmal zu machen
+    /*Teuchos::RCP<const Teuchos::Comm<int> > comm = Xpetra::DefaultPlatform::getDefaultPlatform().getComm();
+    if(assemblyFEElements_.size()== 0 && comm->getRank() == 0){
+    py::scoped_interpreter guard{};
+    py::module np = py::module::import("numpy");
+    }*/
+
+    // This code snippet is working but the problem is the scope is in the brackets so beyond we do not have 
+    /*if(assemblyFEElements_.size()== 0){
+    py::scoped_interpreter guard{};
+    py::module np = py::module::import("numpy");
+    py::object random = np.attr("random");
+    }
+*/
+
+    //py::object random2 = np.attr("random"); this is out of scope
+    /*py::object random = np.attr("random");
+
+    py::module scipy = py::module::import("scipy.optimize");
+
+        // create some data for fitting
+        std::vector<double> xValues(11, 0);
+        std::vector<double> yValues(11, 0);
+        for (int i = -5; i < 6; ++i) {
+            xValues[i + 5] = i;
+            yValues[i + 5] = i*i;
+        }
+
+        // cast it to numpy arrays
+        py::array_t<double> pyXValues = py::cast(xValues);
+        py::array_t<double> pyYValues = py::cast(yValues);
+
+        // add some noise to the yValues using numpy -> Works!
+        py::array_t<double> pyYValuesNoise = np.attr("add")(pyYValues, random.attr("randn")(11));
+    */
+    py::initialize_interpreter();
    
+    //if(assemblyFEElements_.size()== 0){
+    py::module np = py::module::import("numpy");
+    //}
+    //py::object random = np.attr("random");
     // In this loop we go over all elements 
 	for (UN T=0; T<assemblyFEElements_.size(); T++) {
        
@@ -524,7 +565,7 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 			
 	} // end loop over all elements
   
-
+    py::finalize_interpreter();
 	if (callFillComplete && reAssemble && assembleMode != "Rhs" )
 	    A->getBlock(0,0)->fillComplete( domainVec_.at(FElocVel)->getMapVecFieldUnique(),domainVec_.at(FElocVel)->getMapVecFieldUnique());
 	else if(callFillComplete && !reAssemble && assembleMode != "Rhs"){
