@@ -567,7 +567,27 @@ int main(int argc, char *argv[])
 
             }
 
+ //          **********************  POST-PROCESSING ***********************************
+            //****************************************************************************************
+            ///*******************************************************************************///
+            // Flag Check
+            Teuchos::RCP<ExporterParaView<SC,LO,GO,NO> > exPara(new ExporterParaView<SC,LO,GO,NO>());
 
+			Teuchos::RCP<MultiVector<SC,LO,GO,NO> > exportSolution(new MultiVector<SC,LO,GO,NO>(domainVelocity->getMapUnique()));
+			vec_int_ptr_Type BCFlags = domainVelocity->getBCFlagUnique();
+
+			Teuchos::ArrayRCP< SC > entries  = exportSolution->getDataNonConst(0);
+			for(int i=0; i< entries.size(); i++){
+				entries[i] = BCFlags->at(i);
+			}
+
+			Teuchos::RCP<const MultiVector<SC,LO,GO,NO> > exportSolutionConst = exportSolution;
+
+			exPara->setup("FlagsFluid",domainVelocity->getMesh(), discVelocity);
+
+			exPara->addVariable(exportSolutionConst, "Flags", "Scalar", 1,domainVelocity->getMapUnique(), domainVelocity->getMapUniqueP2());
+
+			exPara->save(0.0);
 
 
             //*********************************************************************************************************
