@@ -323,7 +323,8 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(NonLinearProblem_Type &proble
                 break;
         }
 
-
+        // Set the current Nonlinear Step in the Problem class
+        problem.setNonlinearIterationStep(nlIts);
         gmresIts += problem.solveAndUpdate( criterion, criterionValue );
         nlIts++;
         if(criterion=="Update"){
@@ -384,7 +385,9 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNewton( NonLinearProblem_Type &problem, 
             if ( criterionValue < tol )
                 break;
         }
-        // PRINT INFOS
+        
+        // Set the current Nonlinear Step in the Problem class
+        problem.setNonlinearIterationStep(nlIts);
         gmresIts += problem.solveAndUpdate( criterion, criterionValue );
         nlIts++;
         if(criterion=="Update"){
@@ -480,7 +483,8 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPointNewton( NonLinearProblem_Type 
         problem.setBoundariesSystem();
 
 
-        // PRINT INFOS
+        // Set the current Nonlinear Step in the Problem class
+        problem.setNonlinearIterationStep(nlIts);
         gmresIts += problem.solveAndUpdate( criterion, criterionValue );
         nlIts++;
         if(criterion=="Update"){

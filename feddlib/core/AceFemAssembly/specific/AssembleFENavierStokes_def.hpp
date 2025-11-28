@@ -497,6 +497,56 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::buildTransformation(SmallMatrix<SC>& B
 
 }
 
-}
-#endif
 
+    /* Based on the current solution (velocity, pressure etc.) compute pressure mass matrix \int \tilde{eta} psi_i psi_j dx
+    where \tilde{eta} is the element averaged viscosity depending on shear rate at the quadrature points
+    */
+    template <class SC, class LO, class GO, class NO>
+    void AssembleFENavierStokes<SC, LO, GO, NO>::assembleViscosityScaledPressureMassMatrix()
+    {
+        SmallMatrixPtr_Type elementMatrix = Teuchos::rcp( new SmallMatrix_Type(this->numNodesPressure_));
+        this->etaMp_.reset(new SmallMatrix_Type(this->numNodesPressure_)); 
+        // *******  First we compute for the current element the element averaged viscosity **************
+        int dim = this->getDim();
+        std::string FEType = this->FETypeVelocity_;
+
+        SC detB;
+        SmallMatrix<SC> B(dim);
+        SmallMatrix<SC> Binv(dim);
+
+        this->buildTransformation(B);
+        detB = B.computeInverse(Binv);
+        SC absDetB = std::fabs(detB);     // Needed for integration
+
+        // *********** Now assemble pressure mass matrix and scale each entry by  1/(viscosity) - ***************************************
+        std::string FETypePressure = this->FETypePressure_;
+        vec2D_dbl_ptr_Type 	phi;
+        vec_dbl_ptr_Type weights = Teuchos::rcp(new vec_dbl_Type(0));
+
+        // inner( phi_i , phi_j ) has twice the polyonimial degree than phi_i and phi_j, respectively.
+        UN deg = 2*Helper::determineDegree(dim,FETypePressure,Helper::Deriv0);
+        Helper::getPhi( phi, weights, dim, FETypePressure, deg );
+
+        TEUCHOS_TEST_FOR_EXCEPTION(dim == 1, std::logic_error, "assembleViscosityScaledPressureMassMatrix Not implemented for dim=1");
+        Teuchos::Array<SC> value(1, 0.);
+
+         // Loop over all nodes and compute int phi_i phi_j such that in 3D we obtain a 3x3 matrix
+        for (UN i=0; i < phi->at(0).size(); i++) 
+        {
+            for (UN j=0; j < phi->at(0).size(); j++) 
+            {
+                value[0] = 0.;
+                for (UN w=0;  w<phi->size(); w++)
+                    value[0] += weights->at(w) * phi->at(w)[i] *  (*phi)[w][j];
+                value[0] *= absDetB;
+				(*elementMatrix)[i][j] +=  (-1.0/(viscosity_ ))*value[0];
+            }
+        }
+        // This matrix has to be symmetric and positive definite
+        this->etaMp_->add(((*elementMatrix)), ((*this->etaMp_)));
+
+
+    }
+
+    }
+#endif

@@ -101,6 +101,12 @@ public:
 
     virtual void info() = 0;
 
+
+    /*! If we have a Nonlinear Problem, we need the opportunity to know about the current Newton Step
+    */
+    virtual int getNonlinearIterationStep() const { return 0; }  
+
+
     void infoProblem();
 
     void infoParameter(bool full = true, std::string ="empty");
@@ -242,6 +248,7 @@ protected:
     /*!  sourceTerm_: Is a source term or a surface integral. Fill parasSourceFunc_ for additional parameters */
     BlockMultiVectorPtr_Type    sourceTerm_; // BlockMV of all assembled RHS functions
     
+
 #ifdef FEDD_TIMER
     TimePtr_Type solveProblemTimer_;
     TimePtr_Type bcMatrixTimer_;

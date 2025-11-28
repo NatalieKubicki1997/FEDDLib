@@ -48,7 +48,14 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
 	*/
 	void assembleFixedPoint();
 
+	/*! 
+	\brief Assembly of local pressure mass matrix scaled with constant viscosity
+     */
+	void assembleViscosityScaledPressureMassMatrix();
+
 	SmallMatrixPtr_Type getFixedPointMatrix(){return ANB_;}
+
+	SmallMatrixPtr_Type getViscosityScaledPressureMassMatrix(){return etaMp_;}
 
    protected:
 
@@ -133,6 +140,8 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
    	double density_ ;
 
 	// std::string linearization_; Now attribute of base class AssembleFE
+
+    SmallMatrixPtr_Type etaMp_; // Store local pressure mass matrix scaled by element averaged viscosity -> In Newtonian case this is just a constant
 
    private:
 

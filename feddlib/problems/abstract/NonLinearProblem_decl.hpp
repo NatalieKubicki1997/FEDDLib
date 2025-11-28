@@ -73,6 +73,10 @@ public:
 
     virtual void info() = 0;
 
+    int setNonlinearIterationStep(int newtonStep)  { this->newtonStep_ = newtonStep;}  // For SolveFixedPoint etc. we need to set the Newton Step manually
+    int getNonlinearIterationStep() const override { return newtonStep_; }             // This overrides the default in Problem to provide the actual Newton step
+
+
     /// @brief Information about the non-linear problem
     void infoNonlinProblem();
 

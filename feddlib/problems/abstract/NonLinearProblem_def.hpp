@@ -149,6 +149,7 @@ namespace FEDD
     template <class SC, class LO, class GO, class NO>
     int NonLinearProblem<SC, LO, GO, NO>::solveAndUpdate(const std::string &criterion, double &criterionValue)
     {
+
         //    BlockMatrixPtr_Type system
         int its = solveUpdate();
 

@@ -175,9 +175,55 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
         this->system_->addBlock( C, 1, 1 );
     }
 
+  /* 
+       If pressure projection is used, we need to assemble the projection vector here
+       Only for P2-P1 or Q2-Q1 elements in monolithic case
+       In case of a monolithic preconditioner and a P2-P1 discretization we have the option to correct the pressure to have mean value = 0. This way, generally, we can improve scalabilty and results. 
+       The real correction is then done via projection in the Overlapping Operator of FROSch,here we only assemble a as \int p dx . a is assembled as a column vector but in the Dissertation of C. Hochmuth defined as row.
+    */
+    if(this->parameterList_->sublist("Parameter").get("Use Pressure Projection",false) && (!this->getFEType(0).compare("P2") || (!this->getFEType(0).compare("Q2") && !this->getFEType(1).compare("Q1"))) && !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Monolithic")){ 
+        // Projection vector a: \int p dx, for pressure component and 0 for velocity.
+        BlockMultiVectorPtr_Type projection(new BlockMultiVector_Type (2));
 
+        MultiVectorPtr_Type P(new MultiVector_Type( this->getDomain(1)->getMapUnique(), 1 ) );
 
+        this->feFactory_->assemblyPressureMeanValue( this->dim_,"P1",P) ;
+
+        MultiVectorPtr_Type vel0(new MultiVector_Type( this->getDomain(0)->getMapVecFieldUnique(), 1 ) );
+        vel0->putScalar(0.);
+
+        // Adding components to projection vector 
+        projection->addBlock(vel0,0);
+        projection->addBlock(P,1);
+
+        // Setting projection vector in preconditioner to later pass to paramterlist in FROSch
+        this->getPreconditionerConst()->setPressureProjection( projection );    
+
+        if (this->verbose_)
+            std::cout << "\n 'Use pressure correction' was set to 'true'. This requieres a version of Trilinos of that includes pressure correction in the FROSch_OverlappingOperator!!" << std::endl;  
+
+    }
     
+    // Local assembly routine
+    // Importantly, in the Newtonian case we only assemble once the mass matrix as the viscosity is constant -> For the non-Newtonian case we need to reassemble this in each Newton step with the updated viscosity field
+    std::string precType = this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic");
+    if ( precType == "Diagonal" || precType == "Triangular" ) {
+        if (this->verbose_)
+            std::cout << "-- Assembly the Viscosity Scaled Pressure Mass Matrix (Element-wise Assembly) ... " << std::flush;
+        BlockMatrixPtr_Type BlockMatrixMassMatrix(new BlockMatrix_Type (1));
+        MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+        BlockMatrixMassMatrix->addBlock(Mpressure,0,0);
+        // We then update this block matrix
+        this->feFactory_->assembleGlobalViscosityScaledPressureMassMatrix(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(),  this->dim_,1, u_rep_,p_rep_, BlockMatrixMassMatrix, this->parameterList_, true/*call fillComplete*/);
+        this->getPreconditionerConst()->setPressureMassMatrix(BlockMatrixMassMatrix->getBlock(0,0));
+        //BlockMatrixMassMatrix->getBlock(0,0)->writeMM("PressureMassMatrix_ElementWise.mm");
+    }
+    
+
+
+
+
+/*
 #ifdef FEDD_HAVE_TEKO
     if ( !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Teko") ) {
         if (!this->parameterList_->sublist("General").get("Assemble Velocity Mass",false)) {
@@ -194,6 +240,7 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
         }
     }
 #endif
+
     std::string precType = this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic");
     if ( precType == "Diagonal" || precType == "Triangular" ) {
         MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
@@ -203,6 +250,20 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
         Mpressure->scale(-1./kinVisco);
         this->getPreconditionerConst()->setPressureMassMatrix( Mpressure );
     }
+    // Global assembly routine  -- I haave tested both routines and the element-wise assembly and this one give the same result up to machine precision
+    if ( precType == "Diagonal" || precType == "Triangular" ) {
+        if (this->verbose_)
+            std::cout << "-- Assembly the Viscosity Scaled Pressure Mass Matrix  (Global assembly)" << std::flush;
+        MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+        
+        this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(1), "Scalar", Mpressure, true );
+        SC kinVisco = this->parameterList_->sublist("Parameter").get("Viscosity",1.);
+        Mpressure->scale(-1./kinVisco);
+        this->getPreconditionerConst()->setPressureMassMatrix( Mpressure );
+        Mpressure->writeMM("PressureMassMatrix_GlobalAssembly.mm");
+    }
+
+*/
     if (this->verbose_)
         std::cout << "done -- " << std::endl;
 };
@@ -256,6 +317,22 @@ void NavierStokesAssFE<SC,LO,GO,NO>::reAssemble(std::string type) const {
     }
 	
     this->system_->addBlock(ANW,0,0);
+
+
+    // Add here that in the generalized Newtonian case the mass matrix needs to be reassembled in each Newton step as viscosity depends on shear rate
+    std::string precType = this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic");
+    if ( (precType == "Diagonal" || precType == "Triangular") && (this->parameterList_->sublist("Material").get("Newtonian",true) == false) && (type=="Newton" || type=="FixedPoint") ) {
+        if (this->verbose_)
+            std::cout << "-- Reassembly The Viscosity Scaled Pressure Mass Matrix ------"<< std::flush;
+
+        BlockMatrixPtr_Type BlockMatrixMassMatrix(new BlockMatrix_Type (1));
+        MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+        BlockMatrixMassMatrix->addBlock(Mpressure,0,0);
+        // We then update this block matrix
+        this->feFactory_->assembleGlobalViscosityScaledPressureMassMatrix(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(),  this->dim_,1, u_rep_,p_rep_, BlockMatrixMassMatrix, this->parameterList_, true/*call fillComplete*/);
+        this->getPreconditionerConst()->setPressureMassMatrix(BlockMatrixMassMatrix->getBlock(0,0));
+    }
+
 
     if (this->verbose_)
         std::cout << "done -- " << std::endl;

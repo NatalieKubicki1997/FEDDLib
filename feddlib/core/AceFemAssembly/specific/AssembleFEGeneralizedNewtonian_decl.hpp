@@ -64,6 +64,13 @@ namespace FEDD
 	     */
 	    void assembleFixedPoint();
 
+		/*
+		\brief Assembly of local pressure mass matrix scaled with element averaged viscosity
+	     */
+		void assembleViscosityScaledPressureMassMatrix();
+
+
+
 	   SmallMatrixPtr_Type getFixedPointMatrix(){return this->ANB_;}
 
 	protected:
@@ -132,6 +139,8 @@ namespace FEDD
 		friend class AssembleFEFactory<SC, LO, GO, NO>; // Must have for specfic classes
 
 		InputToOutputMappingClassPtr_Type viscosityModel; // viscosity Model can be in theory any Input to output mapping
+
+
 
 	private:
 	};

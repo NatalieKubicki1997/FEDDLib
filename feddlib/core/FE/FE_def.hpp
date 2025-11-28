@@ -1240,6 +1240,96 @@ void FE<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 }
 
 
+
+/*!
+
+ \brief Assembly of global mass matrix for Navier-Stokes equations with variable viscosity and constant viscosity based on element assembly
+@param[in] dim Dimension
+@param[in] FEType FE Discretization
+@param[in] degree Degree of basis function
+@param[in] A Resulting matrix
+@param[in] callFillComplete If Matrix A should be completely filled at end of function
+
+*/
+
+template <class SC, class LO, class GO, class NO>
+void FE<SC,LO,GO,NO>::assembleGlobalViscosityScaledPressureMassMatrix(int dim,
+                                        std::string FETypeVelocity,         
+	                                    std::string FETypePressure,
+                                        int dofsVelocity,
+										int dofsPressure,
+										MultiVectorPtr_Type u_rep,
+										MultiVectorPtr_Type p_rep,
+	                                    BlockMatrixPtr_Type &global_mass_matrix,
+ 										ParameterListPtr_Type params,
+	                                    bool callFillComplete){
+	
+	/// Tupel construction follows follwing pattern:
+	/// std::string: Physical Entity (i.e. Velocity) , std::string: Discretisation (i.e. "P2"), int: Degrees of Freedom per Node, int: Number of Nodes per element)
+	int numVelo=3;
+    if(FETypeVelocity == "P2")
+        numVelo=6;
+        
+	if(dim==3){
+		numVelo=4;
+        if(FETypeVelocity == "P2")
+            numVelo=10;
+	}
+	tuple_disk_vec_ptr_Type problemDisk = Teuchos::rcp(new tuple_disk_vec_Type(0));
+	tuple_ssii_Type pres ("Pressure",FETypePressure,dofsPressure,dim+1); // We need here the pressure element only for pressure mass matrix assembly
+	problemDisk->push_back(pres);
+
+    UN FElocVel = checkFE(dim,FETypeVelocity); // Checks for different domains which belongs to a certain fetype
+    UN FElocPres = checkFE(dim,FETypePressure); // Checks for different domains which belongs to a certain fetype
+
+	ElementsPtr_Type elements = domainVec_.at(FElocVel)->getElementsC();
+
+	ElementsPtr_Type elementsPres = domainVec_.at(FElocPres)->getElementsC();
+
+	MapConstPtr_Type mapPres = domainVec_.at(FElocPres)->getMapRepeated();
+
+    vec_dbl_Type solution(0);
+	vec_dbl_Type solution_u;
+	vec_dbl_Type solution_p;
+
+    // Loop over all elements and assemble mass matrix only
+	for (UN T=0; T<assemblyFEElements_.size(); T++) 
+    {
+		vec_dbl_Type solution(0);
+
+		solution_u = getSolution(elements->getElement(T).getVectorNodeList(), u_rep,dofsVelocity);
+		solution_p = getSolution(elementsPres->getElement(T).getVectorNodeList(), p_rep,dofsPressure);
+
+		solution.insert( solution.end(), solution_u.begin(), solution_u.end() );
+		solution.insert( solution.end(), solution_p.begin(), solution_p.end() );
+
+		assemblyFEElements_[T]->updateSolution(solution);
+ 
+ 		SmallMatrixPtr_Type elementMatrix;
+        // Not the nicest solution but a start
+        if(params->sublist("Material").get("Newtonian",true) == false)
+            {
+                AssembleFEGeneralizedNewtonianPtr_Type elTmp = Teuchos::rcp_dynamic_cast<AssembleFEGeneralizedNewtonian_Type>( assemblyFEElements_[T] );
+                elTmp->assembleViscosityScaledPressureMassMatrix();;
+                elementMatrix =  elTmp->getViscosityScaledPressureMassMatrix(); 
+            }
+        else // Newtonian Case
+            {
+              AssembleFENavierStokesPtr_Type elTmp = Teuchos::rcp_dynamic_cast<AssembleFENavierStokes_Type>( assemblyFEElements_[T] );
+              elTmp->assembleViscosityScaledPressureMassMatrix();;
+              elementMatrix =  elTmp->getViscosityScaledPressureMassMatrix(); 
+            }
+    
+		    
+		// Put the updated element matrix into the global system matrix
+        addFeBlock(global_mass_matrix, elementMatrix, elements->getElement(T), mapPres, 0, 0, problemDisk);
+
+	}
+    if (callFillComplete)
+        global_mass_matrix->getBlock(0,0)->fillComplete( domainVec_.at(FElocPres)->getMapUnique() , domainVec_.at(FElocPres)->getMapUnique());
+
+}
+
 /*!
  \brief  Method to loop over all assembleFESpecific elements and set the defined linearization 
 @param[in] string linearization e.g. "Picard" or "Newton"
@@ -2419,7 +2509,6 @@ void FE<SC,LO,GO,NO>::assemblyMass(int dim,
     if (callFillComplete)
         A->fillComplete();
 }
-
 
 // Ueberladung der Assemblierung der Massematrix fuer FSI, da
 // checkFE sonst auch fuer das Strukturproblem FEloc = 1 liefert (= Fluid)
