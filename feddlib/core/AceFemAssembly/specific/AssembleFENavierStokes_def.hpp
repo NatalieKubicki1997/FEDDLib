@@ -495,6 +495,93 @@ void AssembleFENavierStokes<SC,LO,GO,NO>::buildTransformation(SmallMatrix<SC>& B
 
 }
 
+
+/*!
+    \brief Building additional needed element matrices like pressure mass matrix
+    @param[in] matrixType Type of matrix to be assembled
+*/
+template <class SC, class LO, class GO, class NO>
+void AssembleFENavierStokes<SC,LO,GO,NO>::assembleAdditionalElementMatrix(std::string matrixType) 
+{
+
+// We directly check for the type of matrix to be assembled
+    if (matrixType == "PressureMassMatrix") {
+
+        // Assemble Pressure Mass Matrix
+        SmallMatrixPtr_Type elementMatrix = Teuchos::rcp( new SmallMatrix_Type(this->numNodesPressure_));
+        this->etaMp_.reset(new SmallMatrix_Type(this->numNodesPressure_)); 
+        assembleViscosityScaledPressureMassMatrix(elementMatrix);
+        this->etaMp_->add( (*elementMatrix), (*this->etaMp_) );
+
+    }
+    else 
+    {
+        TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error, "No assembly routine for the requested additional element matrix is implemented." );
+    }
+
+}
+
+/*!
+ \brief Getter for Assembled additional element matrices like pressure mass matrix
+    @param[in] matrixType Type of matrix to be retrieved
+*/
+template <class SC, class LO, class GO, class NO>
+typename AssembleFENavierStokes<SC,LO,GO,NO>::SmallMatrixPtr_Type AssembleFENavierStokes<SC,LO,GO,NO>::getAdditionalElementMatrix(std::string matrixType)
+{
+    if (matrixType == "PressureMassMatrix") 
+    {
+        // Return Pressure Mass Matrix
+        return this->etaMp_;
+    }
+
+    TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "No getter routine for the requested additional element matrix is implemented." );
+    TEUCHOS_UNREACHABLE_RETURN(Teuchos::null);
+
+}
+
+  template <class SC, class LO, class GO, class NO>
+  void AssembleFENavierStokes<SC, LO, GO, NO>::assembleViscosityScaledPressureMassMatrix(SmallMatrixPtr_Type &elementMatrix)
+  {
+
+        int dim = this->getDim();
+        std::string FEType = this->FETypeVelocity_;
+
+        SC detB;
+        SmallMatrix<SC> B(dim);
+        SmallMatrix<SC> Binv(dim);
+
+        this->buildTransformation(B);
+        detB = B.computeInverse(Binv);
+        SC absDetB = std::fabs(detB);     // Needed for integration
+
+        // *********** Now assemble pressure mass matrix and scale each entry by  1/(viscosity) - ***************************************
+        std::string FETypePressure = this->FETypePressure_;
+        vec2D_dbl_ptr_Type 	phi;
+        vec_dbl_ptr_Type weights = Teuchos::rcp(new vec_dbl_Type(0));
+
+        // inner( phi_i , phi_j ) has twice the polyonimial degree than phi_i and phi_j, respectively.
+        UN deg = 2*Helper::determineDegree(dim,FETypePressure,Helper::Deriv0);
+        Helper::getPhi( phi, weights, dim, FETypePressure, deg );
+
+        TEUCHOS_TEST_FOR_EXCEPTION(dim == 1, std::logic_error, "assembleViscosityScaledPressureMassMatrix Not implemented for dim=1");
+        Teuchos::Array<SC> value(1, 0.);
+
+         // Loop over all nodes and compute int phi_i phi_j such that in 3D we obtain a 3x3 matrix
+        for (UN i=0; i < phi->at(0).size(); i++) 
+        {
+            for (UN j=0; j < phi->at(0).size(); j++) 
+            {
+                value[0] = 0.;
+                for (UN w=0;  w<phi->size(); w++)
+                    value[0] += weights->at(w) * phi->at(w)[i] *  (*phi)[w][j];
+                value[0] *= absDetB;
+				(*elementMatrix)[i][j] +=  (-1.0/( viscosity_*density_))*value[0];  // As viscosity is the kinematic viscosity we scale with 1/(viscosity * density) as Laplacian is also scaled with density
+            }
+        }
+  }
+
+
 }
 #endif
+
 

@@ -210,6 +210,22 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
     }
 
     
+    // Local assembly routine
+    // Importantly, in the Newtonian case we only assemble once the mass matrix as the viscosity is constant -> For the non-Newtonian case we need to reassemble this in each Newton step with the updated viscosity field
+    std::string precType = this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic");
+    if ( precType == "Diagonal" || precType == "Triangular" ) {
+        if (this->verbose_)
+            std::cout << "-- Assembly the Viscosity Scaled Pressure Mass Matrix (AssembleFE-Routines) ... " << std::flush;
+        BlockMatrixPtr_Type BlockMatrixMassMatrix(new BlockMatrix_Type (1));
+        MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+        BlockMatrixMassMatrix->addBlock(Mpressure,0,0);
+        // We then update this block matrix
+        std::string matrixType = "PressureMassMatrix";
+        this->feFactory_->assembleAdditionalGlobalMatrix(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(),  this->dim_,1, u_rep_,p_rep_, BlockMatrixMassMatrix, this->parameterList_, matrixType  , true/*call fillComplete*/);
+        this->getPreconditionerConst()->setPressureMassMatrix(BlockMatrixMassMatrix->getBlock(0,0));
+        // BlockMatrixMassMatrix->getBlock(0,0)->writeMM("PressureMassMatrix_ElementWise.mm");
+    }
+
 #ifdef FEDD_HAVE_TEKO
     if ( !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Teko") ) {
         if (!this->parameterList_->sublist("General").get("Assemble Velocity Mass",false)) {
@@ -226,7 +242,8 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
         }
     }
 #endif
-    std::string precType = this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic");
+//  Can be used to test element-wise assembly vs. global assembly of pressure mass matrix
+/*  std::string precType = this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic");  
     if ( precType == "Diagonal" || precType == "Triangular" ) {
         MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
         
@@ -234,9 +251,12 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
         SC kinVisco = this->parameterList_->sublist("Parameter").get("Viscosity",1.);
         Mpressure->scale(-1./kinVisco);
         this->getPreconditionerConst()->setPressureMassMatrix( Mpressure );
+        // Mpressure->writeMM("PressureMassMatrix_GlobalAssembly.mm");
     }
     if (this->verbose_)
         std::cout << "done -- " << std::endl;
+*/
+
 };
     
 
@@ -288,6 +308,22 @@ void NavierStokesAssFE<SC,LO,GO,NO>::reAssemble(std::string type) const {
     }
 	
     this->system_->addBlock(ANW,0,0);
+
+
+     // Add here that in the generalized Newtonian case the mass matrix needs to be reassembled in each Newton step as viscosity depends on shear rate
+    std::string precType = this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic");
+    if ( (precType == "Diagonal" || precType == "Triangular") && (this->parameterList_->sublist("Material").get("Newtonian",true) == false) && (type !="Rhs") ) {
+        if (this->verbose_)
+            std::cout << "-- Reassembly the Viscosity Scaled Pressure Mass Matrix ------"<< std::flush;
+
+        BlockMatrixPtr_Type BlockMatrixMassMatrix(new BlockMatrix_Type (1));
+        MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
+        BlockMatrixMassMatrix->addBlock(Mpressure,0,0);
+        // We then update this block matrix
+        std::string matrixType = "PressureMassMatrix";
+        this->feFactory_->assembleAdditionalGlobalMatrix(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(),  this->dim_,1, u_rep_,p_rep_, BlockMatrixMassMatrix, this->parameterList_, matrixType  , true/*call fillComplete*/);
+        this->getPreconditionerConst()->setPressureMassMatrix(BlockMatrixMassMatrix->getBlock(0,0));
+    }
 
     if (this->verbose_)
         std::cout << "done -- " << std::endl;

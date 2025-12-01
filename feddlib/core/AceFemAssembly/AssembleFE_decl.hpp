@@ -223,6 +223,19 @@ namespace FEDD {
             @param[in] linearization string defining the linearization type e.g. "FixedPoint
         */
         void changeLinearization(std::string linearization) {this->linearization_ = linearization;};
+
+
+        /*!
+        \brief Abstract interface to enable in each specific AssembleFE derived class the possibility to assemble further element matrices like e.g. the viscosity scaled mass matrix in case of Generalized Newtonian fluids.
+        */
+        virtual void assembleAdditionalElementMatrix(std::string matrixType) {TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "assembleAdditionalElementMatrix not yet implemented")}
+
+        /*!
+        \brief Getter function for additional element matrix
+        */
+        virtual SmallMatrixPtr_Type getAdditionalElementMatrix(std::string matrixType) {TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, "getAdditionalElementMatrix not yet implemented")}
+
+
     protected:
 
         /*!
