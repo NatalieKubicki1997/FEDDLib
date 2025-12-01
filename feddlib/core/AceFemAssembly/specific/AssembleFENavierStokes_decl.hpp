@@ -50,6 +50,12 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
 
 	SmallMatrixPtr_Type getFixedPointMatrix(){return ANB_;}
 
+	/*!
+	\brief Getter function for additional element matrix - Needs to be public such that derived Generalized Newtonian class can call it from outside ( in FE_ElementAssembly_def.hpp )
+	*/
+	SmallMatrixPtr_Type getAdditionalElementMatrix(std::string matrixType) override;
+
+	
    protected:
 
 	/*!
@@ -97,6 +103,22 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
 
     friend class AssembleFEFactory<SC,LO,GO,NO>; // Must have for specfic classes
 
+	/*!
+
+	 \brief Build additional element matrices like e.g. pressure mass matrix scaled with viscosity - Specific matrix is defined via matrixType
+	@param[in] matrixType string defining the type of additional element matrix to be assembled
+	*/
+	void assembleAdditionalElementMatrix(std::string matrixType) override;	
+
+
+	/*!
+	 \brief Assembly function for viscosity scaled pressure mass matrix: \f$ \int_T \frac{1}{\mu} \psi_i \psi_j ~dx\f$  as Laplace operator is defined/ assembled as mu*Laplace(velocity)
+	@param[in] &elementMatrix
+	*/
+	void assembleViscosityScaledPressureMassMatrix(SmallMatrixPtr_Type &elementMatrix);
+
+
+
 	void buildTransformation(SmallMatrix<SC>& B);
 
 	void applyBTinv(vec3D_dbl_ptr_Type& dPhiIn,
@@ -133,6 +155,10 @@ class AssembleFENavierStokes : public AssembleFE<SC,LO,GO,NO> {
    	double density_ ;
 
 	// std::string linearization_; Now attribute of base class AssembleFE
+
+	SmallMatrixPtr_Type etaMp_; // Store local pressure mass matrix scaled by viscosity (element averaged) -> In Newtonian case this is just a constant
+
+
 
    private:
 

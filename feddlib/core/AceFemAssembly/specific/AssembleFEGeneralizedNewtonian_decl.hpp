@@ -131,6 +131,18 @@ namespace FEDD
 
 		friend class AssembleFEFactory<SC, LO, GO, NO>; // Must have for specfic classes
 
+		/*!
+	 	\brief Build additional element matrices like e.g. pressure mass matrix scaled with viscosity - Specific matrix is defined via matrixType
+		@param[in] matrixType string defining the type of additional element matrix to be assembled
+		*/
+		void assembleAdditionalElementMatrix(std::string matrixType) override;	
+
+		/*!
+	 	\brief Assembly function for pressure mass matrix scaled with element averaged viscosity: \f$ \int_T \frac{1}{2\tilde{\eta}(x,y,z)} \psi_i \psi_j ~dx\f$   as shear stress tensor is defined/ assembled as nabla \cdot (2*eta*D(u))
+		@param[in] &elementMatrix
+		*/
+		void assembleViscosityScaledPressureMassMatrix(SmallMatrixPtr_Type &elementMatrix);
+
 		InputToOutputMappingClassPtr_Type viscosityModel; // viscosity Model can be in theory any Input to output mapping
 
 	private:

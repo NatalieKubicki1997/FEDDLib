@@ -205,6 +205,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
     
     A_->resumeFill();
     
+    // The Laplacian matrix A is scaled with the dynamic viscosity, which is here viscosity(kinematic viscosity) * density -> Check if below in preconditioner the viscosity scaling is considered correctly!
     A_->scale(viscosity);
     A_->scale(density);
     
@@ -390,6 +391,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
             Mpressure->scale(-1./kinVisco);
         }
         this->getPreconditionerConst()->setPressureMassMatrix( Mpressure );
+        Mpressure->writeMM("PressureMassMatrix_GlobalAssembly_OLDASSEMBLYROUTINE.mm"); //***** JUST FOR TEST */
     }
 
     if (this->verbose_)

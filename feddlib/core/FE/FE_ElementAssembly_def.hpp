@@ -1186,6 +1186,108 @@ void FE_ElementAssembly<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 }
 
 
+
+/*!
+
+ \brief Assembly of additional matrices nedded for example for building preconditioners in NavierStokes, e.g. Pressure Mass Matrix - 
+@param[in] dim Dimension
+@param[in] FEType FE Discretization - 2x string for velocity and pressure
+@param[in] Dofs Degree of freedom per node - 2x int for velocity and pressure
+@param[in] Repeated solution fields - 2x MultiVectorPtr_Type for velocity and pressure
+@param[in] Resulting matrix 
+@param[in] parameter lists
+@param[in] matrixType Type of matrix to be assembled e.g. "PressureMassMatrix"
+@param[in] callFillComplete If Matrix A should be completely filled at end of function
+*/
+
+template <class SC, class LO, class GO, class NO>
+void FE_ElementAssembly<SC,LO,GO,NO>::assembleAdditionalGlobalMatrix(int dim,
+                                        std::string FETypeVelocity,         
+	                                    std::string FETypePressure,
+                                        int dofsVelocity,
+										int dofsPressure,
+										MultiVectorPtr_Type u_rep,
+										MultiVectorPtr_Type p_rep,
+	                                    BlockMatrixPtr_Type &global_matrix,
+ 										ParameterListPtr_Type params,
+                                        std::string matrixType,
+	                                    bool callFillComplete){
+	
+	/// Tupel construction follows follwing pattern:
+	/// std::string: Physical Entity (i.e. Velocity) , std::string: Discretisation (i.e. "P2"), int: Degrees of Freedom per Node, int: Number of Nodes per element)
+	int numVelo=3;
+    if(FETypeVelocity == "P2")
+        numVelo=6;
+        
+	if(dim==3){
+		numVelo=4;
+        if(FETypeVelocity == "P2")
+            numVelo=10;
+	}
+	tuple_disk_vec_ptr_Type problemDisk = Teuchos::rcp(new tuple_disk_vec_Type(0));
+	tuple_ssii_Type pres ("Pressure",FETypePressure,dofsPressure,dim+1); // We need here the pressure element only for pressure mass matrix assembly
+	problemDisk->push_back(pres);
+
+    UN FElocVel = checkFE(dim,FETypeVelocity);  // Checks for different domains which belongs to a certain fetype
+    UN FElocPres = checkFE(dim,FETypePressure); // Checks for different domains which belongs to a certain fetype
+
+	ElementsPtr_Type elements = domainVec_.at(FElocVel)->getElementsC();
+	ElementsPtr_Type elementsPres = domainVec_.at(FElocPres)->getElementsC();
+
+	MapConstPtr_Type mapPres = domainVec_.at(FElocPres)->getMapRepeated(); 
+    MapConstPtr_Type mapVel = domainVec_.at(FElocVel)->getMapRepeated();   // Used to put element entries into global matrix ~ Dofs are provided via problemDisk
+
+    MapConstPtr_Type mapRep; 
+    MapConstPtr_Type mapUnique1;
+    MapConstPtr_Type mapUnique2;
+
+    // As the type of the assemble matrix is important for the construction of the map add here a if condition
+    if (matrixType == "PressureMassMatrix")
+    {
+        mapRep = mapPres;
+        mapUnique1 = domainVec_.at(FElocPres)->getMapUnique();
+        mapUnique2 = domainVec_.at(FElocPres)->getMapUnique();
+    }
+    else // Default
+    {
+        mapRep = mapVel;
+        mapUnique1 = domainVec_.at(FElocVel)->getMapVecFieldUnique();
+        mapUnique2 = domainVec_.at(FElocVel)->getMapVecFieldUnique();
+    }
+           
+
+    vec_dbl_Type solution(0);
+	vec_dbl_Type solution_u;
+	vec_dbl_Type solution_p;
+
+    // Loop over all elements and assemble addition matrix
+	for (UN T=0; T<assemblyFEElements_.size(); T++) 
+    {
+		vec_dbl_Type solution(0);
+
+		solution_u = getSolution(elements->getElement(T).getVectorNodeList(), u_rep,dofsVelocity);     // Velocity solution
+		solution_p = getSolution(elementsPres->getElement(T).getVectorNodeList(), p_rep,dofsPressure); // Pressure solution
+
+		solution.insert( solution.end(), solution_u.begin(), solution_u.end() );
+		solution.insert( solution.end(), solution_p.begin(), solution_p.end() );
+
+		assemblyFEElements_[T]->updateSolution(solution);
+ 
+ 		SmallMatrixPtr_Type elementMatrix;
+        assemblyFEElements_[T]->assembleAdditionalElementMatrix(matrixType);
+        elementMatrix = assemblyFEElements_[T]->getAdditionalElementMatrix(matrixType);
+
+		    
+		// Put the updated element matrix into the global system matrix - CAUTION: Correct rowMap is needed!
+        addFeBlock(global_matrix, elementMatrix, elements->getElement(T), mapRep, 0, 0, problemDisk);
+
+	}
+    if (callFillComplete)
+        global_matrix->getBlock(0,0)->fillComplete( mapUnique1 , mapUnique2);
+
+}
+
+
 /*!
  \brief  Method to loop over all assembleFESpecific elements and set the defined linearization 
 @param[in] string linearization e.g. "Picard" or "Newton"
