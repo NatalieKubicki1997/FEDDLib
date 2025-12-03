@@ -1118,8 +1118,8 @@ void FE_ElementAssembly<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 
 			assemblyFEElements_[T]->advanceNewtonStep(); // n genereal non linear solver step
 
-			if(reAssemble)
-				addFeBlock(A, elementMatrix, elements->getElement(T), mapVel, 0, 0, problemDisk);
+			if(reAssemble) 
+				addFeBlock(A, elementMatrix, elements->getElement(T), mapVel, 0, 0, problemDisk);        // Here only velocity block (0,0) is updated for reAssemble -> Convective term + shear stress terms
 			else
 				addFeBlockMatrix(A, elementMatrix, elements->getElement(T), elementsPres->getElement(T), mapVel, mapPres, problemDisk);
 		}
@@ -1189,7 +1189,7 @@ void FE_ElementAssembly<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 
 /*!
 
- \brief Assembly of additional matrices nedded for example for building preconditioners in NavierStokes, e.g. Pressure Mass Matrix - 
+ \brief Assembly of pressure mass matrix nedded for example for building preconditioners in NavierStokes, e.g. Pressure Mass Matrix with constant viscosity scaled
 @param[in] dim Dimension
 @param[in] FEType FE Discretization - 2x string for velocity and pressure
 @param[in] Dofs Degree of freedom per node - 2x int for velocity and pressure
@@ -1201,7 +1201,7 @@ void FE_ElementAssembly<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 */
 
 template <class SC, class LO, class GO, class NO>
-void FE_ElementAssembly<SC,LO,GO,NO>::assembleAdditionalGlobalMatrix(int dim,
+void FE_ElementAssembly<SC,LO,GO,NO>::assemblePressureMassMatrix(int dim,
                                         std::string FETypeVelocity,         
 	                                    std::string FETypePressure,
                                         int dofsVelocity,
@@ -1235,25 +1235,6 @@ void FE_ElementAssembly<SC,LO,GO,NO>::assembleAdditionalGlobalMatrix(int dim,
 	ElementsPtr_Type elementsPres = domainVec_.at(FElocPres)->getElementsC();
 
 	MapConstPtr_Type mapPres = domainVec_.at(FElocPres)->getMapRepeated(); 
-    MapConstPtr_Type mapVel = domainVec_.at(FElocVel)->getMapRepeated();   // Used to put element entries into global matrix ~ Dofs are provided via problemDisk
-
-    MapConstPtr_Type mapRep; 
-    MapConstPtr_Type mapUnique1;
-    MapConstPtr_Type mapUnique2;
-
-    // As the type of the assemble matrix is important for the construction of the map add here a if condition
-    if (matrixType == "PressureMassMatrix")
-    {
-        mapRep = mapPres;
-        mapUnique1 = domainVec_.at(FElocPres)->getMapUnique();
-        mapUnique2 = domainVec_.at(FElocPres)->getMapUnique();
-    }
-    else // Default
-    {
-        mapRep = mapVel;
-        mapUnique1 = domainVec_.at(FElocVel)->getMapVecFieldUnique();
-        mapUnique2 = domainVec_.at(FElocVel)->getMapVecFieldUnique();
-    }
            
 
     vec_dbl_Type solution(0);
@@ -1265,7 +1246,7 @@ void FE_ElementAssembly<SC,LO,GO,NO>::assembleAdditionalGlobalMatrix(int dim,
     {
 		vec_dbl_Type solution(0);
 
-		solution_u = getSolution(elements->getElement(T).getVectorNodeList(), u_rep,dofsVelocity);     // Velocity solution
+		solution_u = getSolution(elements->getElement(T).getVectorNodeList(), u_rep,dofsVelocity);     // Velocity solution -> Necessary to compute viscosity in case of non Newtonian fluid
 		solution_p = getSolution(elementsPres->getElement(T).getVectorNodeList(), p_rep,dofsPressure); // Pressure solution
 
 		solution.insert( solution.end(), solution_u.begin(), solution_u.end() );
@@ -1279,11 +1260,11 @@ void FE_ElementAssembly<SC,LO,GO,NO>::assembleAdditionalGlobalMatrix(int dim,
 
 		    
 		// Put the updated element matrix into the global system matrix - CAUTION: Correct rowMap is needed!
-        addFeBlock(global_matrix, elementMatrix, elements->getElement(T), mapRep, 0, 0, problemDisk);
+        addFeBlock(global_matrix, elementMatrix, elementsPres->getElement(T), mapPres, 0, 0, problemDisk);
 
 	}
     if (callFillComplete)
-        global_matrix->getBlock(0,0)->fillComplete( mapUnique1 , mapUnique2);
+        global_matrix->getBlock(0,0)->fillComplete( domainVec_.at(FElocPres)->getMapUnique() , domainVec_.at(FElocPres)->getMapUnique());
 
 }
 

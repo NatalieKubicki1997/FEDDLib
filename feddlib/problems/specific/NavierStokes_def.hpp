@@ -391,7 +391,7 @@ void NavierStokes<SC,LO,GO,NO>::assembleConstantMatrices() const{
             Mpressure->scale(-1./kinVisco);
         }
         this->getPreconditionerConst()->setPressureMassMatrix( Mpressure );
-        Mpressure->writeMM("PressureMassMatrix_GlobalAssembly_OLDASSEMBLYROUTINE.mm"); //***** JUST FOR TEST */
+        //Mpressure->writeMM("PressureMassMatrix_GlobalAssembly_OLDASSEMBLYROUTINE.mm"); //***** JUST FOR TEST */
     }
 
     if (this->verbose_)

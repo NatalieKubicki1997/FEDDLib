@@ -221,9 +221,9 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
         BlockMatrixMassMatrix->addBlock(Mpressure,0,0);
         // We then update this block matrix
         std::string matrixType = "PressureMassMatrix";
-        this->feFactory_->assembleAdditionalGlobalMatrix(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(),  this->dim_,1, u_rep_,p_rep_, BlockMatrixMassMatrix, this->parameterList_, matrixType  , true/*call fillComplete*/);
+        this->feFactory_->assemblePressureMassMatrix(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(),  this->dim_,1, u_rep_,p_rep_, BlockMatrixMassMatrix, this->parameterList_, matrixType  , true/*call fillComplete*/);
         this->getPreconditionerConst()->setPressureMassMatrix(BlockMatrixMassMatrix->getBlock(0,0));
-        // BlockMatrixMassMatrix->getBlock(0,0)->writeMM("PressureMassMatrix_ElementWise.mm");
+        //BlockMatrixMassMatrix->getBlock(0,0)->writeMM("PressureMassMatrix_ElementWise.mm");
     }
 
 #ifdef FEDD_HAVE_TEKO
@@ -243,15 +243,15 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
     }
 #endif
 //  Can be used to test element-wise assembly vs. global assembly of pressure mass matrix
-/*  std::string precType = this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic");  
-    if ( precType == "Diagonal" || precType == "Triangular" ) {
+ //std::string precType = this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic");  
+/*    if ( precType == "Diagonal" || precType == "Triangular" ) {
         MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
         
         this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(1), "Scalar", Mpressure, true );
         SC kinVisco = this->parameterList_->sublist("Parameter").get("Viscosity",1.);
         Mpressure->scale(-1./kinVisco);
         this->getPreconditionerConst()->setPressureMassMatrix( Mpressure );
-        // Mpressure->writeMM("PressureMassMatrix_GlobalAssembly.mm");
+        Mpressure->writeMM("PressureMassMatrix_GlobalAssembly.mm");
     }
     if (this->verbose_)
         std::cout << "done -- " << std::endl;
@@ -321,7 +321,7 @@ void NavierStokesAssFE<SC,LO,GO,NO>::reAssemble(std::string type) const {
         BlockMatrixMassMatrix->addBlock(Mpressure,0,0);
         // We then update this block matrix
         std::string matrixType = "PressureMassMatrix";
-        this->feFactory_->assembleAdditionalGlobalMatrix(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(),  this->dim_,1, u_rep_,p_rep_, BlockMatrixMassMatrix, this->parameterList_, matrixType  , true/*call fillComplete*/);
+        this->feFactory_->assemblePressureMassMatrix(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(),  this->dim_,1, u_rep_,p_rep_, BlockMatrixMassMatrix, this->parameterList_, matrixType  , true/*call fillComplete*/);
         this->getPreconditionerConst()->setPressureMassMatrix(BlockMatrixMassMatrix->getBlock(0,0));
     }
 
