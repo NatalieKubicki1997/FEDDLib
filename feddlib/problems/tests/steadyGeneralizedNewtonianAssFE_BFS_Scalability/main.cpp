@@ -12,13 +12,17 @@
 
 #include "feddlib/core/Mesh/MeshPartitioner.hpp"
 #include "feddlib/core/FE/Domain.hpp"
-#include "feddlib/core/General/DefaultTypeDefs.hpp"
 #include "feddlib/core/General/ExporterParaView.hpp"
 #include "feddlib/core/LinearAlgebra/MultiVector.hpp"
 
 #include "feddlib/problems/Solver/NonLinearSolver.hpp"
 #include "feddlib/problems/specific/NavierStokesAssFE.hpp"
+#include "feddlib/core/General/BCBuilder.hpp"
 
+//
+#include <Teuchos_GlobalMPISession.hpp>
+#include <Teuchos_StackedTimer.hpp>
+//
 
 #include <boost/function.hpp>
 
@@ -253,6 +257,9 @@ int main(int argc, char *argv[])
     string xmlTekoPrecFile = "parametersTeko.xml";
     myCLP.setOption("tekoprecfile", &xmlTekoPrecFile, ".xml file with Inputparameters.");
 
+    string xmlBlockPrecFile = "parametersPrecBlock.xml";
+    myCLP.setOption("blockprecfile",&xmlBlockPrecFile,".xml file with Inputparameters.");
+   
     double length = 4.; // This a constant which has to be set for strcutured grids
     myCLP.setOption("length", &length, "length of domain.");
 
@@ -280,6 +287,9 @@ int main(int argc, char *argv[])
 
         ParameterListPtr_Type parameterListPrecTeko = Teuchos::getParametersFromXmlFile(xmlTekoPrecFile);
 
+        ParameterListPtr_Type parameterListPrecBlock = Teuchos::getParametersFromXmlFile(xmlBlockPrecFile);
+
+
         int dim = parameterListProblem->sublist("Parameter").get("Dimension", 3);
 
         std::string discVelocity = parameterListProblem->sublist("Parameter").get("Discretization Velocity", "P2");
@@ -295,12 +305,15 @@ int main(int argc, char *argv[])
         string precMethod = parameterListProblem->sublist("General").get("Preconditioner Method", "Monolithic");
         int mixedFPIts = parameterListProblem->sublist("General").get("MixedFPIts", 1);
         int n;
-
+        
         ParameterListPtr_Type parameterListAll(new Teuchos::ParameterList(*parameterListProblem));
+
         if (!precMethod.compare("Monolithic"))
             parameterListAll->setParameters(*parameterListPrec);
-        else
+        else if(precMethod == "Teko")
             parameterListAll->setParameters(*parameterListPrecTeko);
+        else if(precMethod == "Diagonal" || precMethod == "Triangular" || precMethod == "PCD" || precMethod == "LSC")
+            parameterListAll->setParameters(*parameterListPrecBlock);
         parameterListAll->setParameters(*parameterListSolver);
 
 
