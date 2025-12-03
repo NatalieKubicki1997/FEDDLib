@@ -245,7 +245,7 @@ class FE_ElementAssembly {
     void  changeLinearizationFE(std::string linearization);
 
     //  Assemble additional global matrix uin assembleFESpecific classes, like e.g. mass matrix, needed for preconditioning
-    void assembleAdditionalGlobalMatrix(int dim,
+    void assemblePressureMassMatrix(int dim,
                                         std::string FETypeVelocity,         
 	                                    std::string FETypePressure,
                                         int dofsVelocity,

@@ -221,37 +221,65 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
         BlockMatrixMassMatrix->addBlock(Mpressure,0,0);
         // We then update this block matrix
         std::string matrixType = "PressureMassMatrix";
-        this->feFactory_->assembleAdditionalGlobalMatrix(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(),  this->dim_,1, u_rep_,p_rep_, BlockMatrixMassMatrix, this->parameterList_, matrixType  , true/*call fillComplete*/);
+        this->feFactory_->assemblePressureMassMatrix(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(),  this->dim_,1, u_rep_,p_rep_, BlockMatrixMassMatrix, this->parameterList_, matrixType  , true/*call fillComplete*/);
         this->getPreconditionerConst()->setPressureMassMatrix(BlockMatrixMassMatrix->getBlock(0,0));
-        // BlockMatrixMassMatrix->getBlock(0,0)->writeMM("PressureMassMatrix_ElementWise.mm");
+        //BlockMatrixMassMatrix->getBlock(0,0)->writeMM("PressureMassMatrix_ElementWise.mm");
     }
 
 #ifdef FEDD_HAVE_TEKO
-    if ( !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Teko") ) {
-        if (!this->parameterList_->sublist("General").get("Assemble Velocity Mass",false)) {
+    // Implementation for LSC 
+    if ( !this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic").compare("Teko") 
+    || !this->parameterList_->sublist("General").get("Preconditioner Method","Diagonal").compare("PCD")
+    || !this->parameterList_->sublist("General").get("Preconditioner Method","Diagonal").compare("LSC")) 
+        {
+
+        // ###############################################
+        // LSC Preconditioner
+        // Constructing velocity mass matrix
+        // If the Velocity Mass Matrix is the identity matrix, 
+        // it results in the BFBt preconditioner
+        if (!this->parameterList_->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","None").compare("LSC")
+         || !this->parameterList_->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","None").compare("LSC-Pressure-Laplace")
+         || !this->parameterList_->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","None").compare("SIMPLE")
+         || !this->parameterList_->sublist("General").get("Preconditioner Method","Diagonal").compare("LSC")) {
+                        
             MatrixPtr_Type Mvelocity(new Matrix_Type( this->getDomain(0)->getMapVecFieldUnique(), this->getDomain(0)->getApproxEntriesPerRow() ) );
-            //
-            this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(0), "Vector", Mvelocity, true );
-            //
+            // Constructing velocity mass matrix
+            if(this->parameterList_->sublist("Parameter").get("BFBT",false)){
+                if(this->verbose_)
+                    std::cout << "\n Setting M_u to be the identity Matrix to use BFBT preconditioner " << std::endl;
+
+                this->feFactory_->assemblyIdentity( Mvelocity );
+            }
+            else{ 
+                this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(0), "Vector", Mvelocity, true );
+            }
+            // Adding the velocity mass matrix Mu to the preconditioner
             this->getPreconditionerConst()->setVelocityMassMatrix( Mvelocity );
-            if (this->verbose_)
-                std::cout << "\nVelocity mass matrix for LSC block preconditioner is assembled." << std::endl;
-        } else {
-            if (this->verbose_)
-                std::cout << "\nVelocity mass matrix for LSC block preconditioner not assembled." << std::endl;
+
+           if (this->verbose_)
+                std::cout << "\n Velocity mass matrix for LSC block preconditioner is assembled and used for the preconditioner." << std::endl;
+
+        } 
+        
+        else if(!this->parameterList_->sublist("Teko Parameters").sublist("Preconditioner Types").sublist("Teko").get("Inverse Type","SIMPLE").compare("PCD") 
+        || !this->parameterList_->sublist("General").get("Preconditioner Method","Diagonal").compare("PCD") )
+        {
+             TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error, "PCD Not Implemented for NavierStokesAssFE yet!" );
         }
-    }
+        
+        }
 #endif
 //  Can be used to test element-wise assembly vs. global assembly of pressure mass matrix
-/*  std::string precType = this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic");  
-    if ( precType == "Diagonal" || precType == "Triangular" ) {
+ //std::string precType = this->parameterList_->sublist("General").get("Preconditioner Method","Monolithic");  
+/*    if ( precType == "Diagonal" || precType == "Triangular" ) {
         MatrixPtr_Type Mpressure(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
         
         this->feFactory_->assemblyMass( this->dim_, this->domain_FEType_vec_.at(1), "Scalar", Mpressure, true );
         SC kinVisco = this->parameterList_->sublist("Parameter").get("Viscosity",1.);
         Mpressure->scale(-1./kinVisco);
         this->getPreconditionerConst()->setPressureMassMatrix( Mpressure );
-        // Mpressure->writeMM("PressureMassMatrix_GlobalAssembly.mm");
+        Mpressure->writeMM("PressureMassMatrix_GlobalAssembly.mm");
     }
     if (this->verbose_)
         std::cout << "done -- " << std::endl;
@@ -321,7 +349,7 @@ void NavierStokesAssFE<SC,LO,GO,NO>::reAssemble(std::string type) const {
         BlockMatrixMassMatrix->addBlock(Mpressure,0,0);
         // We then update this block matrix
         std::string matrixType = "PressureMassMatrix";
-        this->feFactory_->assembleAdditionalGlobalMatrix(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(),  this->dim_,1, u_rep_,p_rep_, BlockMatrixMassMatrix, this->parameterList_, matrixType  , true/*call fillComplete*/);
+        this->feFactory_->assemblePressureMassMatrix(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(),  this->dim_,1, u_rep_,p_rep_, BlockMatrixMassMatrix, this->parameterList_, matrixType  , true/*call fillComplete*/);
         this->getPreconditionerConst()->setPressureMassMatrix(BlockMatrixMassMatrix->getBlock(0,0));
     }
 
