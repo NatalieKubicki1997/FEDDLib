@@ -1118,8 +1118,8 @@ void FE_ElementAssembly<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 
 			assemblyFEElements_[T]->advanceNewtonStep(); // n genereal non linear solver step
 
-			if(reAssemble)
-				addFeBlock(A, elementMatrix, elements->getElement(T), mapVel, 0, 0, problemDisk);
+			if(reAssemble) 
+				addFeBlock(A, elementMatrix, elements->getElement(T), mapVel, 0, 0, problemDisk);        // Here only velocity block (0,0) is updated for reAssemble -> Convective term + shear stress terms
 			else
 				addFeBlockMatrix(A, elementMatrix, elements->getElement(T), elementsPres->getElement(T), mapVel, mapPres, problemDisk);
 		}
@@ -1186,148 +1186,6 @@ void FE_ElementAssembly<SC,LO,GO,NO>::assemblyNavierStokes(int dim,
 }
 
 
-
-/*!
-
- \brief Assembly of Jacobian for NavierStokes 
-@param[in] dim Dimension
-@param[in] FEType FE Discretization
-@param[in] degree Degree of basis function
-@param[in] A Resulting matrix
-@param[in] callFillComplete If Matrix A should be completely filled at end of function
-@param[in] FELocExternal 
-
-*/
-
-template <class SC, class LO, class GO, class NO>
-void FE_ElementAssembly<SC,LO,GO,NO>::assemblyStokes(int dim,
-	                                    std::string FETypeVelocity,
-	                                    std::string FETypePressure,
-	                                    int degree,
-										int dofsVelocity,
-										int dofsPressure,
-										MultiVectorPtr_Type u_rep,
-										MultiVectorPtr_Type p_rep,
-	                                    BlockMatrixPtr_Type &A,
-										BlockMultiVectorPtr_Type &resVec,
-										SmallMatrix_Type coeff,
- 										ParameterListPtr_Type params,
- 										bool reAssemble,
- 										std::string assembleMode,
-	                                    bool callFillComplete,
-	                                    int FELocExternal){
-	
-
-    UN FElocVel = checkFE(dim,FETypeVelocity); // Checks for different domains which belongs to a certain fetype
-    UN FElocPres = checkFE(dim,FETypePressure); // Checks for different domains which belongs to a certain fetype
-
-	ElementsPtr_Type elements = domainVec_.at(FElocVel)->getElementsC();
-	ElementsPtr_Type elementsPres = domainVec_.at(FElocPres)->getElementsC();
-	int dofsElement = elements->getElement(0).getVectorNodeList().size();
-	vec2D_dbl_ptr_Type pointsRep = domainVec_.at(FElocVel)->getPointsRepeated();
-	MapConstPtr_Type mapVel = domainVec_.at(FElocVel)->getMapRepeated();
-	MapConstPtr_Type mapPres = domainVec_.at(FElocPres)->getMapRepeated();
-
-	vec_dbl_Type solution(0);
-	vec_dbl_Type solution_u;
-	vec_dbl_Type solution_p;
-
-	vec_dbl_ptr_Type rhsVec;
-
-    int numVelo=3;
-    if(FETypeVelocity == "P2")
-        numVelo=6;
-        
-	if(dim==3){
-		numVelo=4;
-        if(FETypeVelocity == "P2")
-            numVelo=10;
-	}
-	tuple_disk_vec_ptr_Type problemDisk = Teuchos::rcp(new tuple_disk_vec_Type(0));
-	tuple_ssii_Type vel ("Velocity",FETypeVelocity,dofsVelocity,numVelo);
-	tuple_ssii_Type pres ("Pressure",FETypePressure,dofsPressure,dim+1);
-	problemDisk->push_back(vel);
-	problemDisk->push_back(pres);
-
-	if(assemblyFEElements_.size()== 0){
-        if(params->sublist("Material").get("Newtonian",true) == false)
-	 	    initAssembleFEElements("StokesGeneralizedNewtonian",problemDisk,elements, params,pointsRep,domainVec_.at(FElocVel)->getElementMap()); // In cas of non Newtonian Fluid
-        else
-        	initAssembleFEElements("Stokes",problemDisk,elements, params,pointsRep,domainVec_.at(FElocVel)->getElementMap());
-    }
-	else if(assemblyFEElements_.size() != elements->numberElements())
-	     TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error, "Number Elements not the same as number assembleFE elements." );
-
-	//SmallMatrixPtr_Type elementMatrix =Teuchos::rcp( new SmallMatrix_Type( dofsElement));
-
-	MultiVectorPtr_Type resVec_u = Teuchos::rcp( new MultiVector_Type( domainVec_.at(FElocVel)->getMapVecFieldRepeated(), 1 ) );
-    MultiVectorPtr_Type resVec_p = Teuchos::rcp( new MultiVector_Type( domainVec_.at(FElocPres)->getMapRepeated(), 1 ) );
-	
-	BlockMultiVectorPtr_Type resVecRep = Teuchos::rcp( new BlockMultiVector_Type( 2) );
-	resVecRep->addBlock(resVec_u,0);
-	resVecRep->addBlock(resVec_p,1);
-
-
-	for (UN T=0; T<assemblyFEElements_.size(); T++) {
-		vec_dbl_Type solution(0);
-
-		solution_u = getSolution(elements->getElement(T).getVectorNodeList(), u_rep,dofsVelocity);
-		solution_p = getSolution(elementsPres->getElement(T).getVectorNodeList(), p_rep,dofsPressure);
-
-		solution.insert( solution.end(), solution_u.begin(), solution_u.end() );
-		solution.insert( solution.end(), solution_p.begin(), solution_p.end() );
-
-		assemblyFEElements_[T]->updateSolution(solution);
- 
- 		SmallMatrixPtr_Type elementMatrix;
-
-		if(assembleMode == "Jacobian"){
-			assemblyFEElements_[T]->assembleJacobian();
-		    
-            elementMatrix = assemblyFEElements_[T]->getJacobian(); 
-
-			assemblyFEElements_[T]->advanceNewtonStep(); // n genereal non linear solver step
-
-			if(reAssemble)
-				addFeBlock(A, elementMatrix, elements->getElement(T), mapVel, 0, 0, problemDisk);
-			else
-				addFeBlockMatrix(A, elementMatrix, elements->getElement(T), elementsPres->getElement(T), mapVel, mapPres, problemDisk);
-		}
-		if(assembleMode == "Rhs"){
-			AssembleFENavierStokesPtr_Type elTmp = Teuchos::rcp_dynamic_cast<AssembleFENavierStokes_Type>(assemblyFEElements_[T] );
-			elTmp->setCoeff(coeff);// Coeffs from time discretization. Right now default [1][1] // [0][0]
-		    assemblyFEElements_[T]->assembleRHS();
-		    rhsVec = assemblyFEElements_[T]->getRHS(); 
-			addFeBlockMv(resVecRep, rhsVec, elements->getElement(T),elementsPres->getElement(T), dofsVelocity,dofsPressure);
-		}
-
-			
-	}
-	if (callFillComplete && reAssemble && assembleMode != "Rhs" )
-	    A->getBlock(0,0)->fillComplete( domainVec_.at(FElocVel)->getMapVecFieldUnique(),domainVec_.at(FElocVel)->getMapVecFieldUnique());
-	else if(callFillComplete && !reAssemble && assembleMode != "Rhs"){
-		A->getBlock(0,0)->fillComplete();
-	    A->getBlock(1,0)->fillComplete(domainVec_.at(FElocVel)->getMapVecFieldUnique(),domainVec_.at(FElocPres)->getMapUnique());
-	    A->getBlock(0,1)->fillComplete(domainVec_.at(FElocPres)->getMapUnique(),domainVec_.at(FElocVel)->getMapVecFieldUnique());
-	}
-
-	if(assembleMode == "Rhs"){
-
-		MultiVectorPtr_Type resVecUnique_u = Teuchos::rcp( new MultiVector_Type( domainVec_.at(FElocVel)->getMapVecFieldUnique(), 1 ) );
-		MultiVectorPtr_Type resVecUnique_p = Teuchos::rcp( new MultiVector_Type( domainVec_.at(FElocPres)->getMapUnique(), 1 ) );
-
-		resVecUnique_u->putScalar(0.);
-		resVecUnique_p->putScalar(0.);
-
-		resVecUnique_u->exportFromVector( resVec_u, true, "Add" );
-		resVecUnique_p->exportFromVector( resVec_p, true, "Add" );
-
-		resVec->addBlock(resVecUnique_u,0);
-		resVec->addBlock(resVecUnique_p,1);
-	}
-
-
-}
 
 
 /*!

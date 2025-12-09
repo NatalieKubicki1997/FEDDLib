@@ -261,6 +261,18 @@ class FE_ElementAssembly {
     void  changeLinearizationFE(std::string linearization);
 
     void printMaterialModelInfoAssembleFE();
+    //  Assemble additional global matrix uin assembleFESpecific classes, like e.g. mass matrix, needed for preconditioning
+    void assemblePressureMassMatrix(int dim,
+                                        std::string FETypeVelocity,         
+	                                    std::string FETypePressure,
+                                        int dofsVelocity,
+										int dofsPressure,
+										MultiVectorPtr_Type u_rep,
+										MultiVectorPtr_Type p_rep,
+	                                    BlockMatrixPtr_Type &global_matrix,
+ 										ParameterListPtr_Type params,
+                                        std::string matrixType,
+	                                    bool callFillComplete);
 
     // Write prostprocessing output fields like e.g. the viscosity based on  velocity, pressure .. solution
     // inside this BMV -> For visualization or postprocessing                                
