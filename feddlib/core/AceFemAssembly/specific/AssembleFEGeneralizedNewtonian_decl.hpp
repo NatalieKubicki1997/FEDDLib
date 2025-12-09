@@ -66,6 +66,9 @@ namespace FEDD
 
 	   SmallMatrixPtr_Type getFixedPointMatrix(){return this->ANB_;}
 
+	   InputToOutputMappingClassPtr_Type viscosityModel; // viscosity Model can be in theory any Input to output mapping
+
+
 	protected:
 		std::string shearThinningModel;
 		int dofsElementViscosity_;
@@ -131,7 +134,6 @@ namespace FEDD
 
 		friend class AssembleFEFactory<SC, LO, GO, NO>; // Must have for specfic classes
 
-		InputToOutputMappingClassPtr_Type viscosityModel; // viscosity Model can be in theory any Input to output mapping
 
 	private:
 	};

@@ -170,6 +170,14 @@ void NavierStokesAssFE<SC,LO,GO,NO>::assembleConstantMatrices() const{
 
 	this->feFactory_->assemblyNavierStokes(this->dim_, this->getDomain(0)->getFEType(), this->getDomain(1)->getFEType(), 2, this->dim_,1,u_rep_,p_rep_,this->system_,this->residualVec_,this->coeff_, this->parameterList_,false, "Jacobian", true/*call fillComplete*/);
 
+    // Print once material model info if non Newtonian fluid
+    if (this->parameterList_->sublist("Material").get("Newtonian",true) == false)
+    {
+        if (this->verbose_)
+            this->feFactory_->printMaterialModelInfoAssembleFE();
+    }
+
+
     if ( !this->getFEType(0).compare("P1") ) {
         MatrixPtr_Type C(new Matrix_Type( this->getDomain(1)->getMapUnique(), this->getDomain(1)->getApproxEntriesPerRow() ) );
         this->feFactory_->assemblyBDStabilization( this->dim_, "P1", C, true);

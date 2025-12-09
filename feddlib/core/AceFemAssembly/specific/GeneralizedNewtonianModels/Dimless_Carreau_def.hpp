@@ -15,7 +15,7 @@ DifferentiableFuncClass<SC,LO,GO,NO>(params)
     nu_0                = this->params_->sublist("Material").get("Dimless_ZeroShearRateViscosity_eta0",0.);          // is the zero shear-rate viscosity
     nu_infty            = this->params_->sublist("Material").get("Dimless_InftyShearRateViscosity_etaInfty",0.);     // is the infnite shear-rate viscosity
     reference_viscosity = this->params_->sublist("Material").get("Reference_Viscosity",0.); 
-    shear_rate_limitZero= this->params_->sublist("Material").get("Numerical_ZeroValue_ShearRate",1e-8);  
+    shear_rate_limitZero= this->params_->sublist("Material").get("Numerical_ZeroValue_ShearRate",1e-12);  
     
     viscosity_ = 0.;
     //	TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error, "No discretisation Information for Velocity in Navier Stokes Element." )

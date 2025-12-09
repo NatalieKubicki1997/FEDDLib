@@ -121,6 +121,22 @@ class FE_ElementAssembly {
 							        std::string assembleMode,
 								bool callFillComplete = true,
 								int FELocExternal=-1);
+    void assemblyStokes(int dim,
+								std::string FETypeVelocity,
+								std::string FETypePressure,
+								int degree,
+								int dofsVelocity,
+								int dofsPressure,
+								MultiVectorPtr_Type u_rep,
+								MultiVectorPtr_Type p_rep,
+								BlockMatrixPtr_Type &A,
+								BlockMultiVectorPtr_Type &resVec,
+								SmallMatrix_Type coeff,
+								ParameterListPtr_Type params,
+								bool reAssemble,
+							        std::string assembleMode,
+								bool callFillComplete = true,
+								int FELocExternal=-1);
 
     void assemblyLaplaceAssFE(int dim,
                             std::string FEType,
@@ -243,6 +259,8 @@ class FE_ElementAssembly {
 
     // Change for all assembleFEElements the linearization type to the specified ones
     void  changeLinearizationFE(std::string linearization);
+
+    void printMaterialModelInfoAssembleFE();
 
     // Write prostprocessing output fields like e.g. the viscosity based on  velocity, pressure .. solution
     // inside this BMV -> For visualization or postprocessing                                

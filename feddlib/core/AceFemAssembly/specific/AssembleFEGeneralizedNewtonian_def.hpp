@@ -366,7 +366,7 @@ namespace FEDD
 
     // Directional Derivative of shear stress term resulting from chosen nonlinear non-newtonian model  -----
     // Same structure and functions as in assemblyStress
-    //  ( -2.0*deta/dgammaDot * dgammaDot/dTau * (0.5(dv^k + (dvh^k)^T): 0.5( dPhiTrans_j + (dPhiTrans_j)^T))0.5(dv^k + (dvh^k)^T): 0.5( dPhiTrans_i + (dPhiTrans_i)^T)    )
+    //  ( -2.0 * deta/dgammaDot * dgammaDot/dTau * (0.5(dv^k + (dvh^k)^T): 0.5( dPhiTrans_j + (dPhiTrans_j)^T))0.5(dv^k + (dvh^k)^T): 0.5( dPhiTrans_i + (dPhiTrans_i)^T)    )
     template <class SC, class LO, class GO, class NO>
     void AssembleFEGeneralizedNewtonian<SC, LO, GO, NO>::assemblyStressDev(SmallMatrixPtr_Type &elementMatrix)
     {
@@ -595,6 +595,8 @@ namespace FEDD
                         value3_i = dPhiTrans.at(w).at(i).at(2); // so this corresponds to d\phi_i/dz
 
                         this->viscosityModel->evaluateDerivative(this->params_, gammaDot->at(w), deta_dgamma_dgamma_dtau);
+                        TEUCHOS_TEST_FOR_EXCEPTION(dim == 3, std::logic_error, "Yeah I enter here");
+
 
                         // Construct entries - we go over all quadrature points and if j is updated we set v11 etc. again to zero
                         v11 = v11 + (-2.0) * deta_dgamma_dgamma_dtau * weights->at(w) * ((value1_j * u11[w] + value2_j * mixed_term_xy->at(w) + value3_j * mixed_term_xz->at(w)) * (value1_i * u11[w] + value2_i * mixed_term_xy->at(w) + value3_i * mixed_term_xz->at(w)));

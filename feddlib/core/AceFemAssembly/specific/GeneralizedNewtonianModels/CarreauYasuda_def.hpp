@@ -15,7 +15,7 @@ namespace FEDD
         nu_0 = this->params_->sublist("Material").get("ZeroShearRateViscosity_eta0", 0.);             // is the zero shear-rate viscosity
         nu_infty = this->params_->sublist("Material").get("InftyShearRateViscosity_etaInfty", 0.);    // is the infnite shear-rate viscosity
         inflectionPoint = this->params_->sublist("Material").get("InflectionPoint_a", 1.);            // corresponds to a in the formulas in the literature
-        shear_rate_limitZero = this->params_->sublist("Material").get("Numerical_ZeroValue_ShearRate", 1e-8);
+        shear_rate_limitZero= this->params_->sublist("Material").get("Numerical_ZeroValue_ShearRate",1e-12);  
 
         viscosity_ = 0.; // Initialize Viscsoity value to zero
     }
