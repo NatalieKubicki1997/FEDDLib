@@ -153,6 +153,9 @@ public:
 
     void initVectorSpacesBlock( );
 
+    /// @brief Set current solution to previously computed 
+    void resetSolutionToPreviousSolution();
+
     virtual ::Thyra::ModelEvaluatorBase::OutArgs<SC> createOutArgsImpl() const;
 
     

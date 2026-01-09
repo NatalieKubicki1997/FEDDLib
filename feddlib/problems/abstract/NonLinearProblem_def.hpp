@@ -647,6 +647,12 @@ namespace FEDD
 
     }
 
+    template<class SC,class LO,class GO,class NO>
+    void NonLinearProblem<SC,LO,GO,NO>::resetSolutionToPreviousSolution()
+    {
+        *this->solution_ = *previousSolution_;  // Simply resetting solution to previous solution
+    }
+
 }
 
 #endif

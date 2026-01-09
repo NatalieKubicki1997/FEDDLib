@@ -443,6 +443,9 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPointNewton( NonLinearProblem_Type 
     Teuchos::RCP<Teuchos::ParameterList> parameterListGeneral = sublist(problemPtr->getParameterList(),"General");
     bool linearizationChanged = false;
 
+    bool switchIfNewtonFails = problem.getParameterList()->sublist("General").get("Switch_If_Newton_Fails", false);
+    bool NewtonFailed = false;
+
 
     if (verbose)
         std::cout << "####### Run FixedPoint-Newton Combination with Initial Linearization: " << linearization << " ####### " << std::endl;
@@ -470,30 +473,74 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPointNewton( NonLinearProblem_Type 
 
         // Use the user-defined switching strategy to decide whether to switch linearization and which one to use
         linearizationChanged = this->switchingStrategy_(linearization, nlIts, criterionValue, parameterListGeneral); // Get the next linearization type
-        if (linearizationChanged) 
+        if (switchIfNewtonFails && NewtonFailed) // If Newton failed in previous step we want to switch to FixedPoint
+        {
+            linearization = "FixedPoint";
+            if (verbose)
+                std::cout << "### Switching linearization to " << linearization << " in iteration " << nlIts << std::endl;
+            problem.changeAssFELinearization(linearization); // Change linearization in all elements based on chosen strategy (Picard/ Newton) 
+        }
+        else if (linearizationChanged) 
         {
             if (verbose)
                 std::cout << "### Switching linearization to " << linearization << " in iteration " << nlIts << std::endl;
-            problem.changeAssFELinearization(linearization); // Change linearization in all elements based on chosen strategy (Picard/ Newton) - But only if different from previous one
+            problem.changeAssFELinearization(linearization); // Change linearization in all elements based on chosen strategy (Picard/ Newton) 
         }
 
         problem.assemble(linearization);
 
 
         problem.setBoundariesSystem();
-
-
-        // PRINT INFOS
-        // Set the current Nonlinear Step in the Problem class
         problem.setNonlinearIterationStep(nlIts);
-        gmresIts += problem.solveAndUpdate( criterion, criterionValue );
-        nlIts++;
-        if(criterion=="Update"){
-            if (verbose)
-                std::cout << "### " << linearization << " iteration : " << nlIts << "  residual of update : " << criterionValue << std::endl;
-            if ( criterionValue < tol )
-                break;
+
+
+        if (switchIfNewtonFails && linearization == "Newton" && nlIts > 0l) 
+        {
+            // First we solveAndUpdate the Problem 
+            double oldCriterionValue = criterionValue;
+            double currentGmresIts = problem.solveAndUpdate( criterion, criterionValue ); // Updated solution_ based on Newton step
+            if (criterion=="Residual")
+            {
+                problem.calculateNonLinResidualVec("reverse"); 
+                residual = problem.calculateResidualNorm();
+                criterionValue = residual/residual0;             // If criterion update, the criterionValue is already updated in solveAndUpdate                  
+            }
+            // Then we have to check whether the criterionValue improved compared to the previous one
+            if (criterionValue < oldCriterionValue) // Check whether residuum improved and if it is smaller we accept the Step and update the counters
+            {
+                gmresIts += currentGmresIts;
+                nlIts++;
+                NewtonFailed = false;
+            }
+            else  // If it did not improve we want to reset the solution to the previous one and perform in the next step a FixedPoint step instead
+            {
+                if (verbose)
+                {
+                    std::cout << "### ---------- FAILURE ------------ Residuum did not improve with " << linearization << " in iteration " << nlIts << std::endl;
+                    std::cout << "### New relative nonlinear residual : " << criterionValue << "  Old relative nonlinear residual : " << oldCriterionValue << std::endl;
+                    std::cout << "### Resetting solution to previous one and switching linearization to FixedPoint for next iteration " << std::endl;
+                }
+                criterionValue = oldCriterionValue; // Reset criterionValue to previous one
+                problem.resetSolutionToPreviousSolution();  // Reset solution to previous one
+                NewtonFailed = true;
+            }
         }
+        else // Regular Newton/FixedPoint step
+        {
+            // PRINT INFOS
+            // Set the current Nonlinear Step in the Problem class
+            gmresIts += problem.solveAndUpdate( criterion, criterionValue );
+            nlIts++;
+            NewtonFailed = false;
+        }
+        if(criterion=="Update")
+        {
+                if (verbose)
+                    std::cout << "### " << linearization << " iteration : " << nlIts << "  residual of update : " << criterionValue << std::endl;
+                if ( criterionValue < tol )
+                    break;
+        }
+
 
         // ####### end FPI #######
     }
