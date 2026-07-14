@@ -1,0 +1,28 @@
+tribits_add_executable(
+	steadyGeneralizedNewtonian_3DArtery
+	SOURCES main.cpp
+)
+
+tribits_add_test(
+	steadyGeneralizedNewtonian_3DArtery
+	NAME steadyGeneralizedNewtonian_3DArtery
+	ARGS
+	NUM_MPI_PROCS 4
+)
+
+tribits_copy_files_to_binary_dir(data_steadyGeneralizedNewtonian_3DArtery
+	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+	SOURCE_FILES parametersPrec.xml parametersProblem_PicardNewton.xml parametersSolver.xml parametersTeko.xml plistPrecLaplace.xml plistProblemLaplace.xml plistSolverLaplace.xml
+	DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
+	DEST_FILES parametersPrec.xml parametersProblem_PicardNewton.xml parametersSolver.xml parametersTeko.xml plistPrecLaplace.xml plistProblemLaplace.xml plistSolverLaplace.xml
+	EXEDEPS steadyGeneralizedNewtonian_3DArtery
+)
+
+tribits_copy_files_to_binary_dir(mesh_steadyGeneralizedNewtonian_3DArtery
+	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+	SOURCE_FILES arterie_with_plaque_initma_media_adventitia_fluid_fine.mesh
+	DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
+	DEST_FILES  arterie_with_plaque_initma_media_adventitia_fluid_fine.mesh
+	EXEDEPS steadyGeneralizedNewtonian_3DArtery
+)
+
