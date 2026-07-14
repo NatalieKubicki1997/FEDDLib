@@ -15,7 +15,7 @@ namespace FEDD
         nu_0 = this->params_->sublist("Material").get("ZeroShearRateViscosity_eta0", 0.);             // is the zero shear-rate viscosity
         nu_infty = this->params_->sublist("Material").get("InftyShearRateViscosity_etaInfty", 0.);    // is the infnite shear-rate viscosity
         inflectionPoint = this->params_->sublist("Material").get("InflectionPoint_a", 1.);            // corresponds to a in the formulas in the literature
-        shear_rate_limitZero = this->params_->sublist("Material").get("Numerical_ZeroValue_ShearRate", 1e-8);
+        shear_rate_limitZero = this->params_->sublist("Material").get("Numerical_ZeroValue_ShearRate", 1e-16);
 
         viscosity_ = 0.; // Initialize Viscsoity value to zero
     }
@@ -38,7 +38,7 @@ namespace FEDD
     void CarreauYasuda<SC, LO, GO, NO>::evaluateDerivative(ParameterListPtr_Type params, double shearRate, double &res)
     {
 
-        if (std::abs(this->inflectionPoint - 2.0) < std::numeric_limits<double>::epsilon()) // for a=2.0 we get gammaDot^{-0} which is 1
+        if (std::abs(this->inflectionPoint - 2.0) < 1e-6) // for a=2.0 we get gammaDot^{-0} which is 1 std::numeric_limits<double>::epsilon()
         {
             // So for a Carreau-like Fluid we should jump here because a=2.0
             res = (-2.0) * (this->nu_0 - this->nu_infty) * (this->fluid_index_n - 1.0) * std::pow(this->characteristicTime, this->inflectionPoint) * std::pow(1.0 + std::pow(this->characteristicTime * shearRate, this->inflectionPoint), ((this->fluid_index_n - 1.0 - this->inflectionPoint) / this->inflectionPoint));

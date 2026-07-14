@@ -14,11 +14,10 @@ DifferentiableFuncClass<SC,LO,GO,NO>(params)
     powerlaw_index_n    = this->params_->sublist("Material").get("PowerLaw index n",1.);                         // corresponds to n in the formulas being the power-law index     
     nu_zero             = this->params_->sublist("Material").get("Numerical_ZeroShearRateViscosity",1.);  
     nu_infty            = this->params_->sublist("Material").get("Numerical_InftyShearRateViscosity",1.);  
-    shear_rate_limitZero= this->params_->sublist("Material").get("Numerical_ZeroValue_ShearRate",1e-8);  
+    shear_rate_limitZero= this->params_->sublist("Material").get("Numerical_ZeroValue_ShearRate",1e-15);  
     viscosity_ = 0.;
     //	TEUCHOS_TEST_FOR_EXCEPTION( true, std::logic_error, "No discretisation Information for Velocity in Navier Stokes Element." )
 
-	
 }
 /*In power-law fluid model the problem may arise if the local
 strain-rate produces very small number or even zero, this only happen when n <1 because the
@@ -27,7 +26,15 @@ local viscosity will grow up into very huge number and then we get inaccuracy re
 template <class SC, class LO, class GO, class NO>
 void PowerLaw<SC,LO,GO,NO>::evaluateMapping(ParameterListPtr_Type params, double shearRate, double &viscosity) {
 	
+
+    // Clamp shear rate to a small value to avoid division by zero or very small numbers
+    if ( std::abs(shearRate) <= shear_rate_limitZero) //How to choose epsilon?
+       {
+            shearRate =  shear_rate_limitZero;
+       }
     
+    // The function is composed of d_eta/ d_GammaDot * d_GammaDot/ D_Tau while d_GammaDot * d_GammaDot/ D_Tau= - 2/GammaDot
+    // So a problematic case is if shear rate is in the denominator 0 because we may get inf values. 
     viscosity = this->powerlaw_constant_K*std::pow(shearRate, this->powerlaw_index_n-1.0);
 
     // Check bounds for viscosity 
@@ -40,25 +47,30 @@ void PowerLaw<SC,LO,GO,NO>::evaluateMapping(ParameterListPtr_Type params, double
     viscosity = nu_zero;
     }
 
-
     this-> viscosity_ = viscosity;
 }
 
 
 template <class SC, class LO, class GO, class NO>
 void PowerLaw<SC,LO,GO,NO>::evaluateDerivative(ParameterListPtr_Type params, double shearRate, double &res) {
-	
+
 // The function is composed of d_eta/ d_GammaDot * d_GammaDot/ D_Tau while d_GammaDot * d_GammaDot/ D_Tau= - 2/GammaDot
 // So a problematic case is if shear rate is in the denominator 0 because we may get inf values. 
-// Therefore we have to check these cases and catch them
-// double epsilon = 1e-8;
 if ( std::abs(shearRate) <= shear_rate_limitZero) //How to choose epsilon?
        {
             shearRate =  shear_rate_limitZero;
        }
 
-res = (-2.0)*this->powerlaw_constant_K*(this->powerlaw_index_n-1.0)*std::pow(shearRate, this->powerlaw_index_n-3.0);
+// If viscosity is clamped to constant values, then the derivative is zero
+double viscosity_test = this->powerlaw_constant_K*std::pow(shearRate, this->powerlaw_index_n-1.0);
 
+if (viscosity_test < nu_infty || viscosity_test > nu_zero)
+{
+    res = 0.0;
+    return;
+}
+
+res = (-2.0)*this->powerlaw_constant_K*(this->powerlaw_index_n-1.0)*std::pow(shearRate, this->powerlaw_index_n-3.0);
 
 }
 

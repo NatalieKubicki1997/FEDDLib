@@ -82,6 +82,16 @@ void onex(double *x, double *res, double t, const double *parameters)
     return;
 }
 
+void constx2D(double *x, double *res, double t, const double *parameters)
+{
+    double U = parameters[4];  
+
+    res[0] = 1.0*U;
+    res[1] = 0.;
+
+    return;
+}
+
 void constx3D(double *x, double *res, double t, const double *parameters)
 {
 
@@ -151,6 +161,15 @@ void inflowPowerLaw2D(double *x, double *res, double t, const double *parameters
     return;
 }
 
+void inflowCouette2D(double *x, double *res, double t, const double *parameters)
+{
+    double H = parameters[2];  // Kanalhöhe
+    double U = parameters[4];  // Wandgeschwindigkeit
+    
+    res[0] = U * x[1] / H;    // u = U * y/H
+    res[1] = 0.;
+}
+
 // Same as above but for inflow in y-direction
 void inflowPowerLaw2D_y(double *x, double *res, double t, const double *parameters)
 {
@@ -172,6 +191,22 @@ void inflowParabolic2D(double *x, double *res, double t, const double *parameter
     double H = parameters[2];
     double v_max = parameters[4];
     res[0] = 4 * v_max * x[1] * (H - x[1]) / (H * H);
+    res[1] = 0.;
+
+    return;
+}
+
+// This profile is used in the Schussnig Test Case for a 2D flwo in a BFS flow, where the height is 2*H 
+// The parabolic profile starts at y=H and goes to zero at y=2*H
+// Thus the inflow is shifted by H in y-direction, that is,
+// the inflow profile is u(y) = 4*v_max*(y-H)*(2*H-y)/(H^2) for y in [H, 2*H]
+void inflowParabolic2D_HStart(double *x, double *res, double t, const double *parameters)
+{
+
+    double H = parameters[2];
+    double v_max = parameters[4];
+    //res[0] = 4 * v_max * x[1] * (H - x[1]) / (H * H);
+    res[0] = 4 * v_max * (x[1] - H) * (2 * H - x[1]) / (H * H);
     res[1] = 0.;
 
     return;
@@ -340,7 +375,7 @@ int main(int argc, char *argv[])
                 domainVelocity = domainPressure;
 
             //          **********************  BOUNDARY CONDITIONS ***********************************
-            std::string bcType = parameterListProblem->sublist("Parameter").get("BC Type", "parabolic");
+            std::string bcType = parameterListProblem->sublist("Parameter").get("BC Type", "poiseuille");
             // We can here differentiate between different problem cases and boundary conditions
 
             /***** For boundary condition read parameter values */
@@ -365,11 +400,43 @@ int main(int argc, char *argv[])
                 //   ------------------
                 //            2
                 //************* POISEUILLE FLOW  *************
-                bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
-                bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+              if (!bcType.compare("poiseuille"))
+                  {
+                    bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim);                // wall
+                    bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+                    bcFactory->addBC(inflowPowerLaw2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // Analytical solution Power-Law 2D Poiseuille flow based on parameters and pressure gradient
+           
+                  }
+                else if (!bcType.compare("couette"))
+                {
+                    bcFactory->addBC(inflowCouette2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
+                    bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // wall
+                    bcFactory->addBC(constx2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);        // wall
+                }
+                else if (!bcType.compare("SchussnigTestCase"))
+                {
+                    bcFactory->addBC(inflowParabolic2D_HStart, 5, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
+                    bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim, parameter_vec);   // wall
+                    bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);   // wall
+                    bcFactory->addBC(zeroDirichlet2D, 3, 0, domainVelocity, "Dirichlet", dim, parameter_vec);   // wall
+                    bcFactory->addBC(zeroDirichlet2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec);   // wall
+                }
+                else if (!bcType.compare("ConstantGommper"))
+                {
+                    bcFactory->addBC(constx2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // inflow
+                    bcFactory->addBC(zeroDirichlet2D, 1, 0, domainVelocity, "Dirichlet", dim, parameter_vec);   // wall
+                    bcFactory->addBC(zeroDirichlet2D, 2, 0, domainVelocity, "Dirichlet", dim, parameter_vec);   // wall
+                }
+                else if (!bcType.compare("lidDrivenCavity"))
+                {
+                        bcFactory->addBC(zeroDirichlet3D, 1, 0, domainVelocity, "Dirichlet", dim); // Wall
+                        bcFactory->addBC(constx2D, 2, 0, domainVelocity, "Dirichlet", dim,parameter_vec); // Lid
+                        bcFactory->addBC(zeroDirichlet, 3, 1, domainPressure, "Dirichlet", 1); // Pressure Node
+                        if(parameterListAll->sublist("Parameter").get("Use Pressure Projection",false)==true && linearization=="NOX")
+                            std::cout << " WARNING: 'Use Pressure Projection' is set to true. This does not work for the LDC test with NOX. Somehow the Dirichlet fixed pressure point at (0,0,0) is an issue. Remove the RB to make it work or choose Newton!" << std::endl;        
+                }
 
-                bcFactory->addBC(inflowPowerLaw2D, 4, 0, domainVelocity, "Dirichlet", dim, parameter_vec); // Analytical solution Power-Law 2D Poiseuille flow based on parameters and pressure gradient
-            }
+        }
             else if (dim == 3)
             {
 

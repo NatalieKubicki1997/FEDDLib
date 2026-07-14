@@ -9,7 +9,8 @@
         <Parameter name="Mesh Delimiter" type="string" value=" "/>
         <Parameter name="Viscosity" type="double" value="0.000035"/> <!-- kinematic Viscosity-->
         <Parameter name="Density" type="double" value="1000.0"/>
-        
+        <Parameter name="BC Type" type="string"   value="poiseuille"/><!-- parabolic, parabolic_benchmark, partialCFD, parabolic_benchmark_sin-->
+
         <Parameter name="H/h" type="int" value="3"/>
         <Parameter name="MaxVelocity" type="double" value="1.5"/>
         <Parameter name="MeanVelocity"  type="double" value="1.0"/>
@@ -51,7 +52,7 @@
        
         
 	<!--********************FOR CHOSEN MODEL USER HAS TO SET MATERIAL PARAMETERS BELOW**************************-->
-	     <Parameter name="Numerical_ZeroValue_ShearRate" type="double" value="1.0e-12"/> <!-- Independent of the model we have to ensure that IF the shear rate is in the denominator of an term (for example in the Gateaux-derivatives) than we should not divide by zero but instead set shear rate to a really small value -->
+	     <Parameter name="Numerical_ZeroValue_ShearRate" type="double" value="1.0e-15"/> <!-- Independent of the model we have to ensure that IF the shear rate is in the denominator of an term (for example in the Gateaux-derivatives) than we should not divide by zero but instead set shear rate to a really small value -->
     <!-- ALL VARIABLES ARE IN SI UNITS WHICH ARE WRITTEN AS COMMENT BEYOND THE PHSICAL QUANTITY -->	
 
 

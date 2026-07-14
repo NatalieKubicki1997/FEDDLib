@@ -312,8 +312,10 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPoint(NonLinearProblem_Type &proble
         if (criterion=="Residual")
             residual = problem.calculateResidualNorm();
         
-        if (nlIts==0)
+        if (nlIts==0){
             residual0 = residual;
+            std::cout << "### Initial nonlinear residual : " << residual0 << std::endl;
+        }
     
         if (criterion=="Residual"){
             criterionValue = residual/residual0;
@@ -375,9 +377,11 @@ void NonLinearSolver<SC,LO,GO,NO>::solveNewton( NonLinearProblem_Type &problem, 
 
         problem.setBoundariesSystem();
 
-        if (nlIts==0)
+        if (nlIts==0){
             residual0 = residual;
-        
+            std::cout << "### Initial nonlinear residual : " << residual0 << std::endl;
+        }
+
         if (criterion=="Residual"){
             criterionValue = residual/residual0;
             if (verbose)
@@ -456,8 +460,10 @@ void NonLinearSolver<SC,LO,GO,NO>::solveFixedPointNewton( NonLinearProblem_Type 
             residual = problem.calculateResidualNorm();   // Compute norm of nonlinear residual vector
 
 
-        if (nlIts==0) 
+        if (nlIts==0) {
             residual0 = residual;                         // Store initial residual for relative convergence check
+            std::cout << "### Initial nonlinear residual : " << residual0 << std::endl;
+        }
         
         if (criterion=="Residual"){                       // Check convergence based on relative nonlinear residual
             criterionValue = residual/residual0;
