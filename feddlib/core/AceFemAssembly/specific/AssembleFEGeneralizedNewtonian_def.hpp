@@ -188,7 +188,7 @@ namespace FEDD
         UN degGradPhi = Helper::determineDegree(dim, FEType, Helper::Deriv1);  
         UN extraDeg = 2;  // As eta is a unknown nonlinear function of the velocity gradient we add some extra degree
         //UN deg = (degGradPhi + extraDeg) + degGradPhi  + degGradPhi; 
-        UN deg = 3*degGradPhi + (degGradPhi + extraDegree); // Same order as directional derivative 
+        UN deg = 3*degGradPhi + (degGradPhi + extraDeg); // Same order as directional derivative 
         Helper::getDPhi(dPhi, weights, dim, FEType, deg);              
         // Example Values: dPhi->size() = 7 if number of quadrature points 7, dPhi->at(0).size() = 3 number of local element points, dPhi->at(0).at(0).size() = 2 as we have dim 2 therefore we have 2 derivatives (xi/eta in natural coordinates)
         // Phi is defined on reference element
